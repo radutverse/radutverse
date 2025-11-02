@@ -226,4 +226,4 @@ export const handleVisionImageDetection: any = async (
       message: "Error analyzing image",
     });
   }
-}
+};
