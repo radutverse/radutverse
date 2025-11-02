@@ -1,5 +1,4 @@
 import sharp from "sharp";
-import type { Request, Response } from "express";
 
 /**
  * Server-side watermark extraction and verification
@@ -147,10 +146,10 @@ function deserializeWatermark(binary: string): WatermarkData | null {
  * Verify watermark in uploaded image
  * Returns watermark info if found, blocks registration if watermark from different IP
  */
-export default async function handleVerifyWatermark(
-  req: Request,
-  res: Response,
-): Promise<void> {
+const handleVerifyWatermark: any = async (
+  req: any,
+  res: any,
+): Promise<void> => {
   try {
     if (req.method !== "POST") {
       res.status(405).json({ error: "Method not allowed" });
