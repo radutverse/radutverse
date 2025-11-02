@@ -90,6 +90,11 @@ async function fetchIpaMetadata(ipaMetadataUri: string): Promise<any> {
       url = PINATA_GATEWAY
         ? `https://${PINATA_GATEWAY}/ipfs/${cid}`
         : `https://ipfs.io/ipfs/${cid}`;
+    } else if (url.startsWith("bafy") || url.startsWith("Qm")) {
+      // Raw IPFS CID without protocol
+      url = PINATA_GATEWAY
+        ? `https://${PINATA_GATEWAY}/ipfs/${url}`
+        : `https://ipfs.io/ipfs/${url}`;
     }
 
     const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
