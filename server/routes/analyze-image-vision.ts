@@ -9,8 +9,8 @@ import type { Request, Response } from "express";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 export async function handleAnalyzeImageVision(
-  req: Request,
-  res: Response,
+  req: Request<Record<string, never>, any, { imageBase64: string }>,
+  res: Response<any>,
 ): Promise<void> {
   try {
     if (!OPENAI_API_KEY) {
