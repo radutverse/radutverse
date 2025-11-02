@@ -341,7 +341,103 @@
         "pHash": "fffffbc1898181ff",
         "visionDescription": "A cute, plump, yellow chick is sitting on a red bean bag. The chick has large round eyes, an orange beak, and small wings that are holding a green drink with a straw. Its feet are small and orange. The background is a plain beige color. The illustration style is cartoonish and whimsical, with smooth lines and soft colors."
       }
+    },
+    {
+      "hash": "48cc892475bef01cf9ebe88513ab56d0320b8275fee34fa0abcce92984125d40",
+      "metadata": {
+        "ipId": "0xDb8e9E6227040e10776c55b3beA55603399BfbDd",
+        "title": "Relics hunter",
+        "description": "a shard using the power of the relics to cross space and time.... he wears a hooded cap  kind clothes, weapons  and he his riding a motor bike.... driving through a shard city",
+        "similarity": 0.3165001601278501,
+        "score": 0.22155011208949504,
+        "mediaType": "image",
+        "thumbnailUrl": null,
+        "ipaMetadataUri": "ipfs://bafkreigqn635k5jpve6r6zqi7dcacbp5j6j7bbuiechtvnofqrjueltady",
+        "ownerAddress": "0xc8E3e5D93944d7529d3E7A4B2ccf3E02a79ef136",
+        "lastUpdatedAt": "2025-06-23T20:29:13.035537Z",
+        "isDerivative": true,
+        "parentsCount": 1,
+        "parentIpIds": [
+          "0x1dE1AE9a79C0331b3AA4d2639E91A50322552853"
+        ],
+        "parentIpDetails": {
+          "parentIpIds": [
+            "0x1dE1AE9a79C0331b3AA4d2639E91A50322552853"
+          ],
+          "licenseTermsIds": [
+            "29"
+          ],
+          "licenseTemplates": [
+            "0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316"
+          ],
+          "edges": [
+            {
+              "id": 13910,
+              "blockNumber": 1208494,
+              "blockTimestamp": "2025-02-22T15:25:52Z",
+              "txHash": "0xf0201efddcf748554c355b7dc9d85d5a013f4f5d51e13059f435a9ad3e1b9f55",
+              "logIndex": 21,
+              "caller": "0x9e2d496f72C547C2C535B167e06ED8729B374a4f",
+              "childIpId": "0xDb8e9E6227040e10776c55b3beA55603399BfbDd",
+              "licenseTokenId": "-1",
+              "parentIpId": "0x1dE1AE9a79C0331b3AA4d2639E91A50322552853",
+              "licenseTermsId": "29",
+              "licenseTemplate": "0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316",
+              "processedAt": "2025-06-23T19:19:25.297775Z"
+            }
+          ]
+        },
+        "licenses": [
+          {
+            "licenseTemplateId": "0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316",
+            "licenseTermsId": "29",
+            "templateName": "pil",
+            "templateMetadataUri": "https://github.com/storyprotocol/protocol-core/blob/main/PIL_Beta_Final_2024_02.pdf",
+            "terms": {
+              "uri": "",
+              "currency": "0x1514000000000000000000000000000000000000",
+              "expiration": "0",
+              "transferable": true,
+              "commercialUse": true,
+              "royaltyPolicy": "0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E",
+              "defaultMintingFee": "0",
+              "commercialRevShare": 20000000,
+              "derivativesAllowed": true,
+              "derivativesApproval": false,
+              "commercialRevCeiling": "0",
+              "derivativeRevCeiling": "0",
+              "commercialAttribution": true,
+              "commercializerChecker": "0x0000000000000000000000000000000000000000",
+              "derivativesReciprocal": true,
+              "derivativesAttribution": true,
+              "commercializerCheckerData": "0x0000000000000000000000000000000000000000"
+            },
+            "licensingConfig": {
+              "isSet": false,
+              "disabled": false,
+              "hookData": "",
+              "mintingFee": 0,
+              "licensingHook": "",
+              "commercialRevShare": 0,
+              "expectGroupRewardPool": "",
+              "expectMinimumGroupRewardShare": 0
+            },
+            "createdAt": "2025-08-21T20:20:41.906568Z",
+            "updatedAt": "2025-08-25T20:09:14.535583Z"
+          }
+        ],
+        "licenseTermsIds": [
+          "29"
+        ],
+        "licenseTemplates": [
+          "0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316"
+        ],
+        "timestamp": 1762082000090,
+        "hash": "48cc892475bef01cf9ebe88513ab56d0320b8275fee34fa0abcce92984125d40",
+        "pHash": "7e664684c2c3c181",
+        "visionDescription": "The image depicts a hooded figure riding a motorcycle through an urban setting. The figure has a bird-like mask with glowing red eyes, wearing a dark, armored cloak with red accents. The motorcycle is classic in design, featuring a round headlight emitting a warm yellow glow. The background consists of tall, muted-colored buildings, with a hazy sky suggesting either dawn or dusk. The art style is a blend of realism and comic book aesthetics, with detailed line work and dramatic shading."
+      }
     }
   ],
-  "lastUpdated": 1762079729259
+  "lastUpdated": 1762082000091
 }
