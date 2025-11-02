@@ -95,8 +95,8 @@ async function fetchFullAssetDetailsFromApi(ipId: string): Promise<any> {
  * shown in the IP Asset Details modal without user interaction.
  */
 export const handleAddRemixHash: RequestHandler = async (
-  req: Request,
-  res: Response,
+  req,
+  res,
 ): Promise<void> => {
   try {
     const { hash, ipId, ...clientData } = req.body;
@@ -144,7 +144,7 @@ export const handleAddRemixHash: RequestHandler = async (
         !!fullAssetDetails,
       );
     } else {
-      console.log("[Whitelist] ⚠️ No ipId provided, skipping API fetch");
+      console.log("[Whitelist] ��️ No ipId provided, skipping API fetch");
     }
 
     // Merge full details with client data
@@ -317,8 +317,8 @@ function hammingDistance(hash1: string, hash2: string): number {
  * Body: { hash: string, pHash?: string }
  */
 export const handleCheckRemixHash: RequestHandler = async (
-  req: Request,
-  res: Response,
+  req,
+  res,
 ): Promise<void> => {
   try {
     const { hash, pHash } = req.body;
@@ -410,8 +410,8 @@ export const handleCheckRemixHash: RequestHandler = async (
  * GET /api/_admin/remix-hashes
  */
 export const handleGetRemixHashes: RequestHandler = async (
-  req: Request,
-  res: Response,
+  req,
+  res,
 ): Promise<void> => {
   try {
     const hashes = await getAllWhitelistHashes();
@@ -427,8 +427,8 @@ export const handleGetRemixHashes: RequestHandler = async (
  * GET /api/_admin/remix-hashes-full
  */
 export const handleGetRemixHashesFull: RequestHandler = async (
-  req: Request,
-  res: Response,
+  req,
+  res,
 ): Promise<void> => {
   try {
     const entries = await getAllWhitelistEntries();
@@ -445,8 +445,8 @@ export const handleGetRemixHashesFull: RequestHandler = async (
  * Body: { hash: string }
  */
 export const handleDeleteRemixHash: RequestHandler = async (
-  req: Request,
-  res: Response,
+  req,
+  res,
 ): Promise<void> => {
   try {
     const { hash } = req.body;
