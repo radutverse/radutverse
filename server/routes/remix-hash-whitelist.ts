@@ -94,9 +94,9 @@ async function fetchFullAssetDetailsFromApi(ipId: string): Promise<any> {
  * (simulating a click on the Details button) to capture everything
  * shown in the IP Asset Details modal without user interaction.
  */
-export const handleAddRemixHash: RequestHandler = async (
-  req,
-  res,
+export const handleAddRemixHash: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     const { hash, ipId, ...clientData } = req.body;
@@ -409,9 +409,9 @@ export const handleCheckRemixHash: any = async (
  * Get all remix hashes (admin only)
  * GET /api/_admin/remix-hashes
  */
-export const handleGetRemixHashes: RequestHandler = async (
-  req,
-  res,
+export const handleGetRemixHashes: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     const hashes = await getAllWhitelistHashes();
@@ -426,9 +426,9 @@ export const handleGetRemixHashes: RequestHandler = async (
  * Get all remix hashes with full metadata (admin only)
  * GET /api/_admin/remix-hashes-full
  */
-export const handleGetRemixHashesFull: RequestHandler = async (
-  req,
-  res,
+export const handleGetRemixHashesFull: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     const entries = await getAllWhitelistEntries();
@@ -467,9 +467,9 @@ export const handleDeleteRemixHash: any = async (
  * Clear all hashes from whitelist (admin only)
  * POST /api/_admin/clear-remix-hashes
  */
-export const handleClearRemixHashes: RequestHandler = async (
-  req: Request,
-  res: Response,
+export const handleClearRemixHashes: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     await clearWhitelist();
