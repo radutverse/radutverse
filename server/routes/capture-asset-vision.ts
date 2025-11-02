@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { createHash } from "crypto";
 import sharp from "sharp";
 import {
@@ -69,6 +69,7 @@ async function calculatePerceptualHash(imageBuffer: Buffer): Promise<string> {
  */
 async function getImageVisionDescription(
   imageBuffer: Buffer,
+  mediaType?: string,
 ): Promise<string | undefined> {
   try {
     if (!OPENAI_API_KEY) {
@@ -135,8 +136,8 @@ async function getImageVisionDescription(
  * }
  */
 export async function handleCaptureAssetVision(
-  req: Request,
-  res: Response,
+  req: Request<Record<string, never>, any, Record<string, any>>,
+  res: Response<any>,
 ): Promise<void> {
   try {
     const {
@@ -213,7 +214,7 @@ export async function handleCaptureAssetVision(
     try {
       visionDescription = await getImageVisionDescription(
         imageBuffer,
-        mediaType,
+        mediaType as string | undefined,
       );
       if (visionDescription) {
         console.log(
@@ -230,7 +231,7 @@ export async function handleCaptureAssetVision(
     // Add to whitelist with ALL asset details from request
     try {
       // Extract all fields from request body (includes all Details modal data)
-      const { mediaUrl, ...allMetadata } = req.body;
+      const { mediaUrl: _mediaUrl, ...allMetadata } = req.body;
 
       const metadata = {
         ...allMetadata, // Spread all asset fields (ownerAddress, licenses, score, etc.)
