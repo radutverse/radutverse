@@ -1,3 +1,4 @@
+import type { Request, Response, RequestHandler } from "express";
 import {
   addHashToWhitelist,
   checkHashInWhitelist,
@@ -93,10 +94,10 @@ async function fetchFullAssetDetailsFromApi(ipId: string): Promise<any> {
  * (simulating a click on the Details button) to capture everything
  * shown in the IP Asset Details modal without user interaction.
  */
-export async function handleAddRemixHash(
+export const handleAddRemixHash: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<void> {
+): Promise<void> => {
   try {
     const { hash, ipId, ...clientData } = req.body;
 
@@ -286,7 +287,7 @@ export async function handleAddRemixHash(
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
-}
+};
 
 /**
  * Calculate hamming distance between two pHashes
@@ -315,10 +316,10 @@ function hammingDistance(hash1: string, hash2: string): number {
  * POST /api/check-remix-hash
  * Body: { hash: string, pHash?: string }
  */
-export async function handleCheckRemixHash(
+export const handleCheckRemixHash: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<void> {
+): Promise<void> => {
   try {
     const { hash, pHash } = req.body;
     console.log(
@@ -402,16 +403,16 @@ export async function handleCheckRemixHash(
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
-}
+};
 
 /**
  * Get all remix hashes (admin only)
  * GET /api/_admin/remix-hashes
  */
-export async function handleGetRemixHashes(
+export const handleGetRemixHashes: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<void> {
+): Promise<void> => {
   try {
     const hashes = await getAllWhitelistHashes();
     res.json({ hashes, total: hashes.length });
@@ -419,16 +420,16 @@ export async function handleGetRemixHashes(
     console.error("Error getting remix hashes:", error);
     res.status(500).json({ error: "Failed to get remix hashes" });
   }
-}
+};
 
 /**
  * Get all remix hashes with full metadata (admin only)
  * GET /api/_admin/remix-hashes-full
  */
-export async function handleGetRemixHashesFull(
+export const handleGetRemixHashesFull: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<void> {
+): Promise<void> => {
   try {
     const entries = await getAllWhitelistEntries();
     res.status(200).json({ entries, lastUpdated: Date.now() });
@@ -436,17 +437,17 @@ export async function handleGetRemixHashesFull(
     console.error("Error getting whitelist entries:", error);
     res.status(500).json({ error: "Failed to get whitelist entries" });
   }
-}
+};
 
 /**
  * Delete hash from whitelist (admin only)
  * POST /api/_admin/delete-remix-hash
  * Body: { hash: string }
  */
-export async function handleDeleteRemixHash(
+export const handleDeleteRemixHash: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<void> {
+): Promise<void> => {
   try {
     const { hash } = req.body;
     if (!hash) {
@@ -460,16 +461,16 @@ export async function handleDeleteRemixHash(
     console.error("Error deleting hash:", error);
     res.status(500).json({ error: "Failed to delete hash" });
   }
-}
+};
 
 /**
  * Clear all hashes from whitelist (admin only)
  * POST /api/_admin/clear-remix-hashes
  */
-export async function handleClearRemixHashes(
+export const handleClearRemixHashes: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<void> {
+): Promise<void> => {
   try {
     await clearWhitelist();
     res.status(200).json({ success: true, message: "Whitelist cleared" });
@@ -477,4 +478,4 @@ export async function handleClearRemixHashes(
     console.error("Error clearing whitelist:", error);
     res.status(500).json({ error: "Failed to clear whitelist" });
   }
-}
+};
