@@ -234,4 +234,6 @@ const handleVerifyWatermark: any = async (
       message: "Error verifying watermark",
     } as VerifyWatermarkResponse);
   }
-}
+};
+
+export default handleVerifyWatermark;
