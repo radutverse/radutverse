@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { checkHashInWhitelist } from "../utils/remix-hash-whitelist.js";
 import fs from "fs/promises";
 import path from "path";
@@ -101,10 +100,10 @@ function cosineSimilarity(a: number[], b: number[]): number {
 /**
  * Advanced multi-tier image detection
  */
-export async function handleAdvancedImageDetection(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export const handleAdvancedImageDetection: any = async (
+  req: any,
+  res: any,
+): Promise<void> => {
   try {
     let imageBuffer: Buffer | null = null;
 
