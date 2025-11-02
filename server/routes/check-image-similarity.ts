@@ -194,4 +194,4 @@ export const handleCheckImageSimilarity: any = async (
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
-}
+};
