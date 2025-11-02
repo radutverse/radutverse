@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, RequestHandler } from "express";
 
 /**
  * Server endpoint to analyze images with OpenAI Vision
@@ -8,10 +8,10 @@ import type { Request, Response } from "express";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-export async function handleAnalyzeImageVision(
-  req: Request<Record<string, never>, any, { imageBase64: string }>,
-  res: Response<any>,
-): Promise<void> {
+export const handleAnalyzeImageVision: RequestHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!OPENAI_API_KEY) {
       res.status(500).json({
@@ -93,4 +93,5 @@ export async function handleAnalyzeImageVision(
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
-}
+};
+
