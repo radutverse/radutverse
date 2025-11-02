@@ -4,6 +4,7 @@ import React, { useState } from "react";
 interface WhitelistDetails {
   ipId: string;
   title: string;
+  ownerAddress?: string;
   timestamp?: number;
   matchType?: string;
   similarity?: number;
@@ -199,6 +200,36 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                         </a>
                       </div>
                     </div>
+                    {details.ownerAddress && (
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <span className="text-slate-400 text-sm">Owner:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-100 font-mono text-sm break-all">
+                            {truncateAddress(details.ownerAddress)}
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(details.ownerAddress!)}
+                            title="Copy owner address"
+                            className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-slate-100 transition-colors"
+                            aria-label="Copy owner address"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                       <span className="text-slate-400 text-sm">
                         Registered:
@@ -210,150 +241,7 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                   </div>
                 </div>
 
-                {/* Match Information */}
-                {details.matchType && (
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-                    <h3 className="text-sm font-semibold text-[#FF4DA6] mb-3">
-                      Match Information
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                        <span className="text-slate-400 text-sm">Type:</span>
-                        <span className="text-slate-100 font-medium">
-                          {details.matchType}
-                        </span>
-                      </div>
-                      {details.similarity !== undefined && (
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                          <span className="text-slate-400 text-sm">
-                            Similarity:
-                          </span>
-                          <span className="text-slate-100 font-medium">
-                            {details.similarity}%
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
-                {/* License Information */}
-                {details.licenses && details.licenses.length > 0 && (
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-                    <h3 className="text-sm font-semibold text-[#FF4DA6] mb-3">
-                      License Terms
-                    </h3>
-                    <div className="space-y-3">
-                      {details.licenses.map((license, idx) => (
-                        <div
-                          key={idx}
-                          className={
-                            idx > 0 ? "border-t border-slate-700/30 pt-3" : ""
-                          }
-                        >
-                          {license.terms && (
-                            <div className="space-y-2 text-sm">
-                              <div className="flex items-center justify-between">
-                                <span className="text-slate-400">
-                                  Derivatives:
-                                </span>
-                                <span
-                                  className={`font-medium ${
-                                    license.terms.derivativesAllowed
-                                      ? "text-green-400"
-                                      : "text-red-400"
-                                  }`}
-                                >
-                                  {license.terms.derivativesAllowed
-                                    ? "✓ Allowed"
-                                    : "✗ Not Allowed"}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-slate-400">
-                                  Commercial:
-                                </span>
-                                <span
-                                  className={`font-medium ${
-                                    license.terms.commercialUse
-                                      ? "text-green-400"
-                                      : "text-red-400"
-                                  }`}
-                                >
-                                  {license.terms.commercialUse
-                                    ? "✓ Allowed"
-                                    : "✗ Not Allowed"}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-slate-400">
-                                  Transferable:
-                                </span>
-                                <span
-                                  className={`font-medium ${
-                                    license.terms.transferable
-                                      ? "text-green-400"
-                                      : "text-red-400"
-                                  }`}
-                                >
-                                  {license.terms.transferable
-                                    ? "✓ Yes"
-                                    : "✗ No"}
-                                </span>
-                              </div>
-                              {license.terms.commercialAttribution && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-slate-400">
-                                    Attribution:
-                                  </span>
-                                  <span className="font-medium text-blue-400">
-                                    ⓘ Required
-                                  </span>
-                                </div>
-                              )}
-                              {license.terms.derivativesAttribution && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-slate-400">
-                                    Derivative Attribution:
-                                  </span>
-                                  <span className="font-medium text-blue-400">
-                                    ⓘ Required
-                                  </span>
-                                </div>
-                              )}
-                              <div className="flex items-center justify-between">
-                                <span className="text-slate-400">
-                                  Default Minting Fee:
-                                </span>
-                                <span className="text-slate-100 font-medium">
-                                  {formatWei(license.terms.defaultMintingFee)}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-slate-400">
-                                  Commercial Rev Share:
-                                </span>
-                                <span className="text-slate-100 font-medium">
-                                  {license.terms.commercialRevShare}%
-                                </span>
-                              </div>
-                              {license.terms.derivativesReciprocal && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-slate-400">
-                                    Reciprocal Sharing:
-                                  </span>
-                                  <span className="font-medium text-blue-400">
-                                    ✓ Enabled
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* Royalty Configuration */}
                 {(details.maxMintingFee ||
@@ -407,72 +295,6 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                   </div>
                 )}
 
-                {/* Derivative Information */}
-                {details.parentsCount !== undefined && (
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-                    <h3 className="text-sm font-semibold text-[#FF4DA6] mb-3">
-                      Derivative Information
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400 text-sm">
-                          Is Derivative:
-                        </span>
-                        <span
-                          className={`font-medium px-2 py-1 rounded text-xs ${
-                            details.isDerivative
-                              ? "bg-blue-400/10 text-blue-400"
-                              : "bg-slate-700/50 text-slate-300"
-                          }`}
-                        >
-                          {details.isDerivative ? "✓ Yes" : "✗ No"}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400 text-sm">
-                          Parent IPs Count:
-                        </span>
-                        <span className="text-slate-100 font-medium">
-                          {details.parentsCount}
-                        </span>
-                      </div>
-                      {details.parentIpIds &&
-                        details.parentIpIds.length > 0 && (
-                          <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-slate-700/30">
-                            <span className="text-slate-400 text-sm">
-                              Parent IP IDs:
-                            </span>
-                            <div className="space-y-1">
-                              {details.parentIpIds.map((ipId, idx) => (
-                                <a
-                                  key={idx}
-                                  href={getStoryExplorerUrl(ipId)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs text-slate-300 hover:text-[#FF4DA6] font-mono break-all flex items-center gap-1 transition-colors"
-                                >
-                                  {truncateAddress(ipId)}
-                                  <svg
-                                    className="w-3 h-3"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                                    />
-                                  </svg>
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Footer */}
