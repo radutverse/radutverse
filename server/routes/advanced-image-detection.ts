@@ -208,4 +208,4 @@ export const handleAdvancedImageDetection: any = async (
       },
     });
   }
-}
+};
