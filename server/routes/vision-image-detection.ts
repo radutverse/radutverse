@@ -114,10 +114,10 @@ function calculateDescriptionSimilarity(desc1: string, desc2: string): number {
  * Vision-based image detection
  * Most powerful single solution: semantic understanding of images
  */
-export async function handleVisionImageDetection(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export const handleVisionImageDetection: any = async (
+  req: any,
+  res: any,
+): Promise<void> => {
   try {
     let imageBuffer: Buffer | null = null;
 
