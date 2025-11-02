@@ -95,36 +95,34 @@ export function useIPRegistrationAgent() {
         // Check if image is a remix or similar to existing IPs
         // If blocked here, stop immediately - do NOT proceed to Tier 2
 
-        // Verify watermark to prevent re-registration of remixed images
-        setRegisterState({ status: "compressing", progress: 5, error: null });
+        // Vision-based image detection (most powerful)
         try {
           const formData = new FormData();
           formData.append("image", file);
-
-          const verifyResponse = await fetch("/api/verify-watermark", {
+          const visionResponse = await fetch("/api/vision-image-detection", {
             method: "POST",
             body: formData,
           });
 
-          if (verifyResponse.ok) {
-            const watermarkCheck = await verifyResponse.json();
-            if (watermarkCheck.blockRegistration) {
+          if (visionResponse.ok) {
+            const visionCheck = await visionResponse.json();
+            if (visionCheck.blocked) {
               setRegisterState({
                 status: "error",
                 progress: 0,
                 error:
-                  watermarkCheck.message ||
-                  "This image is a remix and cannot be registered as a new IP.",
+                  visionCheck.message ||
+                  "Image mirip dengan IP yang sudah terdaftar. Tidak dapat registrasi.",
               });
-              return { success: false, reason: "watermark_detected" } as const;
+              return { success: false, reason: "vision_match_found" } as const;
             }
           }
-        } catch (watermarkError) {
+        } catch (visionError) {
           console.warn(
-            "Watermark verification failed, continuing:",
-            watermarkError,
+            "Vision-based detection failed, continuing:",
+            visionError,
           );
-          // Don't block registration if watermark check fails
+          // Don't block registration if vision check fails
         }
 
         // Check hash against remix whitelist
@@ -156,36 +154,6 @@ export function useIPRegistrationAgent() {
         } catch (hashError) {
           console.warn("Hash whitelist check failed, continuing:", hashError);
           // Don't block registration if hash check fails
-        }
-
-        // Vision-based image detection (most powerful)
-        try {
-          const formData = new FormData();
-          formData.append("image", file);
-          const visionResponse = await fetch("/api/vision-image-detection", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (visionResponse.ok) {
-            const visionCheck = await visionResponse.json();
-            if (visionCheck.blocked) {
-              setRegisterState({
-                status: "error",
-                progress: 0,
-                error:
-                  visionCheck.message ||
-                  "Image mirip dengan IP yang sudah terdaftar. Tidak dapat registrasi.",
-              });
-              return { success: false, reason: "vision_match_found" } as const;
-            }
-          }
-        } catch (visionError) {
-          console.warn(
-            "Vision-based detection failed, continuing:",
-            visionError,
-          );
-          // Don't block registration if vision check fails
         }
 
         // ✅ TIER 1 DETECTION COMPLETE
