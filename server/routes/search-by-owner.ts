@@ -76,6 +76,11 @@ function convertIpfsUriToHttp(uri: string): string {
     return `https://${PUBLIC_GATEWAY}/ipfs/${cid}`;
   }
 
+  // Handle raw IPFS CID (bafy... or Qm...)
+  if (uri.startsWith("bafy") || uri.startsWith("Qm")) {
+    return `https://${PUBLIC_GATEWAY}/ipfs/${uri}`;
+  }
+
   return uri;
 }
 
