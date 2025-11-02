@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, RequestHandler } from "express";
 import { createHash } from "crypto";
 import sharp from "sharp";
 import {
@@ -135,10 +135,10 @@ async function getImageVisionDescription(
  *   mediaType?: string
  * }
  */
-export async function handleCaptureAssetVision(
-  req: Request<Record<string, never>, any, Record<string, any>>,
-  res: Response<any>,
-): Promise<void> {
+export const handleCaptureAssetVision: RequestHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const {
       mediaUrl,
@@ -295,4 +295,4 @@ export async function handleCaptureAssetVision(
           : "Unknown error",
     });
   }
-}
+};
