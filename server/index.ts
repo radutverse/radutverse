@@ -11,7 +11,6 @@ import { handleSearchByOwner } from "./routes/search-by-owner.js";
 import { handleParseSearchIntent } from "./routes/parse-search-intent.js";
 import { handleGetSuggestions } from "./routes/get-suggestions.js";
 import { handleResolveIpName } from "./routes/resolve-ip-name.js";
-import handleVerifyWatermark from "./routes/verify-watermark.js";
 import {
   handleAddRemixHash,
   handleCheckRemixHash,
@@ -183,13 +182,6 @@ export function createServer() {
 
   // Get typing suggestions endpoint (POST /api/get-suggestions)
   app.post("/api/get-suggestions", handleGetSuggestions);
-
-  // Verify watermark endpoint (POST /api/verify-watermark)
-  app.post(
-    "/api/verify-watermark",
-    upload.single("image"),
-    handleVerifyWatermark,
-  );
 
   // Remix hash whitelist endpoints
   app.post("/api/add-remix-hash", handleAddRemixHash);
