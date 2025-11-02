@@ -86,10 +86,10 @@ async function calculateImagePerceptualHash(
  * POST /api/check-image-similarity
  * Body: { image: File or base64 string }
  */
-export async function handleCheckImageSimilarity(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export const handleCheckImageSimilarity: any = async (
+  req: any,
+  res: any,
+): Promise<void> => {
   try {
     let imageBuffer: Buffer | null = null;
 
@@ -194,4 +194,4 @@ export async function handleCheckImageSimilarity(
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
-}
+};
