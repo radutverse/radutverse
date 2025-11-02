@@ -374,7 +374,7 @@ export async function handleCheckRemixHash(
         // Calculate similarity as percentage (64 is max distance for 64-bit hash)
         const similarity = ((64 - distance) / 64) * 100;
 
-        if (similarity >= 70 && similarity > maxSimilarity) {
+        if (similarity >= 80 && similarity > maxSimilarity) {
           maxSimilarity = similarity;
           mostSimilar = whitelistEntry;
         }
