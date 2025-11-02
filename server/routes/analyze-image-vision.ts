@@ -1,5 +1,3 @@
-import type { Request, Response, RequestHandler } from "express";
-
 /**
  * Server endpoint to analyze images with OpenAI Vision
  * POST /api/analyze-image-vision
@@ -8,9 +6,9 @@ import type { Request, Response, RequestHandler } from "express";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-export const handleAnalyzeImageVision: RequestHandler = async (
-  req: Request,
-  res: Response,
+export const handleAnalyzeImageVision: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     if (!OPENAI_API_KEY) {
@@ -94,4 +92,3 @@ export const handleAnalyzeImageVision: RequestHandler = async (
     });
   }
 };
-
