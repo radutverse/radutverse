@@ -316,9 +316,9 @@ function hammingDistance(hash1: string, hash2: string): number {
  * POST /api/check-remix-hash
  * Body: { hash: string, pHash?: string }
  */
-export const handleCheckRemixHash: RequestHandler = async (
-  req,
-  res,
+export const handleCheckRemixHash: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     const { hash, pHash } = req.body;
@@ -444,9 +444,9 @@ export const handleGetRemixHashesFull: RequestHandler = async (
  * POST /api/_admin/delete-remix-hash
  * Body: { hash: string }
  */
-export const handleDeleteRemixHash: RequestHandler = async (
-  req,
-  res,
+export const handleDeleteRemixHash: any = async (
+  req: any,
+  res: any,
 ): Promise<void> => {
   try {
     const { hash } = req.body;
