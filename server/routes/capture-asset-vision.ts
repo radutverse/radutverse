@@ -150,17 +150,6 @@ export const handleCaptureAssetVision: any = async (
       return res.status(400).json({ error: "mediaUrl is required" });
     }
 
-    // Check if already in whitelist
-    const existingEntry = await checkHashInWhitelist(""); // Will need to implement a check-by-ipId method
-    if (existingEntry) {
-      console.log(`[Capture Vision] Asset ${ipId} already captured`);
-      return res.status(200).json({
-        success: true,
-        message: "Asset already captured",
-        cached: true,
-      });
-    }
-
     console.log(`[Capture Vision] Starting capture for ${ipId}...`);
 
     // Fetch image from URL
@@ -191,8 +180,23 @@ export const handleCaptureAssetVision: any = async (
     }
 
     // Calculate SHA256 hash
-    const hash = calculateBufferHash(imageBuffer);
+    let hash = calculateBufferHash(imageBuffer);
+    hash = hash.toLowerCase(); // Normalize to lowercase for consistency
     console.log(`[Capture Vision] Calculated SHA256 for ${ipId}: ${hash}`);
+
+    // Check if hash already in whitelist BEFORE expensive operations
+    const existingEntry = await checkHashInWhitelist(hash);
+    if (existingEntry) {
+      console.log(
+        `[Capture Vision] Hash already captured for ${ipId}, skipping vision processing`,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Hash already in whitelist",
+        hash,
+        cached: true,
+      });
+    }
 
     // Calculate pHash
     let pHash: string | undefined;
@@ -237,7 +241,6 @@ export const handleCaptureAssetVision: any = async (
         ipId: ipId || allMetadata.ipId,
         title: title || allMetadata.title,
         timestamp: Date.now(),
-        hash,
         pHash,
         visionDescription,
       };
@@ -247,9 +250,7 @@ export const handleCaptureAssetVision: any = async (
         {
           ipId: metadata.ipId,
           totalFields: Object.keys(metadata).length,
-          fields: Object.keys(metadata)
-            .filter((k) => k !== "hash")
-            .sort(),
+          fields: Object.keys(metadata).sort(),
         },
       );
 
