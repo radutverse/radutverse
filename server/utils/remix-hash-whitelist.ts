@@ -1,5 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
+import { put, get } from "@vercel/blob";
 
 /**
  * Refactored Whitelist Structure:
@@ -57,33 +56,19 @@ interface RemixHashWhitelist {
   lastUpdated: number;
 }
 
-const WHITELIST_PATH = path.join(
-  process.cwd(),
-  "server",
-  "data",
-  "remix-hashes.json",
-);
+const BLOB_NAME = "remix-hashes.json";
 
 /**
- * Ensure the data directory exists
- */
-async function ensureDataDir(): Promise<void> {
-  const dataDir = path.dirname(WHITELIST_PATH);
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-/**
- * Load whitelist from file
+ * Load whitelist from Vercel Blob
  */
 async function loadWhitelist(): Promise<RemixHashWhitelist> {
-  await ensureDataDir();
-
   try {
-    const content = await fs.readFile(WHITELIST_PATH, "utf-8");
+    const blob = await get(BLOB_NAME);
+    if (!blob) {
+      return { entries: [], lastUpdated: Date.now() };
+    }
+
+    const content = await blob.text();
     const parsed = JSON.parse(content);
 
     // Support both old and new formats
@@ -114,18 +99,31 @@ async function loadWhitelist(): Promise<RemixHashWhitelist> {
 
     return parsed;
   } catch (error) {
-    // File doesn't exist or is empty, return empty whitelist
+    // Blob doesn't exist or error reading, return empty whitelist
+    console.log("[Remix Hash] Starting with empty whitelist from Vercel Blob");
     return { entries: [], lastUpdated: Date.now() };
   }
 }
 
 /**
- * Save whitelist to file
+ * Save whitelist to Vercel Blob
  */
 async function saveWhitelist(whitelist: RemixHashWhitelist): Promise<void> {
-  await ensureDataDir();
   whitelist.lastUpdated = Date.now();
-  await fs.writeFile(WHITELIST_PATH, JSON.stringify(whitelist, null, 2));
+  const content = JSON.stringify(whitelist, null, 2);
+
+  try {
+    await put(BLOB_NAME, content, {
+      contentType: "application/json",
+      access: "public",
+    });
+  } catch (error) {
+    console.error(
+      "[Remix Hash] Failed to save whitelist to Vercel Blob:",
+      error,
+    );
+    throw error;
+  }
 }
 
 /**
@@ -225,3 +223,4 @@ export async function deleteHashFromWhitelist(hash: string): Promise<void> {
     console.log(`[Remix Hash] Deleted hash ${hash} from whitelist`);
   }
 }
+
