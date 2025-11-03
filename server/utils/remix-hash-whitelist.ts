@@ -1,10 +1,10 @@
-import { kv } from "@vercel/kv";
+import { put, list, del } from "@vercel/blob";
 
 /**
- * Whitelist structure using Vercel KV:
- * - "whitelist:entries" → JSON array of hashes
- * - "whitelist:hash:{hash}" → metadata for that hash
- * - "whitelist:timestamp" → last updated timestamp
+ * Whitelist storage using Vercel Blob:
+ * - Stores all entries in a single JSON file: "remix-hashes.json"
+ * - File is publicly accessible for reading
+ * - Uses Vercel Blob API: put, list, del
  */
 
 interface RemixImageMetadata {
@@ -44,31 +44,93 @@ interface RemixHashWhitelist {
   lastUpdated: number;
 }
 
-const ENTRIES_KEY = "whitelist:entries";
-const TIMESTAMP_KEY = "whitelist:timestamp";
+const BLOB_NAME = "remix-hashes.json";
 
 /**
- * Get all entries from KV
+ * Load whitelist from Vercel Blob
  */
-async function getWhitelistEntries(): Promise<string[]> {
+async function loadWhitelist(): Promise<RemixHashWhitelist> {
   try {
-    const entries = await kv.get<string[]>(ENTRIES_KEY);
-    return entries || [];
+    // List blobs to find our whitelist file
+    const { blobs } = await list({ prefix: BLOB_NAME });
+    
+    if (blobs.length === 0) {
+      console.log("[Remix Hash Blob] Starting with empty whitelist");
+      return { entries: [], lastUpdated: Date.now() };
+    }
+
+    // Get the blob URL and fetch its content
+    const blobUrl = blobs[0].url;
+    const response = await fetch(blobUrl);
+    
+    if (!response.ok) {
+      console.warn(`[Remix Hash Blob] Failed to fetch blob: ${response.status}`);
+      return { entries: [], lastUpdated: Date.now() };
+    }
+
+    const content = await response.text();
+    const parsed = JSON.parse(content);
+
+    // Support both old and new formats
+    if (parsed.entries && parsed.entries.length > 0) {
+      if (parsed.entries[0].metadata) {
+        // New format: already separated
+        return parsed;
+      } else if (parsed.entries[0].ipId) {
+        // Old format: needs migration
+        console.log("[Remix Hash Blob] Migrating whitelist to new format...");
+        const migratedEntries = parsed.entries.map((entry: any) => ({
+          hash: entry.hash,
+          metadata: {
+            ipId: entry.ipId,
+            title: entry.title,
+            timestamp: entry.timestamp,
+            pHash: entry.pHash,
+            visionDescription: entry.visionDescription,
+          },
+        }));
+
+        return {
+          entries: migratedEntries,
+          lastUpdated: parsed.lastUpdated || Date.now(),
+        };
+      }
+    }
+
+    return parsed;
   } catch (error) {
-    console.warn("[Remix Hash KV] Error loading entries:", error);
-    return [];
+    console.warn("[Remix Hash Blob] Error loading whitelist:", error);
+    return { entries: [], lastUpdated: Date.now() };
   }
 }
 
 /**
- * Save entries list to KV
+ * Save whitelist to Vercel Blob
  */
-async function saveWhitelistEntries(entries: string[]): Promise<void> {
+async function saveWhitelist(whitelist: RemixHashWhitelist): Promise<void> {
+  whitelist.lastUpdated = Date.now();
+  const content = JSON.stringify(whitelist, null, 2);
+
   try {
-    await kv.set(ENTRIES_KEY, entries);
-    await kv.set(TIMESTAMP_KEY, Date.now());
+    // Delete old blob if it exists
+    try {
+      const { blobs } = await list({ prefix: BLOB_NAME });
+      for (const blob of blobs) {
+        await del(blob.url);
+      }
+    } catch (e) {
+      // Ignore delete errors
+    }
+
+    // Upload new blob
+    await put(BLOB_NAME, content, {
+      contentType: "application/json",
+      access: "public",
+    });
+
+    console.log("[Remix Hash Blob] Whitelist saved");
   } catch (error) {
-    console.error("[Remix Hash KV] Error saving entries:", error);
+    console.error("[Remix Hash Blob] Failed to save whitelist:", error);
     throw error;
   }
 }
@@ -82,27 +144,21 @@ export async function addHashToWhitelist(
   hash: string,
   metadata: RemixImageMetadata,
 ): Promise<void> {
-  try {
-    // Check if hash already exists
-    const entries = await getWhitelistEntries();
-    if (entries.includes(hash)) {
-      console.log(`[Remix Hash KV] Hash ${hash} already exists`);
-      return;
-    }
+  const whitelist = await loadWhitelist();
 
-    // Store metadata with namespaced key
-    await kv.set(`whitelist:hash:${hash}`, metadata);
+  // Check if hash already exists
+  const exists = whitelist.entries.some((entry) => entry.hash === hash);
 
-    // Add to entries list
-    entries.push(hash);
-    await saveWhitelistEntries(entries);
+  if (!exists) {
+    whitelist.entries.push({
+      hash,
+      metadata,
+    });
 
+    await saveWhitelist(whitelist);
     console.log(
-      `[Remix Hash KV] Added hash ${hash} for IP ${metadata.ipId} (${metadata.title})`,
+      `[Remix Hash Blob] Added hash ${hash} for IP ${metadata.ipId} (${metadata.title})`,
     );
-  } catch (error) {
-    console.error("[Remix Hash KV] Error adding hash:", error);
-    throw error;
   }
 }
 
@@ -113,72 +169,37 @@ export async function addHashToWhitelist(
 export async function checkHashInWhitelist(
   hash: string,
 ): Promise<RemixImageMetadata | null> {
-  try {
-    const metadata = await kv.get<RemixImageMetadata>(`whitelist:hash:${hash}`);
-    return metadata || null;
-  } catch (error) {
-    console.warn("[Remix Hash KV] Error checking hash:", error);
-    return null;
-  }
+  const whitelist = await loadWhitelist();
+  const entry = whitelist.entries.find((entry) => entry.hash === hash);
+  return entry?.metadata || null;
 }
 
 /**
  * Get all hashes in whitelist
  */
 export async function getAllWhitelistHashes(): Promise<string[]> {
-  try {
-    return await getWhitelistEntries();
-  } catch (error) {
-    console.warn("[Remix Hash KV] Error getting all hashes:", error);
-    return [];
-  }
+  const whitelist = await loadWhitelist();
+  return whitelist.entries.map((entry) => entry.hash);
 }
 
 /**
  * Get all entries with metadata
  */
 export async function getAllWhitelistEntries(): Promise<RemixHashEntry[]> {
-  try {
-    const hashes = await getWhitelistEntries();
-    const entries: RemixHashEntry[] = [];
-
-    for (const hash of hashes) {
-      const metadata = await kv.get<RemixImageMetadata>(
-        `whitelist:hash:${hash}`,
-      );
-      if (metadata) {
-        entries.push({ hash, metadata });
-      }
-    }
-
-    return entries;
-  } catch (error) {
-    console.warn("[Remix Hash KV] Error getting all entries:", error);
-    return [];
-  }
+  const whitelist = await loadWhitelist();
+  return whitelist.entries;
 }
 
 /**
  * Clear whitelist (admin function)
  */
 export async function clearWhitelist(): Promise<void> {
-  try {
-    const hashes = await getWhitelistEntries();
-
-    // Delete all metadata keys
-    for (const hash of hashes) {
-      await kv.del(`whitelist:hash:${hash}`);
-    }
-
-    // Clear entries list
-    await kv.del(ENTRIES_KEY);
-    await kv.del(TIMESTAMP_KEY);
-
-    console.log("[Remix Hash KV] Whitelist cleared");
-  } catch (error) {
-    console.error("[Remix Hash KV] Error clearing whitelist:", error);
-    throw error;
-  }
+  const whitelist: RemixHashWhitelist = {
+    entries: [],
+    lastUpdated: Date.now(),
+  };
+  await saveWhitelist(whitelist);
+  console.log("[Remix Hash Blob] Whitelist cleared");
 }
 
 /**
@@ -188,18 +209,13 @@ export async function updateHashMetadata(
   hash: string,
   partialMetadata: Partial<RemixImageMetadata>,
 ): Promise<void> {
-  try {
-    const existing = await kv.get<RemixImageMetadata>(`whitelist:hash:${hash}`);
+  const whitelist = await loadWhitelist();
+  const entry = whitelist.entries.find((e) => e.hash === hash);
 
-    if (existing) {
-      const updated = { ...existing, ...partialMetadata };
-      await kv.set(`whitelist:hash:${hash}`, updated);
-      await kv.set(TIMESTAMP_KEY, Date.now());
-      console.log(`[Remix Hash KV] Updated metadata for hash ${hash}`);
-    }
-  } catch (error) {
-    console.error("[Remix Hash KV] Error updating metadata:", error);
-    throw error;
+  if (entry) {
+    entry.metadata = { ...entry.metadata, ...partialMetadata };
+    await saveWhitelist(whitelist);
+    console.log(`[Remix Hash Blob] Updated metadata for hash ${hash}`);
   }
 }
 
@@ -207,17 +223,12 @@ export async function updateHashMetadata(
  * Delete hash from whitelist
  */
 export async function deleteHashFromWhitelist(hash: string): Promise<void> {
-  try {
-    const entries = await getWhitelistEntries();
-    const filtered = entries.filter((h) => h !== hash);
+  const whitelist = await loadWhitelist();
+  const initialLength = whitelist.entries.length;
+  whitelist.entries = whitelist.entries.filter((entry) => entry.hash !== hash);
 
-    if (filtered.length < entries.length) {
-      await kv.del(`whitelist:hash:${hash}`);
-      await saveWhitelistEntries(filtered);
-      console.log(`[Remix Hash KV] Deleted hash ${hash} from whitelist`);
-    }
-  } catch (error) {
-    console.error("[Remix Hash KV] Error deleting hash:", error);
-    throw error;
+  if (whitelist.entries.length < initialLength) {
+    await saveWhitelist(whitelist);
+    console.log(`[Remix Hash Blob] Deleted hash ${hash} from whitelist`);
   }
 }
