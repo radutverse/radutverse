@@ -929,7 +929,7 @@ const IpAssistant = () => {
               const derivativesAllowed = hashCheck.derivativesAllowed !== false;
               const warningText = derivativesAllowed
                 ? `⚠️ This is copyrighted content. Remixing is allowed.`
-                : `⚠️ This is copyrighted content.`;
+                : `⚠��� This is copyrighted content.`;
 
               const metadata = hashCheck.metadata || {};
               const warningMessage: Message = {
@@ -3194,80 +3194,6 @@ const IpAssistant = () => {
                           watermarkError,
                         );
                         // Continue with original blob if watermarking fails
-                      }
-
-                      // Skip hash calculation if already captured during asset expansion
-                      if (!capturedAssetIds.has(expandedAsset.ipId)) {
-                        // Asset wasn't captured yet, calculate and add to whitelist
-                        try {
-                          const hash = await calculateBlobHash(blob);
-                          const pHash = await calculatePerceptualHash(blob);
-
-                          // Get vision description for similarity detection
-                          let visionDescription: string | undefined;
-                          try {
-                            const visionResult =
-                              await getImageVisionDescription(blob);
-                            if (visionResult?.success) {
-                              visionDescription = visionResult.description;
-                            }
-                          } catch (visionError) {
-                            console.warn(
-                              "Vision description failed, continuing:",
-                              visionError,
-                            );
-                          }
-
-                          await fetch("/api/add-remix-hash", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              hash,
-                              pHash,
-                              visionDescription,
-                              ipId: expandedAsset.ipId || "unknown",
-                              title:
-                                expandedAsset.title ||
-                                expandedAsset.name ||
-                                "Remix Image",
-                              // Parent IP Details
-                              parentIpIds: expandedAsset.parentIpIds,
-                              licenseTermsIds: expandedAsset.licenseTermsIds,
-                              licenseTemplates: expandedAsset.licenseTemplates,
-                              // License Configuration
-                              royaltyContext: expandedAsset.royaltyContext,
-                              maxMintingFee: expandedAsset.maxMintingFee,
-                              maxRts: expandedAsset.maxRts,
-                              maxRevenueShare: expandedAsset.maxRevenueShare,
-                              licenseVisibility:
-                                expandedAsset.licenseVisibility,
-                              // Derivative Status
-                              isDerivative: expandedAsset.isDerivative,
-                              parentsCount: expandedAsset.parentsCount,
-                            }),
-                          });
-                          console.log(
-                            "Hash added to whitelist:",
-                            hash,
-                            "pHash:",
-                            pHash,
-                            "visionDescription:",
-                            visionDescription ? "stored" : "skipped",
-                          );
-                        } catch (hashError) {
-                          console.warn(
-                            "Failed to add hash to whitelist:",
-                            hashError,
-                          );
-                          // Continue even if hash whitelist fails
-                        }
-                      } else {
-                        // Asset was already captured during expansion, skip recalculation
-                        console.log(
-                          "[Remix] Asset",
-                          expandedAsset.ipId,
-                          "was pre-captured, skipping hash recalculation",
-                        );
                       }
 
                       const fileName =
