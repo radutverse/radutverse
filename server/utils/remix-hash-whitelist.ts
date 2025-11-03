@@ -53,7 +53,7 @@ async function loadWhitelist(): Promise<RemixHashWhitelist> {
   try {
     // List blobs to find our whitelist file
     const { blobs } = await list({ prefix: BLOB_NAME });
-    
+
     if (blobs.length === 0) {
       console.log("[Remix Hash Blob] Starting with empty whitelist");
       return { entries: [], lastUpdated: Date.now() };
@@ -62,7 +62,7 @@ async function loadWhitelist(): Promise<RemixHashWhitelist> {
     // Get the blob URL and fetch its content
     const blobUrl = blobs[0].url;
     const response = await fetch(blobUrl);
-    
+
     if (!response.ok) {
       console.warn(`[Remix Hash Blob] Failed to fetch blob: ${response.status}`);
       return { entries: [], lastUpdated: Date.now() };
@@ -106,26 +106,18 @@ async function loadWhitelist(): Promise<RemixHashWhitelist> {
 
 /**
  * Save whitelist to Vercel Blob
+ * Note: Using put() directly without delete - it overwrites automatically
  */
 async function saveWhitelist(whitelist: RemixHashWhitelist): Promise<void> {
   whitelist.lastUpdated = Date.now();
   const content = JSON.stringify(whitelist, null, 2);
 
   try {
-    // Delete old blob if it exists
-    try {
-      const { blobs } = await list({ prefix: BLOB_NAME });
-      for (const blob of blobs) {
-        await del(blob.url);
-      }
-    } catch (e) {
-      // Ignore delete errors
-    }
-
-    // Upload new blob
+    // put() automatically overwrites, no need to delete first
     await put(BLOB_NAME, content, {
       contentType: "application/json",
       access: "public",
+      overwrite: true,
     });
 
     console.log("[Remix Hash Blob] Whitelist saved");
