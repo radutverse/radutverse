@@ -113,11 +113,11 @@ async function saveWhitelist(whitelist: RemixHashWhitelist): Promise<void> {
   const content = JSON.stringify(whitelist, null, 2);
 
   try {
-    // put() automatically overwrites, no need to delete first
+    // put() with allowOverwrite to replace existing blob
     await put(BLOB_NAME, content, {
       contentType: "application/json",
       access: "public",
-      overwrite: true,
+      allowOverwrite: true,
     });
 
     console.log("[Remix Hash Blob] Whitelist saved");
