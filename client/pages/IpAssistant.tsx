@@ -26,7 +26,6 @@ import {
   summaryFromAnswer,
   truncateAddress,
 } from "@/lib/ip-assistant/utils";
-import { applyWatermarkFromAsset } from "@/lib/utils/apply-watermark";
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
@@ -2656,18 +2655,7 @@ const IpAssistant = () => {
                       `HTTP ${response.status}: Failed to fetch image`,
                     );
                   }
-                  let blob = await response.blob();
-
-                  // Apply invisible watermark to protect IP
-                  try {
-                    blob = await applyWatermarkFromAsset(blob, asset);
-                  } catch (watermarkError) {
-                    console.warn(
-                      "Watermark application failed, using original image:",
-                      watermarkError,
-                    );
-                  }
-
+                  const blob = await response.blob();
                   const fileName = asset.title || asset.name || "IP Asset";
                   setPreviewImages({
                     remixImage: {
@@ -3180,22 +3168,7 @@ const IpAssistant = () => {
                           `HTTP ${response.status}: Failed to fetch image`,
                         );
                       }
-                      let blob = await response.blob();
-
-                      // Apply invisible watermark to protect IP
-                      try {
-                        blob = await applyWatermarkFromAsset(
-                          blob,
-                          expandedAsset,
-                        );
-                      } catch (watermarkError) {
-                        console.warn(
-                          "Watermark application failed, using original image:",
-                          watermarkError,
-                        );
-                        // Continue with original blob if watermarking fails
-                      }
-
+                      const blob = await response.blob();
                       const fileName =
                         expandedAsset.title || expandedAsset.name || "IP Asset";
                       setPreviewImages({
@@ -3722,19 +3695,7 @@ const IpAssistant = () => {
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: Failed to fetch image`);
             }
-            let blob = await response.blob();
-
-            // Apply invisible watermark to protect IP
-            try {
-              blob = await applyWatermarkFromAsset(blob, asset);
-            } catch (watermarkError) {
-              console.warn(
-                "Watermark application failed, using original image:",
-                watermarkError,
-              );
-              // Continue with original blob if watermarking fails
-            }
-
+            const blob = await response.blob();
             const fileName = asset.title || asset.name || "IP Asset";
 
             setPreviewImages((prev) => ({
