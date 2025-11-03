@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface WhitelistEntry {
   hash: string;
@@ -89,34 +97,26 @@ export const WhitelistMonitor: React.FC = () => {
   }, []);
 
   const handleClearClick = () => {
+    setPasswordInput("");
+    setPasswordError("");
     setShowPasswordDialog(true);
+  };
+
+  const handlePasswordSubmit = async () => {
+    const PASSWORD = "radut123";
+
+    if (passwordInput !== PASSWORD) {
+      setPasswordError("Incorrect password");
+      return;
+    }
+
+    await clearWhitelist();
+    setShowPasswordDialog(false);
     setPasswordInput("");
     setPasswordError("");
   };
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordError("");
-
-    const CORRECT_PASSWORD = "radut123";
-    if (passwordInput !== CORRECT_PASSWORD) {
-      setPasswordError("Incorrect password");
-      setPasswordInput("");
-      return;
-    }
-
-    // Password is correct, proceed with clearing
-    setShowPasswordDialog(false);
-    setPasswordInput("");
-
-    if (
-      !window.confirm(
-        "Are you sure you want to clear the entire whitelist? This action cannot be undone.",
-      )
-    ) {
-      return;
-    }
-
+  const clearWhitelist = async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/_admin/clear-remix-hashes", {
@@ -132,7 +132,6 @@ export const WhitelistMonitor: React.FC = () => {
         originals: 0,
         lastUpdated: new Date().toLocaleString(),
       });
-      alert("Whitelist cleared successfully");
     } catch (err) {
       console.error("Failed to clear whitelist:", err);
       alert("Failed to clear whitelist");
@@ -140,8 +139,6 @@ export const WhitelistMonitor: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const clearWhitelist = handleClearClick;
 
   const deleteEntry = async (hash: string) => {
     if (!window.confirm("Delete this entry?")) return;
@@ -305,7 +302,7 @@ export const WhitelistMonitor: React.FC = () => {
               {loading ? "Loading..." : "Refresh"}
             </button>
             <button
-              onClick={clearWhitelist}
+              onClick={handleClearClick}
               disabled={loading || entries.length === 0}
               className="flex-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 font-medium px-3 py-2 transition-colors disabled:opacity-50"
             >
@@ -818,66 +815,58 @@ export const WhitelistMonitor: React.FC = () => {
       </div>
 
       {/* Password Dialog */}
-      {showPasswordDialog && (
-        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-slate-900 border border-slate-700/50 rounded-lg max-w-sm w-full p-6"
-          >
-            <h3 className="text-lg font-bold text-[#FF4DA6] mb-4">
-              Clear All Whitelist
-            </h3>
-            <p className="text-slate-400 text-sm mb-6">
-              This action is irreversible. Enter the password to proceed.
-            </p>
-
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div>
-                <label className="block text-slate-400 text-sm mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={passwordInput}
-                  onChange={(e) => {
-                    setPasswordInput(e.target.value);
-                    setPasswordError("");
-                  }}
-                  placeholder="Enter password"
-                  className="w-full rounded-lg bg-slate-800/50 border border-slate-600/50 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6]/30"
-                  autoFocus
-                />
-                {passwordError && (
-                  <p className="text-red-400 text-xs mt-2">{passwordError}</p>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="submit"
-                  disabled={loading || !passwordInput}
-                  className="flex-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 font-medium px-3 py-2 transition-colors disabled:opacity-50"
-                >
-                  {loading ? "Clearing..." : "Clear All"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPasswordDialog(false);
-                    setPasswordInput("");
-                    setPasswordError("");
-                  }}
-                  className="flex-1 rounded-lg bg-slate-700/20 hover:bg-slate-700/30 text-slate-400 font-medium px-3 py-2 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent className="sm:max-w-[425px] bg-slate-900 border-slate-700/50">
+          <DialogHeader>
+            <DialogTitle className="text-[#FF4DA6]">Clear Whitelist</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Enter the password to clear the entire whitelist. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300">Password</label>
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={passwordInput}
+                onChange={(e) => {
+                  setPasswordInput(e.target.value);
+                  setPasswordError("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handlePasswordSubmit();
+                  }
+                }}
+                className="w-full rounded-lg bg-slate-800 border border-slate-600/50 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6]/30"
+              />
+              {passwordError && (
+                <p className="text-sm text-red-400">{passwordError}</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => {
+                setShowPasswordDialog(false);
+                setPasswordInput("");
+                setPasswordError("");
+              }}
+              className="rounded-lg px-4 py-2 text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handlePasswordSubmit}
+              disabled={loading || !passwordInput}
+              className="rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 font-medium px-4 py-2 transition-colors disabled:opacity-50"
+            >
+              Clear All
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
