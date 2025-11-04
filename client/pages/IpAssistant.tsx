@@ -232,6 +232,41 @@ const IpAssistant = () => {
     );
   };
 
+  // Get remix types based on licenses (paid/free)
+  type RemixType = { type: "paid" | "free"; licenseTermsId: string };
+  const getRemixTypes = (asset: any): RemixType[] => {
+    if (!asset?.licenses || !Array.isArray(asset.licenses)) {
+      return [];
+    }
+
+    const remixTypes: RemixType[] = [];
+    const seen = new Set<string>();
+
+    for (const license of asset.licenses) {
+      const terms = license.terms || license;
+      const derivativesAllowed =
+        terms?.derivativesAllowed === true ||
+        license.derivativesAllowed === true;
+
+      if (!derivativesAllowed) continue;
+
+      const commercialUse = terms?.commercialUse === true;
+      const remixType = commercialUse ? "paid" : "free";
+      const typeKey = remixType;
+
+      // Add remix type (allow duplicates of same type for different licenses)
+      if (!seen.has(typeKey) || remixTypes.length === 0) {
+        remixTypes.push({
+          type: remixType,
+          licenseTermsId: license.licenseTermsId || "",
+        });
+        seen.add(typeKey);
+      }
+    }
+
+    return remixTypes;
+  };
+
   useEffect(() => {
     if (activeDetail === null) return;
     function onKeyDown(event: KeyboardEvent) {
@@ -3100,16 +3135,17 @@ const IpAssistant = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-4">
-                {allowsDerivatives(expandedAsset) && (
+                {getRemixTypes(expandedAsset).map((remixConfig) => (
                   <button
+                    key={remixConfig.licenseTermsId}
                     type="button"
                     onClick={() => setShowRemixMenu(!showRemixMenu)}
                     disabled={!guestMode && !authenticated}
                     className="text-sm px-4 py-2.5 rounded-lg bg-[#FF4DA6] text-white font-semibold transition-all hover:shadow-lg hover:shadow-[#FF4DA6]/25 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/50"
                   >
-                    🎨 Remix
+                    {remixConfig.type === "paid" ? "💰 Paid remix" : "🆓 Free remix"}
                   </button>
-                )}
+                ))}
                 <button
                   type="button"
                   disabled={!authenticated}
