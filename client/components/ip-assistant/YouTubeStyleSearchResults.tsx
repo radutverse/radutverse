@@ -55,6 +55,30 @@ export const YouTubeStyleSearchResults = ({
     );
   };
 
+  // Get remix types based on licenses (paid/free)
+  type RemixType = "paid" | "free";
+  const getRemixTypes = (asset: SearchResult): RemixType[] => {
+    if (!asset.licenses || asset.licenses.length === 0) {
+      return [];
+    }
+
+    const remixTypes: Set<RemixType> = new Set();
+
+    for (const license of asset.licenses) {
+      const terms = license.terms || license;
+      const derivativesAllowed =
+        terms?.derivativesAllowed === true || license.derivativesAllowed === true;
+
+      if (!derivativesAllowed) continue;
+
+      const commercialUse = terms?.commercialUse === true;
+      const remixType: RemixType = commercialUse ? "paid" : "free";
+      remixTypes.add(remixType);
+    }
+
+    return Array.from(remixTypes);
+  };
+
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
@@ -220,6 +244,34 @@ export const YouTubeStyleSearchResults = ({
                   )}
                   {hoveredIndex === idx && (
                     <div className="absolute inset-0 ring-2 ring-[#FF4DA6]/60 rounded-xl pointer-events-none" />
+                  )}
+
+                  {/* Remix Type Badges - Top Right */}
+                  {getRemixTypes(asset).length > 0 && (
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      {getRemixTypes(asset).map((remixType) => (
+                        <span
+                          key={remixType}
+                          className="text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm bg-slate-900/80 border"
+                          style={{
+                            backgroundColor:
+                              remixType === "paid"
+                                ? "rgba(34, 197, 94, 0.2)"
+                                : "rgba(59, 130, 246, 0.2)",
+                            borderColor:
+                              remixType === "paid"
+                                ? "rgb(134, 239, 172)"
+                                : "rgb(147, 197, 253)",
+                            color:
+                              remixType === "paid"
+                                ? "rgb(134, 239, 172)"
+                                : "rgb(147, 197, 253)",
+                          }}
+                        >
+                          {remixType === "paid" ? "💰 Paid" : "🆓 Free"}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
 
