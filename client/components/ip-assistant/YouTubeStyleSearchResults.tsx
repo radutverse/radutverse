@@ -42,6 +42,58 @@ export const YouTubeStyleSearchResults = ({
   query = "",
 }: YouTubeStyleSearchResultsProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [ownerDomains, setOwnerDomains] = useState<
+    Record<string, { domain: string | null; loading: boolean }>
+  >({});
+
+  // Get unique owner addresses to fetch domains for
+  const uniqueOwners = useMemo(() => {
+    const owners = new Set<string>();
+    searchResults.forEach((asset) => {
+      if (asset.ownerAddress) {
+        owners.add(asset.ownerAddress.toLowerCase());
+      }
+    });
+    return Array.from(owners);
+  }, [searchResults]);
+
+  // Fetch domains for all owners when results change
+  useEffect(() => {
+    if (uniqueOwners.length === 0) return;
+
+    // Mark all owners as loading
+    const loadingState: Record<string, { domain: string | null; loading: boolean }> = {};
+    uniqueOwners.forEach((owner) => {
+      loadingState[owner] = { domain: null, loading: true };
+    });
+    setOwnerDomains(loadingState);
+
+    // Fetch domains for all owners in parallel
+    Promise.all(
+      uniqueOwners.map((owner) =>
+        fetch("/api/resolve-owner-domain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: owner }),
+        })
+          .then((res) => res.json())
+          .then((data) => ({
+            address: owner,
+            domain: data.ok ? data.domain : null,
+          }))
+          .catch(() => ({
+            address: owner,
+            domain: null,
+          })),
+      ),
+    ).then((results) => {
+      const newDomains: Record<string, { domain: string | null; loading: boolean }> = {};
+      results.forEach(({ address, domain }) => {
+        newDomains[address] = { domain, loading: false };
+      });
+      setOwnerDomains(newDomains);
+    });
+  }, [uniqueOwners]);
 
   // Check if asset allows derivatives
   const allowsDerivatives = (asset: SearchResult): boolean => {
