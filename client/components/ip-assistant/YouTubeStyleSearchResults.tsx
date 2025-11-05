@@ -64,10 +64,16 @@ export const YouTubeStyleSearchResults = ({
       return;
     }
 
-    console.log("[YouTubeSearchResults] Fetching domains for owners:", uniqueOwners);
+    console.log(
+      "[YouTubeSearchResults] Fetching domains for owners:",
+      uniqueOwners,
+    );
 
     // Mark all owners as loading
-    const loadingState: Record<string, { domain: string | null; loading: boolean }> = {};
+    const loadingState: Record<
+      string,
+      { domain: string | null; loading: boolean }
+    > = {};
     uniqueOwners.forEach((owner) => {
       loadingState[owner] = { domain: null, loading: true };
     });
@@ -83,18 +89,27 @@ export const YouTubeStyleSearchResults = ({
           body: JSON.stringify({ ownerAddress: owner }),
         })
           .then((res) => {
-            console.log(`[YouTubeSearchResults] Response status for ${owner}:`, res.status);
+            console.log(
+              `[YouTubeSearchResults] Response status for ${owner}:`,
+              res.status,
+            );
             return res.json();
           })
           .then((data) => {
-            console.log(`[YouTubeSearchResults] Domain data for ${owner}:`, data);
+            console.log(
+              `[YouTubeSearchResults] Domain data for ${owner}:`,
+              data,
+            );
             return {
               address: owner,
               domain: data.ok ? data.domain : null,
             };
           })
           .catch((err) => {
-            console.error(`[YouTubeSearchResults] Error fetching domain for ${owner}:`, err);
+            console.error(
+              `[YouTubeSearchResults] Error fetching domain for ${owner}:`,
+              err,
+            );
             return {
               address: owner,
               domain: null,
@@ -103,7 +118,10 @@ export const YouTubeStyleSearchResults = ({
       }),
     ).then((results) => {
       console.log("[YouTubeSearchResults] All domain fetch results:", results);
-      const newDomains: Record<string, { domain: string | null; loading: boolean }> = {};
+      const newDomains: Record<
+        string,
+        { domain: string | null; loading: boolean }
+      > = {};
       results.forEach(({ address, domain }) => {
         newDomains[address] = { domain, loading: false };
       });
@@ -130,12 +148,16 @@ export const YouTubeStyleSearchResults = ({
       return [];
     }
 
-    const remixTypesMap = new Map<"paid" | "free", { hasAttribution: boolean }>();
+    const remixTypesMap = new Map<
+      "paid" | "free",
+      { hasAttribution: boolean }
+    >();
 
     for (const license of asset.licenses) {
       const terms = license.terms || license;
       const derivativesAllowed =
-        terms?.derivativesAllowed === true || license.derivativesAllowed === true;
+        terms?.derivativesAllowed === true ||
+        license.derivativesAllowed === true;
 
       if (!derivativesAllowed) continue;
 
@@ -149,10 +171,13 @@ export const YouTubeStyleSearchResults = ({
 
       // Update map - set hasAttribution to true if any license of this type requires attribution
       if (!remixTypesMap.has(remixType)) {
-        remixTypesMap.set(remixType, { hasAttribution: derivativesAttribution });
+        remixTypesMap.set(remixType, {
+          hasAttribution: derivativesAttribution,
+        });
       } else {
         const existing = remixTypesMap.get(remixType)!;
-        existing.hasAttribution = existing.hasAttribution || derivativesAttribution;
+        existing.hasAttribution =
+          existing.hasAttribution || derivativesAttribution;
       }
     }
 
@@ -351,7 +376,9 @@ export const YouTubeStyleSearchResults = ({
                                 : "rgb(147, 197, 253)",
                           }}
                         >
-                          {remixTypeInfo.type === "paid" ? "💰 Paid" : "🆓 Free"}
+                          {remixTypeInfo.type === "paid"
+                            ? "💰 Paid"
+                            : "🆓 Free"}
                         </span>
                       ))}
                     </div>
