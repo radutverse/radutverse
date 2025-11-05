@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface WhitelistDetails {
   ipId: string;
@@ -33,6 +33,43 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
   details,
 }) => {
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [ownerDomain, setOwnerDomain] = useState<{
+    domain: string | null;
+    loading: boolean;
+  } | null>(null);
+
+  // Fetch owner domain when modal opens or details change
+  useEffect(() => {
+    if (!details?.ownerAddress) {
+      console.log("[WhitelistDetailsModal] No owner address to resolve");
+      setOwnerDomain(null);
+      return;
+    }
+
+    console.log("[WhitelistDetailsModal] Fetching domain for:", details.ownerAddress);
+    setOwnerDomain({ domain: null, loading: true });
+
+    fetch("/api/resolve-owner-domain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerAddress: details.ownerAddress }),
+    })
+      .then((res) => {
+        console.log("[WhitelistDetailsModal] Response status:", res.status);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("[WhitelistDetailsModal] Domain data:", data);
+        setOwnerDomain({
+          domain: data.ok ? data.domain : null,
+          loading: false,
+        });
+      })
+      .catch((err) => {
+        console.error("[WhitelistDetailsModal] Error fetching domain:", err);
+        setOwnerDomain({ domain: null, loading: false });
+      });
+  }, [details?.ownerAddress]);
 
   if (!details) return null;
 
@@ -204,9 +241,22 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <span className="text-slate-400 text-sm">Owner:</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-100 font-mono text-sm break-all">
-                            {truncateAddress(details.ownerAddress)}
-                          </span>
+                          {ownerDomain?.loading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
+                              <span className="text-sm text-slate-400">
+                                Resolving...
+                              </span>
+                            </div>
+                          ) : ownerDomain?.domain ? (
+                            <span className="text-slate-100 font-mono text-sm px-3 py-1 bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 border border-[#FF4DA6]/30 rounded-lg text-[#FF4DA6]">
+                              {ownerDomain.domain}
+                            </span>
+                          ) : (
+                            <span className="text-slate-100 font-mono text-sm break-all">
+                              {truncateAddress(details.ownerAddress)}
+                            </span>
+                          )}
                           <button
                             onClick={() => copyToClipboard(details.ownerAddress!)}
                             title="Copy owner address"
