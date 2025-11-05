@@ -33,6 +33,10 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
   details,
 }) => {
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [ownerDomain, setOwnerDomain] = useState<{
+    domain: string | null;
+    loading: boolean;
+  } | null>(null);
 
   if (!details) return null;
 
