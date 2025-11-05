@@ -55,7 +55,12 @@ export const AddRemixImageModal = ({
 
   // Fetch domains for all owners when results change
   useEffect(() => {
-    if (uniqueOwners.length === 0) return;
+    if (uniqueOwners.length === 0) {
+      console.log("[AddRemixImageModal] No unique owners found");
+      return;
+    }
+
+    console.log("[AddRemixImageModal] Fetching domains for owners:", uniqueOwners);
 
     // Mark all owners as loading
     const loadingState: Record<string, { domain: string | null; loading: boolean }> = {};
@@ -66,23 +71,34 @@ export const AddRemixImageModal = ({
 
     // Fetch domains for all owners in parallel
     Promise.all(
-      uniqueOwners.map((owner) =>
-        fetch("/api/resolve-owner-domain", {
+      uniqueOwners.map((owner) => {
+        console.log("[AddRemixImageModal] Fetching domain for owner:", owner);
+        return fetch("/api/resolve-owner-domain", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ownerAddress: owner }),
         })
-          .then((res) => res.json())
-          .then((data) => ({
-            address: owner,
-            domain: data.ok ? data.domain : null,
-          }))
-          .catch(() => ({
-            address: owner,
-            domain: null,
-          })),
-      ),
+          .then((res) => {
+            console.log(`[AddRemixImageModal] Response status for ${owner}:`, res.status);
+            return res.json();
+          })
+          .then((data) => {
+            console.log(`[AddRemixImageModal] Domain data for ${owner}:`, data);
+            return {
+              address: owner,
+              domain: data.ok ? data.domain : null,
+            };
+          })
+          .catch((err) => {
+            console.error(`[AddRemixImageModal] Error fetching domain for ${owner}:`, err);
+            return {
+              address: owner,
+              domain: null,
+            };
+          });
+      }),
     ).then((results) => {
+      console.log("[AddRemixImageModal] All domain fetch results:", results);
       const newDomains: Record<string, { domain: string | null; loading: boolean }> = {};
       results.forEach(({ address, domain }) => {
         newDomains[address] = { domain, loading: false };
