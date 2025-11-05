@@ -41,10 +41,12 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
   // Fetch owner domain when modal opens or details change
   useEffect(() => {
     if (!details?.ownerAddress) {
+      console.log("[WhitelistDetailsModal] No owner address to resolve");
       setOwnerDomain(null);
       return;
     }
 
+    console.log("[WhitelistDetailsModal] Fetching domain for:", details.ownerAddress);
     setOwnerDomain({ domain: null, loading: true });
 
     fetch("/api/resolve-owner-domain", {
@@ -52,14 +54,19 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ownerAddress: details.ownerAddress }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        console.log("[WhitelistDetailsModal] Response status:", res.status);
+        return res.json();
+      })
       .then((data) => {
+        console.log("[WhitelistDetailsModal] Domain data:", data);
         setOwnerDomain({
           domain: data.ok ? data.domain : null,
           loading: false,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[WhitelistDetailsModal] Error fetching domain:", err);
         setOwnerDomain({ domain: null, loading: false });
       });
   }, [details?.ownerAddress]);
