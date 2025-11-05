@@ -231,32 +231,56 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                       </div>
                     </div>
                     {details.ownerAddress && (
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <span className="text-slate-400 text-sm">Owner:</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-100 font-mono text-sm break-all">
-                            {truncateAddress(details.ownerAddress)}
-                          </span>
-                          <button
-                            onClick={() => copyToClipboard(details.ownerAddress!)}
-                            title="Copy owner address"
-                            className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-slate-100 transition-colors"
-                            aria-label="Copy owner address"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                      <div className="space-y-3">
+                        {/* Domain Display */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-slate-400 text-sm">Domain:</span>
+                          {ownerDomain?.loading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
+                              <span className="text-sm text-slate-400">
+                                Resolving...
+                              </span>
+                            </div>
+                          ) : ownerDomain?.domain ? (
+                            <span className="text-slate-100 font-mono text-sm px-3 py-1 bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 border border-[#FF4DA6]/30 rounded-lg text-[#FF4DA6]">
+                              {ownerDomain.domain}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 text-sm italic">
+                              No domain registered
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Owner Address Display */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-slate-400 text-sm">Owner Address:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-100 font-mono text-sm break-all">
+                              {truncateAddress(details.ownerAddress)}
+                            </span>
+                            <button
+                              onClick={() => copyToClipboard(details.ownerAddress!)}
+                              title="Copy owner address"
+                              className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-slate-100 transition-colors"
+                              aria-label="Copy owner address"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </button>
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
