@@ -317,9 +317,38 @@ export const AddRemixImageModal = ({
                         {asset.title || asset.name || "Untitled"}
                       </p>
                       {asset.ownerAddress && (
-                        <p className="text-xs text-slate-500 truncate mt-0.5">
-                          {asset.ownerAddress}
-                        </p>
+                        <div className="mt-0.5">
+                          {(() => {
+                            const ownerLower = asset.ownerAddress.toLowerCase();
+                            const domainInfo = ownerDomains[ownerLower];
+
+                            if (domainInfo?.loading) {
+                              return (
+                                <div className="flex items-center gap-1">
+                                  <div className="w-2 h-2 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
+                                  <span className="text-xs text-slate-500">
+                                    Loading...
+                                  </span>
+                                </div>
+                              );
+                            }
+
+                            if (domainInfo?.domain) {
+                              return (
+                                <p className="text-xs text-[#FF4DA6] font-mono truncate">
+                                  {domainInfo.domain}
+                                </p>
+                              );
+                            }
+
+                            // Fallback to address
+                            return (
+                              <p className="text-xs text-slate-500 truncate font-mono">
+                                {asset.ownerAddress.slice(0, 10)}...
+                              </p>
+                            );
+                          })()}
+                        </div>
                       )}
                     </div>
                   </motion.div>
