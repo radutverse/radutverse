@@ -60,10 +60,16 @@ export const AddRemixImageModal = ({
       return;
     }
 
-    console.log("[AddRemixImageModal] Fetching domains for owners:", uniqueOwners);
+    console.log(
+      "[AddRemixImageModal] Fetching domains for owners:",
+      uniqueOwners,
+    );
 
     // Mark all owners as loading
-    const loadingState: Record<string, { domain: string | null; loading: boolean }> = {};
+    const loadingState: Record<
+      string,
+      { domain: string | null; loading: boolean }
+    > = {};
     uniqueOwners.forEach((owner) => {
       loadingState[owner] = { domain: null, loading: true };
     });
@@ -79,7 +85,10 @@ export const AddRemixImageModal = ({
           body: JSON.stringify({ ownerAddress: owner }),
         })
           .then((res) => {
-            console.log(`[AddRemixImageModal] Response status for ${owner}:`, res.status);
+            console.log(
+              `[AddRemixImageModal] Response status for ${owner}:`,
+              res.status,
+            );
             return res.json();
           })
           .then((data) => {
@@ -90,7 +99,10 @@ export const AddRemixImageModal = ({
             };
           })
           .catch((err) => {
-            console.error(`[AddRemixImageModal] Error fetching domain for ${owner}:`, err);
+            console.error(
+              `[AddRemixImageModal] Error fetching domain for ${owner}:`,
+              err,
+            );
             return {
               address: owner,
               domain: null,
@@ -99,7 +111,10 @@ export const AddRemixImageModal = ({
       }),
     ).then((results) => {
       console.log("[AddRemixImageModal] All domain fetch results:", results);
-      const newDomains: Record<string, { domain: string | null; loading: boolean }> = {};
+      const newDomains: Record<
+        string,
+        { domain: string | null; loading: boolean }
+      > = {};
       results.forEach(({ address, domain }) => {
         newDomains[address] = { domain, loading: false };
       });
