@@ -181,6 +181,9 @@ export function createServer() {
   // Resolve IP name endpoint (POST /api/resolve-ip-name)
   app.post("/api/resolve-ip-name", handleResolveIpName);
 
+  // Resolve owner domain endpoint (POST /api/resolve-owner-domain)
+  app.post("/api/resolve-owner-domain", handleResolveOwnerDomain);
+
   // Get typing suggestions endpoint (POST /api/get-suggestions)
   app.post("/api/get-suggestions", handleGetSuggestions);
 
