@@ -64,6 +64,14 @@ export const handleResolveOwnerDomain: RequestHandler = async (req, res) => {
 
       const data = await response.json();
 
+      console.log("[Resolve Owner Domain] Raw API response:", {
+        ownerAddress: trimmedAddress,
+        responseKeys: Object.keys(data),
+        dataType: typeof data.data,
+        dataIsArray: Array.isArray(data.data),
+        rawData: JSON.stringify(data).substring(0, 500),
+      });
+
       // data.data should contain an array of domain objects
       // Each domain object typically has: name, expiry_date, etc.
       const domains = Array.isArray(data.data) ? data.data : [];
@@ -75,6 +83,7 @@ export const handleResolveOwnerDomain: RequestHandler = async (req, res) => {
         ownerAddress: trimmedAddress,
         domainCount: domains.length,
         primaryDomain,
+        firstDomain: domains[0],
       });
 
       res.json({
