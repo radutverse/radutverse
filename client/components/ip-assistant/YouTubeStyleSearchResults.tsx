@@ -56,13 +56,13 @@ export const YouTubeStyleSearchResults = ({
   };
 
   // Get remix types based on licenses (paid/free)
-  type RemixType = "paid" | "free";
-  const getRemixTypes = (asset: SearchResult): RemixType[] => {
+  type RemixTypeInfo = { type: "paid" | "free"; hasAttribution: boolean };
+  const getRemixTypes = (asset: SearchResult): RemixTypeInfo[] => {
     if (!asset.licenses || asset.licenses.length === 0) {
       return [];
     }
 
-    const remixTypes: Set<RemixType> = new Set();
+    const remixTypesMap = new Map<"paid" | "free", { hasAttribution: boolean }>();
 
     for (const license of asset.licenses) {
       const terms = license.terms || license;
@@ -72,11 +72,26 @@ export const YouTubeStyleSearchResults = ({
       if (!derivativesAllowed) continue;
 
       const commercialUse = terms?.commercialUse === true;
-      const remixType: RemixType = commercialUse ? "paid" : "free";
-      remixTypes.add(remixType);
+      const remixType: "paid" | "free" = commercialUse ? "paid" : "free";
+
+      // Check if this license has derivativesAttribution
+      const derivativesAttribution =
+        terms?.derivativesAttribution === true ||
+        license.derivativesAttribution === true;
+
+      // Update map - set hasAttribution to true if any license of this type requires attribution
+      if (!remixTypesMap.has(remixType)) {
+        remixTypesMap.set(remixType, { hasAttribution: derivativesAttribution });
+      } else {
+        const existing = remixTypesMap.get(remixType)!;
+        existing.hasAttribution = existing.hasAttribution || derivativesAttribution;
+      }
     }
 
-    return Array.from(remixTypes);
+    return Array.from(remixTypesMap.entries()).map(([type, info]) => ({
+      type,
+      hasAttribution: info.hasAttribution,
+    }));
   };
 
   return (
@@ -249,26 +264,26 @@ export const YouTubeStyleSearchResults = ({
                   {/* Remix Type Badges - Top Right */}
                   {getRemixTypes(asset).length > 0 && (
                     <div className="absolute top-2 right-2 flex flex-col gap-1">
-                      {getRemixTypes(asset).map((remixType) => (
+                      {getRemixTypes(asset).map((remixTypeInfo) => (
                         <span
-                          key={remixType}
+                          key={remixTypeInfo.type}
                           className="text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm bg-slate-900/80 border"
                           style={{
                             backgroundColor:
-                              remixType === "paid"
+                              remixTypeInfo.type === "paid"
                                 ? "rgba(34, 197, 94, 0.2)"
                                 : "rgba(59, 130, 246, 0.2)",
                             borderColor:
-                              remixType === "paid"
+                              remixTypeInfo.type === "paid"
                                 ? "rgb(134, 239, 172)"
                                 : "rgb(147, 197, 253)",
                             color:
-                              remixType === "paid"
+                              remixTypeInfo.type === "paid"
                                 ? "rgb(134, 239, 172)"
                                 : "rgb(147, 197, 253)",
                           }}
                         >
-                          {remixType === "paid" ? "💰 Paid" : "🆓 Free"}
+                          {remixTypeInfo.type === "paid" ? "💰 Paid" : "🆓 Free"}
                         </span>
                       ))}
                     </div>
