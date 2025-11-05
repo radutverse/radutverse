@@ -38,6 +38,32 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
     loading: boolean;
   } | null>(null);
 
+  // Fetch owner domain when modal opens or details change
+  useEffect(() => {
+    if (!details?.ownerAddress) {
+      setOwnerDomain(null);
+      return;
+    }
+
+    setOwnerDomain({ domain: null, loading: true });
+
+    fetch("/api/resolve-owner-domain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerAddress: details.ownerAddress }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setOwnerDomain({
+          domain: data.ok ? data.domain : null,
+          loading: false,
+        });
+      })
+      .catch(() => {
+        setOwnerDomain({ domain: null, loading: false });
+      });
+  }, [details?.ownerAddress]);
+
   if (!details) return null;
 
   const formatDate = (timestamp?: number) => {
