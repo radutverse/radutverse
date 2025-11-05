@@ -11,6 +11,7 @@ import { handleSearchByOwner } from "./routes/search-by-owner.js";
 import { handleParseSearchIntent } from "./routes/parse-search-intent.js";
 import { handleGetSuggestions } from "./routes/get-suggestions.js";
 import { handleResolveIpName } from "./routes/resolve-ip-name.js";
+import { handleResolveOwnerDomain } from "./routes/resolve-owner-domain.js";
 import {
   handleAddRemixHash,
   handleCheckRemixHash,
