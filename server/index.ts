@@ -11,6 +11,7 @@ import { handleSearchByOwner } from "./routes/search-by-owner.js";
 import { handleParseSearchIntent } from "./routes/parse-search-intent.js";
 import { handleGetSuggestions } from "./routes/get-suggestions.js";
 import { handleResolveIpName } from "./routes/resolve-ip-name.js";
+import { handleResolveOwnerDomain } from "./routes/resolve-owner-domain.js";
 import {
   handleAddRemixHash,
   handleCheckRemixHash,
@@ -179,6 +180,9 @@ export function createServer() {
 
   // Resolve IP name endpoint (POST /api/resolve-ip-name)
   app.post("/api/resolve-ip-name", handleResolveIpName);
+
+  // Resolve owner domain endpoint (POST /api/resolve-owner-domain)
+  app.post("/api/resolve-owner-domain", handleResolveOwnerDomain);
 
   // Get typing suggestions endpoint (POST /api/get-suggestions)
   app.post("/api/get-suggestions", handleGetSuggestions);
