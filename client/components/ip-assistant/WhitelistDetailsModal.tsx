@@ -46,7 +46,10 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
       return;
     }
 
-    console.log("[WhitelistDetailsModal] Fetching domain for:", details.ownerAddress);
+    console.log(
+      "[WhitelistDetailsModal] Fetching domain for:",
+      details.ownerAddress,
+    );
     setOwnerDomain({ domain: null, loading: true });
 
     fetch("/api/resolve-owner-domain", {
@@ -241,7 +244,9 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                       <div className="space-y-3">
                         {/* Domain Display */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <span className="text-slate-400 text-sm">Domain:</span>
+                          <span className="text-slate-400 text-sm">
+                            Domain:
+                          </span>
                           {ownerDomain?.loading ? (
                             <div className="flex items-center gap-2">
                               <div className="w-3 h-3 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
@@ -262,13 +267,17 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
 
                         {/* Owner Address Display */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <span className="text-slate-400 text-sm">Owner Address:</span>
+                          <span className="text-slate-400 text-sm">
+                            Owner Address:
+                          </span>
                           <div className="flex items-center gap-2">
                             <span className="text-slate-100 font-mono text-sm break-all">
                               {truncateAddress(details.ownerAddress)}
                             </span>
                             <button
-                              onClick={() => copyToClipboard(details.ownerAddress!)}
+                              onClick={() =>
+                                copyToClipboard(details.ownerAddress!)
+                              }
                               title="Copy owner address"
                               className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-slate-100 transition-colors"
                               aria-label="Copy owner address"
@@ -301,8 +310,6 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                     </div>
                   </div>
                 </div>
-
-
 
                 {/* Royalty Configuration */}
                 {(details.maxMintingFee ||
@@ -355,7 +362,6 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
                     </div>
                   </div>
                 )}
-
               </div>
 
               {/* Footer */}

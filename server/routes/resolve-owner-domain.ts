@@ -23,7 +23,10 @@ export const handleResolveOwnerDomain: RequestHandler = async (req, res) => {
       });
     }
 
-    console.log("[Resolve Owner Domain] Looking up domain for:", trimmedAddress);
+    console.log(
+      "[Resolve Owner Domain] Looking up domain for:",
+      trimmedAddress,
+    );
 
     try {
       // Call Blockscout API to get all domains for an address
@@ -106,10 +109,7 @@ export const handleResolveOwnerDomain: RequestHandler = async (req, res) => {
 
       // If we can't reach Blockscout, return a response indicating no domain found
       // This allows the UI to continue functioning
-      console.warn(
-        "[Resolve Owner Domain] Fetch error:",
-        fetchError?.message,
-      );
+      console.warn("[Resolve Owner Domain] Fetch error:", fetchError?.message);
       return res.json({
         ok: true,
         ownerAddress: trimmedAddress,
