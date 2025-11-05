@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SearchResult {
@@ -38,6 +38,74 @@ export const AddRemixImageModal = ({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [ownerDomains, setOwnerDomains] = useState<
+    Record<string, { domain: string | null; loading: boolean }>
+  >({});
+
+  // Get unique owner addresses to fetch domains for
+  const uniqueOwners = useMemo(() => {
+    const owners = new Set<string>();
+    searchResults.forEach((asset) => {
+      if (asset.ownerAddress) {
+        owners.add(asset.ownerAddress.toLowerCase());
+      }
+    });
+    return Array.from(owners);
+  }, [searchResults]);
+
+  // Fetch domains for all owners when results change
+  useEffect(() => {
+    if (uniqueOwners.length === 0) {
+      console.log("[AddRemixImageModal] No unique owners found");
+      return;
+    }
+
+    console.log("[AddRemixImageModal] Fetching domains for owners:", uniqueOwners);
+
+    // Mark all owners as loading
+    const loadingState: Record<string, { domain: string | null; loading: boolean }> = {};
+    uniqueOwners.forEach((owner) => {
+      loadingState[owner] = { domain: null, loading: true };
+    });
+    setOwnerDomains(loadingState);
+
+    // Fetch domains for all owners in parallel
+    Promise.all(
+      uniqueOwners.map((owner) => {
+        console.log("[AddRemixImageModal] Fetching domain for owner:", owner);
+        return fetch("/api/resolve-owner-domain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: owner }),
+        })
+          .then((res) => {
+            console.log(`[AddRemixImageModal] Response status for ${owner}:`, res.status);
+            return res.json();
+          })
+          .then((data) => {
+            console.log(`[AddRemixImageModal] Domain data for ${owner}:`, data);
+            return {
+              address: owner,
+              domain: data.ok ? data.domain : null,
+            };
+          })
+          .catch((err) => {
+            console.error(`[AddRemixImageModal] Error fetching domain for ${owner}:`, err);
+            return {
+              address: owner,
+              domain: null,
+            };
+          });
+      }),
+    ).then((results) => {
+      console.log("[AddRemixImageModal] All domain fetch results:", results);
+      const newDomains: Record<string, { domain: string | null; loading: boolean }> = {};
+      results.forEach(({ address, domain }) => {
+        newDomains[address] = { domain, loading: false };
+      });
+      setOwnerDomains(newDomains);
+    });
+  }, [uniqueOwners]);
 
   const handleSearch = useCallback(async () => {
     if (!searchInput.trim()) {
@@ -264,9 +332,38 @@ export const AddRemixImageModal = ({
                         {asset.title || asset.name || "Untitled"}
                       </p>
                       {asset.ownerAddress && (
-                        <p className="text-xs text-slate-500 truncate mt-0.5">
-                          {asset.ownerAddress}
-                        </p>
+                        <div className="mt-0.5">
+                          {(() => {
+                            const ownerLower = asset.ownerAddress.toLowerCase();
+                            const domainInfo = ownerDomains[ownerLower];
+
+                            if (domainInfo?.loading) {
+                              return (
+                                <div className="flex items-center gap-1">
+                                  <div className="w-2 h-2 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
+                                  <span className="text-xs text-slate-500">
+                                    Loading...
+                                  </span>
+                                </div>
+                              );
+                            }
+
+                            if (domainInfo?.domain) {
+                              return (
+                                <p className="text-xs text-[#FF4DA6] font-mono truncate">
+                                  {domainInfo.domain}
+                                </p>
+                              );
+                            }
+
+                            // Fallback to address
+                            return (
+                              <p className="text-xs text-slate-500 truncate font-mono">
+                                {asset.ownerAddress.slice(0, 10)}...
+                              </p>
+                            );
+                          })()}
+                        </div>
                       )}
                     </div>
                   </motion.div>
