@@ -67,35 +67,31 @@ export const handleResolveOwnerDomain: RequestHandler = async (req, res) => {
       console.log("[Resolve Owner Domain] Raw API response:", {
         ownerAddress: trimmedAddress,
         responseKeys: Object.keys(data),
-        dataType: typeof data.data,
-        dataIsArray: Array.isArray(data.data),
-        rawData: JSON.stringify(data).substring(0, 500),
+        hasDomain: !!data.domain,
+        domainName: data.domain?.name,
+        resolvedDomainsCount: data.resolved_domains_count,
       });
 
-      // data.data should contain an array of domain objects
-      // Each domain object typically has: name, expiry_date, etc.
-      const domains = Array.isArray(data.data) ? data.data : [];
+      // Response has a single domain object (not array)
+      const domain = data.domain;
+      const domainName = domain?.name || null;
+      const expiryDate = domain?.expiry_date || null;
 
-      // Get the primary domain (first active one, or just the first one)
-      const primaryDomain = domains.length > 0 ? domains[0].name : null;
-
-      console.log("[Resolve Owner Domain] Found domains:", {
+      console.log("[Resolve Owner Domain] Found domain:", {
         ownerAddress: trimmedAddress,
-        domainCount: domains.length,
-        primaryDomain,
-        firstDomain: domains[0],
+        domainName,
+        expiryDate,
       });
 
       res.json({
         ok: true,
         ownerAddress: trimmedAddress,
-        domain: primaryDomain,
-        domains: domains.map((d: any) => ({
-          name: d.name,
-          expiryDate: d.expiry_date,
-        })),
-        message: primaryDomain
-          ? `Found domain: ${primaryDomain}`
+        domain: domainName,
+        domains: domainName
+          ? [{ name: domainName, expiryDate: expiryDate }]
+          : [],
+        message: domainName
+          ? `Found domain: ${domainName}`
           : "No domains registered for this address",
       });
     } catch (fetchError: any) {
