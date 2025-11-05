@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 interface License {
   licenseTermsId?: string;
@@ -42,6 +42,74 @@ export const YouTubeStyleSearchResults = ({
   query = "",
 }: YouTubeStyleSearchResultsProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [ownerDomains, setOwnerDomains] = useState<
+    Record<string, { domain: string | null; loading: boolean }>
+  >({});
+
+  // Get unique owner addresses to fetch domains for
+  const uniqueOwners = useMemo(() => {
+    const owners = new Set<string>();
+    searchResults.forEach((asset) => {
+      if (asset.ownerAddress) {
+        owners.add(asset.ownerAddress.toLowerCase());
+      }
+    });
+    return Array.from(owners);
+  }, [searchResults]);
+
+  // Fetch domains for all owners when results change
+  useEffect(() => {
+    if (uniqueOwners.length === 0) {
+      console.log("[YouTubeSearchResults] No unique owners found");
+      return;
+    }
+
+    console.log("[YouTubeSearchResults] Fetching domains for owners:", uniqueOwners);
+
+    // Mark all owners as loading
+    const loadingState: Record<string, { domain: string | null; loading: boolean }> = {};
+    uniqueOwners.forEach((owner) => {
+      loadingState[owner] = { domain: null, loading: true };
+    });
+    setOwnerDomains(loadingState);
+
+    // Fetch domains for all owners in parallel
+    Promise.all(
+      uniqueOwners.map((owner) => {
+        console.log("[YouTubeSearchResults] Fetching domain for owner:", owner);
+        return fetch("/api/resolve-owner-domain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: owner }),
+        })
+          .then((res) => {
+            console.log(`[YouTubeSearchResults] Response status for ${owner}:`, res.status);
+            return res.json();
+          })
+          .then((data) => {
+            console.log(`[YouTubeSearchResults] Domain data for ${owner}:`, data);
+            return {
+              address: owner,
+              domain: data.ok ? data.domain : null,
+            };
+          })
+          .catch((err) => {
+            console.error(`[YouTubeSearchResults] Error fetching domain for ${owner}:`, err);
+            return {
+              address: owner,
+              domain: null,
+            };
+          });
+      }),
+    ).then((results) => {
+      console.log("[YouTubeSearchResults] All domain fetch results:", results);
+      const newDomains: Record<string, { domain: string | null; loading: boolean }> = {};
+      results.forEach(({ address, domain }) => {
+        newDomains[address] = { domain, loading: false };
+      });
+      setOwnerDomains(newDomains);
+    });
+  }, [uniqueOwners]);
 
   // Check if asset allows derivatives
   const allowsDerivatives = (asset: SearchResult): boolean => {
@@ -326,10 +394,40 @@ export const YouTubeStyleSearchResults = ({
                   {/* Metadata */}
                   <div className="text-xs text-slate-500 space-y-1">
                     {asset.ownerAddress && (
-                      <p className="font-mono text-[0.7rem] bg-slate-800/40 px-2 py-1 rounded w-fit">
-                        {asset.ownerAddress.slice(0, 8)}...
-                        {asset.ownerAddress.slice(-6)}
-                      </p>
+                      <div className="space-y-1">
+                        {/* Owner Domain Display */}
+                        {(() => {
+                          const ownerLower = asset.ownerAddress.toLowerCase();
+                          const domainInfo = ownerDomains[ownerLower];
+
+                          if (domainInfo?.loading) {
+                            return (
+                              <div className="flex items-center gap-2 py-1 px-2 bg-slate-800/40 rounded w-fit">
+                                <div className="w-3 h-3 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
+                                <span className="text-[0.7rem] text-slate-400">
+                                  Loading...
+                                </span>
+                              </div>
+                            );
+                          }
+
+                          if (domainInfo?.domain) {
+                            return (
+                              <p className="font-mono text-[0.7rem] bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] px-2 py-1 rounded w-fit border border-[#FF4DA6]/30">
+                                {domainInfo.domain}
+                              </p>
+                            );
+                          }
+
+                          // Fallback to address if no domain
+                          return (
+                            <p className="font-mono text-[0.7rem] bg-slate-800/40 px-2 py-1 rounded w-fit">
+                              {asset.ownerAddress.slice(0, 8)}...
+                              {asset.ownerAddress.slice(-6)}
+                            </p>
+                          );
+                        })()}
+                      </div>
                     )}
 
                     {asset.mediaType && (
