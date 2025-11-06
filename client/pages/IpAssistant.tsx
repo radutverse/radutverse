@@ -672,6 +672,11 @@ const IpAssistant = () => {
         const { results = [], message = "" } = data;
 
         setSearchResults(results);
+        setOriginalSearchResults(results);
+        setOriginalSearchQuery(trimmedQuery);
+        setDisplayingOwnerAssets(false);
+        setCurrentOwnerAddress(null);
+        setCurrentOwnerDisplay(null);
 
         setMessages((prev) =>
           prev.map((msg) =>
