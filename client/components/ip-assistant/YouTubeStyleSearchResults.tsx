@@ -442,18 +442,34 @@ export const YouTubeStyleSearchResults = ({
 
                           if (domainInfo?.domain) {
                             return (
-                              <p className="font-mono text-[0.7rem] bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] px-2 py-1 rounded w-fit border border-[#FF4DA6]/30">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOwnerClick?.(asset.ownerAddress, domainInfo.domain);
+                                }}
+                                className="font-mono text-[0.7rem] bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] px-2 py-1 rounded w-fit border border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95"
+                                title={`View all assets by ${domainInfo.domain}`}
+                              >
                                 {domainInfo.domain}
-                              </p>
+                              </button>
                             );
                           }
 
                           // Fallback to address if no domain
                           return (
-                            <p className="font-mono text-[0.7rem] bg-slate-800/40 px-2 py-1 rounded w-fit">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOwnerClick?.(asset.ownerAddress, null);
+                              }}
+                              className="font-mono text-[0.7rem] bg-slate-800/40 px-2 py-1 rounded w-fit hover:bg-slate-700/40 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95"
+                              title={`View all assets by ${asset.ownerAddress}`}
+                            >
                               {asset.ownerAddress.slice(0, 8)}...
                               {asset.ownerAddress.slice(-6)}
-                            </p>
+                            </button>
                           );
                         })()}
                       </div>
