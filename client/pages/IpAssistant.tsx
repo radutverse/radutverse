@@ -703,6 +703,11 @@ const IpAssistant = () => {
         const errorMessage = error?.message || "Failed to search IP assets";
         console.error("Search IP Error:", error);
 
+        // Reset owner assets view state on error to prevent confusion
+        setDisplayingOwnerAssets(false);
+        setCurrentOwnerAddress(null);
+        setCurrentOwnerDisplay(null);
+
         setMessages((prev) =>
           prev.map((msg) =>
             msg.from === "search-ip" && (msg as any).status === "pending"
