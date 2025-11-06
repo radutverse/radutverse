@@ -498,7 +498,7 @@ export const YouTubeStyleSearchResults = ({
                                 disabled={displayingOwnerAssets}
                                 className={`font-mono text-[0.7rem] px-2 py-1 rounded w-fit border transition-all duration-200 ${
                                   displayingOwnerAssets
-                                    ? "bg-slate-800/30 text-slate-500 border-slate-700/30 cursor-not-allowed opacity-60"
+                                    ? "bg-slate-800/30 text-white border-slate-700/30 cursor-not-allowed opacity-60"
                                     : "bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 cursor-pointer hover:scale-105 active:scale-95"
                                 }`}
                                 title={displayingOwnerAssets ? "Click back to search to view other owners" : `View all assets by ${domainInfo.domain}`}
