@@ -224,18 +224,49 @@ export const YouTubeStyleSearchResults = ({
       >
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-start justify-between gap-4 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/30 px-6 py-4 sm:px-8">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#FF4DA6] mb-1">
-              IP Assets Search Results
-            </p>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-100 truncate">
-              {query && `Results for "${query}"`}
-              {searchResults.length > 0 && (
-                <span className="ml-2 text-[#FF4DA6] text-lg sm:text-xl">
-                  ({searchResults.length})
-                </span>
-              )}
-            </h2>
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            {displayingOwnerAssets && (
+              <motion.button
+                type="button"
+                onClick={onBackClick}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-700/50 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 mt-1"
+                aria-label="Back to search results"
+                title="Back to search results"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </motion.button>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#FF4DA6] mb-1">
+                {displayingOwnerAssets
+                  ? "Assets by Owner"
+                  : "IP Assets Search Results"}
+              </p>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-100 truncate">
+                {displayingOwnerAssets
+                  ? `${ownerDisplay}`
+                  : query && `Results for "${query}"`}
+                {searchResults.length > 0 && (
+                  <span className="ml-2 text-[#FF4DA6] text-lg sm:text-xl">
+                    ({searchResults.length})
+                  </span>
+                )}
+              </h2>
+            </div>
           </div>
           <motion.button
             type="button"
