@@ -294,7 +294,13 @@ export const YouTubeStyleSearchResults = ({
 
         {/* Results Grid */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-max">
+          {isLoadingOwnerAssets ? (
+            <div className="flex items-center justify-center h-full gap-3">
+              <div className="w-4 h-4 rounded-full bg-[#FF4DA6] animate-bounce" />
+              <span className="text-slate-400">Loading owner assets...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-max">
             {searchResults.map((asset, idx) => (
               <div
                 key={asset.ipId || idx}
@@ -527,7 +533,8 @@ export const YouTubeStyleSearchResults = ({
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </motion.div>
     </motion.div>
