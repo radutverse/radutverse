@@ -40,6 +40,7 @@ export const YouTubeStyleSearchResults = ({
   onClose,
   onAssetClick,
   onRemix,
+  onOwnerClick,
   query = "",
 }: YouTubeStyleSearchResultsProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
