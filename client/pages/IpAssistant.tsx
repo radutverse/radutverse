@@ -2712,24 +2712,21 @@ const IpAssistant = () => {
                 }
               }}
               onOwnerClick={(ownerAddress, ownerDomain) => {
-                // Close the search modal
-                setShowSearchModal(false);
-
-                // Add a message showing the owner being searched
+                // Keep modal open and search for owner's assets
                 const ownerDisplay = ownerDomain || `${ownerAddress.slice(0, 8)}...${ownerAddress.slice(-6)}`;
-                autoScrollNextRef.current = false;
-                pushMessage({
-                  from: "search-ip",
-                  status: "pending",
-                  query: ownerDisplay,
-                  ts: getCurrentTimestamp(),
-                });
-
-                // Small delay before searching
-                setTimeout(() => {
-                  searchByOwner(ownerAddress, ownerDisplay);
-                }, 300);
+                searchByOwner(ownerAddress, ownerDisplay, true);
               }}
+              onBackClick={() => {
+                // Go back to original search results
+                setSearchResults(originalSearchResults);
+                setDisplayingOwnerAssets(false);
+                setCurrentOwnerAddress(null);
+                setCurrentOwnerDisplay(null);
+              }}
+              displayingOwnerAssets={displayingOwnerAssets}
+              ownerDisplay={currentOwnerDisplay}
+              isLoadingOwnerAssets={isLoadingOwnerAssets}
+              query={displayingOwnerAssets ? undefined : originalSearchQuery}
               onRemix={async (asset) => {
                 try {
                   if (!asset.mediaUrl) {
