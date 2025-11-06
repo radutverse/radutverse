@@ -41,7 +41,7 @@ import type {
 } from "@/lib/ip-assistant/types";
 
 const IpAssistant = () => {
-  const [messages, setMessages] = useState<Message[]>([getInitialBotMessage()]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
@@ -474,7 +474,7 @@ const IpAssistant = () => {
 
   const handleNewChat = useCallback(() => {
     saveSession([...messages]);
-    setMessages([getInitialBotMessage()]);
+    setMessages([]);
     setWaiting(false);
   }, [messages, saveSession]);
 
