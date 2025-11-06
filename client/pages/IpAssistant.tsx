@@ -210,7 +210,13 @@ const IpAssistant = () => {
   const [ipCheckInput, setIpCheckInput] = useState<string>("");
   const [ipCheckLoading, setIpCheckLoading] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [originalSearchResults, setOriginalSearchResults] = useState<any[]>([]);
+  const [originalSearchQuery, setOriginalSearchQuery] = useState<string>("");
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
+  const [displayingOwnerAssets, setDisplayingOwnerAssets] = useState(false);
+  const [currentOwnerAddress, setCurrentOwnerAddress] = useState<string | null>(null);
+  const [currentOwnerDisplay, setCurrentOwnerDisplay] = useState<string | null>(null);
+  const [isLoadingOwnerAssets, setIsLoadingOwnerAssets] = useState(false);
   const [expandedAsset, setExpandedAsset] = useState<any>(null);
   const [showAssetDetails, setShowAssetDetails] = useState<boolean>(false);
   const [showRemixMenu, setShowRemixMenu] = useState<boolean>(false);
