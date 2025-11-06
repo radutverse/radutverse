@@ -814,26 +814,37 @@ const IpAssistant = () => {
           error?.message || "Failed to search IP assets by owner";
         console.error("Search By Owner Error:", error);
 
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.from === "search-ip" && (msg as any).status === "pending"
-              ? {
-                  ...msg,
-                  status: "complete",
-                  query: displayValue,
-                  error: errorMessage,
-                }
-              : msg,
-          ),
-        );
+        if (fromModal) {
+          // Show error in modal by clearing results
+          setSearchResults([]);
+          setDisplayingOwnerAssets(false);
+        } else {
+          // Show error in chat
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.from === "search-ip" && (msg as any).status === "pending"
+                ? {
+                    ...msg,
+                    status: "complete",
+                    query: displayValue,
+                    error: errorMessage,
+                  }
+                : msg,
+            ),
+          );
 
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (autoScrollNextRef.current) scrollToBottomImmediate();
-          }, 0);
-        });
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (autoScrollNextRef.current) scrollToBottomImmediate();
+            }, 0);
+          });
+        }
       } finally {
-        setWaiting(false);
+        if (!fromModal) {
+          setWaiting(false);
+        } else {
+          setIsLoadingOwnerAssets(false);
+        }
       }
     },
     [scrollToBottomImmediate],
