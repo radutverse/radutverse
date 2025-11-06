@@ -32,7 +32,11 @@ interface YouTubeStyleSearchResultsProps {
   onAssetClick: (asset: SearchResult) => void;
   onRemix?: (asset: SearchResult) => void;
   onOwnerClick?: (ownerAddress: string, ownerDomain?: string | null) => void;
+  onBackClick?: () => void;
   query?: string;
+  displayingOwnerAssets?: boolean;
+  ownerDisplay?: string | null;
+  isLoadingOwnerAssets?: boolean;
 }
 
 export const YouTubeStyleSearchResults = ({
