@@ -21,7 +21,6 @@ import {
 import { ANSWER_DETAILS } from "@/lib/ip-assistant/answer-details";
 import {
   getCurrentTimestamp,
-  getInitialBotMessage,
   getMessagePreview,
   isValidEthereumAddress,
   summaryFromAnswer,
@@ -42,8 +41,7 @@ import type {
 } from "@/lib/ip-assistant/types";
 
 const IpAssistant = () => {
-  const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([getInitialBotMessage()]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
@@ -476,7 +474,7 @@ const IpAssistant = () => {
 
   const handleNewChat = useCallback(() => {
     saveSession([...messages]);
-    setMessages([getInitialBotMessage()]);
+    setMessages([]);
     setWaiting(false);
   }, [messages, saveSession]);
 
@@ -1680,32 +1678,34 @@ const IpAssistant = () => {
     captureRawAssetData();
   }, [expandedAsset]);
 
-  if (!showChat) {
-    return (
-      <WelcomeScreen
-        onChatClick={() => setShowChat(true)}
-        onLicenseClick={() => {
-          setShowChat(true);
-          // Could add additional logic for license flow
-        }}
-        onRemixClick={() => {
-          setShowChat(true);
-          // Could add additional logic for remix flow
-        }}
-      />
-    );
-  }
-
   return (
     <DashboardLayout
       title="IP Assistant"
       avatarSrc={IP_ASSISTANT_AVATAR}
       actions={headerActions}
       sidebarExtras={sidebarExtras}
-      onLogoClick={() => setShowChat(false)}
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
+          {messages.length === 0 ? (
+            <WelcomeScreen
+              key="welcome-screen"
+              onRegisterWork={() => {
+                // Focus on file input to guide user
+                uploadRef.current?.focus?.();
+              }}
+              onRemixWork={() => {
+                // Add message about remix mode
+                const msg: Message = {
+                  id: `msg-${Date.now()}`,
+                  from: "bot",
+                  text: "To remix popular work, you'll need to search for and select existing IP assets. You can use the search features in the chat to find popular works!",
+                  ts: getCurrentTimestamp(),
+                };
+                setMessages([msg]);
+              }}
+            />
+          ) : null}
           {messages.map((msg, index) => {
             if (msg.from === "user") {
               return (
