@@ -822,9 +822,12 @@ const IpAssistant = () => {
         console.error("Search By Owner Error:", error);
 
         if (fromModal) {
-          // Show error in modal by clearing results
-          setSearchResults([]);
+          // Keep original results visible but show error state
           setDisplayingOwnerAssets(false);
+          setCurrentOwnerAddress(null);
+          setCurrentOwnerDisplay(null);
+          // Show error in console, results restore to original on next state update
+          console.warn("Owner search failed, reverting to original results");
         } else {
           // Show error in chat
           setMessages((prev) =>
