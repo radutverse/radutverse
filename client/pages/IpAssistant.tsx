@@ -63,6 +63,8 @@ const IpAssistant = () => {
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const loadedImagesRef = useRef<Set<string>>(new Set());
   const expandedMediaContainerRef = useRef<HTMLDivElement | null>(null);
+  const ownerSearchControllerRef = useRef<AbortController | null>(null);
+  const ownerSearchRequestIdRef = useRef<number | null>(null);
 
   // throttled scroll helpers to avoid excessive layout work on mobile
   const lastScrollRef = useRef<number>(0);
@@ -163,6 +165,9 @@ const IpAssistant = () => {
       }
       if (scrollRafRef.current) {
         cancelAnimationFrame(scrollRafRef.current as any);
+      }
+      if (ownerSearchControllerRef.current) {
+        ownerSearchControllerRef.current.abort();
       }
     };
   }, []);
@@ -675,6 +680,13 @@ const IpAssistant = () => {
         console.log("[Search IP] Response data:", data);
         const { results = [], message = "" } = data;
 
+        // Cancel any pending owner search when new search is performed
+        if (ownerSearchControllerRef.current) {
+          ownerSearchControllerRef.current.abort();
+          ownerSearchControllerRef.current = null;
+        }
+        ownerSearchRequestIdRef.current = null;
+
         // Only update if not currently viewing owner assets to prevent state corruption
         setSearchResults(results);
         setOriginalSearchResults(results);
@@ -751,7 +763,15 @@ const IpAssistant = () => {
           setWaiting(true);
         } else {
           setIsLoadingOwnerAssets(true);
+          // Cancel any previous owner search requests to prevent race conditions
+          if (ownerSearchControllerRef.current) {
+            ownerSearchControllerRef.current.abort();
+          }
+          // Create new AbortController and request ID for this request
+          ownerSearchControllerRef.current = new AbortController();
+          ownerSearchRequestIdRef.current = Date.now();
         }
+        const currentRequestId = ownerSearchRequestIdRef.current;
 
         console.log(
           "[Search By Owner] Searching for assets by owner:",
@@ -766,6 +786,7 @@ const IpAssistant = () => {
           body: JSON.stringify({
             ownerAddress: trimmedAddress,
           }),
+          signal: fromModal ? ownerSearchControllerRef.current?.signal : undefined,
         });
 
         console.log("[Search By Owner] Response status:", response.status);
@@ -791,15 +812,18 @@ const IpAssistant = () => {
         console.log("[Search By Owner] Response data:", data);
         const { results = [], message = "" } = data;
 
-        setSearchResults(results);
-
         if (fromModal) {
-          // When called from modal owner click, just update results
-          setDisplayingOwnerAssets(true);
-          setCurrentOwnerAddress(trimmedAddress);
-          setCurrentOwnerDisplay(displayValue);
+          // Only update state if this request is still the current one (prevent race conditions)
+          if (currentRequestId !== ownerSearchRequestIdRef.current) {
+            console.log("[Search By Owner] Ignoring results from superseded request");
+            return;
+          }
+          // When called from modal owner click, just update results (UI state already set in onClick)
+          setSearchResults(results);
+          setIsLoadingOwnerAssets(false);
         } else {
           // When called from chat, add message and scroll
+          setSearchResults(results);
           setMessages((prev) =>
             prev.map((msg) =>
               msg.from === "search-ip" && (msg as any).status === "pending"
@@ -821,6 +845,18 @@ const IpAssistant = () => {
           });
         }
       } catch (error: any) {
+        // Don't process errors from aborted requests
+        if (error?.name === "AbortError") {
+          console.log("[Search By Owner] Request was cancelled (new search started)");
+          return;
+        }
+
+        // Don't update state if this request was superseded by a newer one
+        if (fromModal && currentRequestId !== ownerSearchRequestIdRef.current) {
+          console.log("[Search By Owner] Ignoring error from superseded request");
+          return;
+        }
+
         const errorMessage =
           error?.message || "Failed to search IP assets by owner";
         console.error("Search By Owner Error:", error);
@@ -831,6 +867,7 @@ const IpAssistant = () => {
           setDisplayingOwnerAssets(false);
           setCurrentOwnerAddress(null);
           setCurrentOwnerDisplay(null);
+          setIsLoadingOwnerAssets(false);
           console.warn("Owner search failed, restored original results");
         } else {
           // Show error in chat
@@ -856,9 +893,8 @@ const IpAssistant = () => {
       } finally {
         if (!fromModal) {
           setWaiting(false);
-        } else {
-          setIsLoadingOwnerAssets(false);
         }
+        // Loading state for fromModal is handled in success/error paths
       }
     },
     [scrollToBottomImmediate],
@@ -2730,14 +2766,26 @@ const IpAssistant = () => {
                 const ownerDisplay =
                   ownerDomain ||
                   `${ownerAddress.slice(0, 8)}...${ownerAddress.slice(-6)}`;
+                // Update UI immediately for instant feedback (before fetch)
+                setDisplayingOwnerAssets(true);
+                setCurrentOwnerAddress(ownerAddress);
+                setCurrentOwnerDisplay(ownerDisplay);
+                setIsLoadingOwnerAssets(true);
+                // Then fetch data in parallel
                 searchByOwner(ownerAddress, ownerDisplay, true);
               }}
               onBackClick={() => {
+                // Cancel any pending owner search before going back
+                if (ownerSearchControllerRef.current) {
+                  ownerSearchControllerRef.current.abort();
+                  ownerSearchControllerRef.current = null;
+                }
                 // Go back to original search results
                 setSearchResults(originalSearchResults);
                 setDisplayingOwnerAssets(false);
                 setCurrentOwnerAddress(null);
                 setCurrentOwnerDisplay(null);
+                setIsLoadingOwnerAssets(false);
               }}
               displayingOwnerAssets={displayingOwnerAssets}
               ownerDisplay={currentOwnerDisplay}
@@ -3581,7 +3629,7 @@ const IpAssistant = () => {
                                           </span>
                                           <p className="text-slate-200 font-semibold">
                                             {license.terms.derivativesAllowed
-                                              ? "�� Allowed"
+                                              ? "���� Allowed"
                                               : "✗ Not Allowed"}
                                           </p>
                                         </div>
