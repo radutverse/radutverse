@@ -31,6 +31,7 @@ interface YouTubeStyleSearchResultsProps {
   onClose: () => void;
   onAssetClick: (asset: SearchResult) => void;
   onRemix?: (asset: SearchResult) => void;
+  onOwnerClick?: (ownerAddress: string, ownerDomain?: string | null) => void;
   query?: string;
 }
 
