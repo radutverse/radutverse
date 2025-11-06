@@ -1679,6 +1679,25 @@ const IpAssistant = () => {
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
+          {messages.length === 0 ? (
+            <WelcomeScreen
+              key="welcome-screen"
+              onRegisterWork={() => {
+                // Focus on file input to guide user
+                uploadRef.current?.focus?.();
+              }}
+              onRemixWork={() => {
+                // Add message about remix mode
+                const msg: Message = {
+                  id: `msg-${Date.now()}`,
+                  from: "bot",
+                  text: "To remix popular work, you'll need to search for and select existing IP assets. You can use the search features in the chat to find popular works!",
+                  ts: getCurrentTimestamp(),
+                };
+                setMessages([msg]);
+              }}
+            />
+          ) : null}
           {messages.map((msg, index) => {
             if (msg.from === "user") {
               return (
