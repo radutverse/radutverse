@@ -1,223 +1,246 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { NavLink } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { APP_NAV_ITEMS } from "@/config/navigation";
 
-const BRAND_NAME = "Radut Verse";
-const BRAND_IMAGE_URL =
-  "https://cdn.builder.io/api/v1/image/assets%2Fc692190cfd69486380fecff59911b51b%2F52cfa9fa715049a49469c1473e1a313e";
+type WelcomeScreenProps = {
+  onRegisterWork: () => void;
+  onRemixWork: () => void;
+};
 
-interface WelcomeScreenProps {
-  onChatClick: () => void;
-  onLicenseClick: () => void;
-  onRemixClick: () => void;
-}
+type GuideStep = "idle" | "choose-file" | "type-register" | "complete";
 
 export const WelcomeScreen = ({
-  onChatClick,
-  onLicenseClick,
-  onRemixClick,
+  onRegisterWork,
+  onRemixWork,
 }: WelcomeScreenProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [guideStep, setGuideStep] = useState<GuideStep>("idle");
+  const [fileButtonRect, setFileButtonRect] = useState<DOMRect | null>(null);
+  const [inputRect, setInputRect] = useState<DOMRect | null>(null);
 
-  const renderBrandHeader = () => (
-    <div className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300">
-      <span
-        aria-hidden
-        className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF4DA6]/10"
-        style={{
-          backgroundImage: `url(${BRAND_IMAGE_URL})`,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-        }}
-      />
-      <div className="text-base font-bold text-[#FF4DA6]">{BRAND_NAME}</div>
-    </div>
-  );
+  useEffect(() => {
+    if (guideStep === "choose-file") {
+      const fileBtn = document.querySelector("[data-file-input-btn]");
+      if (fileBtn) {
+        setFileButtonRect(fileBtn.getBoundingClientRect());
+        const updateRect = () => {
+          setFileButtonRect(fileBtn.getBoundingClientRect());
+        };
+        window.addEventListener("resize", updateRect);
+        return () => window.removeEventListener("resize", updateRect);
+      }
+    }
 
-  const renderNavItems = (closeSidebar?: () => void) => (
-    <nav className="mt-6 flex-1 w-full text-slate-300 space-y-1">
-      <ul className="flex flex-col gap-1">
-        {APP_NAV_ITEMS.map((item) => {
-          const ItemIcon = item.icon;
-          return (
-            <li key={item.id}>
-              <NavLink
-                to={item.to}
-                className={({ isActive }) => {
-                  const baseClasses =
-                    "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors";
-                  const activeClasses = "bg-[#FF4DA6]/15 text-[#FF4DA6]";
-                  const inactiveClasses =
-                    "text-slate-400 hover:text-slate-200 hover:bg-white/5";
-                  return [
-                    baseClasses,
-                    isActive ? activeClasses : inactiveClasses,
-                  ].join(" ");
-                }}
-                onClick={() => closeSidebar?.()}
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-800/50 text-slate-500">
-                  <ItemIcon className="h-4 w-4" />
-                </span>
-                <span>{item.label}</span>
-              </NavLink>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
+    if (guideStep === "type-register") {
+      const input = document.querySelector(
+        "[data-chat-input]",
+      ) as HTMLTextAreaElement;
+      if (input) {
+        setInputRect(input.getBoundingClientRect());
+        const updateRect = () => {
+          setInputRect(input.getBoundingClientRect());
+        };
+        window.addEventListener("resize", updateRect);
+        return () => window.removeEventListener("resize", updateRect);
+      }
+    }
+  }, [guideStep]);
 
-  const sidebar = (
-    <div className="flex w-full flex-col gap-6">
-      {renderBrandHeader()}
-      {renderNavItems(() => setSidebarOpen(false))}
-    </div>
-  );
+  const handleRegisterClick = () => {
+    setGuideStep("choose-file");
+    onRegisterWork();
+  };
+
+  const handleFileChosen = () => {
+    setGuideStep("type-register");
+  };
+
+  const handleSkipGuide = () => {
+    setGuideStep("complete");
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-100">
-      <div className="flex min-h-screen w-full md:overflow-hidden">
-        {/* Desktop Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col bg-slate-950/80 text-slate-100 py-6 px-4 sticky top-0 max-h-screen min-h-screen overflow-y-auto">
-          {sidebar}
-        </aside>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="h-full flex items-center justify-center px-4"
+    >
+      {guideStep === "idle" ? (
+        <div className="text-center max-w-2xl">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-2"
+          >
+            Welcome to Radut IP Assistant
+          </motion.h1>
 
-        {/* Mobile Sidebar */}
-        <AnimatePresence>
-          {sidebarOpen && (
-            <motion.div
-              className="fixed inset-0 z-50 md:hidden flex"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="fixed inset-0 bg-black/40"
-                onClick={() => setSidebarOpen(false)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              />
-              <motion.aside
-                className="relative w-64 bg-slate-950/90 text-slate-100 py-6 px-4 h-full overflow-y-auto"
-                initial={{ x: -24, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -24, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1">{renderBrandHeader()}</div>
-                  <button
-                    onClick={() => setSidebarOpen(false)}
-                    className="p-2 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 transition-colors"
-                    aria-label="Close menu"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="mt-6">
-                  {renderNavItems(() => setSidebarOpen(false))}
-                </div>
-              </motion.aside>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Main Content */}
-        <main className="flex-1 flex min-h-0 flex-col">
-          <motion.header
-            className="flex items-center gap-4 px-6 py-3.5 bg-slate-950/70 md:hidden flex-shrink-0"
+          <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-xl text-slate-300 mb-12"
+          >
+            What do you need?
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <button
-              type="button"
-              className="p-2 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 active:scale-[0.98] transition-all"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open sidebar"
+              onClick={handleRegisterClick}
+              className="px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 bg-[#FF4DA6] hover:bg-[#FF4DA6]/90 hover:shadow-lg hover:shadow-[#FF4DA6]/30"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              Register your work
             </button>
-          </motion.header>
+            <button
+              onClick={onRemixWork}
+              className="px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 bg-slate-700 hover:bg-slate-600 hover:shadow-lg hover:shadow-slate-600/30"
+            >
+              Remix popular work
+            </button>
+          </motion.div>
+        </div>
+      ) : null}
 
-          <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <AnimatePresence>
+        {guideStep === "choose-file" && fileButtonRect && (
+          <motion.div
+            key="file-guide"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 pointer-events-none z-50"
+          >
             <motion.div
+              className="absolute inset-0 bg-black/40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            />
+
+            <motion.div
+              className="absolute border-2 border-[#FF4DA6] rounded-lg pointer-events-none"
+              style={{
+                left: fileButtonRect.left - 8,
+                top: fileButtonRect.top - 8,
+                width: fileButtonRect.width + 16,
+                height: fileButtonRect.height + 16,
+              }}
+              animate={{
+                boxShadow: [
+                  "0 0 0 0 rgba(255, 77, 166, 0.7)",
+                  "0 0 0 20px rgba(255, 77, 166, 0)",
+                ],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeOut",
+              }}
+            />
+
+            <motion.div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center max-w-2xl mx-auto"
+              transition={{ delay: 0.3 }}
             >
-              <motion.h1
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-5xl md:text-6xl font-bold mb-8 text-slate-100 leading-tight"
-              >
-                Welcome to{" "}
-                <span className="bg-gradient-to-r from-[#FF4DA6] to-pink-500 bg-clip-text text-transparent">
-                  Radut Agent
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-2xl md:text-3xl text-slate-300 mb-16 font-light"
-              >
-                What do you need, babe?
-              </motion.p>
-
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                className="text-white font-semibold text-lg mb-4 bg-[#FF4DA6] px-4 py-2 rounded-lg whitespace-nowrap"
+                animate={{
+                  y: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
               >
-                <Button
-                  onClick={onLicenseClick}
-                  disabled
-                  className="px-8 py-6 text-lg font-semibold bg-slate-800 text-slate-100 rounded-lg w-full sm:w-auto border border-slate-700 opacity-50 cursor-not-allowed"
-                >
-                  License your work
-                </Button>
-
-                <Button
-                  onClick={onRemixClick}
-                  disabled
-                  className="px-8 py-6 text-lg font-semibold bg-slate-800 text-slate-100 rounded-lg w-full sm:w-auto border border-slate-700 opacity-50 cursor-not-allowed"
-                >
-                  Remix popular work
-                </Button>
-
-                <Button
-                  onClick={onChatClick}
-                  className="px-8 py-6 text-lg font-semibold bg-gradient-to-r from-[#FF4DA6] to-pink-500 text-white hover:opacity-90 transition-opacity rounded-lg w-full sm:w-auto"
-                >
-                  Chat with me
-                </Button>
+                ↑ Click to choose a file
               </motion.div>
             </motion.div>
-          </div>
-        </main>
-      </div>
-    </div>
+
+            <motion.button
+              onClick={handleFileChosen}
+              className="absolute bottom-8 right-8 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-colors pointer-events-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Next Step →
+            </motion.button>
+          </motion.div>
+        )}
+
+        {guideStep === "type-register" && inputRect && (
+          <motion.div
+            key="input-guide"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 pointer-events-none z-50"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            />
+
+            <motion.div
+              className="absolute border-2 border-[#FF4DA6] rounded-lg pointer-events-none"
+              style={{
+                left: inputRect.left - 8,
+                top: inputRect.top - 8,
+                width: inputRect.width + 16,
+                height: inputRect.height + 16,
+              }}
+              animate={{
+                boxShadow: [
+                  "0 0 0 0 rgba(255, 77, 166, 0.7)",
+                  "0 0 0 20px rgba(255, 77, 166, 0)",
+                ],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeOut",
+              }}
+            />
+
+            <motion.div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <motion.div
+                className="text-white font-semibold text-lg mb-4 bg-[#FF4DA6] px-4 py-2 rounded-lg whitespace-nowrap"
+                animate={{
+                  y: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              >
+                ↓ Type "register"
+              </motion.div>
+            </motion.div>
+
+            <motion.button
+              onClick={handleSkipGuide}
+              className="absolute bottom-8 right-8 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-colors pointer-events-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Skip Guide
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
