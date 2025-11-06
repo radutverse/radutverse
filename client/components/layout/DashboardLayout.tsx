@@ -20,6 +20,7 @@ type DashboardLayoutProps = {
   children: ReactNode;
   navItems?: AppNavItem[];
   sidebarExtras?: (options: { closeSidebar: () => void }) => ReactNode;
+  onLogoClick?: () => void;
 };
 
 export const DashboardLayout = ({
@@ -29,11 +30,15 @@ export const DashboardLayout = ({
   children,
   navItems = APP_NAV_ITEMS,
   sidebarExtras,
+  onLogoClick,
 }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const renderBrandHeader = () => (
-    <div className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300">
+    <button
+      onClick={onLogoClick}
+      className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300 border-0 bg-transparent hover:opacity-80 transition-opacity cursor-pointer"
+    >
       <span
         aria-hidden
         className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF4DA6]/10"
@@ -45,7 +50,7 @@ export const DashboardLayout = ({
         }}
       />
       <div className="text-base font-bold text-[#FF4DA6]">{BRAND_NAME}</div>
-    </div>
+    </button>
   );
 
   const renderNavItems = (closeSidebar?: () => void) => (
