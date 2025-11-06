@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 interface License {
   licenseTermsId?: string;
@@ -55,6 +55,7 @@ export const YouTubeStyleSearchResults = ({
   const [ownerDomains, setOwnerDomains] = useState<
     Record<string, { domain: string | null; loading: boolean }>
   >({});
+  const domainFetchControllerRef = useRef<AbortController | null>(null);
 
   // Get unique owner addresses to fetch domains for
   const uniqueOwners = useMemo(() => {
@@ -79,6 +80,12 @@ export const YouTubeStyleSearchResults = ({
       uniqueOwners,
     );
 
+    // Cancel previous domain fetch if still in progress
+    if (domainFetchControllerRef.current) {
+      domainFetchControllerRef.current.abort();
+    }
+    domainFetchControllerRef.current = new AbortController();
+
     // Mark all owners as loading
     const loadingState: Record<
       string,
@@ -97,6 +104,7 @@ export const YouTubeStyleSearchResults = ({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ownerAddress: owner }),
+          signal: domainFetchControllerRef.current?.signal,
         })
           .then((res) => {
             console.log(
@@ -116,10 +124,13 @@ export const YouTubeStyleSearchResults = ({
             };
           })
           .catch((err) => {
-            console.error(
-              `[YouTubeSearchResults] Error fetching domain for ${owner}:`,
-              err,
-            );
+            // Don't log errors from aborted requests
+            if (err.name !== "AbortError") {
+              console.error(
+                `[YouTubeSearchResults] Error fetching domain for ${owner}:`,
+                err,
+              );
+            }
             return {
               address: owner,
               domain: null,
@@ -136,7 +147,18 @@ export const YouTubeStyleSearchResults = ({
         newDomains[address] = { domain, loading: false };
       });
       setOwnerDomains(newDomains);
+    }).catch((err) => {
+      // Silently ignore abort errors
+      if (err.name !== "AbortError") {
+        console.error("[YouTubeSearchResults] Error fetching domains:", err);
+      }
     });
+
+    return () => {
+      if (domainFetchControllerRef.current) {
+        domainFetchControllerRef.current.abort();
+      }
+    };
   }, [uniqueOwners]);
 
   // Check if asset allows derivatives
