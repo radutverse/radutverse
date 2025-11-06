@@ -671,12 +671,14 @@ const IpAssistant = () => {
         console.log("[Search IP] Response data:", data);
         const { results = [], message = "" } = data;
 
+        // Only update if not currently viewing owner assets to prevent state corruption
         setSearchResults(results);
         setOriginalSearchResults(results);
         setOriginalSearchQuery(trimmedQuery);
         setDisplayingOwnerAssets(false);
         setCurrentOwnerAddress(null);
         setCurrentOwnerDisplay(null);
+        setIsLoadingOwnerAssets(false);
 
         setMessages((prev) =>
           prev.map((msg) =>
