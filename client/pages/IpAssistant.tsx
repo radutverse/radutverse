@@ -210,7 +210,17 @@ const IpAssistant = () => {
   const [ipCheckInput, setIpCheckInput] = useState<string>("");
   const [ipCheckLoading, setIpCheckLoading] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [originalSearchResults, setOriginalSearchResults] = useState<any[]>([]);
+  const [originalSearchQuery, setOriginalSearchQuery] = useState<string>("");
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
+  const [displayingOwnerAssets, setDisplayingOwnerAssets] = useState(false);
+  const [currentOwnerAddress, setCurrentOwnerAddress] = useState<string | null>(
+    null,
+  );
+  const [currentOwnerDisplay, setCurrentOwnerDisplay] = useState<string | null>(
+    null,
+  );
+  const [isLoadingOwnerAssets, setIsLoadingOwnerAssets] = useState(false);
   const [expandedAsset, setExpandedAsset] = useState<any>(null);
   const [showAssetDetails, setShowAssetDetails] = useState<boolean>(false);
   const [showRemixMenu, setShowRemixMenu] = useState<boolean>(false);
@@ -665,7 +675,14 @@ const IpAssistant = () => {
         console.log("[Search IP] Response data:", data);
         const { results = [], message = "" } = data;
 
+        // Only update if not currently viewing owner assets to prevent state corruption
         setSearchResults(results);
+        setOriginalSearchResults(results);
+        setOriginalSearchQuery(trimmedQuery);
+        setDisplayingOwnerAssets(false);
+        setCurrentOwnerAddress(null);
+        setCurrentOwnerDisplay(null);
+        setIsLoadingOwnerAssets(false);
 
         setMessages((prev) =>
           prev.map((msg) =>
@@ -689,6 +706,11 @@ const IpAssistant = () => {
       } catch (error: any) {
         const errorMessage = error?.message || "Failed to search IP assets";
         console.error("Search IP Error:", error);
+
+        // Reset owner assets view state on error to prevent confusion
+        setDisplayingOwnerAssets(false);
+        setCurrentOwnerAddress(null);
+        setCurrentOwnerDisplay(null);
 
         setMessages((prev) =>
           prev.map((msg) =>
@@ -716,7 +738,7 @@ const IpAssistant = () => {
   );
 
   const searchByOwner = useCallback(
-    async (ownerAddress: string, displayQuery?: string) => {
+    async (ownerAddress: string, displayQuery?: string, fromModal = false) => {
       if (!ownerAddress || ownerAddress.trim().length === 0) {
         return;
       }
@@ -725,7 +747,11 @@ const IpAssistant = () => {
       const displayValue = displayQuery || trimmedAddress;
 
       try {
-        setWaiting(true);
+        if (!fromModal) {
+          setWaiting(true);
+        } else {
+          setIsLoadingOwnerAssets(true);
+        }
 
         console.log(
           "[Search By Owner] Searching for assets by owner:",
@@ -767,50 +793,72 @@ const IpAssistant = () => {
 
         setSearchResults(results);
 
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.from === "search-ip" && (msg as any).status === "pending"
-              ? {
-                  ...msg,
-                  status: "complete",
-                  query: displayValue,
-                  results,
-                  resultCount: results.length,
-                }
-              : msg,
-          ),
-        );
+        if (fromModal) {
+          // When called from modal owner click, just update results
+          setDisplayingOwnerAssets(true);
+          setCurrentOwnerAddress(trimmedAddress);
+          setCurrentOwnerDisplay(displayValue);
+        } else {
+          // When called from chat, add message and scroll
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.from === "search-ip" && (msg as any).status === "pending"
+                ? {
+                    ...msg,
+                    status: "complete",
+                    query: displayValue,
+                    results,
+                    resultCount: results.length,
+                  }
+                : msg,
+            ),
+          );
 
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (autoScrollNextRef.current) scrollToBottomImmediate();
-          }, 0);
-        });
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (autoScrollNextRef.current) scrollToBottomImmediate();
+            }, 0);
+          });
+        }
       } catch (error: any) {
         const errorMessage =
           error?.message || "Failed to search IP assets by owner";
         console.error("Search By Owner Error:", error);
 
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.from === "search-ip" && (msg as any).status === "pending"
-              ? {
-                  ...msg,
-                  status: "complete",
-                  query: displayValue,
-                  error: errorMessage,
-                }
-              : msg,
-          ),
-        );
+        if (fromModal) {
+          // Restore original results on error when called from modal
+          setSearchResults(originalSearchResults);
+          setDisplayingOwnerAssets(false);
+          setCurrentOwnerAddress(null);
+          setCurrentOwnerDisplay(null);
+          console.warn("Owner search failed, restored original results");
+        } else {
+          // Show error in chat
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.from === "search-ip" && (msg as any).status === "pending"
+                ? {
+                    ...msg,
+                    status: "complete",
+                    query: displayValue,
+                    error: errorMessage,
+                  }
+                : msg,
+            ),
+          );
 
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (autoScrollNextRef.current) scrollToBottomImmediate();
-          }, 0);
-        });
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (autoScrollNextRef.current) scrollToBottomImmediate();
+            }, 0);
+          });
+        }
       } finally {
-        setWaiting(false);
+        if (!fromModal) {
+          setWaiting(false);
+        } else {
+          setIsLoadingOwnerAssets(false);
+        }
       }
     },
     [scrollToBottomImmediate],
@@ -2677,6 +2725,24 @@ const IpAssistant = () => {
                   });
                 }
               }}
+              onOwnerClick={(ownerAddress, ownerDomain) => {
+                // Keep modal open and search for owner's assets
+                const ownerDisplay =
+                  ownerDomain ||
+                  `${ownerAddress.slice(0, 8)}...${ownerAddress.slice(-6)}`;
+                searchByOwner(ownerAddress, ownerDisplay, true);
+              }}
+              onBackClick={() => {
+                // Go back to original search results
+                setSearchResults(originalSearchResults);
+                setDisplayingOwnerAssets(false);
+                setCurrentOwnerAddress(null);
+                setCurrentOwnerDisplay(null);
+              }}
+              displayingOwnerAssets={displayingOwnerAssets}
+              ownerDisplay={currentOwnerDisplay}
+              isLoadingOwnerAssets={isLoadingOwnerAssets}
+              query={displayingOwnerAssets ? undefined : originalSearchQuery}
               onRemix={async (asset) => {
                 try {
                   if (!asset.mediaUrl) {
@@ -3143,7 +3209,9 @@ const IpAssistant = () => {
                     disabled={!guestMode && !authenticated}
                     className="text-sm px-4 py-2.5 rounded-lg bg-[#FF4DA6] text-white font-semibold transition-all hover:shadow-lg hover:shadow-[#FF4DA6]/25 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/50"
                   >
-                    {remixConfig.type === "paid" ? "💰 Paid remix" : "🆓 Free remix"}
+                    {remixConfig.type === "paid"
+                      ? "💰 Paid remix"
+                      : "🆓 Free remix"}
                   </button>
                 ))}
                 <button
