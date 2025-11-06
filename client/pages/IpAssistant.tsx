@@ -727,7 +727,7 @@ const IpAssistant = () => {
   );
 
   const searchByOwner = useCallback(
-    async (ownerAddress: string, displayQuery?: string) => {
+    async (ownerAddress: string, displayQuery?: string, fromModal = false) => {
       if (!ownerAddress || ownerAddress.trim().length === 0) {
         return;
       }
@@ -736,7 +736,11 @@ const IpAssistant = () => {
       const displayValue = displayQuery || trimmedAddress;
 
       try {
-        setWaiting(true);
+        if (!fromModal) {
+          setWaiting(true);
+        } else {
+          setIsLoadingOwnerAssets(true);
+        }
 
         console.log(
           "[Search By Owner] Searching for assets by owner:",
