@@ -782,25 +782,33 @@ const IpAssistant = () => {
 
         setSearchResults(results);
 
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.from === "search-ip" && (msg as any).status === "pending"
-              ? {
-                  ...msg,
-                  status: "complete",
-                  query: displayValue,
-                  results,
-                  resultCount: results.length,
-                }
-              : msg,
-          ),
-        );
+        if (fromModal) {
+          // When called from modal owner click, just update results
+          setDisplayingOwnerAssets(true);
+          setCurrentOwnerAddress(trimmedAddress);
+          setCurrentOwnerDisplay(displayValue);
+        } else {
+          // When called from chat, add message and scroll
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.from === "search-ip" && (msg as any).status === "pending"
+                ? {
+                    ...msg,
+                    status: "complete",
+                    query: displayValue,
+                    results,
+                    resultCount: results.length,
+                  }
+                : msg,
+            ),
+          );
 
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (autoScrollNextRef.current) scrollToBottomImmediate();
-          }, 0);
-        });
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (autoScrollNextRef.current) scrollToBottomImmediate();
+            }, 0);
+          });
+        }
       } catch (error: any) {
         const errorMessage =
           error?.message || "Failed to search IP assets by owner";
