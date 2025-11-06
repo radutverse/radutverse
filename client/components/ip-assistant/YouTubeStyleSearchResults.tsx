@@ -521,7 +521,7 @@ export const YouTubeStyleSearchResults = ({
                               disabled={displayingOwnerAssets}
                               className={`font-mono text-[0.7rem] px-2 py-1 rounded w-fit transition-all duration-200 ${
                                 displayingOwnerAssets
-                                  ? "bg-slate-800/30 text-slate-500 cursor-not-allowed opacity-60"
+                                  ? "bg-slate-800/30 text-white cursor-not-allowed opacity-60"
                                   : "bg-slate-800/40 hover:bg-slate-700/40 cursor-pointer hover:scale-105 active:scale-95"
                               }`}
                               title={displayingOwnerAssets ? "Click back to search to view other owners" : `View all assets by ${asset.ownerAddress}`}
