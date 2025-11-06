@@ -20,7 +20,6 @@ import {
 import { ANSWER_DETAILS } from "@/lib/ip-assistant/answer-details";
 import {
   getCurrentTimestamp,
-  getInitialBotMessage,
   getMessagePreview,
   isValidEthereumAddress,
   summaryFromAnswer,
