@@ -31,7 +31,7 @@ export const WelcomeScreen = ({
 
     if (guideStep === "type-register") {
       const input = document.querySelector(
-        "[data-chat-input]"
+        "[data-chat-input]",
       ) as HTMLTextAreaElement;
       if (input) {
         setInputRect(input.getBoundingClientRect());

@@ -786,7 +786,9 @@ const IpAssistant = () => {
           body: JSON.stringify({
             ownerAddress: trimmedAddress,
           }),
-          signal: fromModal ? ownerSearchControllerRef.current?.signal : undefined,
+          signal: fromModal
+            ? ownerSearchControllerRef.current?.signal
+            : undefined,
         });
 
         console.log("[Search By Owner] Response status:", response.status);
@@ -815,7 +817,9 @@ const IpAssistant = () => {
         if (fromModal) {
           // Only update state if this request is still the current one (prevent race conditions)
           if (currentRequestId !== ownerSearchRequestIdRef.current) {
-            console.log("[Search By Owner] Ignoring results from superseded request");
+            console.log(
+              "[Search By Owner] Ignoring results from superseded request",
+            );
             return;
           }
           // When called from modal owner click, just update results (UI state already set in onClick)
@@ -847,13 +851,17 @@ const IpAssistant = () => {
       } catch (error: any) {
         // Don't process errors from aborted requests
         if (error?.name === "AbortError") {
-          console.log("[Search By Owner] Request was cancelled (new search started)");
+          console.log(
+            "[Search By Owner] Request was cancelled (new search started)",
+          );
           return;
         }
 
         // Don't update state if this request was superseded by a newer one
         if (fromModal && currentRequestId !== ownerSearchRequestIdRef.current) {
-          console.log("[Search By Owner] Ignoring error from superseded request");
+          console.log(
+            "[Search By Owner] Ignoring error from superseded request",
+          );
           return;
         }
 
