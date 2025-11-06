@@ -473,61 +473,29 @@ export const YouTubeStyleSearchResults = ({
                         {(() => {
                           const ownerLower = asset.ownerAddress.toLowerCase();
                           const domainInfo = ownerDomains[ownerLower];
+                          const displayDomain = domainInfo?.domain;
+                          const displayText = displayDomain || `${asset.ownerAddress.slice(0, 8)}...${asset.ownerAddress.slice(-6)}`;
 
-                          if (domainInfo?.loading) {
-                            return (
-                              <div className="flex items-center gap-2 py-1 px-2 bg-slate-800/40 rounded w-fit">
-                                <div className="w-3 h-3 rounded-full bg-[#FF4DA6]/60 animate-pulse" />
-                                <span className="text-[0.7rem] text-slate-400">
-                                  Loading...
-                                </span>
-                              </div>
-                            );
-                          }
-
-                          if (domainInfo?.domain) {
-                            return (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  if (!displayingOwnerAssets) {
-                                    e.stopPropagation();
-                                    onOwnerClick?.(asset.ownerAddress, domainInfo.domain);
-                                  }
-                                }}
-                                disabled={displayingOwnerAssets}
-                                className={`font-mono text-[0.7rem] px-2 py-1 rounded w-fit border transition-all duration-200 ${
-                                  displayingOwnerAssets
-                                    ? "bg-slate-800/30 text-white border-slate-700/30 cursor-not-allowed opacity-60"
-                                    : "bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 cursor-pointer hover:scale-105 active:scale-95"
-                                }`}
-                                title={displayingOwnerAssets ? "Click back to search to view other owners" : `View all assets by ${domainInfo.domain}`}
-                              >
-                                {domainInfo.domain}
-                              </button>
-                            );
-                          }
-
-                          // Fallback to address if no domain
                           return (
                             <button
                               type="button"
                               onClick={(e) => {
                                 if (!displayingOwnerAssets) {
                                   e.stopPropagation();
-                                  onOwnerClick?.(asset.ownerAddress, null);
+                                  onOwnerClick?.(asset.ownerAddress, displayDomain || null);
                                 }
                               }}
                               disabled={displayingOwnerAssets}
-                              className={`font-mono text-[0.7rem] px-2 py-1 rounded w-fit transition-all duration-200 ${
+                              className={`font-mono text-[0.7rem] px-2 py-1 rounded w-fit border transition-all duration-200 ${
                                 displayingOwnerAssets
-                                  ? "bg-slate-800/30 text-white cursor-not-allowed opacity-60"
-                                  : "bg-slate-800/40 hover:bg-slate-700/40 cursor-pointer hover:scale-105 active:scale-95"
+                                  ? "bg-slate-800/30 text-white border-slate-700/30 cursor-not-allowed opacity-60"
+                                  : displayDomain
+                                    ? "bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 cursor-pointer hover:scale-105 active:scale-95"
+                                    : "bg-slate-800/40 hover:bg-slate-700/40 cursor-pointer hover:scale-105 active:scale-95"
                               }`}
-                              title={displayingOwnerAssets ? "Click back to search to view other owners" : `View all assets by ${asset.ownerAddress}`}
+                              title={displayingOwnerAssets ? "Click back to search to view other owners" : `View all assets by ${displayText}`}
                             >
-                              {asset.ownerAddress.slice(0, 8)}...
-                              {asset.ownerAddress.slice(-6)}
+                              {displayText}
                             </button>
                           );
                         })()}
