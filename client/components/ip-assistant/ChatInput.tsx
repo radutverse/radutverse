@@ -87,6 +87,7 @@ const ChatInput = ({
       <div className="flex items-center gap-2">
         <button
           type="button"
+          data-file-input-btn
           className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/20 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
           onClick={() => uploadRef.current?.click()}
           onPointerDown={(event) => event.preventDefault()}
@@ -157,6 +158,7 @@ const ChatInput = ({
 
         <textarea
           ref={inputRef as any}
+          data-chat-input
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={handleKeyDown}
