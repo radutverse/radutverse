@@ -734,11 +734,6 @@ const IpAssistant = () => {
         return;
       }
 
-      // Prevent concurrent searches
-      if (isLoadingOwnerAssets || (fromModal === false && waiting)) {
-        return;
-      }
-
       const trimmedAddress = ownerAddress.trim();
       const displayValue = displayQuery || trimmedAddress;
 
