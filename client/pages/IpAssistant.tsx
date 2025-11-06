@@ -10,6 +10,7 @@ import { YouTubeStyleSearchResults } from "@/components/ip-assistant/YouTubeStyl
 import { AddRemixImageModal } from "@/components/ip-assistant/AddRemixImageModal";
 import { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
 import { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
+import { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   getLicenseSettingsByGroup,
@@ -41,6 +42,7 @@ import type {
 } from "@/lib/ip-assistant/types";
 
 const IpAssistant = () => {
+  const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<Message[]>([getInitialBotMessage()]);
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
@@ -1670,12 +1672,29 @@ const IpAssistant = () => {
     captureRawAssetData();
   }, [expandedAsset]);
 
+  if (!showChat) {
+    return (
+      <WelcomeScreen
+        onChatClick={() => setShowChat(true)}
+        onLicenseClick={() => {
+          setShowChat(true);
+          // Could add additional logic for license flow
+        }}
+        onRemixClick={() => {
+          setShowChat(true);
+          // Could add additional logic for remix flow
+        }}
+      />
+    );
+  }
+
   return (
     <DashboardLayout
       title="IP Assistant"
       avatarSrc={IP_ASSISTANT_AVATAR}
       actions={headerActions}
       sidebarExtras={sidebarExtras}
+      onLogoClick={() => setShowChat(false)}
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
