@@ -236,7 +236,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
-        {currentItems.map((item, index) => (
+        {filteredItems.map((item, index) => (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, y: 20 }}
