@@ -53,6 +53,7 @@ const IpAssistant = () => {
   const [whitelistDetailsOpen, setWhitelistDetailsOpen] = useState(false);
   const [whitelistDetailsData, setWhitelistDetailsData] = useState<any>(null);
   const [remixMode, setRemixMode] = useState(false);
+  const [attachmentLoading, setAttachmentLoading] = useState(false);
   const [remixAnalysisOpen, setRemixAnalysisOpen] = useState(false);
   const [remixAnalysisData, setRemixAnalysisData] = useState<any>(null);
 
