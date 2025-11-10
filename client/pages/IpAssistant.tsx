@@ -2883,7 +2883,6 @@ const IpAssistant = () => {
                     >
                       Remix this
                     </button>
-
                   </div>
                 </div>
               </div>
