@@ -2811,33 +2811,46 @@ const IpAssistant = () => {
 
                 <div className="md:col-span-2">
                   {/* Only show metadata: Title / IP ID / Domain. No hash or other analysis text. */}
-                  {remixAnalysisData.whitelist && remixAnalysisData.whitelist.metadata ? (
+                  {remixAnalysisData.whitelist &&
+                  remixAnalysisData.whitelist.metadata ? (
                     <div className="space-y-3">
                       <div>
                         <div className="text-xs text-slate-400">Title:</div>
-                        <div className="text-sm font-semibold text-slate-100">{remixAnalysisData.whitelist.metadata.title || "—"}</div>
+                        <div className="text-sm font-semibold text-slate-100">
+                          {remixAnalysisData.whitelist.metadata.title || "—"}
+                        </div>
                       </div>
 
                       <div>
                         <div className="text-xs text-slate-400">IP ID:</div>
-                        <div className="text-sm font-mono text-slate-200">{remixAnalysisData.whitelist.metadata.ipId || remixAnalysisData.whitelist.metadata.ownerAddress || "—"}</div>
+                        <div className="text-sm font-mono text-slate-200">
+                          {remixAnalysisData.whitelist.metadata.ipId ||
+                            remixAnalysisData.whitelist.metadata.ownerAddress ||
+                            "—"}
+                        </div>
                       </div>
 
                       <div>
                         <div className="text-xs text-slate-400">Domain:</div>
                         <div className="text-sm text-slate-200">
                           {remixOwnerDomain.loading ? (
-                            <span className="text-xs text-slate-400">Resolving domain…</span>
+                            <span className="text-xs text-slate-400">
+                              Resolving domain…
+                            </span>
                           ) : remixOwnerDomain.domain ? (
                             remixOwnerDomain.domain
                           ) : (
-                            <span className="text-xs text-slate-400 italic">No domain registered</span>
+                            <span className="text-xs text-slate-400 italic">
+                              No domain registered
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-sm text-slate-300">No metadata available</div>
+                    <div className="text-sm text-slate-300">
+                      No metadata available
+                    </div>
                   )}
 
                   <div className="mt-6 flex gap-3">
