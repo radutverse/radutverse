@@ -43,6 +43,7 @@ type ChatInputProps = {
   setSuggestions: Dispatch<SetStateAction<string[]>>;
   onRemixRegisterWarning?: () => void;
   onAddRemixImage?: () => void;
+  remixMode?: boolean;
 };
 
 const ChatInput = ({
