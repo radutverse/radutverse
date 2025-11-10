@@ -330,6 +330,7 @@ const IpAssistant = () => {
       if (raw) {
         const parsed = JSON.parse(raw) as Message[];
         if (Array.isArray(parsed) && parsed.length > 0) {
+          setRemixMode(false);
           setMessages(parsed);
         }
       }
