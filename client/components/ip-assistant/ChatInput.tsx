@@ -34,6 +34,7 @@ type ChatInputProps = {
   setToolsOpen: Dispatch<SetStateAction<boolean>>;
   suggestions: string[];
   setSuggestions: Dispatch<SetStateAction<string[]>>;
+  attachmentLoading?: boolean;
   onRemixRegisterWarning?: () => void;
   onAddRemixImage?: () => void;
   remixMode?: boolean;
