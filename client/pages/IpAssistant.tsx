@@ -58,6 +58,43 @@ const IpAssistant = () => {
   const [remixAnalysisData, setRemixAnalysisData] = useState<any>(null);
   const [remixOwnerDomain, setRemixOwnerDomain] = useState<{ domain: string | null; loading: boolean }>({ domain: null, loading: false });
 
+  useEffect(() => {
+    let mounted = true;
+    const fetchDomain = async (ownerAddress: string) => {
+      try {
+        setRemixOwnerDomain({ domain: null, loading: true });
+        const res = await fetch("/api/resolve-owner-domain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress }),
+        });
+        if (!mounted) return;
+        if (!res.ok) {
+          setRemixOwnerDomain({ domain: null, loading: false });
+          return;
+        }
+        const data = await res.json();
+        setRemixOwnerDomain({ domain: data.domain || null, loading: false });
+      } catch (err) {
+        if (!mounted) return;
+        console.warn("Failed to resolve owner domain:", err);
+        setRemixOwnerDomain({ domain: null, loading: false });
+      }
+    };
+
+    if (remixAnalysisOpen && remixAnalysisData?.whitelist?.metadata) {
+      const md = remixAnalysisData.whitelist.metadata;
+      const owner = md.ownerAddress || md.owner || null;
+      if (owner) fetchDomain(owner);
+    } else {
+      setRemixOwnerDomain({ domain: null, loading: false });
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [remixAnalysisOpen, remixAnalysisData]);
+
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
