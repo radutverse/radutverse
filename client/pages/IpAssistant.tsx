@@ -53,6 +53,8 @@ const IpAssistant = () => {
   const [whitelistDetailsOpen, setWhitelistDetailsOpen] = useState(false);
   const [whitelistDetailsData, setWhitelistDetailsData] = useState<any>(null);
   const [remixMode, setRemixMode] = useState(false);
+  const [remixAnalysisOpen, setRemixAnalysisOpen] = useState(false);
+  const [remixAnalysisData, setRemixAnalysisData] = useState<any>(null);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -1490,6 +1492,58 @@ const IpAssistant = () => {
         lastUploadBlobRef.current = blob;
         lastUploadNameRef.current = f.name || "image.jpg";
 
+        // If in remix mode landing (browse/remix) open analysis popup instead of attaching
+        if (remixMode && messages.length === 0) {
+          try {
+            // Calculate exact hash for whitelist check
+            const hash = await calculateBlobHash(blob);
+            let whitelistResult: any = { found: false };
+            try {
+              const res = await fetch("/api/check-remix-hash", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ hash }),
+              });
+              if (res.ok) {
+                whitelistResult = await res.json();
+              }
+            } catch (err) {
+              console.warn("Whitelist check failed:", err);
+            }
+
+            // Upload image for vision analysis (same endpoint used by runDetection)
+            let analysisData: any = null;
+            try {
+              const form = new FormData();
+              form.append("image", blob, f.name || "image.jpg");
+              const uploadRes = await fetch("/api/upload", {
+                method: "POST",
+                body: form,
+              });
+              if (uploadRes.ok) {
+                analysisData = await uploadRes.json();
+              }
+            } catch (err) {
+              console.warn("Analysis upload failed:", err);
+            }
+
+            setRemixAnalysisData({
+              blob,
+              name: f.name || "image.jpg",
+              url,
+              hash,
+              whitelist: whitelistResult,
+              analysis: analysisData,
+            });
+            setRemixAnalysisOpen(true);
+            return;
+          } catch (err) {
+            console.error("Remix analysis failed:", err);
+            // fallthrough to default attach behavior
+          }
+        }
+
+        // Default behavior: attach as additional image in chat
         setPreviewImages((prev) => ({
           ...prev,
           additionalImage: {
@@ -1510,7 +1564,7 @@ const IpAssistant = () => {
         });
       }
     },
-    [compressAndEnsureSize, pushMessage],
+    [compressAndEnsureSize, pushMessage, remixMode, messages, setPreviewImages],
   );
 
   const sidebarExtras = useCallback(
@@ -2638,6 +2692,108 @@ const IpAssistant = () => {
         className="hidden"
         onChange={handleImage}
       />
+
+      <AnimatePresence>
+        {remixAnalysisOpen && remixAnalysisData ? (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setRemixAnalysisOpen(false)}
+              aria-hidden="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            />
+            <motion.div
+              className="relative z-10 w-full max-w-xl rounded-2xl bg-slate-900/90 border border-[#FF4DA6]/20 p-6 shadow-xl"
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#FF4DA6]">Remix analysis</p>
+                  <h2 className="mt-1 text-lg font-semibold text-slate-100">{remixAnalysisData.name}</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRemixAnalysisOpen(false)}
+                  className="rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+                  aria-label="Close analysis modal"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="md:col-span-1">
+                  <img src={remixAnalysisData.url} alt="preview" className="w-full rounded-md object-cover" />
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-sm text-slate-300">{(remixAnalysisData.analysis && remixAnalysisData.analysis.display) || (remixAnalysisData.analysis && remixAnalysisData.analysis.raw) || "No analysis available."}</p>
+
+                  <div className="mt-3 flex items-center gap-3">
+                    <div className="text-xs text-slate-400">Hash:</div>
+                    <div className="text-xs font-mono text-slate-200">{(remixAnalysisData.hash || "").slice(0, 16)}{remixAnalysisData.hash ? "..." : ""}</div>
+                    {remixAnalysisData.whitelist && remixAnalysisData.whitelist.found ? (
+                      <div className="ml-2 px-2 py-1 rounded-md bg-green-800/40 text-green-300 text-xs">Whitelisted</div>
+                    ) : (
+                      <div className="ml-2 px-2 py-1 rounded-md bg-slate-700/40 text-slate-300 text-xs">Not found</div>
+                    )}
+                  </div>
+
+                  <div className="mt-6 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Activate remix mode with this image
+                        setPreviewImages({
+                          remixImage: {
+                            blob: remixAnalysisData.blob,
+                            name: remixAnalysisData.name,
+                            url: remixAnalysisData.url,
+                          },
+                          additionalImage: null,
+                        });
+                        setRemixAnalysisOpen(false);
+                        setRemixMode(true);
+                        setInput("");
+                        inputRef.current?.focus?.();
+
+                        const remixActiveMsg: Message = {
+                          id: `msg-${Date.now()}`,
+                          from: "bot",
+                          text: `✨ Remix mode activated for "${remixAnalysisData.name}". You can now remix this image!`,
+                          ts: getCurrentTimestamp(),
+                        };
+                        setMessages((prev) => [...prev, remixActiveMsg]);
+                      }}
+                      className="px-4 py-2 rounded-lg bg-[#FF4DA6] text-white font-semibold hover:bg-[#FF4DA6]/80"
+                    >
+                      Remix this
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRemixAnalysisOpen(false)}
+                      className="px-4 py-2 rounded-lg bg-slate-700/50 text-slate-100 font-semibold hover:bg-slate-600/50"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <AnimatePresence>
         {activeDetail !== null ? (
