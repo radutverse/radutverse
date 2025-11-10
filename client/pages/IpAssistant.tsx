@@ -1689,7 +1689,7 @@ const IpAssistant = () => {
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
-          {messages.length === 0 ? (
+          {messages.length === 0 && !remixMode ? (
             <WelcomeScreen
               key="welcome-screen"
               onRegisterWork={() => {
@@ -1698,6 +1698,14 @@ const IpAssistant = () => {
               }}
               onRemixWork={() => {
                 setRemixMode(true);
+              }}
+            />
+          ) : null}
+          {remixMode ? (
+            <PopularIPGrid
+              key="popular-ip-grid"
+              onBack={() => {
+                setRemixMode(false);
               }}
             />
           ) : null}
