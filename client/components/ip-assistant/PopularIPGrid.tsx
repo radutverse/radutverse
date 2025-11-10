@@ -178,6 +178,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
 
 export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("ip");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -185,6 +186,11 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
 
   const categories: Category[] = ["ip", "image", "video", "music"];
   const currentItems = DUMMY_DATA[activeCategory];
+
+  const filteredItems = currentItems.filter((item) =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.owner.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <motion.div
