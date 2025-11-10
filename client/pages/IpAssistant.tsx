@@ -2636,6 +2636,7 @@ const IpAssistant = () => {
           autoScrollNextRef.current = true;
         }}
         onAddRemixImage={() => setShowAddRemixImageModal(true)}
+        remixMode={remixMode}
       />
 
       <input
