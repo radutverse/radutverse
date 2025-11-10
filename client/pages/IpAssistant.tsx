@@ -1495,6 +1495,7 @@ const IpAssistant = () => {
 
         // If in remix mode landing (browse/remix) open analysis popup instead of attaching
         if (remixMode && messages.length === 0) {
+          setAttachmentLoading(true);
           try {
             // Calculate exact hash and perceptual hash for whitelist check
             const hash = await calculateBlobHash(blob);
@@ -1538,9 +1539,11 @@ const IpAssistant = () => {
               analysis: analysisData,
             });
             setRemixAnalysisOpen(true);
+            setAttachmentLoading(false);
             return;
           } catch (err) {
             console.error("Remix analysis failed:", err);
+            setAttachmentLoading(false);
             // fallthrough to default attach behavior
           }
         }
