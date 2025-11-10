@@ -477,6 +477,7 @@ const IpAssistant = () => {
 
   const handleNewChat = useCallback(() => {
     saveSession([...messages]);
+    setRemixMode(false);
     setMessages([]);
     setWaiting(false);
   }, [messages, saveSession]);
