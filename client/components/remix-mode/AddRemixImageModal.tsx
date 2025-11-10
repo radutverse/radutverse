@@ -1,25 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface SearchResult {
-  ipId?: string;
-  title?: string;
-  name?: string;
-  description?: string;
-  mediaUrl?: string;
-  mediaType?: string;
-  thumbnailUrl?: string;
-  ownerAddress?: string;
-  isDerivative?: boolean;
-  score?: number;
-  [key: string]: any;
-}
-
-interface PreviewImage {
-  blob: Blob;
-  name: string;
-  url: string;
-}
+import type { SearchResult, PreviewImage } from "./types";
 
 interface AddRemixImageModalProps {
   isOpen: boolean;
