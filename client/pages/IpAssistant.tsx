@@ -2674,6 +2674,7 @@ const IpAssistant = () => {
         setToolsOpen={setToolsOpen}
         suggestions={suggestions}
         setSuggestions={setSuggestions}
+        attachmentLoading={attachmentLoading}
         onRemixRegisterWarning={() => {
           autoScrollNextRef.current = true;
           const warningMessage: Message = {
