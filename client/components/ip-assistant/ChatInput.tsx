@@ -144,14 +144,14 @@ const ChatInput = ({
               }}
               className="w-full text-left px-4 py-2.5 text-sm text-slate-200 hover:bg-[#FF4DA6]/20 first:rounded-t-lg transition-colors"
             >
-              IP Assistant
+              Image
             </button>
             <button
               type="button"
               disabled
               className="w-full text-left px-4 py-2.5 text-sm text-slate-400 hover:bg-[#FF4DA6]/20 last:rounded-b-lg transition-colors cursor-not-allowed opacity-60"
             >
-              IPFI (coming soon)
+              Video (coming soon)
             </button>
           </PopoverContent>
         </Popover>
