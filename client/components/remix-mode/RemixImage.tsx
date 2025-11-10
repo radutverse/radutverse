@@ -1,15 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-
-interface PreviewImage {
-  blob: Blob;
-  name: string;
-  url: string;
-}
-
-interface PreviewImagesState {
-  remixImage: PreviewImage | null;
-  additionalImage: PreviewImage | null;
-}
+import type { PreviewImage, PreviewImagesState } from "./types";
 
 interface RemixImageProps {
   previewImages: PreviewImagesState;
