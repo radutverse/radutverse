@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-
-export interface PopularItem {
-  id: string;
-  title: string;
-  owner: string;
-  preview: string;
-}
+import type { PopularItem } from "./types";
 
 interface PopularIPGridProps {
   onBack: () => void;

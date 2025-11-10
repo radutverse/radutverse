@@ -1,25 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface SearchResult {
-  ipId?: string;
-  title?: string;
-  name?: string;
-  description?: string;
-  mediaUrl?: string;
-  mediaType?: string;
-  thumbnailUrl?: string;
-  ownerAddress?: string;
-  isDerivative?: boolean;
-  score?: number;
-  [key: string]: any;
-}
-
-interface PreviewImage {
-  blob: Blob;
-  name: string;
-  url: string;
-}
+import type { SearchResult, PreviewImage } from "./types";
 
 interface AddRemixImageModalProps {
   isOpen: boolean;
@@ -42,7 +23,6 @@ export const AddRemixImageModal = ({
     Record<string, { domain: string | null; loading: boolean }>
   >({});
 
-  // Get unique owner addresses to fetch domains for
   const uniqueOwners = useMemo(() => {
     const owners = new Set<string>();
     searchResults.forEach((asset) => {
@@ -53,7 +33,6 @@ export const AddRemixImageModal = ({
     return Array.from(owners);
   }, [searchResults]);
 
-  // Fetch domains for all owners when results change
   useEffect(() => {
     if (uniqueOwners.length === 0) {
       console.log("[AddRemixImageModal] No unique owners found");
@@ -65,7 +44,6 @@ export const AddRemixImageModal = ({
       uniqueOwners,
     );
 
-    // Mark all owners as loading
     const loadingState: Record<
       string,
       { domain: string | null; loading: boolean }
@@ -75,7 +53,6 @@ export const AddRemixImageModal = ({
     });
     setOwnerDomains(loadingState);
 
-    // Fetch domains for all owners in parallel
     Promise.all(
       uniqueOwners.map((owner) => {
         console.log("[AddRemixImageModal] Fetching domain for owner:", owner);
@@ -206,7 +183,6 @@ export const AddRemixImageModal = ({
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Header */}
           <div className="sticky top-0 z-20 flex items-start justify-between gap-4 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/30 px-6 py-4">
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold uppercase tracking-widest text-[#FF4DA6] mb-1">
@@ -240,7 +216,6 @@ export const AddRemixImageModal = ({
             </motion.button>
           </div>
 
-          {/* Search Input */}
           <div className="px-6 py-4 border-b border-slate-800/30 bg-slate-900/50 backdrop-blur-sm">
             <div className="flex gap-3">
               <input
@@ -266,7 +241,6 @@ export const AddRemixImageModal = ({
             </div>
           </div>
 
-          {/* Results Grid */}
           <div className="flex-1 overflow-y-auto px-6 py-6">
             {searchResults.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -371,7 +345,6 @@ export const AddRemixImageModal = ({
                               );
                             }
 
-                            // Fallback to address
                             return (
                               <p className="text-xs text-slate-500 truncate font-mono">
                                 {asset.ownerAddress.slice(0, 10)}...

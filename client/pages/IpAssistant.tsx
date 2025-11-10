@@ -7,11 +7,14 @@ import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
 import ChatInput from "@/components/ip-assistant/ChatInput";
 import { YouTubeStyleSearchResults } from "@/components/ip-assistant/YouTubeStyleSearchResults";
-import { AddRemixImageModal } from "@/components/ip-assistant/AddRemixImageModal";
 import { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
 import { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
 import { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
-import { PopularIPGrid } from "@/components/ip-assistant/PopularIPGrid";
+import {
+  PopularIPGrid,
+  AddRemixImageModal,
+  type PreviewImagesState,
+} from "@/components/remix-mode";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   getLicenseSettingsByGroup,
@@ -184,18 +187,7 @@ const IpAssistant = () => {
   );
   const [guestMode, setGuestMode] = useState<boolean>(false);
   const [toolsOpen, setToolsOpen] = useState<boolean>(false);
-  const [previewImages, setPreviewImages] = useState<{
-    remixImage: {
-      blob: Blob;
-      name: string;
-      url: string;
-    } | null;
-    additionalImage: {
-      blob: Blob;
-      name: string;
-      url: string;
-    } | null;
-  }>({
+  const [previewImages, setPreviewImages] = useState<PreviewImagesState>({
     remixImage: null,
     additionalImage: null,
   });
