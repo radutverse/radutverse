@@ -11,6 +11,7 @@ import { AddRemixImageModal } from "@/components/ip-assistant/AddRemixImageModal
 import { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
 import { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
 import { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
+import { PopularIPGrid } from "@/components/ip-assistant/PopularIPGrid";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   getLicenseSettingsByGroup,
