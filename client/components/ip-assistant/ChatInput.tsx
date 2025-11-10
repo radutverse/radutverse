@@ -13,18 +13,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { RemixImage } from "@/components/remix-mode";
-
-type PreviewImage = {
-  blob: Blob;
-  name: string;
-  url: string;
-};
-
-type PreviewImagesState = {
-  remixImage: PreviewImage | null;
-  additionalImage: PreviewImage | null;
-};
+import { RemixImage, type PreviewImage, type PreviewImagesState } from "@/components/remix-mode";
 
 type ChatInputProps = {
   input: string;
