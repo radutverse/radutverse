@@ -11,6 +11,7 @@ import { AddRemixImageModal } from "@/components/ip-assistant/AddRemixImageModal
 import { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
 import { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
 import { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
+import { PopularIPGrid } from "@/components/ip-assistant/PopularIPGrid";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   getLicenseSettingsByGroup,
@@ -48,6 +49,7 @@ const IpAssistant = () => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [whitelistDetailsOpen, setWhitelistDetailsOpen] = useState(false);
   const [whitelistDetailsData, setWhitelistDetailsData] = useState<any>(null);
+  const [remixMode, setRemixMode] = useState(false);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -328,6 +330,7 @@ const IpAssistant = () => {
       if (raw) {
         const parsed = JSON.parse(raw) as Message[];
         if (Array.isArray(parsed) && parsed.length > 0) {
+          setRemixMode(false);
           setMessages(parsed);
         }
       }
@@ -335,6 +338,12 @@ const IpAssistant = () => {
       console.error("Failed to restore current session", error);
     }
   }, []);
+
+  useEffect(() => {
+    if (messages.length > 0 && remixMode) {
+      setRemixMode(false);
+    }
+  }, [messages, remixMode]);
 
   useEffect(() => {
     try {
@@ -427,6 +436,7 @@ const IpAssistant = () => {
         (msg as any).id ||
         `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const msgWithId = { ...(msg as any), id } as Message;
+      setRemixMode(false);
       setMessages((prev) => {
         const next = [...prev, msgWithId];
         // If the message is from the user (text or image), bot, or an ip-check bubble, ensure immediate scroll so UI feels responsive
@@ -474,6 +484,7 @@ const IpAssistant = () => {
 
   const handleNewChat = useCallback(() => {
     saveSession([...messages]);
+    setRemixMode(false);
     setMessages([]);
     setWaiting(false);
   }, [messages, saveSession]);
@@ -482,6 +493,7 @@ const IpAssistant = () => {
     (id: string) => {
       const session = sessions.find((item) => item.id === id);
       if (session) {
+        setRemixMode(false);
         setMessages(session.messages);
         autoScrollNextRef.current = false;
       }
@@ -909,6 +921,7 @@ const IpAssistant = () => {
   );
 
   const handleSend = useCallback(async () => {
+    setRemixMode(false);
     const value = input.trim();
     const hasPreview = previewImages.additionalImage !== null;
     const imageToProcess = previewImages.additionalImage;
@@ -1687,7 +1700,7 @@ const IpAssistant = () => {
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
-          {messages.length === 0 ? (
+          {messages.length === 0 && !remixMode ? (
             <WelcomeScreen
               key="welcome-screen"
               onRegisterWork={() => {
@@ -1695,14 +1708,15 @@ const IpAssistant = () => {
                 uploadRef.current?.focus?.();
               }}
               onRemixWork={() => {
-                // Add message about remix mode
-                const msg: Message = {
-                  id: `msg-${Date.now()}`,
-                  from: "bot",
-                  text: "To remix popular work, you'll need to search for and select existing IP assets. You can use the search features in the chat to find popular works!",
-                  ts: getCurrentTimestamp(),
-                };
-                setMessages([msg]);
+                setRemixMode(true);
+              }}
+            />
+          ) : null}
+          {remixMode && messages.length === 0 ? (
+            <PopularIPGrid
+              key="popular-ip-grid"
+              onBack={() => {
+                setRemixMode(false);
               }}
             />
           ) : null}
@@ -2617,6 +2631,7 @@ const IpAssistant = () => {
             text: "⚠�� Remix images cannot be registered. Please clear the image to register this IP asset.",
             ts: getCurrentTimestamp(),
           };
+          setRemixMode(false);
           setMessages((prev) => [...prev, warningMessage]);
           autoScrollNextRef.current = true;
         }}
