@@ -188,7 +188,7 @@ const DUMMY_DATA: Record<Category, PopularItem[]> = {
 };
 
 const CATEGORY_LABELS: Record<Category, string> = {
-  ip: "Popular IPs",
+  ip: "Iconic IPs",
   image: "Popular Images",
   video: "Popular Videos",
   music: "Popular Music",
