@@ -2742,8 +2742,12 @@ const IpAssistant = () => {
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#FF4DA6]">Remix analysis</p>
-                  <h2 className="mt-1 text-lg font-semibold text-slate-100">{remixAnalysisData.name}</h2>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#FF4DA6]">
+                    Remix analysis
+                  </p>
+                  <h2 className="mt-1 text-lg font-semibold text-slate-100">
+                    {remixAnalysisData.name}
+                  </h2>
                 </div>
                 <button
                   type="button"
@@ -2757,18 +2761,36 @@ const IpAssistant = () => {
 
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="md:col-span-1">
-                  <img src={remixAnalysisData.url} alt="preview" className="w-full rounded-md object-cover" />
+                  <img
+                    src={remixAnalysisData.url}
+                    alt="preview"
+                    className="w-full rounded-md object-cover"
+                  />
                 </div>
                 <div className="md:col-span-2">
-                  <p className="text-sm text-slate-300">{(remixAnalysisData.analysis && remixAnalysisData.analysis.display) || (remixAnalysisData.analysis && remixAnalysisData.analysis.raw) || "No analysis available."}</p>
+                  <p className="text-sm text-slate-300">
+                    {(remixAnalysisData.analysis &&
+                      remixAnalysisData.analysis.display) ||
+                      (remixAnalysisData.analysis &&
+                        remixAnalysisData.analysis.raw) ||
+                      "No analysis available."}
+                  </p>
 
                   <div className="mt-3 flex items-center gap-3">
                     <div className="text-xs text-slate-400">Hash:</div>
-                    <div className="text-xs font-mono text-slate-200">{(remixAnalysisData.hash || "").slice(0, 16)}{remixAnalysisData.hash ? "..." : ""}</div>
-                    {remixAnalysisData.whitelist && remixAnalysisData.whitelist.found ? (
-                      <div className="ml-2 px-2 py-1 rounded-md bg-green-800/40 text-green-300 text-xs">Whitelisted</div>
+                    <div className="text-xs font-mono text-slate-200">
+                      {(remixAnalysisData.hash || "").slice(0, 16)}
+                      {remixAnalysisData.hash ? "..." : ""}
+                    </div>
+                    {remixAnalysisData.whitelist &&
+                    remixAnalysisData.whitelist.found ? (
+                      <div className="ml-2 px-2 py-1 rounded-md bg-green-800/40 text-green-300 text-xs">
+                        Whitelisted
+                      </div>
                     ) : (
-                      <div className="ml-2 px-2 py-1 rounded-md bg-slate-700/40 text-slate-300 text-xs">Not found</div>
+                      <div className="ml-2 px-2 py-1 rounded-md bg-slate-700/40 text-slate-300 text-xs">
+                        Not found
+                      </div>
                     )}
                   </div>
 
