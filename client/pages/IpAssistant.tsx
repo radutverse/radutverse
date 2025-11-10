@@ -1493,7 +1493,8 @@ const IpAssistant = () => {
         lastUploadBlobRef.current = blob;
         lastUploadNameRef.current = f.name || "image.jpg";
 
-        // If in remix mode landing (browse/remix) open analysis popup instead of attaching
+        // If in remix mode landing (browse/remix) either open analysis popup when whitelist matches
+        // or attach preview directly when no whitelist match
         if (remixMode && messages.length === 0) {
           setAttachmentLoading(true);
           try {
@@ -1514,7 +1515,22 @@ const IpAssistant = () => {
               console.warn("Whitelist check failed:", err);
             }
 
-            // Upload image for vision analysis (same endpoint used by runDetection)
+            // If no whitelist match, attach image as preview in input box and skip popup
+            if (!whitelistResult || whitelistResult.found !== true) {
+              setPreviewImages((prev) => ({
+                ...prev,
+                remixImage: {
+                  blob,
+                  name: f.name || "image.jpg",
+                  url,
+                },
+                additionalImage: null,
+              }));
+              setAttachmentLoading(false);
+              return;
+            }
+
+            // If whitelist matched, proceed to upload image for vision analysis and show modal
             let analysisData: any = null;
             try {
               const form = new FormData();
