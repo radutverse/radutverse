@@ -1697,14 +1697,7 @@ const IpAssistant = () => {
                 uploadRef.current?.focus?.();
               }}
               onRemixWork={() => {
-                // Add message about remix mode
-                const msg: Message = {
-                  id: `msg-${Date.now()}`,
-                  from: "bot",
-                  text: "To remix popular work, you'll need to search for and select existing IP assets. You can use the search features in the chat to find popular works!",
-                  ts: getCurrentTimestamp(),
-                };
-                setMessages([msg]);
+                setRemixMode(true);
               }}
             />
           ) : null}
