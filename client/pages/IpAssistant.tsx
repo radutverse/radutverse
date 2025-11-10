@@ -429,6 +429,7 @@ const IpAssistant = () => {
         (msg as any).id ||
         `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const msgWithId = { ...(msg as any), id } as Message;
+      setRemixMode(false);
       setMessages((prev) => {
         const next = [...prev, msgWithId];
         // If the message is from the user (text or image), bot, or an ip-check bubble, ensure immediate scroll so UI feels responsive
