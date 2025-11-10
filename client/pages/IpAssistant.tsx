@@ -10,7 +10,7 @@ import { YouTubeStyleSearchResults } from "@/components/ip-assistant/YouTubeStyl
 import { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
 import { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
 import { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
-import { PopularIPGrid, AddRemixImageModal } from "@/components/remix-mode";
+import { PopularIPGrid, AddRemixImageModal, type PreviewImagesState } from "@/components/remix-mode";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   getLicenseSettingsByGroup,
