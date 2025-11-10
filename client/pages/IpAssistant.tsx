@@ -183,18 +183,7 @@ const IpAssistant = () => {
   );
   const [guestMode, setGuestMode] = useState<boolean>(false);
   const [toolsOpen, setToolsOpen] = useState<boolean>(false);
-  const [previewImages, setPreviewImages] = useState<{
-    remixImage: {
-      blob: Blob;
-      name: string;
-      url: string;
-    } | null;
-    additionalImage: {
-      blob: Blob;
-      name: string;
-      url: string;
-    } | null;
-  }>({
+  const [previewImages, setPreviewImages] = useState<PreviewImagesState>({
     remixImage: null,
     additionalImage: null,
   });
