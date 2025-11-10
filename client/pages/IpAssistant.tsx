@@ -56,6 +56,7 @@ const IpAssistant = () => {
   const [attachmentLoading, setAttachmentLoading] = useState(false);
   const [remixAnalysisOpen, setRemixAnalysisOpen] = useState(false);
   const [remixAnalysisData, setRemixAnalysisData] = useState<any>(null);
+  const [remixOwnerDomain, setRemixOwnerDomain] = useState<{ domain: string | null; loading: boolean }>({ domain: null, loading: false });
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
