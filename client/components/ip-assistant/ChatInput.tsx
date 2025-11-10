@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { RemixImage } from "./RemixImage";
+import { RemixImage } from "@/components/remix-mode";
 
 type PreviewImage = {
   blob: Blob;
