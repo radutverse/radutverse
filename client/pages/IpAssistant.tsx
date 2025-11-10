@@ -56,7 +56,10 @@ const IpAssistant = () => {
   const [attachmentLoading, setAttachmentLoading] = useState(false);
   const [remixAnalysisOpen, setRemixAnalysisOpen] = useState(false);
   const [remixAnalysisData, setRemixAnalysisData] = useState<any>(null);
-  const [remixOwnerDomain, setRemixOwnerDomain] = useState<{ domain: string | null; loading: boolean }>({ domain: null, loading: false });
+  const [remixOwnerDomain, setRemixOwnerDomain] = useState<{
+    domain: string | null;
+    loading: boolean;
+  }>({ domain: null, loading: false });
 
   useEffect(() => {
     let mounted = true;
@@ -2815,27 +2818,38 @@ const IpAssistant = () => {
                   </p>
 
                   {/* Metadata block: Title / IP ID / Domain */}
-                  {remixAnalysisData.whitelist && remixAnalysisData.whitelist.metadata ? (
+                  {remixAnalysisData.whitelist &&
+                  remixAnalysisData.whitelist.metadata ? (
                     <div className="mt-3 space-y-3">
                       <div>
                         <div className="text-xs text-slate-400">Title:</div>
-                        <div className="text-sm font-semibold text-slate-100">{remixAnalysisData.whitelist.metadata.title || "—"}</div>
+                        <div className="text-sm font-semibold text-slate-100">
+                          {remixAnalysisData.whitelist.metadata.title || "—"}
+                        </div>
                       </div>
 
                       <div>
                         <div className="text-xs text-slate-400">IP ID:</div>
-                        <div className="text-sm font-mono text-slate-200">{remixAnalysisData.whitelist.metadata.ipId || remixAnalysisData.whitelist.metadata.ownerAddress || "—"}</div>
+                        <div className="text-sm font-mono text-slate-200">
+                          {remixAnalysisData.whitelist.metadata.ipId ||
+                            remixAnalysisData.whitelist.metadata.ownerAddress ||
+                            "—"}
+                        </div>
                       </div>
 
                       <div>
                         <div className="text-xs text-slate-400">Domain:</div>
                         <div className="text-sm text-slate-200">
                           {remixOwnerDomain.loading ? (
-                            <span className="text-xs text-slate-400">Resolving domain…</span>
+                            <span className="text-xs text-slate-400">
+                              Resolving domain…
+                            </span>
                           ) : remixOwnerDomain.domain ? (
                             remixOwnerDomain.domain
                           ) : (
-                            <span className="text-xs text-slate-400 italic">No domain registered</span>
+                            <span className="text-xs text-slate-400 italic">
+                              No domain registered
+                            </span>
                           )}
                         </div>
                       </div>
