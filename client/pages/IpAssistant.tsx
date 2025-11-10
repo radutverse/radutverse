@@ -340,6 +340,12 @@ const IpAssistant = () => {
   }, []);
 
   useEffect(() => {
+    if (messages.length > 0 && remixMode) {
+      setRemixMode(false);
+    }
+  }, [messages, remixMode]);
+
+  useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
