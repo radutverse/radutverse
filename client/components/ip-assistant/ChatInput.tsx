@@ -55,6 +55,7 @@ const ChatInput = ({
   setToolsOpen,
   suggestions,
   setSuggestions,
+  attachmentLoading = false,
   onRemixRegisterWarning,
   onAddRemixImage,
   remixMode = false,
