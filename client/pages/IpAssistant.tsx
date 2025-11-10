@@ -485,6 +485,7 @@ const IpAssistant = () => {
     (id: string) => {
       const session = sessions.find((item) => item.id === id);
       if (session) {
+        setRemixMode(false);
         setMessages(session.messages);
         autoScrollNextRef.current = false;
       }
