@@ -921,6 +921,7 @@ const IpAssistant = () => {
   );
 
   const handleSend = useCallback(async () => {
+    setRemixMode(false);
     const value = input.trim();
     const hasPreview = previewImages.additionalImage !== null;
     const imageToProcess = previewImages.additionalImage;
