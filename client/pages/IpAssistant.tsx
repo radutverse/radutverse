@@ -49,6 +49,7 @@ const IpAssistant = () => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [whitelistDetailsOpen, setWhitelistDetailsOpen] = useState(false);
   const [whitelistDetailsData, setWhitelistDetailsData] = useState<any>(null);
+  const [remixMode, setRemixMode] = useState(false);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
