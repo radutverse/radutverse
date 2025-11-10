@@ -1705,7 +1705,7 @@ const IpAssistant = () => {
               }}
             />
           ) : null}
-          {remixMode ? (
+          {remixMode && messages.length === 0 ? (
             <PopularIPGrid
               key="popular-ip-grid"
               onBack={() => {
