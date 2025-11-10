@@ -1495,14 +1495,15 @@ const IpAssistant = () => {
         // If in remix mode landing (browse/remix) open analysis popup instead of attaching
         if (remixMode && messages.length === 0) {
           try {
-            // Calculate exact hash for whitelist check
+            // Calculate exact hash and perceptual hash for whitelist check
             const hash = await calculateBlobHash(blob);
+            const pHash = await calculatePerceptualHash(blob);
             let whitelistResult: any = { found: false };
             try {
               const res = await fetch("/api/check-remix-hash", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ hash }),
+                body: JSON.stringify({ hash, pHash }),
               });
               if (res.ok) {
                 whitelistResult = await res.json();
