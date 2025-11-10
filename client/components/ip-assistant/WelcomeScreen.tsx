@@ -94,13 +94,13 @@ export const WelcomeScreen = ({
               onClick={handleRegisterClick}
               className="px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 bg-[#FF4DA6] hover:bg-[#FF4DA6]/90 hover:shadow-lg hover:shadow-[#FF4DA6]/30"
             >
-              Register your work
+              Licensing your works & explore
             </button>
             <button
               onClick={onRemixWork}
               className="px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 bg-slate-700 hover:bg-slate-600 hover:shadow-lg hover:shadow-slate-600/30"
             >
-              Remix popular work
+              Remix or create works
             </button>
           </motion.div>
         </div>
