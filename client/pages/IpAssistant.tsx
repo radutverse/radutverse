@@ -2631,6 +2631,7 @@ const IpAssistant = () => {
             text: "⚠�� Remix images cannot be registered. Please clear the image to register this IP asset.",
             ts: getCurrentTimestamp(),
           };
+          setRemixMode(false);
           setMessages((prev) => [...prev, warningMessage]);
           autoScrollNextRef.current = true;
         }}
