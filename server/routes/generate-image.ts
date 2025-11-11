@@ -4,6 +4,27 @@ import sharp from "sharp";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
+// 🔹 TEXT → IMAGE
+export const generateImage: RequestHandler = async (req, res) => {
+  try {
+    const prompt = req.body.prompt?.trim();
+    if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
+
+    const result = await client.images.generate({
+      model: "gpt-image-1",
+      prompt,
+      size: "1024x1024",
+    });
+
+    const imageUrl = result.data[0].url;
+    res.json({ imageUrl });
+  } catch (err) {
+    console.error("❌ Error generating image:", err);
+    res.status(500).json({ error: "Failed to generate image" });
+  }
+};
+
+// 🔹 IMAGE → EDIT
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
@@ -29,7 +50,7 @@ export const editImage: RequestHandler = async (req, res) => {
     // 🔹 Resize & re-encode untuk mencegah array too long
     buffer = await sharp(buffer)
       .resize({ width: 1024, height: 1024, fit: "inside" })
-      .jpeg({ quality: 90 }) // compress
+      .jpeg({ quality: 90 })
       .toBuffer();
 
     console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
