@@ -191,7 +191,7 @@ const IpImagine = () => {
         // Handle image files
         if (!file.type.startsWith("image/")) {
           setStatusText(
-            `��️ File must be an image${creationMode === "video" ? " or video" : ""}.`,
+            `⚠️ File must be an image${creationMode === "video" ? " or video" : ""}.`,
           );
           return;
         }
@@ -328,19 +328,112 @@ const IpImagine = () => {
         uploadRef={uploadRef}
         handleImage={handleImage}
         onSubmit={async () => {
-          // no chat messages — just simulate processing and set a status
           if (
             !input.trim() &&
             !previewImages.remixImage &&
             !previewImages.additionalImage
           )
             return;
+
           setWaiting(true);
-          setStatusText("Processing…");
-          setInput("");
-          await new Promise((r) => setTimeout(r, 900));
-          setStatusText("Imagined result (preview)");
-          setWaiting(false);
+          setStatusText("Initializing creation...");
+
+          try {
+            let sessionId: string | null = null;
+
+            if (creationMode === "video") {
+              if (previewImages.remixImage) {
+                // Video from image + text
+                setStatusText("Processing image for video...");
+                const base64 = await blobToBase64(previewImages.remixImage.blob);
+                const response = await fetch("/api/generate-video-from-image", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    prompt: input.trim(),
+                    imageBase64: base64,
+                    imageMimeType: "image/jpeg",
+                  }),
+                });
+
+                if (!response.ok) {
+                  throw new Error("Failed to start video generation");
+                }
+
+                const data = await response.json();
+                sessionId = data.sessionId;
+              } else {
+                // Video from text only
+                setStatusText("Starting video generation...");
+                const response = await fetch("/api/generate-video", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    prompt: input.trim(),
+                  }),
+                });
+
+                if (!response.ok) {
+                  throw new Error("Failed to start video generation");
+                }
+
+                const data = await response.json();
+                sessionId = data.sessionId;
+              }
+            } else {
+              if (previewImages.remixImage) {
+                // Image from image + text
+                setStatusText("Processing image...");
+                const base64 = await blobToBase64(previewImages.remixImage.blob);
+                const response = await fetch("/api/generate-image-from-image", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    prompt: input.trim(),
+                    imageBase64: base64,
+                    imageMimeType: "image/jpeg",
+                  }),
+                });
+
+                if (!response.ok) {
+                  throw new Error("Failed to start image generation");
+                }
+
+                const data = await response.json();
+                sessionId = data.sessionId;
+              } else {
+                // Image from text only
+                setStatusText("Starting image generation...");
+                const response = await fetch("/api/generate-image", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    prompt: input.trim(),
+                  }),
+                });
+
+                if (!response.ok) {
+                  throw new Error("Failed to start image generation");
+                }
+
+                const data = await response.json();
+                sessionId = data.sessionId;
+              }
+            }
+
+            // Reset form and navigate to creation result
+            setInput("");
+            setPreviewImages({ remixImage: null, additionalImage: null });
+            setWaiting(false);
+
+            navigate(`/creation-result?sessionId=${sessionId}`);
+          } catch (error) {
+            console.error("Generation error:", error);
+            setStatusText(
+              `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+            setWaiting(false);
+          }
         }}
         inputRef={inputRef}
         handleKeyDown={(e) => {
