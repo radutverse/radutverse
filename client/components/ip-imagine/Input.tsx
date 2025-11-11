@@ -87,12 +87,14 @@ const IpImagineInput = ({
         <button
           type="button"
           onClick={() => {
-            const demoImageUrl = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FF4DA6" width="400" height="300"/%3E%3Ctext x="200" y="150" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle"%3ECreation Demo%3C/text%3E%3C/svg%3E';
+            const demoImageUrl =
+              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FF4DA6" width="400" height="300"/%3E%3Ctext x="200" y="150" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle"%3ECreation Demo%3C/text%3E%3C/svg%3E';
             navigate("/creation-result", {
               state: {
                 type: creationMode || "image",
                 outputUrl: demoImageUrl,
-                prompt: "This is a demo creation. Replace with actual generation results.",
+                prompt:
+                  "This is a demo creation. Replace with actual generation results.",
                 timestamp: new Date().toISOString(),
               },
             });

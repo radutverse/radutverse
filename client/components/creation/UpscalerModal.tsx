@@ -19,7 +19,11 @@ const UpscalerModal = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const upscaleLevels: Array<{ value: UpscaleLevel; label: string; scale: number }> = [
+  const upscaleLevels: Array<{
+    value: UpscaleLevel;
+    label: string;
+    scale: number;
+  }> = [
     { value: "2x", label: "2x Upscale", scale: 2 },
     { value: "4x", label: "4x Upscale", scale: 4 },
   ];
@@ -100,9 +104,7 @@ const UpscalerModal = ({
             <div className="text-xs font-semibold uppercase tracking-wider text-[#FF4DA6] mb-1">
               Image Enhancement
             </div>
-            <h2 className="text-2xl font-bold text-slate-100">
-              Upscale Image
-            </h2>
+            <h2 className="text-2xl font-bold text-slate-100">Upscale Image</h2>
           </div>
           <button
             onClick={onClose}
@@ -196,7 +198,8 @@ const UpscalerModal = ({
         {/* Info Message */}
         <div className="mb-8 rounded-lg bg-blue-900/20 border border-blue-800/50 p-4">
           <p className="text-sm text-blue-300">
-            Upscaling will increase the image resolution and improve quality. This may take a moment.
+            Upscaling will increase the image resolution and improve quality.
+            This may take a moment.
           </p>
         </div>
 
