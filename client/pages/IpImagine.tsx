@@ -215,7 +215,7 @@ const IpImagine = () => {
         return false;
       }
     },
-    [generationCount, setPreviewImages],
+    [generationCount, setPreviewImages, setStatusText, setWaiting],
   );
 
   const handleImage = useCallback(
