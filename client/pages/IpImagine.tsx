@@ -157,7 +157,9 @@ const IpImagine = () => {
         if (creationMode === "video" && file.type.startsWith("video/")) {
           const fileSizeInMB = file.size / (1024 * 1024);
           if (fileSizeInMB > 100) {
-            setStatusText(`⚠️ Video file is too large (${fileSizeInMB.toFixed(1)}MB). Max 100MB allowed.`);
+            setStatusText(
+              `⚠️ Video file is too large (${fileSizeInMB.toFixed(1)}MB). Max 100MB allowed.`,
+            );
             return;
           }
 
@@ -173,7 +175,9 @@ const IpImagine = () => {
 
         // Handle image files
         if (!file.type.startsWith("image/")) {
-          setStatusText(`⚠️ File must be an image${creationMode === "video" ? " or video" : ""}.`);
+          setStatusText(
+            `⚠️ File must be an image${creationMode === "video" ? " or video" : ""}.`,
+          );
           return;
         }
 
