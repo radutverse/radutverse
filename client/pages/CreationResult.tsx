@@ -249,11 +249,12 @@ const CreationResult = () => {
                 Download
               </Button>
 
-              {creationData.type === "image" && (
+              {resultType === "image" && (
                 <Button
                   onClick={() => setShowUpscaler(true)}
                   className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700"
                   variant="outline"
+                  disabled={isLoading}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
