@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CreationProvider } from "@/context/CreationContext";
 import Index from "./pages/Index";
 import IpfiAssistant from "./pages/IpfiAssistant";
 import NftMarketplace from "./pages/NftMarketplace";
