@@ -109,9 +109,9 @@ async function openai_edit_image(
   try {
     pngBuffer = await sharp(imageBuffer)
       .ensureAlpha()
-      .png({
-        quality: 80,
-        progressive: true,
+      .toFormat("png", {
+        force: true,
+        compression: 9,
       })
       .toBuffer();
 
@@ -119,8 +119,7 @@ async function openai_edit_image(
       pngBuffer = await sharp(imageBuffer)
         .ensureAlpha()
         .png({
-          quality: 70,
-          progressive: true,
+          compressionLevel: 9,
         })
         .toBuffer();
     }
@@ -133,8 +132,7 @@ async function openai_edit_image(
           withoutEnlargement: true,
         })
         .png({
-          quality: 60,
-          progressive: true,
+          compressionLevel: 9,
         })
         .toBuffer();
     }
