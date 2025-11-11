@@ -175,31 +175,6 @@ const CreationResult = () => {
               >
                 Refresh Page
               </Button>
-
-              {isQuotaError && (
-                <Button
-                  onClick={() => window.open("https://ai.dev/usage?tab=rate-limit", "_blank")}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-100"
-                  variant="outline"
-                >
-                  Check Quota Status
-                </Button>
-              )}
-            </div>
-
-            {/* Additional Help */}
-            <div className="mt-8 rounded-xl bg-slate-900/50 border border-slate-800/50 p-4">
-              <p className="text-xs text-slate-400 mb-2">
-                <strong>Need more help?</strong>
-              </p>
-              <a
-                href="https://ai.google.dev/gemini-api/docs/rate-limits"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-[#FF4DA6] hover:underline"
-              >
-                Read documentation about API rate limits →
-              </a>
             </div>
           </motion.div>
         </div>
