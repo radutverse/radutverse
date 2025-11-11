@@ -9,7 +9,7 @@ export const generateImageFromText = async (
 
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
       {
         method: "POST",
         headers: {
@@ -27,7 +27,7 @@ export const generateImageFromText = async (
             },
           ],
           generation_config: {
-            response_mime_type: "image/png",
+            response_modalities: ["image", "text"],
           },
         }),
       },
@@ -60,7 +60,7 @@ export const editImage = async (
 
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
       {
         method: "POST",
         headers: {
@@ -84,7 +84,7 @@ export const editImage = async (
             },
           ],
           generation_config: {
-            response_mime_type: "image/png",
+            response_modalities: ["image", "text"],
           },
         }),
       },
@@ -119,7 +119,7 @@ export const upscaleImage = async (
       "Upscale this image, enhance details, improve clarity, and increase resolution. Do not change the content.";
 
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
       {
         method: "POST",
         headers: {
@@ -143,7 +143,7 @@ export const upscaleImage = async (
             },
           ],
           generation_config: {
-            response_mime_type: "image/png",
+            response_modalities: ["image", "text"],
           },
         }),
       },
