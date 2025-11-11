@@ -9,7 +9,7 @@ import {
   AddRemixImageModal,
   type PreviewImagesState,
 } from "@/components/remix-mode";
-import useGeminiGenerator from "@/hooks/useGeminiGenerator";
+import useImageGenerator from "@/hooks/useImageGenerator";
 import { getCurrentTimestamp } from "@/lib/ip-assistant/utils";
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
