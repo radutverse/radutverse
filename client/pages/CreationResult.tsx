@@ -123,33 +123,17 @@ const CreationResult = () => {
               </div>
             </div>
 
-            {/* Quota Error - Detailed Message */}
+            {/* Quota Error - Simple Message */}
             {isQuotaError && (
-              <div className="rounded-2xl bg-amber-900/20 border border-amber-800/50 p-6 mb-6 space-y-4">
-                <div>
-                  <p className="text-amber-300 font-semibold mb-2">📊 Your Usage Limit Has Been Reached</p>
-                  <p className="text-sm text-amber-200/80">
-                    Your free tier quota for the Google Gemini API has been exhausted. Every free account has a limited quota that resets periodically.
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-amber-300 font-semibold mb-2">⏳ What Now?</p>
-                  <ul className="text-sm text-amber-200/80 space-y-2 list-disc list-inside">
-                    <li>Wait for your quota to reset (usually 24-48 hours)</li>
-                    <li>Enable paid billing on your Google Cloud account to bypass limits</li>
-                    <li>Use a different API key from another Google account with available quota</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <p className="text-amber-300 font-semibold mb-2">✅ Enable Paid Plan (Recommended)</p>
-                  <ol className="text-sm text-amber-200/80 space-y-2 list-decimal list-inside">
-                    <li>Go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-amber-300 hover:underline">Google AI Studio</a></li>
-                    <li>Enable billing on your Google Cloud project</li>
-                    <li>Add a payment method (credit card)</li>
-                    <li>Try again - you'll have access immediately</li>
-                  </ol>
+              <div className="rounded-2xl bg-amber-900/20 border border-amber-800/50 p-6 mb-6">
+                <div className="flex gap-4">
+                  <div className="text-3xl">⏳</div>
+                  <div>
+                    <p className="text-amber-300 font-semibold mb-2">Generation Limit Reached</p>
+                    <p className="text-sm text-amber-200/80 leading-relaxed">
+                      You've reached your daily generation limit. Please try again later or contact support for more information.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
