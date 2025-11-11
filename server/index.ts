@@ -200,13 +200,27 @@ export function createServer() {
   app.post("/api/_admin/delete-remix-hash", handleDeleteRemixHash);
 
   // Capture asset vision endpoint (silently on asset click)
-  app.post("/api/capture-asset-vision", handleCaptureAssetVision);
+  app.post("/api/capture-asset-vision", async (req, res, next) => {
+    try {
+      const { handleCaptureAssetVision } = await import("./routes/capture-asset-vision.js");
+      await handleCaptureAssetVision(req, res);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   // Image similarity detection endpoint
   app.post(
     "/api/check-image-similarity",
     upload.single("image"),
-    handleCheckImageSimilarity,
+    async (req, res, next) => {
+      try {
+        const { handleCheckImageSimilarity } = await import("./routes/check-image-similarity.js");
+        await handleCheckImageSimilarity(req, res);
+      } catch (error) {
+        next(error);
+      }
+    },
   );
 
   // Vision-based image detection endpoint (most powerful)
