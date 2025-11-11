@@ -46,9 +46,10 @@ export const editImage = async (
   }
 };
 
-export const upscaleImage = async (
-  _image: { imageBytes: string; mimeType: string },
-): Promise<string> => {
+export const upscaleImage = async (_image: {
+  imageBytes: string;
+  mimeType: string;
+}): Promise<string> => {
   const prompt =
     "Create a high-resolution upscaled version of this image with enhanced details and improved clarity.";
 

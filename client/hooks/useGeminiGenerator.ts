@@ -108,9 +108,10 @@ const useGeminiGenerator = () => {
       const [header, base64Data] = resultUrl.split(",");
       const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledUrl = await openaiService.upscaleImage(
-        { imageBytes: base64Data, mimeType },
-      );
+      const upscaledUrl = await openaiService.upscaleImage({
+        imageBytes: base64Data,
+        mimeType,
+      });
       setResultUrl(upscaledUrl);
       setResultType("image");
     } catch (e: any) {
