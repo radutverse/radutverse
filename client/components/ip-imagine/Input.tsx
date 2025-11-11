@@ -82,8 +82,8 @@ const IpImagineInput = ({
       }}
       autoComplete="off"
     >
-      {/* Creations popover and Creation button */}
-      <div className="mr-2 flex items-center gap-2">
+      {/* Creations Gallery - Navigate to Creation Result */}
+      <div className="mr-2 flex items-center">
         <button
           type="button"
           onClick={() => {
@@ -93,80 +93,24 @@ const IpImagineInput = ({
               state: {
                 type: creationMode || "image",
                 outputUrl: demoImageUrl,
-                prompt:
-                  "This is a demo creation. Replace with actual generation results.",
+                prompt: input || "This is a demo creation. Replace with actual generation results.",
                 timestamp: new Date().toISOString(),
               },
             });
           }}
           className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
-          aria-label="View creation results"
+          aria-label="View creations and results"
           title="Creation Results"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+            viewBox="0 0 20 20"
+            fill="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
+            <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
           </svg>
         </button>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
-              aria-label="Open creations gallery"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
-              </svg>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent
-            side="top"
-            align="start"
-            className="w-56 p-3 bg-slate-900/95 border border-[#FF4DA6]/20 rounded-lg backdrop-blur-sm"
-          >
-            <div className="text-xs text-slate-400 font-semibold mb-2">
-              Your creations
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {previewImages.remixImage ? (
-                <img
-                  src={previewImages.remixImage.url}
-                  alt={previewImages.remixImage.name}
-                  className="w-full h-12 object-cover rounded"
-                />
-              ) : null}
-              {previewImages.additionalImage ? (
-                <img
-                  src={previewImages.additionalImage.url}
-                  alt={previewImages.additionalImage.name}
-                  className="w-full h-12 object-cover rounded"
-                />
-              ) : null}
-              {!previewImages.remixImage && !previewImages.additionalImage ? (
-                <div className="col-span-3 text-xs text-slate-400 italic">
-                  No creations yet
-                </div>
-              ) : null}
-            </div>
-          </PopoverContent>
-        </Popover>
       </div>
 
       <div className="flex-1 flex flex-col gap-2 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
