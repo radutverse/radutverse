@@ -3,15 +3,31 @@ import OpenAI from "openai";
 import sharp from "sharp";
 import fs from "fs";
 import path from "path";
+import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const TMP_DIR = "/tmp"; // folder aman untuk Vercel
+// ✅ Folder sementara yang writable di Vercel
+const TMP_DIR = "/tmp";
 
-// 🔹 TEXT → IMAGE
+// ✅ Middleware multer untuk upload gambar
+export const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (_req, file, cb) => {
+    if (
+      ["image/png", "image/jpeg", "image/webp"].includes(file.mimetype)
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type. Only PNG, JPG, and WEBP allowed."));
+    }
+  },
+});
+
+// 🔹 1️⃣ TEXT → IMAGE
 export const generateImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
@@ -30,7 +46,7 @@ export const generateImage: RequestHandler = async (req, res) => {
   }
 };
 
-// 🔹 IMAGE + PROMPT → AI EDIT
+// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const file = req.file;
@@ -42,7 +58,6 @@ export const editImage: RequestHandler = async (req, res) => {
     const tmpPath = path.join(TMP_DIR, `${uuidv4()}.png`);
     await sharp(file.buffer).png().toFile(tmpPath);
 
-    // 🔸 gunakan openai.images.edit bukan generate
     const response = await openai.images.edit({
       model: "gpt-image-1",
       image: fs.createReadStream(tmpPath),
