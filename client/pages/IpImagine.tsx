@@ -311,7 +311,7 @@ const IpImagine = () => {
       <IpImagineInput
         input={input}
         setInput={setInput}
-        waiting={waiting}
+        waiting={waiting || isLoading}
         previewImages={previewImages}
         setPreviewImages={setPreviewImages}
         uploadRef={uploadRef}
