@@ -16,6 +16,7 @@ import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 
 const IpImagine = () => {
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
@@ -36,6 +37,19 @@ const IpImagine = () => {
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+
+  const blobToBase64 = useCallback((blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -177,7 +191,7 @@ const IpImagine = () => {
         // Handle image files
         if (!file.type.startsWith("image/")) {
           setStatusText(
-            `⚠️ File must be an image${creationMode === "video" ? " or video" : ""}.`,
+            `��️ File must be an image${creationMode === "video" ? " or video" : ""}.`,
           );
           return;
         }
