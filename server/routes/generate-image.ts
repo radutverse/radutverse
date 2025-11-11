@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import sharp from "sharp";
+import { FormData, Blob } from "formdata-node";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -19,7 +20,6 @@ export const generateImage: RequestHandler = async (req, res) => {
     }
 
     const result = await openai_generate_image(prompt);
-
     res.json({ url: result });
   } catch (error: any) {
     console.error("❌ Error generating image:", error);
@@ -30,7 +30,7 @@ export const generateImage: RequestHandler = async (req, res) => {
   }
 };
 
-// 🖌️ IMAGE �� IMAGE (edit gambar + prompt)
+// 🖌️ IMAGE → IMAGE (edit gambar + prompt)
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
@@ -50,7 +50,6 @@ export const editImage: RequestHandler = async (req, res) => {
     }
 
     const result = await openai_edit_image(imageBuffer, prompt);
-
     res.json({ url: result });
   } catch (error: any) {
     console.error("❌ Error editing image:", error);
@@ -61,6 +60,10 @@ export const editImage: RequestHandler = async (req, res) => {
   }
 };
 
+// ==================== //
+// 🔧 Helper Functions //
+// ==================== //
+
 async function openai_generate_image(prompt: string): Promise<string> {
   const response = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
@@ -70,7 +73,7 @@ async function openai_generate_image(prompt: string): Promise<string> {
     },
     body: JSON.stringify({
       model: "dall-e-3",
-      prompt: prompt,
+      prompt,
       n: 1,
       size: "1024x1024",
     }),
@@ -82,7 +85,7 @@ async function openai_generate_image(prompt: string): Promise<string> {
     throw new Error(error.error?.message || "Image generation failed");
   }
 
-  const data = (await response.json()) as any;
+  const data = await response.json();
   const imageUrl = data.data?.[0]?.url;
 
   if (!imageUrl) {
@@ -92,10 +95,7 @@ async function openai_generate_image(prompt: string): Promise<string> {
   return imageUrl;
 }
 
-async function openai_edit_image(
-  imageBuffer: Buffer,
-  prompt: string,
-): Promise<string> {
+async function openai_edit_image(imageBuffer: Buffer, prompt: string): Promise<string> {
   const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
   if (imageBuffer.length > MAX_FILE_SIZE) {
@@ -107,32 +107,20 @@ async function openai_edit_image(
   let pngBuffer: Buffer;
 
   try {
+    // 👉 Tidak ada grayscale di sini (warna tetap dipertahankan)
     pngBuffer = await sharp(imageBuffer)
-      .grayscale()
       .ensureAlpha()
+      .resize(1024, 1024, {
+        fit: "inside",
+        withoutEnlargement: true,
+      })
       .png()
       .toBuffer();
 
     if (pngBuffer.length > MAX_FILE_SIZE) {
-      pngBuffer = await sharp(imageBuffer)
-        .grayscale()
+      pngBuffer = await sharp(pngBuffer)
         .ensureAlpha()
-        .resize(1024, 1024, {
-          fit: "inside",
-          withoutEnlargement: true,
-        })
-        .png()
-        .toBuffer();
-    }
-
-    if (pngBuffer.length > MAX_FILE_SIZE) {
-      pngBuffer = await sharp(imageBuffer)
-        .grayscale()
-        .ensureAlpha()
-        .resize(800, 800, {
-          fit: "inside",
-          withoutEnlargement: true,
-        })
+        .resize(800, 800, { fit: "inside", withoutEnlargement: true })
         .png()
         .toBuffer();
     }
@@ -141,12 +129,7 @@ async function openai_edit_image(
   }
 
   const formData = new FormData();
-
-  formData.append(
-    "image",
-    new Blob([pngBuffer], { type: "image/png" }),
-    "image.png",
-  );
+  formData.append("image", new Blob([pngBuffer], { type: "image/png" }), "image.png");
   formData.append("prompt", prompt);
   formData.append("n", "1");
   formData.append("size", "1024x1024");
@@ -165,7 +148,7 @@ async function openai_edit_image(
     throw new Error(error.error?.message || "Image editing failed");
   }
 
-  const data = (await response.json()) as any;
+  const data = await response.json();
   const imageUrl = data.data?.[0]?.url;
 
   if (!imageUrl) {
