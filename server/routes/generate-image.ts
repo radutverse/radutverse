@@ -9,15 +9,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ✅ Gunakan direktori tmp bawaan Vercel
-const TMP_DIR = "/tmp";
+const TMP_DIR = path.join(process.cwd(), "tmp");
+if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR);
 
-// Pastikan direktori ada
-if (!fs.existsSync(TMP_DIR)) {
-  fs.mkdirSync(TMP_DIR, { recursive: true });
-}
-
-// 🔹 1️⃣ TEXT → IMAGE
+// 🔹 TEXT → IMAGE
 export const generateImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
@@ -29,15 +24,14 @@ export const generateImage: RequestHandler = async (req, res) => {
       size: "1024x1024",
     });
 
-    const imageUrl = response.data[0].url;
-    res.json({ imageUrl });
+    res.json({ imageUrl: response.data[0].url });
   } catch (error: any) {
     console.error("❌ Error generating image:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT (pakai referenced_image_ids biar hasil beda)
+// 🔹 IMAGE + PROMPT → AI EDIT
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const file = req.file;
@@ -46,29 +40,19 @@ export const editImage: RequestHandler = async (req, res) => {
     if (!file) return res.status(400).json({ error: "Missing image file" });
     if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
 
-    // ✅ simpan di /tmp agar bisa ditulis di Vercel
     const tmpPath = path.join(TMP_DIR, `${uuidv4()}.png`);
     await sharp(file.buffer).png().toFile(tmpPath);
 
-    // Upload gambar ke OpenAI → dapat image_id
-    const uploaded = await openai.files.create({
-      file: fs.createReadStream(tmpPath),
-      purpose: "vision",
-    });
-
-    // Generate image baru berdasarkan referensi lama + prompt baru
-    const response = await openai.images.generate({
+    // 🔸 gunakan openai.images.edit bukan generate
+    const response = await openai.images.edit({
       model: "gpt-image-1",
+      image: fs.createReadStream(tmpPath),
       prompt,
       size: "1024x1024",
-      referenced_image_ids: [uploaded.id],
     });
 
-    const imageUrl = response.data[0].url;
-
-    // Bersihkan file sementara
     fs.unlinkSync(tmpPath);
-    res.json({ imageUrl });
+    res.json({ imageUrl: response.data[0].url });
   } catch (error: any) {
     console.error("❌ Error editing image:", error);
     res.status(500).json({ error: error.message });
