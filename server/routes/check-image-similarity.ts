@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import sharp from "sharp";
 import { checkHashInWhitelist } from "../utils/remix-hash-whitelist.js";
 
 /**
