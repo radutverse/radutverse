@@ -171,8 +171,7 @@ const IpImagine = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          const errorMsg =
-            errorData.error || "Failed to generate image";
+          const errorMsg = errorData.error || "Failed to generate image";
           setStatusText(`❌ ${errorMsg}`);
           setWaiting(false);
           return false;

@@ -42,15 +42,14 @@ export const handleGenerateImage: RequestHandler = async (req, res) => {
             outputMimeType: "image/jpeg",
           },
         }),
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Gemini API error:", errorData);
       res.status(response.status).json({
-        error:
-          errorData.error?.message || "Failed to generate image",
+        error: errorData.error?.message || "Failed to generate image",
         success: false,
       });
       return;
@@ -59,7 +58,11 @@ export const handleGenerateImage: RequestHandler = async (req, res) => {
     const data = await response.json();
 
     // Extract image data from response
-    if (!data.predictions || !Array.isArray(data.predictions) || data.predictions.length === 0) {
+    if (
+      !data.predictions ||
+      !Array.isArray(data.predictions) ||
+      data.predictions.length === 0
+    ) {
       res.status(500).json({
         error: "No images generated",
         success: false,
