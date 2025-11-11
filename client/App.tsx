@@ -1,19 +1,33 @@
 import "./global.css";
 
-import { StrictMode } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import IpfiAssistant from "./pages/IpfiAssistant";
-import NftMarketplace from "./pages/NftMarketplace";
-import MyPortfolio from "./pages/MyPortfolio";
-import Settings from "./pages/Settings";
-import History from "./pages/History";
-import IpImagine from "./pages/IpImagine";
-import CreationResult from "./pages/CreationResult";
-import NotFound from "./pages/NotFound";
+
+// Lazy load all pages for better code-splitting
+const Index = lazy(() => import("./pages/Index"));
+const IpfiAssistant = lazy(() => import("./pages/IpfiAssistant"));
+const NftMarketplace = lazy(() => import("./pages/NftMarketplace"));
+const MyPortfolio = lazy(() => import("./pages/MyPortfolio"));
+const Settings = lazy(() => import("./pages/Settings"));
+const History = lazy(() => import("./pages/History"));
+const IpImagine = lazy(() => import("./pages/IpImagine"));
+const CreationResult = lazy(() => import("./pages/CreationResult"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center w-full h-screen bg-background">
+    <div className="text-center">
+      <div className="mb-4 animate-spin">
+        <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+      <p className="text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
 
 declare global {
   interface Window {
