@@ -97,7 +97,11 @@ async function openai_edit_image(
 ): Promise<string> {
   const formData = new FormData();
 
-  formData.append("image", new Blob([imageBuffer], { type: "image/png" }), "image.png");
+  formData.append(
+    "image",
+    new Blob([imageBuffer], { type: "image/png" }),
+    "image.png",
+  );
   formData.append("prompt", prompt);
   formData.append("n", "1");
   formData.append("size", "1024x1024");
