@@ -107,37 +107,35 @@ async function openai_edit_image(
   let pngBuffer: Buffer;
 
   try {
+    const metadata = await sharp(imageBuffer).metadata();
+    console.log("Input image metadata:", { format: metadata.format, channels: metadata.channels, hasAlpha: metadata.hasAlpha });
+
     pngBuffer = await sharp(imageBuffer)
-      .withMetadata(false)
+      .ensureAlpha(1)
       .png()
       .toBuffer();
 
-    const metadata = await sharp(pngBuffer).metadata();
-    console.log("Image metadata:", {
-      format: metadata.format,
-      space: metadata.space,
-      channels: metadata.channels,
-      hasAlpha: metadata.hasAlpha,
-    });
+    const outputMetadata = await sharp(pngBuffer).metadata();
+    console.log("Output PNG metadata:", { format: outputMetadata.format, channels: outputMetadata.channels, hasAlpha: outputMetadata.hasAlpha });
 
     if (pngBuffer.length > MAX_FILE_SIZE) {
       pngBuffer = await sharp(imageBuffer)
+        .ensureAlpha(1)
         .resize(1024, 1024, {
           fit: "inside",
           withoutEnlargement: true,
         })
-        .withMetadata(false)
         .png()
         .toBuffer();
     }
 
     if (pngBuffer.length > MAX_FILE_SIZE) {
       pngBuffer = await sharp(imageBuffer)
+        .ensureAlpha(1)
         .resize(800, 800, {
           fit: "inside",
           withoutEnlargement: true,
         })
-        .withMetadata(false)
         .png()
         .toBuffer();
     }
