@@ -98,7 +98,7 @@ async function openai_edit_image(
   const formData = new FormData();
 
   const imageBlob = new Blob([imageBuffer], { type: "image/png" });
-  formData.append("image", imageBlob as unknown as BodyInit, "image.png");
+  formData.append("image", imageBlob, "image.png");
   formData.append("prompt", prompt);
   formData.append("n", "1");
   formData.append("size", "1024x1024");
@@ -109,7 +109,7 @@ async function openai_edit_image(
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
-    body: formData,
+    body: formData as unknown as BodyInit,
   });
 
   if (!response.ok) {
@@ -127,3 +127,5 @@ async function openai_edit_image(
 
   return imageUrl;
 }
+
+type BodyInit = FormData | Blob | BufferSource | ReadableStream<Uint8Array> | URLSearchParams | string;
