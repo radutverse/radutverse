@@ -158,9 +158,7 @@ const IpImagine = () => {
 
         // Handle image files
         if (!file.type.startsWith("image/")) {
-          setStatusText(
-            "⚠️ File must be an image.",
-          );
+          setStatusText("⚠️ File must be an image.");
           return;
         }
 

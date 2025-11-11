@@ -9,9 +9,7 @@ const useImageGenerator = () => {
   const navigate = useNavigate();
 
   if (!context) {
-    throw new Error(
-      "useImageGenerator must be used within a CreationProvider",
-    );
+    throw new Error("useImageGenerator must be used within a CreationProvider");
   }
 
   const {
@@ -23,9 +21,7 @@ const useImageGenerator = () => {
     resultUrl,
   } = context;
 
-  const generate = async (
-    options: GenerationOptions,
-  ) => {
+  const generate = async (options: GenerationOptions) => {
     setIsLoading(true);
     setError(null);
     setResultUrl(null);
