@@ -19,7 +19,7 @@ export const generateImage: RequestHandler = async (req, res) => {
     });
 
     const imageUrl = result.data[0].url;
-    res.json({ imageUrl });
+    res.json({ url: imageUrl });
   } catch (err) {
     console.error("❌ Error generating image:", err);
     res.status(500).json({ error: "Failed to generate image" });
@@ -62,7 +62,7 @@ export const editImage: RequestHandler = async (req, res) => {
     });
 
     const data = await response.json();
-    res.json({ editedImageUrl: data.data[0].url });
+    res.json({ url: data.data[0].url });
   } catch (err: any) {
     console.error("❌ Error editing image:", err);
     res.status(500).json({
