@@ -65,6 +65,7 @@ const IpImagineInput = ({
   setCreationMode = () => {},
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <form
