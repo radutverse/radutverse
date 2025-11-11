@@ -302,13 +302,6 @@ const IpImagine = () => {
           )
             return;
 
-          if (!apiKey) {
-            setStatusText(
-              "❌ API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
-            );
-            return;
-          }
-
           setWaiting(true);
           setStatusText("✨ Starting generation...");
 
