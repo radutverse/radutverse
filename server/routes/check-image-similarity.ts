@@ -35,6 +35,15 @@ async function calculateImagePerceptualHash(
   imageBuffer: Buffer,
 ): Promise<string | null> {
   try {
+    // Lazy load sharp to handle cases where native binaries aren't available
+    let sharp;
+    try {
+      sharp = (await import("sharp")).default;
+    } catch (error) {
+      console.warn("Sharp module not available, skipping pHash calculation");
+      return null;
+    }
+
     // Reduce image to 32x32 for pHash calculation
     const size = 32;
     const resized = await sharp(imageBuffer)
