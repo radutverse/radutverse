@@ -23,12 +23,23 @@ export const generateImage: RequestHandler = async (req, res) => {
 
     let imageUrl: string;
 
-    if (image && image.data) {
-      // Image editing mode using DALL-E 2 inpainting
-      imageUrl = await editImageWithDallE2(image.data, image.mimeType, prompt);
-    } else {
-      // Text to image generation using DALL-E 3
-      imageUrl = await generateImageWithDallE3(prompt);
+    try {
+      if (image && image.data) {
+        // Image editing mode using DALL-E 2 inpainting
+        imageUrl = await editImageWithDallE2(
+          image.data,
+          image.mimeType,
+          prompt,
+        );
+      } else {
+        // Text to image generation using DALL-E 3
+        imageUrl = await generateImageWithDallE3(prompt);
+      }
+    } catch (apiError: any) {
+      console.error("OpenAI API error:", apiError.message);
+      return res.status(500).json({
+        error: apiError.message || "Image generation failed",
+      });
     }
 
     // Download the image and convert to base64
@@ -48,7 +59,7 @@ export const generateImage: RequestHandler = async (req, res) => {
       mimeType: mimeType,
     });
   } catch (error) {
-    console.error("Error generating image:", error);
+    console.error("Error in generateImage:", error);
     res.status(500).json({
       error: "An error occurred while generating the image",
     });
@@ -95,35 +106,43 @@ async function editImageWithDallE2(
   _mimeType: string,
   prompt: string,
 ): Promise<string> {
-  const imageBuffer = Buffer.from(base64Data, "base64");
+  try {
+    const imageBuffer = Buffer.from(base64Data, "base64");
 
-  const formData = new FormData();
-  formData.append("image", Readable.from(imageBuffer), "image.png");
-  formData.append("prompt", prompt);
-  formData.append("n", "1");
-  formData.append("size", "1024x1024");
+    const formData = new FormData();
+    formData.append("image", Readable.from(imageBuffer), {
+      filename: "image.png",
+      contentType: "image/png",
+    });
+    formData.append("prompt", prompt);
+    formData.append("n", "1");
+    formData.append("size", "1024x1024");
 
-  const response = await fetch("https://api.openai.com/v1/images/edits", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      ...formData.getHeaders(),
-    },
-    body: formData as any,
-  });
+    const response = await fetch("https://api.openai.com/v1/images/edits", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        ...formData.getHeaders(),
+      },
+      body: formData as any,
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    console.error("OpenAI DALL-E 2 inpainting error:", error);
-    throw new Error(error.error?.message || "Image editing failed");
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("OpenAI DALL-E 2 inpainting error:", error);
+      throw new Error(error.error?.message || "Image editing failed");
+    }
+
+    const data = (await response.json()) as any;
+    const imageUrl = data.data?.[0]?.url;
+
+    if (!imageUrl) {
+      throw new Error("No image URL returned from OpenAI");
+    }
+
+    return imageUrl;
+  } catch (error) {
+    console.error("Error in editImageWithDallE2:", error);
+    throw error;
   }
-
-  const data = (await response.json()) as any;
-  const imageUrl = data.data?.[0]?.url;
-
-  if (!imageUrl) {
-    throw new Error("No image URL returned from OpenAI");
-  }
-
-  return imageUrl;
 }
