@@ -365,7 +365,7 @@ const IpImagine = () => {
       <input
         ref={uploadRef}
         type="file"
-        accept={creationMode === "video" ? "video/*,image/*" : "image/*"}
+        accept="image/*"
         className="hidden"
         onChange={handleImage}
       />
