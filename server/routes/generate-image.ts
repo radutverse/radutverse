@@ -1,85 +1,81 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
 import sharp from "sharp";
-import fs from "fs";
-import path from "path";
-import multer from "multer";
-import { v4 as uuidv4 } from "uuid";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
-// 🧩 Pakai folder sementara Vercel (/tmp)
-const TMP_DIR = "/tmp";
-if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true });
-
-// 🧠 Multer setup (memory storage + MIME fallback)
-export const upload = multer({
-  storage: multer.memoryStorage(),
-  fileFilter: (_req, file, cb) => {
-    // Fallback kalau mimetype hilang (misal: application/octet-stream)
-    if (!file.mimetype || file.mimetype === "application/octet-stream") {
-      file.mimetype = "image/png";
-    }
-
-    if (["image/png", "image/jpeg", "image/webp"].includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Invalid file type. Only PNG, JPG, and WEBP allowed."));
-    }
-  },
-});
-
-// 🔹 1️⃣ TEXT → IMAGE
+// 🔹 TEXT → IMAGE
 export const generateImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
     if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
 
-    const response = await openai.images.generate({
+    const result = await client.images.generate({
       model: "gpt-image-1",
       prompt,
       size: "1024x1024",
     });
 
-    const imageUrl = response.data[0].url;
+    const imageUrl = result.data[0].url;
     res.json({ imageUrl });
-  } catch (error: any) {
-    console.error("❌ Error generating image:", error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("❌ Error generating image:", err);
+    res.status(500).json({ error: "Failed to generate image" });
   }
 };
 
-// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT (pakai image upload langsung)
+// 🔹 IMAGE → EDIT
 export const editImage: RequestHandler = async (req, res) => {
   try {
-    const file = req.file;
     const prompt = req.body.prompt?.trim();
+    const file = req.file;
 
-    if (!file) return res.status(400).json({ error: "Missing image file" });
-    if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
+    if (!file || !prompt) {
+      return res.status(400).json({ error: "Missing image or prompt" });
+    }
 
-    console.log("📸 Uploaded file type:", file.mimetype);
+    // 🔧 Pastikan MIME type valid
+    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    let mimeType = file.mimetype;
 
-    // Simpan file sementara ke /tmp agar bisa dikirim ke OpenAI
-    const tmpPath = path.join(TMP_DIR, `${uuidv4()}.png`);
-    await sharp(file.buffer).toFormat("png").toFile(tmpPath);
+    // Jika entah kenapa terdeteksi sebagai application/octet-stream
+    if (!validTypes.includes(mimeType)) {
+      try {
+        const metadata = await sharp(file.buffer).metadata();
+        if (metadata.format === "jpeg") mimeType = "image/jpeg";
+        else if (metadata.format === "png") mimeType = "image/png";
+        else if (metadata.format === "webp") mimeType = "image/webp";
+        else throw new Error(`Unsupported detected format: ${metadata.format}`);
+      } catch (e) {
+        console.error("⚠️ Failed to detect real mimetype:", e);
+        return res.status(400).json({
+          error:
+            "Unsupported image type. Please upload a valid JPEG, PNG, or WEBP.",
+        });
+      }
+    }
 
-    // Kirim request edit image
-    const response = await openai.images.edit({
+    console.log("📸 Uploaded file type:", mimeType);
+
+    const response = await client.images.edit({
       model: "gpt-image-1",
       prompt,
-      image: fs.createReadStream(tmpPath),
-      size: "1024x1024",
+      image: [
+        {
+          name: file.originalname,
+          buffer: file.buffer,
+          mimeType, // ✅ pakai hasil MIME fix di atas
+        },
+      ],
     });
 
-    const imageUrl = response.data[0].url;
-
-    fs.unlinkSync(tmpPath); // hapus file sementara
-    res.json({ imageUrl });
-  } catch (error: any) {
-    console.error("❌ Error editing image:", error);
-    res.status(500).json({ error: error.message });
+    const editedImageUrl = response.data[0].url;
+    res.json({ editedImageUrl });
+  } catch (err: any) {
+    console.error("❌ Error editing image:", err);
+    res.status(500).json({
+      error: "Failed to edit image",
+      details: err.message || err,
+    });
   }
 };
