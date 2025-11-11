@@ -6,21 +6,20 @@ import { Button } from "@/components/ui/button";
 import UpscalerModal from "@/components/creation/UpscalerModal";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
-interface CreationState {
-  type: "image" | "video";
-  outputUrl: string;
-  prompt: string;
-  timestamp: string;
-}
-
 const CreationResult = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const creationData = (location.state as CreationState) || null;
+  const {
+    resultUrl,
+    resultType,
+    isLoading,
+    loadingMessage,
+    error,
+    upscale,
+  } = useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
-  const [isUpscaling, setIsUpscaling] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
     if (!creationData?.outputUrl) return;
