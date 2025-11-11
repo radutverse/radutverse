@@ -37,6 +37,8 @@ type IpImagineInputProps = {
   attachmentLoading?: boolean;
   onRemixRegisterWarning?: () => void;
   onAddRemixImage?: () => void;
+  creationMode?: "image" | "video";
+  setCreationMode?: Dispatch<SetStateAction<"image" | "video">>;
 };
 
 const IpImagineInput = ({
