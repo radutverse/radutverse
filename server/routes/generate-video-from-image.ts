@@ -10,7 +10,7 @@ import { generateVideoFromImageAndText } from "../utils/generation.js";
 
 export const handleGenerateVideoFromImage: RequestHandler = async (
   req,
-  res
+  res,
 ) => {
   try {
     const { prompt, imageBase64, imageMimeType } = req.body;
@@ -34,7 +34,7 @@ export const handleGenerateVideoFromImage: RequestHandler = async (
         updateSessionProgress(
           session.id,
           5,
-          "Processing image for video generation..."
+          "Processing image for video generation...",
         );
 
         const result = await generateVideoFromImageAndText(
@@ -45,7 +45,7 @@ export const handleGenerateVideoFromImage: RequestHandler = async (
           },
           (message, progress) => {
             updateSessionProgress(session.id, progress, message);
-          }
+          },
         );
 
         completeSession(session.id, result);

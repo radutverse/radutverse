@@ -24,11 +24,18 @@ export const handleGenerateVideo: RequestHandler = async (req, res) => {
     (async () => {
       try {
         startProcessing(session.id);
-        updateSessionProgress(session.id, 5, "Warming up the creative engines...");
+        updateSessionProgress(
+          session.id,
+          5,
+          "Warming up the creative engines...",
+        );
 
-        const result = await generateVideoFromText(prompt, (message, progress) => {
-          updateSessionProgress(session.id, progress, message);
-        });
+        const result = await generateVideoFromText(
+          prompt,
+          (message, progress) => {
+            updateSessionProgress(session.id, progress, message);
+          },
+        );
 
         completeSession(session.id, result);
       } catch (error) {

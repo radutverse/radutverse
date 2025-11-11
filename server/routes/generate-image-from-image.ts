@@ -10,7 +10,7 @@ import { generateImageFromImageAndText } from "../utils/generation.js";
 
 export const handleGenerateImageFromImage: RequestHandler = async (
   req,
-  res
+  res,
 ) => {
   try {
     const { prompt, imageBase64, imageMimeType } = req.body;
@@ -34,7 +34,7 @@ export const handleGenerateImageFromImage: RequestHandler = async (
         updateSessionProgress(
           session.id,
           10,
-          "Processing image for transformation..."
+          "Processing image for transformation...",
         );
 
         const result = await generateImageFromImageAndText(prompt, {

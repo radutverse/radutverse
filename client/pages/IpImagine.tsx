@@ -345,7 +345,9 @@ const IpImagine = () => {
               if (previewImages.remixImage) {
                 // Video from image + text
                 setStatusText("Processing image for video...");
-                const base64 = await blobToBase64(previewImages.remixImage.blob);
+                const base64 = await blobToBase64(
+                  previewImages.remixImage.blob,
+                );
                 const response = await fetch("/api/generate-video-from-image", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -384,7 +386,9 @@ const IpImagine = () => {
               if (previewImages.remixImage) {
                 // Image from image + text
                 setStatusText("Processing image...");
-                const base64 = await blobToBase64(previewImages.remixImage.blob);
+                const base64 = await blobToBase64(
+                  previewImages.remixImage.blob,
+                );
                 const response = await fetch("/api/generate-image-from-image", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -430,7 +434,7 @@ const IpImagine = () => {
           } catch (error) {
             console.error("Generation error:", error);
             setStatusText(
-              `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+              `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
             );
             setWaiting(false);
           }

@@ -33,7 +33,7 @@ export async function generateImageFromText(prompt: string): Promise<string> {
 
 export async function generateImageFromImageAndText(
   prompt: string,
-  image: { base64: string; mimeType: string }
+  image: { base64: string; mimeType: string },
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const response = await ai.models.generateContent({
@@ -101,7 +101,7 @@ export async function upscaleImage(image: {
 
 export async function generateVideoFromText(
   prompt: string,
-  onProgress: (message: string, progress: number) => void
+  onProgress: (message: string, progress: number) => void,
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -111,7 +111,7 @@ export async function generateVideoFromText(
       VIDEO_GENERATION_MESSAGES[
         messageIndex % VIDEO_GENERATION_MESSAGES.length
       ],
-      progress
+      progress,
     );
     messageIndex++;
   };
@@ -136,10 +136,7 @@ export async function generateVideoFromText(
   while (!operation.done && elapsedTime < maxWaitTime) {
     await new Promise((resolve) => setTimeout(resolve, updateInterval));
     elapsedTime += updateInterval;
-    const progressPercent = Math.min(
-      85,
-      15 + (elapsedTime / maxWaitTime) * 70
-    );
+    const progressPercent = Math.min(85, 15 + (elapsedTime / maxWaitTime) * 70);
     updateProgress(progressPercent);
 
     try {
@@ -159,23 +156,25 @@ export async function generateVideoFromText(
 
   if (operation.error) {
     throw new Error(
-      (operation.error.message as string) || "Video generation failed."
+      (operation.error.message as string) || "Video generation failed.",
     );
   }
 
   const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
   if (!downloadLink) {
     throw new Error(
-      "Video generation completed, but no download link was found."
+      "Video generation completed, but no download link was found.",
     );
   }
 
   updateProgress(95);
 
-  const videoResponse = await fetch(`${downloadLink}&key=${process.env.GEMINI_API_KEY}`);
+  const videoResponse = await fetch(
+    `${downloadLink}&key=${process.env.GEMINI_API_KEY}`,
+  );
   if (!videoResponse.ok) {
     throw new Error(
-      `Failed to download video. Status: ${videoResponse.statusText}`
+      `Failed to download video. Status: ${videoResponse.statusText}`,
     );
   }
 
@@ -188,7 +187,7 @@ export async function generateVideoFromText(
 export async function generateVideoFromImageAndText(
   prompt: string,
   image: { base64: string; mimeType: string },
-  onProgress: (message: string, progress: number) => void
+  onProgress: (message: string, progress: number) => void,
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -198,7 +197,7 @@ export async function generateVideoFromImageAndText(
       VIDEO_GENERATION_MESSAGES[
         messageIndex % VIDEO_GENERATION_MESSAGES.length
       ],
-      progress
+      progress,
     );
     messageIndex++;
   };
@@ -228,10 +227,7 @@ export async function generateVideoFromImageAndText(
   while (!operation.done && elapsedTime < maxWaitTime) {
     await new Promise((resolve) => setTimeout(resolve, updateInterval));
     elapsedTime += updateInterval;
-    const progressPercent = Math.min(
-      85,
-      15 + (elapsedTime / maxWaitTime) * 70
-    );
+    const progressPercent = Math.min(85, 15 + (elapsedTime / maxWaitTime) * 70);
     updateProgress(progressPercent);
 
     try {
@@ -251,23 +247,25 @@ export async function generateVideoFromImageAndText(
 
   if (operation.error) {
     throw new Error(
-      (operation.error.message as string) || "Video generation failed."
+      (operation.error.message as string) || "Video generation failed.",
     );
   }
 
   const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
   if (!downloadLink) {
     throw new Error(
-      "Video generation completed, but no download link was found."
+      "Video generation completed, but no download link was found.",
     );
   }
 
   updateProgress(95);
 
-  const videoResponse = await fetch(`${downloadLink}&key=${process.env.GEMINI_API_KEY}`);
+  const videoResponse = await fetch(
+    `${downloadLink}&key=${process.env.GEMINI_API_KEY}`,
+  );
   if (!videoResponse.ok) {
     throw new Error(
-      `Failed to download video. Status: ${videoResponse.statusText}`
+      `Failed to download video. Status: ${videoResponse.statusText}`,
     );
   }
 

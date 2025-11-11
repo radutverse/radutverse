@@ -49,7 +49,7 @@ export function getSession(id: string): GenerationSession | undefined {
 export function updateSessionProgress(
   id: string,
   progress: number,
-  progressMessage: string
+  progressMessage: string,
 ): void {
   const session = sessions.get(id);
   if (session) {

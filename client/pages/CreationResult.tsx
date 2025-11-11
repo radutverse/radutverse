@@ -19,9 +19,8 @@ const CreationResult = () => {
   const navigate = useNavigate();
   const sessionId = searchParams.get("sessionId");
 
-  const [generationData, setGenerationData] = useState<GenerationProgress | null>(
-    null
-  );
+  const [generationData, setGenerationData] =
+    useState<GenerationProgress | null>(null);
   const [upscaling, setUpscaling] = useState(false);
   const [upscaleProgress, setUpscaleProgress] = useState(0);
 
@@ -35,7 +34,7 @@ const CreationResult = () => {
     const pollProgress = async () => {
       try {
         const res = await fetch(
-          `/api/generation-progress?sessionId=${sessionId}`
+          `/api/generation-progress?sessionId=${sessionId}`,
         );
         if (res.ok) {
           const data = await res.json();
@@ -100,7 +99,7 @@ const CreationResult = () => {
         const pollUpscale = async () => {
           try {
             const progressRes = await fetch(
-              `/api/generation-progress?sessionId=${upscaleSessionId}`
+              `/api/generation-progress?sessionId=${upscaleSessionId}`,
             );
             if (progressRes.ok) {
               const data = await progressRes.json();
@@ -108,7 +107,7 @@ const CreationResult = () => {
 
               if (data.status === "completed") {
                 setGenerationData((prev) =>
-                  prev ? { ...prev, result: data.result } : null
+                  prev ? { ...prev, result: data.result } : null,
                 );
                 setUpscaling(false);
                 return false;
@@ -210,7 +209,9 @@ const CreationResult = () => {
                 <div className="text-red-400 text-lg font-semibold mb-4">
                   ❌ Generation Failed
                 </div>
-                <div className="text-slate-300 mb-6">{generationData.error}</div>
+                <div className="text-slate-300 mb-6">
+                  {generationData.error}
+                </div>
                 <button
                   onClick={() => navigate("/ip-imagine")}
                   className="px-6 py-2 bg-[#FF4DA6] text-white rounded-lg hover:bg-[#FF4DA6]/80 transition"
