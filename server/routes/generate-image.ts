@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import type { BodyInit } from "undici";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
