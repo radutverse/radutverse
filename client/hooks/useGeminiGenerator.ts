@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreationContext } from "@/context/CreationContext";
 import * as geminiService from "@/services/geminiService";
+import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
 
 const useGeminiGenerator = () => {
@@ -40,15 +41,13 @@ const useGeminiGenerator = () => {
       if (mode === "image") {
         setLoadingMessage("Crafting your image...");
         if (options.image) {
-          generatedUrl = await geminiService.editImage(
+          generatedUrl = await openaiService.editImage(
             options.prompt,
             options.image,
-            apiKey,
           );
         } else {
-          generatedUrl = await geminiService.generateImageFromText(
+          generatedUrl = await openaiService.generateImageFromText(
             options.prompt,
-            apiKey,
           );
         }
         setResultType("image");
@@ -109,9 +108,8 @@ const useGeminiGenerator = () => {
       const [header, base64Data] = resultUrl.split(",");
       const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledUrl = await geminiService.upscaleImage(
+      const upscaledUrl = await openaiService.upscaleImage(
         { imageBytes: base64Data, mimeType },
-        apiKey,
       );
       setResultUrl(upscaledUrl);
       setResultType("image");
