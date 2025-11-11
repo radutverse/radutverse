@@ -202,7 +202,9 @@ export function createServer() {
   // Capture asset vision endpoint (silently on asset click)
   app.post("/api/capture-asset-vision", async (req, res, next) => {
     try {
-      const { handleCaptureAssetVision } = await import("./routes/capture-asset-vision.js");
+      const { handleCaptureAssetVision } = await import(
+        "./routes/capture-asset-vision.js"
+      );
       await handleCaptureAssetVision(req, res);
     } catch (error) {
       next(error);
@@ -215,7 +217,9 @@ export function createServer() {
     upload.single("image"),
     async (req, res, next) => {
       try {
-        const { handleCheckImageSimilarity } = await import("./routes/check-image-similarity.js");
+        const { handleCheckImageSimilarity } = await import(
+          "./routes/check-image-similarity.js"
+        );
         await handleCheckImageSimilarity(req, res);
       } catch (error) {
         next(error);
