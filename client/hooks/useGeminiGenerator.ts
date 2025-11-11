@@ -1,8 +1,8 @@
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CreationContext } from '@/context/CreationContext';
-import * as geminiService from '@/services/geminiService';
-import { GenerationOptions, ToggleMode } from '@/types/generation';
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { CreationContext } from "@/context/CreationContext";
+import * as geminiService from "@/services/geminiService";
+import { GenerationOptions, ToggleMode } from "@/types/generation";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -10,7 +10,7 @@ const useGeminiGenerator = () => {
 
   if (!context) {
     throw new Error(
-      'useGeminiGenerator must be used within a CreationProvider',
+      "useGeminiGenerator must be used within a CreationProvider",
     );
   }
 
@@ -32,13 +32,13 @@ const useGeminiGenerator = () => {
     setError(null);
     setResultUrl(null);
     setResultType(null);
-    navigate('/creation-result');
+    navigate("/creation-result");
 
     try {
       let generatedUrl: string;
 
-      if (mode === 'image') {
-        setLoadingMessage('Crafting your image...');
+      if (mode === "image") {
+        setLoadingMessage("Crafting your image...");
         if (options.image) {
           generatedUrl = await geminiService.editImage(
             options.prompt,
@@ -51,21 +51,19 @@ const useGeminiGenerator = () => {
             apiKey,
           );
         }
-        setResultType('image');
+        setResultType("image");
       } else {
-        setLoadingMessage('Initializing video generation...');
+        setLoadingMessage("Initializing video generation...");
         const timeout1 = setTimeout(
           () =>
             setLoadingMessage(
-              'Warming up the pixels... This can take a few minutes.',
+              "Warming up the pixels... This can take a few minutes.",
             ),
           20000,
         );
         const timeout2 = setTimeout(
           () =>
-            setLoadingMessage(
-              'Almost there, composing your masterpiece...',
-            ),
+            setLoadingMessage("Almost there, composing your masterpiece..."),
           60000,
         );
 
@@ -73,33 +71,33 @@ const useGeminiGenerator = () => {
 
         clearTimeout(timeout1);
         clearTimeout(timeout2);
-        setResultType('video');
+        setResultType("video");
       }
 
       setResultUrl(generatedUrl);
     } catch (e: any) {
       console.error(e);
       let errorMessage =
-        e.message || 'An unknown error occurred during generation.';
+        e.message || "An unknown error occurred during generation.";
       if (
         e.message &&
-        (e.message.includes('API key not valid') ||
-          e.message.includes('404') ||
-          e.message.includes('PERMISSION_DENIED'))
+        (e.message.includes("API key not valid") ||
+          e.message.includes("404") ||
+          e.message.includes("PERMISSION_DENIED"))
       ) {
         errorMessage =
-          'Your API key is invalid or project billing is not enabled. Please check your key and try again.';
+          "Your API key is invalid or project billing is not enabled. Please check your key and try again.";
       }
       setError(errorMessage);
     } finally {
       setIsLoading(false);
-      setLoadingMessage('');
+      setLoadingMessage("");
     }
   };
 
   const upscale = async (apiKey: string) => {
-    if (!resultUrl || !resultUrl.startsWith('data:image')) {
-      setError('Upscaling is only available for a generated image.');
+    if (!resultUrl || !resultUrl.startsWith("data:image")) {
+      setError("Upscaling is only available for a generated image.");
       return;
     }
 
@@ -107,22 +105,22 @@ const useGeminiGenerator = () => {
     setError(null);
 
     try {
-      setLoadingMessage('Upscaling image...');
-      const [header, base64Data] = resultUrl.split(',');
-      const mimeType = header.match(/:(.*?);/)?.[1] || 'image/png';
+      setLoadingMessage("Upscaling image...");
+      const [header, base64Data] = resultUrl.split(",");
+      const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
       const upscaledUrl = await geminiService.upscaleImage(
         { imageBytes: base64Data, mimeType },
         apiKey,
       );
       setResultUrl(upscaledUrl);
-      setResultType('image');
+      setResultType("image");
     } catch (e: any) {
       console.error(e);
-      setError(e.message || 'An unknown error occurred during upscaling.');
+      setError(e.message || "An unknown error occurred during upscaling.");
     } finally {
       setIsLoading(false);
-      setLoadingMessage('');
+      setLoadingMessage("");
     }
   };
 

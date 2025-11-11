@@ -1,40 +1,41 @@
-import { GenerationOptions } from '@/types/generation';
+import { GenerationOptions } from "@/types/generation";
 
 // --- IMAGE GENERATION ---
 export const generateImageFromText = async (
   prompt: string,
   apiKey: string,
 ): Promise<string> => {
-  if (!apiKey) throw new Error('API Key is required.');
+  if (!apiKey) throw new Error("API Key is required.");
 
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        generation_config: {
-          response_mime_type: 'image/png',
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
         },
-      }),
-    });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+          generation_config: {
+            response_mime_type: "image/png",
+          },
+        }),
+      },
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(
-        errorData.error?.message || 'Image generation failed',
-      );
+      throw new Error(errorData.error?.message || "Image generation failed");
     }
 
     const data = await response.json();
@@ -44,7 +45,7 @@ export const generateImageFromText = async (
       return `data:${imageData.inlineData.mimeType};base64,${imageData.inlineData.data}`;
     }
 
-    throw new Error('Image generation failed: No image data received.');
+    throw new Error("Image generation failed: No image data received.");
   } catch (error) {
     throw error;
   }
@@ -55,16 +56,16 @@ export const editImage = async (
   image: { imageBytes: string; mimeType: string },
   apiKey: string,
 ): Promise<string> => {
-  if (!apiKey) throw new Error('API Key is required.');
+  if (!apiKey) throw new Error("API Key is required.");
 
   try {
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
         },
         body: JSON.stringify({
           contents: [
@@ -83,7 +84,7 @@ export const editImage = async (
             },
           ],
           generation_config: {
-            response_mime_type: 'image/png',
+            response_mime_type: "image/png",
           },
         }),
       },
@@ -91,7 +92,7 @@ export const editImage = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Image editing failed');
+      throw new Error(errorData.error?.message || "Image editing failed");
     }
 
     const data = await response.json();
@@ -101,7 +102,7 @@ export const editImage = async (
       return `data:${imageData.inlineData.mimeType};base64,${imageData.inlineData.data}`;
     }
 
-    throw new Error('Image editing failed: No image data received.');
+    throw new Error("Image editing failed: No image data received.");
   } catch (error) {
     throw error;
   }
@@ -111,19 +112,19 @@ export const upscaleImage = async (
   image: { imageBytes: string; mimeType: string },
   apiKey: string,
 ): Promise<string> => {
-  if (!apiKey) throw new Error('API Key is required.');
+  if (!apiKey) throw new Error("API Key is required.");
 
   try {
     const prompt =
-      'Upscale this image, enhance details, improve clarity, and increase resolution. Do not change the content.';
+      "Upscale this image, enhance details, improve clarity, and increase resolution. Do not change the content.";
 
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
         },
         body: JSON.stringify({
           contents: [
@@ -142,7 +143,7 @@ export const upscaleImage = async (
             },
           ],
           generation_config: {
-            response_mime_type: 'image/png',
+            response_mime_type: "image/png",
           },
         }),
       },
@@ -150,9 +151,7 @@ export const upscaleImage = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(
-        errorData.error?.message || 'Image upscaling failed',
-      );
+      throw new Error(errorData.error?.message || "Image upscaling failed");
     }
 
     const data = await response.json();
@@ -162,7 +161,7 @@ export const upscaleImage = async (
       return `data:${imageData.inlineData.mimeType};base64,${imageData.inlineData.data}`;
     }
 
-    throw new Error('Image upscaling failed: No image data received.');
+    throw new Error("Image upscaling failed: No image data received.");
   } catch (error) {
     throw error;
   }
@@ -182,13 +181,15 @@ const pollOperation = async (
         `https://generativelanguage.googleapis.com/v1/${operationName}`,
         {
           headers: {
-            'x-goog-api-key': apiKey,
+            "x-goog-api-key": apiKey,
           },
         },
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to check operation status: ${response.statusText}`);
+        throw new Error(
+          `Failed to check operation status: ${response.statusText}`,
+        );
       }
 
       const operation = await response.json();
@@ -200,12 +201,14 @@ const pollOperation = async (
       await new Promise((resolve) => setTimeout(resolve, 10000));
       attempts++;
     } catch (error) {
-      console.error('Polling error:', error);
+      console.error("Polling error:", error);
       throw error;
     }
   }
 
-  throw new Error('Video generation timeout: operation did not complete in time.');
+  throw new Error(
+    "Video generation timeout: operation did not complete in time.",
+  );
 };
 
 export const generateVideo = async (
@@ -213,12 +216,12 @@ export const generateVideo = async (
   apiKey: string,
 ): Promise<string> => {
   if (!apiKey) {
-    throw new Error('API Key is required.');
+    throw new Error("API Key is required.");
   }
 
   try {
     const requestBody: any = {
-      display_name: 'Generated Video',
+      display_name: "Generated Video",
       prompt: options.prompt,
     };
 
@@ -235,12 +238,12 @@ export const generateVideo = async (
     }
 
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:generateContent',
+      "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:generateContent",
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
         },
         body: JSON.stringify(requestBody),
       },
@@ -249,7 +252,7 @@ export const generateVideo = async (
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.error?.message || 'Video generation initiation failed',
+        errorData.error?.message || "Video generation initiation failed",
       );
     }
 
@@ -257,20 +260,22 @@ export const generateVideo = async (
     const operationName = operation.name;
 
     if (!operationName) {
-      throw new Error('No operation name returned from video generation request');
+      throw new Error(
+        "No operation name returned from video generation request",
+      );
     }
 
     const completedOperation = await pollOperation(operationName, apiKey);
 
     if (completedOperation.error) {
       throw new Error(
-        completedOperation.error.message || 'Video generation failed',
+        completedOperation.error.message || "Video generation failed",
       );
     }
 
     const videoData = completedOperation.response?.generatedVideos?.[0];
     if (!videoData?.video?.uri) {
-      throw new Error('Video generation failed: no download link found.');
+      throw new Error("Video generation failed: no download link found.");
     }
 
     const downloadLink = videoData.video.uri;
@@ -285,7 +290,7 @@ export const generateVideo = async (
       const videoBlob = await videoResponse.blob();
       return URL.createObjectURL(videoBlob);
     } catch (downloadError) {
-      console.error('Video download error:', downloadError);
+      console.error("Video download error:", downloadError);
       return downloadLink;
     }
   } catch (error) {

@@ -17,7 +17,8 @@ import { getImageVisionDescription } from "@/lib/utils/vision-api";
 
 const IpImagine = () => {
   const { generate, isLoading } = useGeminiGenerator();
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
+  const apiKey =
+    import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
@@ -325,7 +326,9 @@ const IpImagine = () => {
             return;
 
           if (!apiKey) {
-            setStatusText("❌ API key not found. Please set VITE_GEMINI_API_KEY environment variable.");
+            setStatusText(
+              "❌ API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
+            );
             return;
           }
 
@@ -333,14 +336,18 @@ const IpImagine = () => {
           setStatusText("✨ Starting generation...");
 
           try {
-            const imageToSend = previewImages.remixImage || previewImages.additionalImage;
+            const imageToSend =
+              previewImages.remixImage || previewImages.additionalImage;
             let imageData: { imageBytes: string; mimeType: string } | undefined;
 
             if (imageToSend) {
               const blob = imageToSend.blob;
               const arrayBuffer = await blob.arrayBuffer();
               const bytes = new Uint8Array(arrayBuffer);
-              const binaryString = String.fromCharCode.apply(null, Array.from(bytes));
+              const binaryString = String.fromCharCode.apply(
+                null,
+                Array.from(bytes),
+              );
               imageData = {
                 imageBytes: btoa(binaryString),
                 mimeType: blob.type || "image/jpeg",

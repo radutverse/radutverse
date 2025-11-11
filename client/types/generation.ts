@@ -1,5 +1,5 @@
-export type ToggleMode = 'image' | 'video';
-export type ResultType = 'image' | 'video' | null;
+export type ToggleMode = "image" | "video";
+export type ResultType = "image" | "video" | null;
 
 export interface GenerationOptions {
   prompt: string;

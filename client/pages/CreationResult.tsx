@@ -8,18 +8,13 @@ import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const CreationResult = () => {
   const navigate = useNavigate();
-  const {
-    resultUrl,
-    resultType,
-    isLoading,
-    loadingMessage,
-    error,
-    upscale,
-  } = useGeminiGenerator();
+  const { resultUrl, resultType, isLoading, loadingMessage, error, upscale } =
+    useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
+  const apiKey =
+    import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
     if (!resultUrl) return;
@@ -51,7 +46,9 @@ const CreationResult = () => {
 
   const handleUpscale = async () => {
     if (!apiKey) {
-      alert("API key not found. Please set VITE_GEMINI_API_KEY environment variable.");
+      alert(
+        "API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
+      );
       return;
     }
     await upscale(apiKey);
@@ -216,7 +213,9 @@ const CreationResult = () => {
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-500 mb-1">Generated At</div>
+                      <div className="text-xs text-slate-500 mb-1">
+                        Generated At
+                      </div>
                       <div className="text-slate-200 text-xs">
                         {new Date().toLocaleString()}
                       </div>
@@ -386,7 +385,8 @@ const CreationResult = () => {
 
               <div className="mb-8 rounded-lg bg-blue-900/20 border border-blue-800/50 p-4">
                 <p className="text-sm text-blue-300">
-                  Upscaling will increase the image resolution and improve quality using AI enhancement.
+                  Upscaling will increase the image resolution and improve
+                  quality using AI enhancement.
                 </p>
               </div>
 
