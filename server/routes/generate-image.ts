@@ -108,6 +108,7 @@ async function openai_edit_image(
 
   try {
     pngBuffer = await sharp(imageBuffer)
+      .ensureAlpha()
       .png({
         quality: 80,
         progressive: true,
@@ -116,6 +117,7 @@ async function openai_edit_image(
 
     if (pngBuffer.length > MAX_FILE_SIZE) {
       pngBuffer = await sharp(imageBuffer)
+        .ensureAlpha()
         .png({
           quality: 70,
           progressive: true,
@@ -125,6 +127,7 @@ async function openai_edit_image(
 
     if (pngBuffer.length > MAX_FILE_SIZE) {
       pngBuffer = await sharp(imageBuffer)
+        .ensureAlpha()
         .resize(1024, 1024, {
           fit: "inside",
           withoutEnlargement: true,
