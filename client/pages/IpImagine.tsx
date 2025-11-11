@@ -155,26 +155,6 @@ const IpImagine = () => {
         if (!file) return;
         if (event.currentTarget) event.currentTarget.value = "";
 
-        // Handle video files
-        if (creationMode === "video" && file.type.startsWith("video/")) {
-          const fileSizeInMB = file.size / (1024 * 1024);
-          if (fileSizeInMB > 100) {
-            setStatusText(
-              `⚠️ Video file is too large (${fileSizeInMB.toFixed(1)}MB). Max 100MB allowed.`,
-            );
-            return;
-          }
-
-          const url = URL.createObjectURL(file);
-          setPreviewImages((prev) => ({
-            ...prev,
-            remixImage: { blob: file, name: file.name || "video.mp4", url },
-            additionalImage: null,
-          }));
-          setStatusText(`✓ Video loaded: ${file.name}`);
-          return;
-        }
-
         // Handle image files
         if (!file.type.startsWith("image/")) {
           setStatusText(
