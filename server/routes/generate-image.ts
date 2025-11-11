@@ -23,27 +23,28 @@ export const handleGenerateImage: RequestHandler = async (req, res) => {
     }
 
     // Call Google Gemini API
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${apiKey}`;
+    const requestBody = {
+      instances: [
+        {
+          prompt: prompt,
         },
-        body: JSON.stringify({
-          instances: [
-            {
-              prompt: prompt,
-            },
-          ],
-          parameters: {
-            sampleCount: 1,
-            outputMimeType: "image/jpeg",
-          },
-        }),
+      ],
+      parameters: {
+        sampleCount: 1,
+        outputMimeType: "image/jpeg",
       },
-    );
+    };
+
+    console.log("[Generate Image] Calling Gemini API with prompt:", prompt.substring(0, 50));
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
 
     if (!response.ok) {
       let errorData: any = {};
