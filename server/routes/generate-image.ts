@@ -98,10 +98,11 @@ async function openai_edit_image(
   const formData = new FormData();
 
   const imageBlob = new Blob([imageBuffer], { type: "image/png" });
-  formData.append("image", imageBlob, "image.png");
+  formData.append("image", imageBlob as unknown as BodyInit, "image.png");
   formData.append("prompt", prompt);
   formData.append("n", "1");
   formData.append("size", "1024x1024");
+  formData.append("model", "dall-e-2");
 
   const response = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
