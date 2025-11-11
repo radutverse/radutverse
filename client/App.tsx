@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CreationProvider } from "@/context/CreationContext";
 import Index from "./pages/Index";
 import IpfiAssistant from "./pages/IpfiAssistant";
 import NftMarketplace from "./pages/NftMarketplace";
@@ -12,6 +13,7 @@ import MyPortfolio from "./pages/MyPortfolio";
 import Settings from "./pages/Settings";
 import History from "./pages/History";
 import IpImagine from "./pages/IpImagine";
+import CreationResult from "./pages/CreationResult";
 import NotFound from "./pages/NotFound";
 
 declare global {
@@ -56,6 +58,7 @@ const AppRoutes = () => (
       <Route path="/" element={<Index />} />
       <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
       <Route path="/ip-imagine" element={<IpImagine />} />
+      <Route path="/creation-result" element={<CreationResult />} />
       <Route path="/nft-marketplace" element={<NftMarketplace />} />
       <Route path="/my-portfolio" element={<MyPortfolio />} />
       <Route path="/settings" element={<Settings />} />
@@ -70,9 +73,11 @@ const App = () => {
   ensurePrivyAnalyticsFetchPatched();
 
   const appContent = (
-    <QueryClientProvider client={queryClient}>
-      <AppRoutes />
-    </QueryClientProvider>
+    <CreationProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppRoutes />
+      </QueryClientProvider>
+    </CreationProvider>
   );
 
   if (!privyAppId) {

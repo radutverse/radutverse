@@ -9,12 +9,17 @@ import {
   AddRemixImageModal,
   type PreviewImagesState,
 } from "@/components/remix-mode";
+import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 import { getCurrentTimestamp } from "@/lib/ip-assistant/utils";
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 
 const IpImagine = () => {
+  const { generate, isLoading } = useGeminiGenerator();
+  const apiKey =
+    import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
+
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
@@ -307,25 +312,65 @@ const IpImagine = () => {
       <IpImagineInput
         input={input}
         setInput={setInput}
-        waiting={waiting}
+        waiting={waiting || isLoading}
         previewImages={previewImages}
         setPreviewImages={setPreviewImages}
         uploadRef={uploadRef}
         handleImage={handleImage}
         onSubmit={async () => {
-          // no chat messages — just simulate processing and set a status
           if (
             !input.trim() &&
             !previewImages.remixImage &&
             !previewImages.additionalImage
           )
             return;
+
+          if (!apiKey) {
+            setStatusText(
+              "❌ API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
+            );
+            return;
+          }
+
           setWaiting(true);
-          setStatusText("Processing…");
-          setInput("");
-          await new Promise((r) => setTimeout(r, 900));
-          setStatusText("Imagined result (preview)");
-          setWaiting(false);
+          setStatusText("✨ Starting generation...");
+
+          try {
+            const imageToSend =
+              previewImages.remixImage || previewImages.additionalImage;
+            let imageData: { imageBytes: string; mimeType: string } | undefined;
+
+            if (imageToSend) {
+              const blob = imageToSend.blob;
+              const arrayBuffer = await blob.arrayBuffer();
+              const bytes = new Uint8Array(arrayBuffer);
+              const binaryString = String.fromCharCode.apply(
+                null,
+                Array.from(bytes),
+              );
+              imageData = {
+                imageBytes: btoa(binaryString),
+                mimeType: blob.type || "image/jpeg",
+              };
+            }
+
+            await generate(
+              creationMode,
+              {
+                prompt: input,
+                image: imageData,
+              },
+              apiKey,
+            );
+
+            setInput("");
+            setPreviewImages({ remixImage: null, additionalImage: null });
+          } catch (error) {
+            console.error("Generation error:", error);
+            setStatusText("❌ Generation failed. Please try again.");
+          } finally {
+            setWaiting(false);
+          }
         }}
         inputRef={inputRef}
         handleKeyDown={(e) => {

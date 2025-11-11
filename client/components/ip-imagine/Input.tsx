@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Popover,
   PopoverTrigger,
@@ -64,6 +65,7 @@ const IpImagineInput = ({
   setCreationMode = () => {},
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <form
@@ -80,56 +82,37 @@ const IpImagineInput = ({
       }}
       autoComplete="off"
     >
-      {/* Creations popover (specific to ipimagine) */}
+      {/* Creations Gallery - Navigate to Creation Result */}
       <div className="mr-2 flex items-center">
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
-              aria-label="Open creations gallery"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
-              </svg>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent
-            side="top"
-            align="start"
-            className="w-56 p-3 bg-slate-900/95 border border-[#FF4DA6]/20 rounded-lg backdrop-blur-sm"
+        <button
+          type="button"
+          onClick={() => {
+            const demoImageUrl =
+              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FF4DA6" width="400" height="300"/%3E%3Ctext x="200" y="150" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle"%3ECreation Demo%3C/text%3E%3C/svg%3E';
+            navigate("/creation-result", {
+              state: {
+                type: creationMode || "image",
+                outputUrl: demoImageUrl,
+                prompt:
+                  input ||
+                  "This is a demo creation. Replace with actual generation results.",
+                timestamp: new Date().toISOString(),
+              },
+            });
+          }}
+          className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+          aria-label="View creations and results"
+          title="Creation Results"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
           >
-            <div className="text-xs text-slate-400 font-semibold mb-2">
-              Your creations
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {previewImages.remixImage ? (
-                <img
-                  src={previewImages.remixImage.url}
-                  alt={previewImages.remixImage.name}
-                  className="w-full h-12 object-cover rounded"
-                />
-              ) : null}
-              {previewImages.additionalImage ? (
-                <img
-                  src={previewImages.additionalImage.url}
-                  alt={previewImages.additionalImage.name}
-                  className="w-full h-12 object-cover rounded"
-                />
-              ) : null}
-              {!previewImages.remixImage && !previewImages.additionalImage ? (
-                <div className="col-span-3 text-xs text-slate-400 italic">
-                  No creations yet
-                </div>
-              ) : null}
-            </div>
-          </PopoverContent>
-        </Popover>
+            <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
+          </svg>
+        </button>
       </div>
 
       <div className="flex-1 flex flex-col gap-2 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
