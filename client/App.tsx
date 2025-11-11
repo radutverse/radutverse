@@ -73,9 +73,11 @@ const App = () => {
   ensurePrivyAnalyticsFetchPatched();
 
   const appContent = (
-    <QueryClientProvider client={queryClient}>
-      <AppRoutes />
-    </QueryClientProvider>
+    <CreationProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppRoutes />
+      </QueryClientProvider>
+    </CreationProvider>
   );
 
   if (!privyAppId) {
