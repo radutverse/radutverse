@@ -1,5 +1,4 @@
 import { createHash } from "crypto";
-import sharp from "sharp";
 import {
   addHashToWhitelist,
   checkHashInWhitelist,
@@ -20,6 +19,15 @@ function calculateBufferHash(buffer: Buffer): string {
  */
 async function calculatePerceptualHash(imageBuffer: Buffer): Promise<string> {
   try {
+    // Lazy load sharp to handle cases where native binaries aren't available
+    let sharp;
+    try {
+      sharp = (await import("sharp")).default;
+    } catch (error) {
+      console.warn("Sharp module not available, skipping pHash calculation");
+      return "";
+    }
+
     // Reduce to 32x32 grayscale for pHash calculation
     const resized = await sharp(imageBuffer)
       .grayscale()
