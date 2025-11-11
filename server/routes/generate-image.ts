@@ -46,14 +46,19 @@ export const handleGenerateImage: RequestHandler = async (req, res) => {
       body: JSON.stringify(requestBody),
     });
 
+    console.log("[Generate Image] API Response status:", response.status);
+
     if (!response.ok) {
       let errorData: any = {};
       try {
-        errorData = await response.json();
+        const text = await response.text();
+        if (text) {
+          errorData = JSON.parse(text);
+        }
       } catch (parseError) {
-        console.warn("Failed to parse error response as JSON:", parseError);
+        console.warn("Failed to parse error response as JSON, status:", response.status);
       }
-      console.error("Gemini API error:", errorData || response.statusText);
+      console.error("Gemini API error response:", { status: response.status, error: errorData });
       res.status(response.status).json({
         error: errorData?.error?.message || `API error: ${response.status} ${response.statusText}`,
         success: false,
