@@ -317,19 +317,53 @@ const IpImagine = () => {
         uploadRef={uploadRef}
         handleImage={handleImage}
         onSubmit={async () => {
-          // no chat messages — just simulate processing and set a status
           if (
             !input.trim() &&
             !previewImages.remixImage &&
             !previewImages.additionalImage
           )
             return;
+
+          if (!apiKey) {
+            setStatusText("❌ API key not found. Please set VITE_GEMINI_API_KEY environment variable.");
+            return;
+          }
+
           setWaiting(true);
-          setStatusText("Processing…");
-          setInput("");
-          await new Promise((r) => setTimeout(r, 900));
-          setStatusText("Imagined result (preview)");
-          setWaiting(false);
+          setStatusText("✨ Starting generation...");
+
+          try {
+            const imageToSend = previewImages.remixImage || previewImages.additionalImage;
+            let imageData: { imageBytes: string; mimeType: string } | undefined;
+
+            if (imageToSend) {
+              const blob = imageToSend.blob;
+              const arrayBuffer = await blob.arrayBuffer();
+              const bytes = new Uint8Array(arrayBuffer);
+              const binaryString = String.fromCharCode.apply(null, Array.from(bytes));
+              imageData = {
+                imageBytes: btoa(binaryString),
+                mimeType: blob.type || "image/jpeg",
+              };
+            }
+
+            await generate(
+              creationMode,
+              {
+                prompt: input,
+                image: imageData,
+              },
+              apiKey,
+            );
+
+            setInput("");
+            setPreviewImages({ remixImage: null, additionalImage: null });
+          } catch (error) {
+            console.error("Generation error:", error);
+            setStatusText("❌ Generation failed. Please try again.");
+          } finally {
+            setWaiting(false);
+          }
         }}
         inputRef={inputRef}
         handleKeyDown={(e) => {
