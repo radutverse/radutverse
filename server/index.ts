@@ -104,6 +104,7 @@ export function createServer() {
         "127.0.0.1",
         ".vercel.app",
         ".netlify.app",
+        "builder.io",
         process.env.APP_ORIGIN || "",
       ];
 
