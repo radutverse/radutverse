@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
 import sharp from "sharp";
+import FormData from "form-data";
+import fetch from "node-fetch"; // Node <18
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
@@ -34,35 +36,33 @@ export const editImage: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing image or prompt" });
     }
 
-    let buffer = file.buffer;
-
-    // 🔹 Deteksi format image
-    let metadata;
-    try {
-      metadata = await sharp(buffer).metadata();
-    } catch (e) {
-      console.error("⚠️ Failed to read image metadata:", e);
-      return res
-        .status(400)
-        .json({ error: "Failed to process image. Make sure it's a valid image." });
-    }
-
-    // 🔹 Resize & re-encode untuk mencegah array too long
-    buffer = await sharp(buffer)
-      .resize({ width: 1024, height: 1024, fit: "inside" })
-      .jpeg({ quality: 90 })
+    // 🔹 Resize & re-encode untuk aman
+    const buffer = await sharp(file.buffer)
+      .resize({ width: 512, height: 512, fit: "inside" })
+      .jpeg({ quality: 85 })
       .toBuffer();
 
     console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
 
-    // 🔹 Kirim ke OpenAI
-    const response = await client.images.edit({
-      model: "gpt-image-1",
-      prompt,
-      image: buffer, // buffer sudah aman
+    // 🔹 Gunakan FormData untuk kirim ke OpenAI
+    const form = new FormData();
+    form.append("model", "gpt-image-1");
+    form.append("prompt", prompt);
+    form.append("image", buffer, {
+      filename: "image.jpg",
+      contentType: "image/jpeg",
     });
 
-    res.json({ editedImageUrl: response.data[0].url });
+    const response = await fetch("https://api.openai.com/v1/images/edits", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: form as any, // FormData type untuk node-fetch
+    });
+
+    const data = await response.json();
+    res.json({ editedImageUrl: data.data[0].url });
   } catch (err: any) {
     console.error("❌ Error editing image:", err);
     res.status(500).json({
