@@ -4,7 +4,7 @@ export const generateImageFromText = async (
   if (!prompt) throw new Error("Prompt is required.");
 
   try {
-    const response = await fetch("/api/generate-image", {
+    const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,11 +21,11 @@ export const generateImageFromText = async (
 
     const data = await response.json();
 
-    if (data.data && data.mimeType) {
-      return `data:${data.mimeType};base64,${data.data}`;
+    if (data.url) {
+      return data.url;
     }
 
-    throw new Error("Image generation failed: No image data received.");
+    throw new Error("Image generation failed: No image URL received.");
   } catch (error) {
     throw error;
   }
