@@ -9,8 +9,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const TMP_DIR = path.join(process.cwd(), "tmp");
-if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR);
+// ✅ Gunakan direktori tmp bawaan Vercel
+const TMP_DIR = "/tmp";
+
+// Pastikan direktori ada
+if (!fs.existsSync(TMP_DIR)) {
+  fs.mkdirSync(TMP_DIR, { recursive: true });
+}
 
 // 🔹 1️⃣ TEXT → IMAGE
 export const generateImage: RequestHandler = async (req, res) => {
@@ -32,7 +37,7 @@ export const generateImage: RequestHandler = async (req, res) => {
   }
 };
 
-// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT (pakai referenced_image_ids biar berubah nyata)
+// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT (pakai referenced_image_ids biar hasil beda)
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const file = req.file;
@@ -41,16 +46,17 @@ export const editImage: RequestHandler = async (req, res) => {
     if (!file) return res.status(400).json({ error: "Missing image file" });
     if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
 
+    // ✅ simpan di /tmp agar bisa ditulis di Vercel
     const tmpPath = path.join(TMP_DIR, `${uuidv4()}.png`);
     await sharp(file.buffer).png().toFile(tmpPath);
 
-    // Upload gambar dulu → dapatkan image_id untuk reference
+    // Upload gambar ke OpenAI → dapat image_id
     const uploaded = await openai.files.create({
       file: fs.createReadStream(tmpPath),
       purpose: "vision",
     });
 
-    // Gunakan gpt-image-1 + referenced_image_ids agar hasil berubah drastis
+    // Generate image baru berdasarkan referensi lama + prompt baru
     const response = await openai.images.generate({
       model: "gpt-image-1",
       prompt,
@@ -60,6 +66,7 @@ export const editImage: RequestHandler = async (req, res) => {
 
     const imageUrl = response.data[0].url;
 
+    // Bersihkan file sementara
     fs.unlinkSync(tmpPath);
     res.json({ imageUrl });
   } catch (error: any) {
