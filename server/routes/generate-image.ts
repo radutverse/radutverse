@@ -9,8 +9,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const TMP_DIR = path.join(process.cwd(), "tmp");
-if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR);
+const TMP_DIR = "/tmp"; // folder aman untuk Vercel
 
 // 🔹 TEXT → IMAGE
 export const generateImage: RequestHandler = async (req, res) => {
