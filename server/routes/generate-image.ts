@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import fs from "fs";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
