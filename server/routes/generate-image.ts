@@ -1,4 +1,6 @@
 import { RequestHandler } from "express";
+import FormData from "form-data";
+import { Readable } from "stream";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -54,20 +56,23 @@ export const generateImage: RequestHandler = async (req, res) => {
 };
 
 async function generateImageWithDallE3(prompt: string): Promise<string> {
-  const response = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+  const response = await fetch(
+    "https://api.openai.com/v1/images/generations",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "dall-e-3",
+        prompt: prompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+      }),
     },
-    body: JSON.stringify({
-      model: "dall-e-3",
-      prompt: prompt,
-      n: 1,
-      size: "1024x1024",
-      quality: "standard",
-    }),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.json();
@@ -90,17 +95,10 @@ async function editImageWithDallE2(
   _mimeType: string,
   prompt: string,
 ): Promise<string> {
+  const imageBuffer = Buffer.from(base64Data, "base64");
+
   const formData = new FormData();
-
-  // Convert base64 to blob
-  const binaryString = Buffer.from(base64Data, "base64").toString("binary");
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  const imageBlob = new Blob([bytes], { type: "image/png" });
-
-  formData.append("image", imageBlob, "image.png");
+  formData.append("image", Readable.from(imageBuffer), "image.png");
   formData.append("prompt", prompt);
   formData.append("n", "1");
   formData.append("size", "1024x1024");
@@ -109,8 +107,9 @@ async function editImageWithDallE2(
     method: "POST",
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
+      ...formData.getHeaders(),
     },
-    body: formData,
+    body: formData as any,
   });
 
   if (!response.ok) {
