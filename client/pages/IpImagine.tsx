@@ -324,14 +324,10 @@ const IpImagine = () => {
               };
             }
 
-            await generate(
-              creationMode,
-              {
-                prompt: input,
-                image: imageData,
-              },
-              apiKey,
-            );
+            await generate({
+              prompt: input,
+              image: imageData,
+            });
 
             setInput("");
             setPreviewImages({ remixImage: null, additionalImage: null });
