@@ -36,7 +36,8 @@ export const editImage = async (
   image: { imageBytes: string; mimeType: string },
 ): Promise<string> => {
   if (!prompt) throw new Error("Prompt is required.");
-  if (!image || !image.imageBytes) throw new Error("Image is required for editing.");
+  if (!image || !image.imageBytes)
+    throw new Error("Image is required for editing.");
 
   try {
     const response = await fetch("/api/generate-image", {
