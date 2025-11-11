@@ -360,8 +360,6 @@ const IpImagine = () => {
           );
         }}
         onAddRemixImage={() => setShowAddRemixImageModal(true)}
-        creationMode={creationMode}
-        setCreationMode={setCreationMode}
       />
 
       <input
