@@ -92,25 +92,50 @@ async function editImageWithDallE2(
 ): Promise<string> {
   const formData = new FormData();
 
-  // Convert base64 to blob
-  const binaryString = Buffer.from(base64Data, "base64").toString("binary");
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+  // Check base64 size (4MB max, base64 is ~33% larger)
+  const maxBase64Size = 4 * 1024 * 1024 * 0.75; // ~3MB in base64
+  if (base64Data.length > maxBase64Size) {
+    throw new Error(
+      `Image is too large. Maximum 4MB allowed. Current size: ${(base64Data.length / 1024 / 1024).toFixed(2)}MB`,
+    );
   }
-  const imageBlob = new Blob([bytes], { type: "image/png" });
 
-  formData.append("image", imageBlob, "image.png");
-  formData.append("prompt", prompt);
-  formData.append("n", "1");
-  formData.append("size", "1024x1024");
+  // Convert base64 to buffer
+  const buffer = Buffer.from(base64Data, "base64");
+
+  // Ensure file size is under 4MB
+  if (buffer.length > 4 * 1024 * 1024) {
+    throw new Error(
+      `Image exceeds 4MB limit. Current size: ${(buffer.length / 1024 / 1024).toFixed(2)}MB`,
+    );
+  }
+
+  // Convert to PNG format using a proper method
+  // For now, create blob with explicit PNG type
+  const imageBlob = new Blob([buffer], { type: "image/png" });
+
+  // Create form data with proper file handling
+  // Using text fields instead of append for better compatibility
+  const boundaryString = "----WebKitFormBoundary" + Math.random().toString(36);
+
+  let body = `--${boundaryString}\r\nContent-Disposition: form-data; name="image"; filename="image.png"\r\nContent-Type: image/png\r\n\r\n`;
+
+  // Add binary data
+  const binaryBody = Buffer.concat([
+    Buffer.from(body),
+    buffer,
+    Buffer.from(
+      `\r\n--${boundaryString}\r\nContent-Disposition: form-data; name="prompt"\r\n\r\n${prompt}\r\n--${boundaryString}\r\nContent-Disposition: form-data; name="n"\r\n\r\n1\r\n--${boundaryString}\r\nContent-Disposition: form-data; name="size"\r\n\r\n1024x1024\r\n--${boundaryString}--\r\n`,
+    ),
+  ]);
 
   const response = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": `multipart/form-data; boundary=${boundaryString}`,
     },
-    body: formData,
+    body: binaryBody,
   });
 
   if (!response.ok) {
