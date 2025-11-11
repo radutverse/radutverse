@@ -96,11 +96,54 @@ async function openai_edit_image(
   imageBuffer: Buffer,
   prompt: string,
 ): Promise<string> {
+  const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
+  if (imageBuffer.length > MAX_FILE_SIZE) {
+    throw new Error(
+      `Image file is too large (${(imageBuffer.length / 1024 / 1024).toFixed(2)}MB). Maximum 4MB allowed.`,
+    );
+  }
+
+  let pngBuffer: Buffer;
+
+  try {
+    pngBuffer = await sharp(imageBuffer)
+      .png({
+        quality: 80,
+        progressive: true,
+      })
+      .toBuffer();
+
+    if (pngBuffer.length > MAX_FILE_SIZE) {
+      pngBuffer = await sharp(imageBuffer)
+        .png({
+          quality: 70,
+          progressive: true,
+        })
+        .toBuffer();
+    }
+
+    if (pngBuffer.length > MAX_FILE_SIZE) {
+      pngBuffer = await sharp(imageBuffer)
+        .resize(1024, 1024, {
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .png({
+          quality: 60,
+          progressive: true,
+        })
+        .toBuffer();
+    }
+  } catch (error: any) {
+    throw new Error(`Failed to process image: ${error.message}`);
+  }
+
   const formData = new FormData();
 
   formData.append(
     "image",
-    new Blob([imageBuffer], { type: "image/png" }),
+    new Blob([pngBuffer], { type: "image/png" }),
     "image.png",
   );
   formData.append("prompt", prompt);
