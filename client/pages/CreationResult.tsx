@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import UpscalerModal from "@/components/creation/UpscalerModal";
+import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 interface CreationState {
   type: "image" | "video";
