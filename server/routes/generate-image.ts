@@ -29,7 +29,7 @@ export const generateImage: RequestHandler = async (req, res) => {
   }
 };
 
-// 🖌️ IMAGE → IMAGE (edit gambar + prompt)
+// 🖌️ IMAGE �� IMAGE (edit gambar + prompt)
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
@@ -68,7 +68,7 @@ async function openai_generate_image(prompt: string): Promise<string> {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-image-1",
+      model: "dall-e-3",
       prompt: prompt,
       n: 1,
       size: "1024x1024",
