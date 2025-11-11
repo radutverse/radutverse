@@ -117,7 +117,7 @@ const CreationResult = () => {
                 </svg>
                 <div>
                   <h3 className="text-lg font-semibold text-red-300">
-                    {isQuotaError ? "Batas Penggunaan Tercapai" : isAuthError ? "Masalah Autentikasi" : "Generation Gagal"}
+                    {isQuotaError ? "Usage Limit Exceeded" : isAuthError ? "Authentication Error" : "Generation Failed"}
                   </h3>
                 </div>
               </div>
@@ -127,27 +127,29 @@ const CreationResult = () => {
             {isQuotaError && (
               <div className="rounded-2xl bg-amber-900/20 border border-amber-800/50 p-6 mb-6 space-y-4">
                 <div>
-                  <p className="text-amber-300 font-semibold mb-2">📊 Apa itu Batas Penggunaan?</p>
+                  <p className="text-amber-300 font-semibold mb-2">📊 Your Usage Limit Has Been Reached</p>
                   <p className="text-sm text-amber-200/80">
-                    Anda telah mencapai kuota gratis untuk Google Gemini API. Setiap akun gratis memiliki limit penggunaan yang terbatas.
+                    Your free tier quota for the Google Gemini API has been exhausted. Every free account has a limited quota that resets periodically.
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-amber-300 font-semibold mb-2">✅ Solusi:</p>
+                  <p className="text-amber-300 font-semibold mb-2">⏳ What Now?</p>
+                  <ul className="text-sm text-amber-200/80 space-y-2 list-disc list-inside">
+                    <li>Wait for your quota to reset (usually 24-48 hours)</li>
+                    <li>Enable paid billing on your Google Cloud account to bypass limits</li>
+                    <li>Use a different API key from another Google account with available quota</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-amber-300 font-semibold mb-2">✅ Enable Paid Plan (Recommended)</p>
                   <ol className="text-sm text-amber-200/80 space-y-2 list-decimal list-inside">
-                    <li>Aktifkan pembayaran di akun Google Cloud Anda</li>
-                    <li>Kunjungi <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-amber-300 hover:underline">Google AI Studio</a> dan setup billing</li>
-                    <li>Tunggu ~48 jam untuk kuota direset</li>
-                    <li>Coba lagi setelah batas waktu selesai</li>
+                    <li>Go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-amber-300 hover:underline">Google AI Studio</a></li>
+                    <li>Enable billing on your Google Cloud project</li>
+                    <li>Add a payment method (credit card)</li>
+                    <li>Try again - you'll have access immediately</li>
                   </ol>
-                </div>
-
-                <div>
-                  <p className="text-amber-300 font-semibold mb-2">💡 Tips:</p>
-                  <p className="text-sm text-amber-200/80">
-                    Anda bisa menggunakan API key berbeda dari akun Google lain yang masih memiliki kuota gratis.
-                  </p>
                 </div>
               </div>
             )}
@@ -156,19 +158,20 @@ const CreationResult = () => {
             {isAuthError && (
               <div className="rounded-2xl bg-orange-900/20 border border-orange-800/50 p-6 mb-6 space-y-4">
                 <div>
-                  <p className="text-orange-300 font-semibold mb-2">🔑 Masalah API Key</p>
+                  <p className="text-orange-300 font-semibold mb-2">🔑 Invalid or Missing API Key</p>
                   <p className="text-sm text-orange-200/80">
-                    API key Anda tidak valid atau tidak memiliki akses ke layanan ini.
+                    Your API key is invalid, expired, or doesn't have the necessary permissions to generate content.
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-orange-300 font-semibold mb-2">✅ Solusi:</p>
+                  <p className="text-orange-300 font-semibold mb-2">✅ How to Fix</p>
                   <ol className="text-sm text-orange-200/80 space-y-2 list-decimal list-inside">
-                    <li>Periksa kembali API key Anda</li>
-                    <li>Pastikan billing sudah diaktifkan di Google Cloud</li>
-                    <li>Dapatkan key baru dari <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-orange-300 hover:underline">Google AI Studio</a></li>
-                    <li>Update environment variable dengan key yang benar</li>
+                    <li>Go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-orange-300 hover:underline">Google AI Studio</a></li>
+                    <li>Create a new API key or verify your existing one</li>
+                    <li>Make sure billing is enabled on your Google Cloud account</li>
+                    <li>Update your environment variables with the correct API key</li>
+                    <li>Try again after updating the configuration</li>
                   </ol>
                 </div>
               </div>
@@ -187,14 +190,14 @@ const CreationResult = () => {
                 onClick={() => navigate("/ip-imagine")}
                 className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
               >
-                Kembali & Coba Lagi
+                Back to Generation
               </Button>
               <Button
                 onClick={() => window.location.reload()}
                 className="bg-slate-800 hover:bg-slate-700 text-slate-100"
                 variant="outline"
               >
-                Refresh Halaman
+                Refresh Page
               </Button>
 
               {isQuotaError && (
@@ -203,7 +206,7 @@ const CreationResult = () => {
                   className="bg-slate-800 hover:bg-slate-700 text-slate-100"
                   variant="outline"
                 >
-                  Cek Status Kuota
+                  Check Quota Status
                 </Button>
               )}
             </div>
@@ -211,7 +214,7 @@ const CreationResult = () => {
             {/* Additional Help */}
             <div className="mt-8 rounded-xl bg-slate-900/50 border border-slate-800/50 p-4">
               <p className="text-xs text-slate-400 mb-2">
-                <strong>Butuh bantuan lebih?</strong>
+                <strong>Need more help?</strong>
               </p>
               <a
                 href="https://ai.google.dev/gemini-api/docs/rate-limits"
@@ -219,7 +222,7 @@ const CreationResult = () => {
                 rel="noopener noreferrer"
                 className="text-xs text-[#FF4DA6] hover:underline"
               >
-                Baca dokumentasi tentang batas penggunaan API →
+                Read documentation about API rate limits →
               </a>
             </div>
           </motion.div>
