@@ -20,10 +20,8 @@ import {
   handleGetRemixHashesFull,
   handleDeleteRemixHash,
 } from "./routes/remix-hash-whitelist.js";
-import { handleCheckImageSimilarity } from "./routes/check-image-similarity.js";
 import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
 import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
-import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
 import { handleGenerateImage } from "./routes/generate-image.js";
 import { handleGenerateImageFromImage } from "./routes/generate-image-from-image.js";
 import { handleGenerateVideo } from "./routes/generate-video.js";
