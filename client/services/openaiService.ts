@@ -4,7 +4,7 @@ export const generateImageFromText = async (
   if (!prompt) throw new Error("Prompt is required.");
 
   try {
-    const response = await fetch("/api/generate-image", {
+    const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,11 +21,11 @@ export const generateImageFromText = async (
 
     const data = await response.json();
 
-    if (data.data && data.mimeType) {
-      return `data:${data.mimeType};base64,${data.data}`;
+    if (data.url) {
+      return data.url;
     }
 
-    throw new Error("Image generation failed: No image data received.");
+    throw new Error("Image generation failed: No image URL received.");
   } catch (error) {
     throw error;
   }
@@ -40,18 +40,20 @@ export const editImage = async (
     throw new Error("Image is required for editing.");
 
   try {
-    const response = await fetch("/api/generate-image", {
+    const binaryString = atob(image.imageBytes);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    const imageBlob = new Blob([bytes], { type: image.mimeType });
+
+    const formData = new FormData();
+    formData.append("image", imageBlob, "image.png");
+    formData.append("prompt", prompt);
+
+    const response = await fetch("/api/edit", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: prompt,
-        image: {
-          data: image.imageBytes,
-          mimeType: image.mimeType,
-        },
-      }),
+      body: formData,
     });
 
     if (!response.ok) {
@@ -61,11 +63,11 @@ export const editImage = async (
 
     const data = await response.json();
 
-    if (data.data && data.mimeType) {
-      return `data:${data.mimeType};base64,${data.data}`;
+    if (data.url) {
+      return data.url;
     }
 
-    throw new Error("Image editing failed: No image data received.");
+    throw new Error("Image editing failed: No image URL received.");
   } catch (error) {
     throw error;
   }

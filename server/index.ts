@@ -24,7 +24,7 @@ import { handleCheckImageSimilarity } from "./routes/check-image-similarity.js";
 import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
 import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
 import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
-import { generateImage } from "./routes/generate-image.js";
+import { generateImage, editImage } from "./routes/generate-image.js";
 
 async function fetchParentIpDetails(
   childIpId: string,
@@ -216,8 +216,10 @@ export function createServer() {
   // Analyze image with Vision API endpoint
   app.post("/api/analyze-image-vision", handleAnalyzeImageVision);
 
-  // OpenAI DALL-E image generation endpoint
+  // OpenAI DALL-E image generation endpoints
   app.post("/api/generate-image", generateImage);
+  app.post("/api/generate", generateImage);
+  app.post("/api/edit", upload.single("image"), editImage);
 
   // Debug endpoint to fetch parent IP details for a given IP ID
   app.get("/api/_debug/parent-details/:ipId", async (req, res) => {
