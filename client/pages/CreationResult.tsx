@@ -173,15 +173,15 @@ const CreationResult = () => {
             <div className="mb-8">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-[#FF4DA6]/20 p-1">
                 <div className="bg-black rounded-xl overflow-hidden">
-                  {creationData.type === "image" ? (
+                  {resultType === "image" ? (
                     <img
-                      src={upscaledUrl || creationData.outputUrl}
+                      src={upscaledUrl || resultUrl}
                       alt="Generated creation"
                       className="w-full h-auto object-cover max-h-[600px]"
                     />
                   ) : (
                     <video
-                      src={creationData.outputUrl}
+                      src={resultUrl}
                       controls
                       className="w-full h-auto object-cover max-h-[600px]"
                     />
@@ -195,10 +195,10 @@ const CreationResult = () => {
               <div className="md:col-span-2">
                 <div className="rounded-xl bg-slate-900/50 border border-slate-800/50 p-6">
                   <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
-                    Your Prompt
+                    Result Type
                   </h3>
-                  <p className="text-slate-200 leading-relaxed">
-                    {creationData.prompt}
+                  <p className="text-slate-200 leading-relaxed capitalize">
+                    {resultType} generation completed successfully
                   </p>
                 </div>
               </div>
@@ -212,13 +212,13 @@ const CreationResult = () => {
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Type</div>
                       <div className="text-slate-200 capitalize font-medium">
-                        {creationData.type}
+                        {resultType}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-500 mb-1">Created</div>
+                      <div className="text-xs text-slate-500 mb-1">Generated At</div>
                       <div className="text-slate-200 text-xs">
-                        {new Date(creationData.timestamp).toLocaleString()}
+                        {new Date().toLocaleString()}
                       </div>
                     </div>
                   </div>
