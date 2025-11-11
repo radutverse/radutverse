@@ -4,23 +4,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import UpscalerModal from "@/components/creation/UpscalerModal";
-import useGeminiGenerator from "@/hooks/useGeminiGenerator";
+import useImageGenerator from "@/hooks/useImageGenerator";
 
 const CreationResult = () => {
   const navigate = useNavigate();
   const { resultUrl, resultType, isLoading, loadingMessage, error, upscale } =
-    useGeminiGenerator();
+    useImageGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
-  const apiKey =
-    import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
     if (!resultUrl) return;
     const link = document.createElement("a");
     link.href = resultUrl;
-    link.download = `creation-${Date.now()}${resultType === "video" ? ".mp4" : ".png"}`;
+    link.download = `creation-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -45,13 +43,7 @@ const CreationResult = () => {
   };
 
   const handleUpscale = async () => {
-    if (!apiKey) {
-      alert(
-        "API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
-      );
-      return;
-    }
-    await upscale(apiKey);
+    await upscale();
     setShowUpscaler(false);
   };
 
@@ -230,19 +222,11 @@ const CreationResult = () => {
             <div className="mb-8">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-[#FF4DA6]/20 p-1">
                 <div className="bg-black rounded-xl overflow-hidden">
-                  {resultType === "image" ? (
-                    <img
-                      src={upscaledUrl || resultUrl}
-                      alt="Generated creation"
-                      className="w-full h-auto object-cover max-h-[600px]"
-                    />
-                  ) : (
-                    <video
-                      src={resultUrl}
-                      controls
-                      className="w-full h-auto object-cover max-h-[600px]"
-                    />
-                  )}
+                  <img
+                  src={upscaledUrl || resultUrl}
+                  alt="Generated creation"
+                  className="w-full h-auto object-cover max-h-[600px]"
+                />
                 </div>
               </div>
             </div>
@@ -255,7 +239,7 @@ const CreationResult = () => {
                     Result Type
                   </h3>
                   <p className="text-slate-200 leading-relaxed capitalize">
-                    {resultType} generation completed successfully
+                    Image generation completed successfully
                   </p>
                 </div>
               </div>
@@ -269,7 +253,7 @@ const CreationResult = () => {
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Type</div>
                       <div className="text-slate-200 capitalize font-medium">
-                        {resultType}
+                        Image
                       </div>
                     </div>
                     <div>
@@ -308,30 +292,28 @@ const CreationResult = () => {
                 Download
               </Button>
 
-              {resultType === "image" && (
-                <Button
-                  onClick={() => setShowUpscaler(true)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700"
-                  variant="outline"
-                  disabled={isLoading}
+              <Button
+                onClick={() => setShowUpscaler(true)}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700"
+                variant="outline"
+                disabled={isLoading}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 20v-4m0 4h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
-                    />
-                  </svg>
-                  Upscale
-                </Button>
-              )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 20v-4m0 4h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+                  />
+                </svg>
+                Upscale
+              </Button>
 
               <Button
                 onClick={handleShare}
