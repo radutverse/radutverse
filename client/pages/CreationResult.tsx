@@ -88,8 +88,14 @@ const CreationResult = () => {
   }
 
   if (error) {
-    const isQuotaError = error.includes("quota") || error.includes("Quota") || error.includes("exceeded");
-    const isAuthError = error.includes("API key") || error.includes("not valid") || error.includes("PERMISSION_DENIED");
+    const isQuotaError =
+      error.includes("quota") ||
+      error.includes("Quota") ||
+      error.includes("exceeded");
+    const isAuthError =
+      error.includes("API key") ||
+      error.includes("not valid") ||
+      error.includes("PERMISSION_DENIED");
 
     return (
       <DashboardLayout title="Creation Result">
@@ -117,7 +123,11 @@ const CreationResult = () => {
                 </svg>
                 <div>
                   <h3 className="text-lg font-semibold text-red-300">
-                    {isQuotaError ? "Usage Limit Exceeded" : isAuthError ? "Authentication Error" : "Generation Failed"}
+                    {isQuotaError
+                      ? "Usage Limit Exceeded"
+                      : isAuthError
+                        ? "Authentication Error"
+                        : "Generation Failed"}
                   </h3>
                 </div>
               </div>
@@ -129,9 +139,12 @@ const CreationResult = () => {
                 <div className="flex gap-4">
                   <div className="text-3xl">⏳</div>
                   <div>
-                    <p className="text-amber-300 font-semibold mb-2">Generation Limit Reached</p>
+                    <p className="text-amber-300 font-semibold mb-2">
+                      Generation Limit Reached
+                    </p>
                     <p className="text-sm text-amber-200/80 leading-relaxed">
-                      You've reached your daily generation limit. Please try again later or contact support for more information.
+                      You've reached your daily generation limit. Please try
+                      again later or contact support for more information.
                     </p>
                   </div>
                 </div>
@@ -144,9 +157,13 @@ const CreationResult = () => {
                 <div className="flex gap-4">
                   <div className="text-3xl">⚠️</div>
                   <div>
-                    <p className="text-orange-300 font-semibold mb-2">Configuration Error</p>
+                    <p className="text-orange-300 font-semibold mb-2">
+                      Configuration Error
+                    </p>
                     <p className="text-sm text-orange-200/80 leading-relaxed">
-                      There's an issue with the generation service. Please refresh the page and try again, or contact support if the problem persists.
+                      There's an issue with the generation service. Please
+                      refresh the page and try again, or contact support if the
+                      problem persists.
                     </p>
                   </div>
                 </div>
@@ -156,7 +173,9 @@ const CreationResult = () => {
             {/* Generic Error Message */}
             {!isQuotaError && !isAuthError && (
               <div className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-4 mb-6">
-                <p className="text-sm text-slate-300 font-mono break-words">{error}</p>
+                <p className="text-sm text-slate-300 font-mono break-words">
+                  {error}
+                </p>
               </div>
             )}
 
