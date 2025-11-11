@@ -4,27 +4,6 @@ import sharp from "sharp";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
-// 🔹 TEXT → IMAGE
-export const generateImage: RequestHandler = async (req, res) => {
-  try {
-    const prompt = req.body.prompt?.trim();
-    if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
-
-    const result = await client.images.generate({
-      model: "gpt-image-1",
-      prompt,
-      size: "1024x1024",
-    });
-
-    const imageUrl = result.data[0].url;
-    res.json({ imageUrl });
-  } catch (err) {
-    console.error("❌ Error generating image:", err);
-    res.status(500).json({ error: "Failed to generate image" });
-  }
-};
-
-// 🔹 IMAGE → EDIT
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
@@ -34,25 +13,32 @@ export const editImage: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing image or prompt" });
     }
 
-    const validFormats = ["jpeg", "png", "webp"];
     let buffer = file.buffer;
 
+    // 🔹 Deteksi format image
     let metadata;
     try {
       metadata = await sharp(buffer).metadata();
     } catch (e) {
       console.error("⚠️ Failed to read image metadata:", e);
-      return res.status(400).json({ error: "Failed to process image" });
+      return res
+        .status(400)
+        .json({ error: "Failed to process image. Make sure it's a valid image." });
     }
 
-    if (!metadata.format || !validFormats.includes(metadata.format)) {
-      buffer = await sharp(buffer).png().toBuffer();
-    }
+    // 🔹 Resize & re-encode untuk mencegah array too long
+    buffer = await sharp(buffer)
+      .resize({ width: 1024, height: 1024, fit: "inside" })
+      .jpeg({ quality: 90 }) // compress
+      .toBuffer();
 
+    console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
+
+    // 🔹 Kirim ke OpenAI
     const response = await client.images.edit({
       model: "gpt-image-1",
       prompt,
-      image: buffer,
+      image: buffer, // buffer sudah aman
     });
 
     res.json({ editedImageUrl: response.data[0].url });
