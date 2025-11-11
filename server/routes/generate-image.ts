@@ -34,9 +34,9 @@ export const generateImage: RequestHandler = async (req, res) => {
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
-    const filePath = req.file?.path;
+    const imageBuffer = req.file?.buffer;
 
-    if (!filePath || !prompt) {
+    if (!imageBuffer || !prompt) {
       return res.status(400).json({
         error: "Missing image file or prompt text",
       });
@@ -44,32 +44,15 @@ export const editImage: RequestHandler = async (req, res) => {
 
     if (!OPENAI_API_KEY) {
       console.error("OPENAI_API_KEY is not configured on the server");
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
       return res.status(500).json({
         error: "OpenAI API key not configured",
       });
     }
 
-    // Baca gambar ke buffer (bisa JPG, PNG, WEBP, dsb)
-    const imageBuffer = fs.readFileSync(filePath);
-
     const result = await openai_edit_image(imageBuffer, prompt);
-
-    // Hapus file upload sementara
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
 
     res.json({ url: result });
   } catch (error: any) {
-    // Cleanup file on error
-    const filePath = req.file?.path;
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
     console.error("❌ Error editing image:", error);
     res.status(500).json({
       error: "Failed to edit image",
