@@ -93,7 +93,9 @@ const IpImagineInput = ({
               state: {
                 type: creationMode || "image",
                 outputUrl: demoImageUrl,
-                prompt: input || "This is a demo creation. Replace with actual generation results.",
+                prompt:
+                  input ||
+                  "This is a demo creation. Replace with actual generation results.",
                 timestamp: new Date().toISOString(),
               },
             });
