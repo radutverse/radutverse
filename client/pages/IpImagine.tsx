@@ -34,6 +34,7 @@ const IpImagine = () => {
     domain: string | null;
     loading: boolean;
   }>({ domain: null, loading: false });
+  const [creationMode, setCreationMode] = useState<"image" | "video">("image");
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -239,7 +240,7 @@ const IpImagine = () => {
         console.error("handleImage error", error);
       }
     },
-    [compressAndEnsureSize, setPreviewImages],
+    [compressAndEnsureSize, setPreviewImages, creationMode],
   );
 
   const headerActions = (
@@ -302,6 +303,11 @@ const IpImagine = () => {
           )
             return;
 
+          if (creationMode === "video") {
+            setStatusText("🎬 Video generation coming soon!");
+            return;
+          }
+
           setWaiting(true);
           setStatusText("✨ Starting generation...");
 
@@ -360,6 +366,8 @@ const IpImagine = () => {
           );
         }}
         onAddRemixImage={() => setShowAddRemixImageModal(true)}
+        creationMode={creationMode}
+        setCreationMode={setCreationMode}
       />
 
       <input
