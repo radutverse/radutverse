@@ -253,7 +253,7 @@ const IpImagine = () => {
         console.error("handleImage error", error);
       }
     },
-    [compressAndEnsureSize, setPreviewImages],
+    [compressAndEnsureSize, setPreviewImages, creationMode],
   );
 
   const headerActions = (
