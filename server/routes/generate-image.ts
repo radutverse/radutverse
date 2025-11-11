@@ -10,16 +10,20 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ✅ Folder sementara yang writable di Vercel
+// 🧩 Pakai folder sementara Vercel (/tmp)
 const TMP_DIR = "/tmp";
+if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true });
 
-// ✅ Middleware multer untuk upload gambar
+// 🧠 Multer setup (memory storage + MIME fallback)
 export const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
-    if (
-      ["image/png", "image/jpeg", "image/webp"].includes(file.mimetype)
-    ) {
+    // Fallback kalau mimetype hilang (misal: application/octet-stream)
+    if (!file.mimetype || file.mimetype === "application/octet-stream") {
+      file.mimetype = "image/png";
+    }
+
+    if (["image/png", "image/jpeg", "image/webp"].includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error("Invalid file type. Only PNG, JPG, and WEBP allowed."));
@@ -39,14 +43,15 @@ export const generateImage: RequestHandler = async (req, res) => {
       size: "1024x1024",
     });
 
-    res.json({ imageUrl: response.data[0].url });
+    const imageUrl = response.data[0].url;
+    res.json({ imageUrl });
   } catch (error: any) {
     console.error("❌ Error generating image:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT
+// 🔹 2️⃣ IMAGE + PROMPT → AI EDIT (pakai image upload langsung)
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const file = req.file;
@@ -55,18 +60,24 @@ export const editImage: RequestHandler = async (req, res) => {
     if (!file) return res.status(400).json({ error: "Missing image file" });
     if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
 
-    const tmpPath = path.join(TMP_DIR, `${uuidv4()}.png`);
-    await sharp(file.buffer).png().toFile(tmpPath);
+    console.log("📸 Uploaded file type:", file.mimetype);
 
+    // Simpan file sementara ke /tmp agar bisa dikirim ke OpenAI
+    const tmpPath = path.join(TMP_DIR, `${uuidv4()}.png`);
+    await sharp(file.buffer).toFormat("png").toFile(tmpPath);
+
+    // Kirim request edit image
     const response = await openai.images.edit({
       model: "gpt-image-1",
-      image: fs.createReadStream(tmpPath),
       prompt,
+      image: fs.createReadStream(tmpPath),
       size: "1024x1024",
     });
 
-    fs.unlinkSync(tmpPath);
-    res.json({ imageUrl: response.data[0].url });
+    const imageUrl = response.data[0].url;
+
+    fs.unlinkSync(tmpPath); // hapus file sementara
+    res.json({ imageUrl });
   } catch (error: any) {
     console.error("❌ Error editing image:", error);
     res.status(500).json({ error: error.message });
