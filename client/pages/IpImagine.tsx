@@ -34,7 +34,6 @@ const IpImagine = () => {
     domain: string | null;
     loading: boolean;
   }>({ domain: null, loading: false });
-  const [creationMode, setCreationMode] = useState<"image" | "video">("image");
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
