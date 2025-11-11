@@ -33,14 +33,38 @@ export const generateImageFromText = async (
 
 export const editImage = async (
   prompt: string,
-  _image: { imageBytes: string; mimeType: string },
+  image: { imageBytes: string; mimeType: string },
 ): Promise<string> => {
   if (!prompt) throw new Error("Prompt is required.");
-
-  const enhancedPrompt = `Edit and enhance the following image based on this description: ${prompt}`;
+  if (!image || !image.imageBytes) throw new Error("Image is required for editing.");
 
   try {
-    return await generateImageFromText(enhancedPrompt);
+    const response = await fetch("/api/generate-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        image: {
+          data: image.imageBytes,
+          mimeType: image.mimeType,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Image editing failed");
+    }
+
+    const data = await response.json();
+
+    if (data.data && data.mimeType) {
+      return `data:${data.mimeType};base64,${data.data}`;
+    }
+
+    throw new Error("Image editing failed: No image data received.");
   } catch (error) {
     throw error;
   }
