@@ -22,22 +22,22 @@ const CreationResult = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
-    if (!creationData?.outputUrl) return;
+    if (!resultUrl) return;
     const link = document.createElement("a");
-    link.href = creationData.outputUrl;
-    link.download = `creation-${Date.now()}${creationData.type === "video" ? ".mp4" : ".png"}`;
+    link.href = resultUrl;
+    link.download = `creation-${Date.now()}${resultType === "video" ? ".mp4" : ".png"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleShare = async () => {
-    if (!creationData?.outputUrl) return;
+    if (!resultUrl) return;
     try {
       if (navigator.share) {
         await navigator.share({
           title: "IP Creation Result",
-          text: creationData.prompt,
+          text: "Check out my AI-generated creation!",
           url: window.location.href,
         });
       } else {
@@ -49,12 +49,102 @@ const CreationResult = () => {
     }
   };
 
-  const handleUpscale = (upscaledImageUrl: string) => {
-    setUpscaledUrl(upscaledImageUrl);
+  const handleUpscale = async () => {
+    if (!apiKey) {
+      alert("API key not found. Please set VITE_GEMINI_API_KEY environment variable.");
+      return;
+    }
+    await upscale(apiKey);
     setShowUpscaler(false);
   };
 
-  if (!creationData) {
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Creation Result">
+        <div className="flex-1 flex flex-col items-center justify-center px-4">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="mb-8"
+          >
+            <svg
+              className="h-16 w-16 text-[#FF4DA6]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          </motion.div>
+          <p className="text-lg font-semibold text-slate-100 mb-2">
+            {loadingMessage || "Creating your masterpiece..."}
+          </p>
+          <p className="text-sm text-slate-400">This may take a moment</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout title="Creation Result">
+        <div className="flex-1 flex flex-col items-center justify-center px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-md"
+          >
+            <div className="rounded-2xl bg-red-900/20 border border-red-800/50 p-6 mb-6">
+              <div className="flex gap-3 mb-3">
+                <svg
+                  className="h-6 w-6 text-red-500 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-semibold text-red-300">
+                    Generation Failed
+                  </h3>
+                  <p className="text-sm text-red-200 mt-1">{error}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={() => navigate("/ip-imagine")}
+                className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
+              >
+                Try Again
+              </Button>
+              <Button
+                onClick={() => window.location.reload()}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-100"
+                variant="outline"
+              >
+                Refresh Page
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!resultUrl || !resultType) {
     return (
       <DashboardLayout title="Creation Result">
         <div className="flex-1 flex items-center justify-center px-4">
