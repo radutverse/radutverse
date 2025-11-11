@@ -198,12 +198,12 @@ const IpImagineInput = ({
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
             placeholder={
-            creationMode === "video"
-              ? "Type to make video…"
-              : creationMode === "image"
-              ? "Type to make image…"
-              : "Type to create…"
-          }
+              creationMode === "video"
+                ? "Type to make video…"
+                : creationMode === "image"
+                ? "Type to make image…"
+                : "Type to create…"
+            }
             disabled={waiting}
             className="flex-1 resize-none px-4 py-0 bg-transparent text-white placeholder:text-slate-400 min-h-[40px] max-h-32 overflow-y-auto focus:outline-none font-medium text-[0.97rem] disabled:opacity-50"
           />
