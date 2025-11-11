@@ -82,8 +82,41 @@ const IpImagineInput = ({
       }}
       autoComplete="off"
     >
-      {/* Creations popover (specific to ipimagine) */}
-      <div className="mr-2 flex items-center">
+      {/* Creations popover and Creation button */}
+      <div className="mr-2 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            const demoImageUrl = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FF4DA6" width="400" height="300"/%3E%3Ctext x="200" y="150" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle"%3ECreation Demo%3C/text%3E%3C/svg%3E';
+            navigate("/creation-result", {
+              state: {
+                type: creationMode || "image",
+                outputUrl: demoImageUrl,
+                prompt: "This is a demo creation. Replace with actual generation results.",
+                timestamp: new Date().toISOString(),
+              },
+            });
+          }}
+          className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+          aria-label="View creation results"
+          title="Creation Results"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+        </button>
+
         <Popover>
           <PopoverTrigger asChild>
             <button
