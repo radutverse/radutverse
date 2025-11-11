@@ -97,19 +97,17 @@ async function openai_edit_image(
 ): Promise<string> {
   const formData = new FormData();
 
-  const imageBlob = new Blob([imageBuffer], { type: "image/png" });
-  formData.append("image", imageBlob, "image.png");
+  formData.append("image", new Blob([imageBuffer], { type: "image/png" }), "image.png");
   formData.append("prompt", prompt);
   formData.append("n", "1");
   formData.append("size", "1024x1024");
-  formData.append("model", "dall-e-2");
 
   const response = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
-    body: formData as unknown as BodyInit,
+    body: formData,
   });
 
   if (!response.ok) {
@@ -127,5 +125,3 @@ async function openai_edit_image(
 
   return imageUrl;
 }
-
-type BodyInit = FormData | Blob | BufferSource | ReadableStream<Uint8Array> | URLSearchParams | string;
