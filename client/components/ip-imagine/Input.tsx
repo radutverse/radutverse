@@ -242,6 +242,7 @@ const IpImagineInput = ({
             </button>
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => setCreationMode("video")}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${creationMode === "video" ? "bg-[#FF4DA6] text-white" : "bg-slate-800/50 text-slate-400 hover:bg-slate-800"}`}
               aria-pressed={creationMode === "video"}
