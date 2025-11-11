@@ -21,6 +21,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@google/genai": "^1.29.0",
     "@privy-io/react-auth": "^1.99.1",
     "@story-protocol/core-sdk": "^1.4.0",
     "@vercel/blob": "^2.0.0",
