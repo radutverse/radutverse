@@ -32,6 +32,7 @@ const IpImagine = () => {
     loading: boolean;
   }>({ domain: null, loading: false });
   const [creationMode, setCreationMode] = useState<"image" | "video">("image");
+  const [generationCount, setGenerationCount] = useState(0);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -144,6 +145,77 @@ const IpImagine = () => {
       return blob;
     },
     [compressToBlob],
+  );
+
+  const handleGenerateImage = useCallback(
+    async (prompt: string) => {
+      if (generationCount >= 10) {
+        setStatusText("⚠️ Generation limit (10 per session) reached.");
+        return false;
+      }
+
+      if (!prompt.trim()) {
+        setStatusText("⚠️ Please enter a prompt.");
+        return false;
+      }
+
+      try {
+        setWaiting(true);
+        setStatusText("✨ Generating image...");
+
+        const response = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: prompt.trim() }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          const errorMsg =
+            errorData.error || "Failed to generate image";
+          setStatusText(`❌ ${errorMsg}`);
+          setWaiting(false);
+          return false;
+        }
+
+        const data = await response.json();
+        if (!data.success || !data.image) {
+          setStatusText("❌ No image generated.");
+          setWaiting(false);
+          return false;
+        }
+
+        // Convert base64 to blob
+        const base64Data = data.image.split(",")[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "image/jpeg" });
+
+        // Create object URL for preview
+        const url = URL.createObjectURL(blob);
+
+        // Set as remix image (can be registered)
+        setPreviewImages({
+          remixImage: { blob, name: `generated-${Date.now()}.jpg`, url },
+          additionalImage: null,
+        });
+
+        setGenerationCount((prev) => prev + 1);
+        setStatusText(`✅ Image generated! (${generationCount + 1}/10)`);
+        setWaiting(false);
+        return true;
+      } catch (error) {
+        console.error("Generate image error:", error);
+        setStatusText("❌ Error generating image.");
+        setWaiting(false);
+        return false;
+      }
+    },
+    [generationCount, setPreviewImages],
   );
 
   const handleImage = useCallback(
@@ -320,6 +392,16 @@ const IpImagine = () => {
             !previewImages.additionalImage
           )
             return;
+
+          // Handle image generation mode
+          if (creationMode === "image" && input.trim()) {
+            const prompt = input.trim();
+            setInput("");
+            await handleGenerateImage(prompt);
+            return;
+          }
+
+          // Handle other modes (video, etc.)
           setWaiting(true);
           setStatusText("Processing…");
           setInput("");
