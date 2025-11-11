@@ -290,5 +290,13 @@ export function createServer() {
     res.json({ ok: true, hasKey: !!process.env.OPENAI_API_KEY }),
   );
 
+  // Generation endpoints
+  app.post("/api/generate-image", handleGenerateImage);
+  app.post("/api/generate-image-from-image", handleGenerateImageFromImage);
+  app.post("/api/generate-video", handleGenerateVideo);
+  app.post("/api/generate-video-from-image", handleGenerateVideoFromImage);
+  app.post("/api/upscale-image", handleUpscaleImage);
+  app.get("/api/generation-progress", handleGetGenerationProgress);
+
   return app;
 }
