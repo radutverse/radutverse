@@ -138,25 +138,17 @@ const CreationResult = () => {
               </div>
             )}
 
-            {/* Auth Error - Detailed Message */}
+            {/* Auth Error - Simple Message */}
             {isAuthError && (
-              <div className="rounded-2xl bg-orange-900/20 border border-orange-800/50 p-6 mb-6 space-y-4">
-                <div>
-                  <p className="text-orange-300 font-semibold mb-2">🔑 Invalid or Missing API Key</p>
-                  <p className="text-sm text-orange-200/80">
-                    Your API key is invalid, expired, or doesn't have the necessary permissions to generate content.
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-orange-300 font-semibold mb-2">✅ How to Fix</p>
-                  <ol className="text-sm text-orange-200/80 space-y-2 list-decimal list-inside">
-                    <li>Go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-orange-300 hover:underline">Google AI Studio</a></li>
-                    <li>Create a new API key or verify your existing one</li>
-                    <li>Make sure billing is enabled on your Google Cloud account</li>
-                    <li>Update your environment variables with the correct API key</li>
-                    <li>Try again after updating the configuration</li>
-                  </ol>
+              <div className="rounded-2xl bg-orange-900/20 border border-orange-800/50 p-6 mb-6">
+                <div className="flex gap-4">
+                  <div className="text-3xl">⚠️</div>
+                  <div>
+                    <p className="text-orange-300 font-semibold mb-2">Configuration Error</p>
+                    <p className="text-sm text-orange-200/80 leading-relaxed">
+                      There's an issue with the generation service. Please refresh the page and try again, or contact support if the problem persists.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
