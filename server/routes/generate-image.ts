@@ -107,34 +107,27 @@ async function openai_edit_image(
   let pngBuffer: Buffer;
 
   try {
-    pngBuffer = await sharp(imageBuffer)
-      .ensureAlpha()
-      .toFormat("png", {
-        force: true,
-        compression: 9,
-      })
-      .toBuffer();
+    let pipeline = sharp(imageBuffer).ensureAlpha();
+    pngBuffer = await pipeline.toBuffer();
 
     if (pngBuffer.length > MAX_FILE_SIZE) {
-      pngBuffer = await sharp(imageBuffer)
-        .ensureAlpha()
-        .png({
-          compressionLevel: 9,
-        })
-        .toBuffer();
-    }
-
-    if (pngBuffer.length > MAX_FILE_SIZE) {
-      pngBuffer = await sharp(imageBuffer)
+      pipeline = sharp(imageBuffer)
         .ensureAlpha()
         .resize(1024, 1024, {
           fit: "inside",
           withoutEnlargement: true,
-        })
-        .png({
-          compressionLevel: 9,
-        })
-        .toBuffer();
+        });
+      pngBuffer = await pipeline.toBuffer();
+    }
+
+    if (pngBuffer.length > MAX_FILE_SIZE) {
+      pipeline = sharp(imageBuffer)
+        .ensureAlpha()
+        .resize(800, 800, {
+          fit: "inside",
+          withoutEnlargement: true,
+        });
+      pngBuffer = await pipeline.toBuffer();
     }
   } catch (error: any) {
     throw new Error(`Failed to process image: ${error.message}`);
