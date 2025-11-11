@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Popover,
   PopoverTrigger,
