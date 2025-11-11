@@ -345,12 +345,14 @@ const IpImagine = () => {
           );
         }}
         onAddRemixImage={() => setShowAddRemixImageModal(true)}
+        creationMode={creationMode}
+        setCreationMode={setCreationMode}
       />
 
       <input
         ref={uploadRef}
         type="file"
-        accept="image/*"
+        accept={creationMode === "video" ? "video/*,image/*" : "image/*"}
         className="hidden"
         onChange={handleImage}
       />
