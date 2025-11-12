@@ -19,8 +19,6 @@ const IpImagineCreationResult = () => {
     loadingMessage,
     error,
     upscale,
-    creations,
-    removeCreation,
   } = useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
