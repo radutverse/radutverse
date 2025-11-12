@@ -123,7 +123,7 @@ const useGeminiGenerator = () => {
       setError(errorMessage);
       // remove pending placeholder if generation failed
       try {
-        removeCreation(pendingId);
+        removeCreation(pendingIdLocal);
       } catch (err) {
         // ignore
       }
