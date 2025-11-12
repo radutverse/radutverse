@@ -60,6 +60,7 @@ const CreationResult = () => {
       );
       return;
     }
+    if (!displayUrl) return;
     await upscale(apiKey);
     setShowUpscaler(false);
   };
