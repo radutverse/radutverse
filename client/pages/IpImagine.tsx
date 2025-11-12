@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
@@ -16,9 +15,10 @@ import { getCurrentTimestamp } from "@/lib/ip-assistant/utils";
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
+import { useNavigation } from "@/context/NavigationContext";
 
 const IpImagine = () => {
-  const navigate = useNavigate();
+  const { setCurrentPage } = useNavigation();
   const { generate, isLoading, resultUrl } = useGeminiGenerator();
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
