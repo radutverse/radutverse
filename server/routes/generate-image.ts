@@ -27,7 +27,7 @@ export const generateImage: RequestHandler = async (req, res) => {
 
     const imageUrl = result.data[0].url;
     console.log("✅ Image generated successfully:", imageUrl);
-    res.json({ imageUrl });
+    res.json({ url: imageUrl });
   } catch (err) {
     console.error("❌ Error generating image:", err);
     res.status(500).json({
