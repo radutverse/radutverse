@@ -36,13 +36,30 @@ export const editImage: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing image or prompt" });
     }
 
-    // 🔹 Resize & re-encode untuk aman
-    const buffer = await sharp(file.buffer)
-      .resize({ width: 512, height: 512, fit: "inside" })
-      .jpeg({ quality: 85 })
+    // 🔹 Resize & re-encode untuk aman (must be under 16384 bytes for OpenAI)
+    let buffer = await sharp(file.buffer)
+      .resize({ width: 256, height: 256, fit: "inside" })
+      .jpeg({ quality: 70 })
       .toBuffer();
 
     console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
+
+    // 🔹 Further compress if still too large
+    if (buffer.length > 16384) {
+      buffer = await sharp(file.buffer)
+        .resize({ width: 256, height: 256, fit: "inside" })
+        .jpeg({ quality: 50 })
+        .toBuffer();
+      console.log("📸 Re-compressed image, bytes:", buffer.length);
+    }
+
+    if (buffer.length > 16384) {
+      return res.status(400).json({
+        error: "Image too large. Please use a smaller or lower resolution image.",
+        currentSize: buffer.length,
+        maxSize: 16384
+      });
+    }
 
     // 🔹 Gunakan FormData untuk kirim ke OpenAI
     const form = new FormData();
