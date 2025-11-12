@@ -23,6 +23,7 @@ const useGeminiGenerator = () => {
     setResultType,
     resultUrl,
     addCreation,
+    setProgress,
   } = context;
 
   const generate = async (
@@ -34,6 +35,17 @@ const useGeminiGenerator = () => {
     setError(null);
     setResultUrl(null);
     setResultType(null);
+
+    // Start progress and run generation in background. We'll simulate progress
+    // updates based on estimated durations so the UI can display a percentage.
+    setProgress(0);
+    const startTime = Date.now();
+    const estimatedDuration = mode === "video" ? 120000 : 8000;
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(95, Math.floor((elapsed / estimatedDuration) * 100));
+      setProgress(pct);
+    }, 500);
 
     // Generation should run in the background. Navigation to results is now manual
     // via the gallery/Results button to avoid interrupting the user's flow.
@@ -81,6 +93,12 @@ const useGeminiGenerator = () => {
 
       setResultUrl(generatedUrl);
       addCreation(generatedUrl, type);
+
+      // Mark progress complete and clear the interval
+      setProgress(100);
+      clearInterval(progressInterval);
+      // keep 100% visible briefly before resetting
+      setTimeout(() => setProgress(0), 2000);
     } catch (e: any) {
       console.error(e);
       let errorMessage =
@@ -95,6 +113,8 @@ const useGeminiGenerator = () => {
           "Your API key is invalid or project billing is not enabled. Please check your key and try again.";
       }
       setError(errorMessage);
+      clearInterval(progressInterval);
+      setProgress(0);
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
