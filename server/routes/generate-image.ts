@@ -1,8 +1,7 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
 import sharp from "sharp";
-import FormData from "form-data";
-import fetch from "node-fetch"; // Node <18
+import { FormData, Blob } from "formdata-node";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
@@ -18,11 +17,23 @@ export const generateImage: RequestHandler = async (req, res) => {
       size: "1024x1024",
     });
 
+    if (!result.data || !result.data[0] || !result.data[0].url) {
+      console.error("❌ Unexpected OpenAI response:", result);
+      return res.status(500).json({
+        error: "No image URL received",
+        details: "OpenAI did not return an image URL",
+      });
+    }
+
     const imageUrl = result.data[0].url;
-    res.json({ imageUrl });
+    console.log("✅ Image generated successfully:", imageUrl);
+    res.json({ url: imageUrl });
   } catch (err) {
     console.error("❌ Error generating image:", err);
-    res.status(500).json({ error: "Failed to generate image" });
+    res.status(500).json({
+      error: "Failed to generate image",
+      details: err instanceof Error ? err.message : String(err),
+    });
   }
 };
 
@@ -36,22 +47,41 @@ export const editImage: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing image or prompt" });
     }
 
-    // 🔹 Resize & re-encode untuk aman
-    const buffer = await sharp(file.buffer)
-      .resize({ width: 512, height: 512, fit: "inside" })
-      .jpeg({ quality: 85 })
+    // 🔹 Resize & re-encode untuk aman (must be under 16384 bytes for OpenAI)
+    let buffer = await sharp(file.buffer)
+      .resize({ width: 256, height: 256, fit: "inside" })
+      .jpeg({ quality: 70 })
       .toBuffer();
 
     console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
+
+    // 🔹 Further compress if still too large
+    if (buffer.length > 16384) {
+      buffer = await sharp(file.buffer)
+        .resize({ width: 256, height: 256, fit: "inside" })
+        .jpeg({ quality: 50 })
+        .toBuffer();
+      console.log("📸 Re-compressed image, bytes:", buffer.length);
+    }
+
+    if (buffer.length > 16384) {
+      return res.status(400).json({
+        error:
+          "Image too large. Please use a smaller or lower resolution image.",
+        currentSize: buffer.length,
+        maxSize: 16384,
+      });
+    }
 
     // 🔹 Gunakan FormData untuk kirim ke OpenAI
     const form = new FormData();
     form.append("model", "gpt-image-1");
     form.append("prompt", prompt);
-    form.append("image", buffer, {
-      filename: "image.jpg",
-      contentType: "image/jpeg",
-    });
+    form.append(
+      "image",
+      new Blob([buffer], { type: "image/jpeg" }),
+      "image.jpg",
+    );
 
     const response = await fetch("https://api.openai.com/v1/images/edits", {
       method: "POST",
@@ -62,7 +92,39 @@ export const editImage: RequestHandler = async (req, res) => {
     });
 
     const data = await response.json();
-    res.json({ editedImageUrl: data.data[0].url });
+
+    if (!response.ok) {
+      console.error("❌ OpenAI API error:", data);
+      return res.status(response.status).json({
+        error: "Failed to edit image",
+        details: data.error?.message || "Unknown error",
+      });
+    }
+
+    if (!data.data || !data.data[0]) {
+      console.error("❌ Unexpected OpenAI response:", data);
+      return res.status(500).json({
+        error: "Invalid response from OpenAI",
+        details: "Missing image data in response",
+      });
+    }
+
+    // Handle both URL (text-to-image) and b64_json (image edit) responses
+    let imageUrl: string;
+    if (data.data[0].url) {
+      imageUrl = data.data[0].url;
+    } else if (data.data[0].b64_json) {
+      imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+    } else {
+      console.error("❌ Unexpected OpenAI response format:", data.data[0]);
+      return res.status(500).json({
+        error: "Invalid response from OpenAI",
+        details: "Missing both URL and base64 image data",
+      });
+    }
+
+    console.log("✅ Image edited successfully");
+    res.json({ url: imageUrl });
   } catch (err: any) {
     console.error("❌ Error editing image:", err);
     res.status(500).json({

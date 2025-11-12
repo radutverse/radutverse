@@ -22,6 +22,7 @@ const useGeminiGenerator = () => {
     setResultUrl,
     setResultType,
     resultUrl,
+    addCreation,
   } = context;
 
   const generate = async (
@@ -37,6 +38,7 @@ const useGeminiGenerator = () => {
 
     try {
       let generatedUrl: string;
+      let type: "image" | "video";
 
       if (mode === "image") {
         setLoadingMessage("Crafting your image...");
@@ -50,6 +52,7 @@ const useGeminiGenerator = () => {
             options.prompt,
           );
         }
+        type = "image";
         setResultType("image");
       } else {
         setLoadingMessage("Initializing video generation...");
@@ -70,10 +73,12 @@ const useGeminiGenerator = () => {
 
         clearTimeout(timeout1);
         clearTimeout(timeout2);
+        type = "video";
         setResultType("video");
       }
 
       setResultUrl(generatedUrl);
+      addCreation(generatedUrl, type);
     } catch (e: any) {
       console.error(e);
       let errorMessage =

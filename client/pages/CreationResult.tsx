@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -8,26 +8,42 @@ import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const CreationResult = () => {
   const navigate = useNavigate();
-  const { resultUrl, resultType, isLoading, loadingMessage, error, upscale } =
-    useGeminiGenerator();
+  const {
+    resultUrl,
+    resultType,
+    isLoading,
+    loadingMessage,
+    error,
+    upscale,
+    creations,
+    removeCreation,
+  } = useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Auto-select newest creation when resultUrl changes
+  useEffect(() => {
+    if (resultUrl && creations.length > 0) {
+      setSelectedId(creations[0].id);
+    }
+  }, [resultUrl, creations]);
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
-    if (!resultUrl) return;
+    if (!displayUrl) return;
     const link = document.createElement("a");
-    link.href = resultUrl;
-    link.download = `creation-${Date.now()}${resultType === "video" ? ".mp4" : ".png"}`;
+    link.href = displayUrl;
+    link.download = `creation-${Date.now()}${displayType === "video" ? ".mp4" : ".png"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleShare = async () => {
-    if (!resultUrl) return;
+    if (!displayUrl) return;
     try {
       if (navigator.share) {
         await navigator.share({
@@ -51,6 +67,7 @@ const CreationResult = () => {
       );
       return;
     }
+    if (!displayUrl) return;
     await upscale(apiKey);
     setShowUpscaler(false);
   };
@@ -201,7 +218,18 @@ const CreationResult = () => {
     );
   }
 
-  if (!resultUrl || !resultType) {
+  // Get the currently selected creation or use the first one
+  const currentCreation =
+    selectedId && creations.find((c) => c.id === selectedId)
+      ? creations.find((c) => c.id === selectedId)
+      : resultUrl
+        ? null
+        : creations[0];
+
+  const displayUrl = currentCreation?.url || resultUrl;
+  const displayType = currentCreation?.type || resultType;
+
+  if (!displayUrl || !displayType) {
     return (
       <DashboardLayout title="Creation Result">
         <div className="flex-1 flex items-center justify-center px-4">
@@ -220,6 +248,71 @@ const CreationResult = () => {
     <DashboardLayout title="Creation Result">
       <div className="flex-1 overflow-y-auto bg-transparent">
         <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
+          {/* Gallery Grid */}
+          {creations.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-8"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-slate-100">
+                  Generation History
+                </h3>
+                <span className="text-sm text-slate-400">
+                  {creations.length} creation{creations.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 rounded-lg bg-slate-900/30 p-4 border border-slate-800/50">
+                {creations.map((creation) => (
+                  <motion.div
+                    key={creation.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`relative group cursor-pointer rounded-lg overflow-hidden aspect-square border-2 transition-all ${
+                      selectedId === creation.id
+                        ? "border-[#FF4DA6] ring-2 ring-[#FF4DA6]/50"
+                        : "border-slate-700/50 hover:border-slate-600"
+                    }`}
+                    onClick={() => setSelectedId(creation.id)}
+                  >
+                    {creation.type === "image" ? (
+                      <img
+                        src={creation.url}
+                        alt="Creation thumbnail"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={creation.url}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCreation(creation.id);
+                          if (selectedId === creation.id) {
+                            setSelectedId(null);
+                          }
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-600/80 hover:bg-red-700 text-white rounded-full p-2"
+                        title="Delete"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="absolute top-1 right-1 text-xs font-medium bg-slate-900/80 text-slate-300 px-2 py-1 rounded">
+                      {creation.type === "image" ? "🖼" : "🎬"}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -230,15 +323,15 @@ const CreationResult = () => {
             <div className="mb-8">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-[#FF4DA6]/20 p-1">
                 <div className="bg-black rounded-xl overflow-hidden">
-                  {resultType === "image" ? (
+                  {displayType === "image" ? (
                     <img
-                      src={upscaledUrl || resultUrl}
+                      src={upscaledUrl || displayUrl}
                       alt="Generated creation"
                       className="w-full h-auto object-cover max-h-[600px]"
                     />
                   ) : (
                     <video
-                      src={resultUrl}
+                      src={displayUrl}
                       controls
                       className="w-full h-auto object-cover max-h-[600px]"
                     />
@@ -255,7 +348,7 @@ const CreationResult = () => {
                     Result Type
                   </h3>
                   <p className="text-slate-200 leading-relaxed capitalize">
-                    {resultType} generation completed successfully
+                    {displayType} generation completed successfully
                   </p>
                 </div>
               </div>
@@ -269,7 +362,7 @@ const CreationResult = () => {
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Type</div>
                       <div className="text-slate-200 capitalize font-medium">
-                        {resultType}
+                        {displayType}
                       </div>
                     </div>
                     <div>
@@ -308,7 +401,7 @@ const CreationResult = () => {
                 Download
               </Button>
 
-              {resultType === "image" && (
+              {displayType === "image" && (
                 <Button
                   onClick={() => setShowUpscaler(true)}
                   className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700"
@@ -403,7 +496,7 @@ const CreationResult = () => {
 
       {/* Upscaler Modal */}
       <AnimatePresence>
-        {showUpscaler && resultUrl && (
+        {showUpscaler && displayUrl && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
             <motion.div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -437,7 +530,7 @@ const CreationResult = () => {
 
               <div className="mb-8 rounded-xl overflow-hidden bg-black/50 border border-slate-800/50">
                 <img
-                  src={resultUrl}
+                  src={displayUrl}
                   alt="Preview"
                   className="w-full h-auto max-h-[250px] object-cover"
                 />
