@@ -68,6 +68,7 @@ const IpImagineInput = ({
   creationMode = "image",
   setCreationMode = () => {},
   resultUrl = null,
+  resultUrls = [],
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
