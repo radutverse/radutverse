@@ -315,15 +315,15 @@ const CreationResult = () => {
             <div className="mb-8">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-[#FF4DA6]/20 p-1">
                 <div className="bg-black rounded-xl overflow-hidden">
-                  {resultType === "image" ? (
+                  {displayType === "image" ? (
                     <img
-                      src={upscaledUrl || resultUrl}
+                      src={upscaledUrl || displayUrl}
                       alt="Generated creation"
                       className="w-full h-auto object-cover max-h-[600px]"
                     />
                   ) : (
                     <video
-                      src={resultUrl}
+                      src={displayUrl}
                       controls
                       className="w-full h-auto object-cover max-h-[600px]"
                     />
