@@ -8,11 +8,20 @@ import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const CreationResult = () => {
   const navigate = useNavigate();
-  const { resultUrl, resultType, isLoading, loadingMessage, error, upscale } =
-    useGeminiGenerator();
+  const {
+    resultUrl,
+    resultType,
+    isLoading,
+    loadingMessage,
+    error,
+    upscale,
+    creations,
+    removeCreation,
+  } = useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
