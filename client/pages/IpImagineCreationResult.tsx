@@ -232,15 +232,6 @@ const IpImagineCreationResult = () => {
     <DashboardLayout title="IP Imagine Result">
       <div className="flex-1 overflow-y-auto bg-transparent">
         <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
-          {creations.length > 0 && (
-            <ResultGallery
-              creations={creations}
-              selectedId={selectedId}
-              onSelectCreation={setSelectedId}
-              onRemoveCreation={removeCreation}
-            />
-          )}
-
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
