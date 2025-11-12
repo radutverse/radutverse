@@ -1788,7 +1788,7 @@ const IpAssistant = () => {
               }}
               onRemixWork={() => {
                 // Navigate to the standalone IP Imagine page
-                navigate("/ip-imagine");
+                setCurrentPage("ip-imagine");
               }}
             />
           ) : null}
