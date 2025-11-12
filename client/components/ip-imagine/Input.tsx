@@ -43,6 +43,7 @@ type IpImagineInputProps = {
   onAddRemixImage?: () => void;
   creationMode?: "image" | "video";
   setCreationMode?: Dispatch<SetStateAction<"image" | "video">>;
+  resultUrl?: string | null;
 };
 
 const IpImagineInput = ({
