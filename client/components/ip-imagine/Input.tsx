@@ -44,6 +44,7 @@ type IpImagineInputProps = {
   creationMode?: "image" | "video";
   setCreationMode?: Dispatch<SetStateAction<"image" | "video">>;
   resultUrl?: string | null;
+  resultUrls?: string[];
 };
 
 const IpImagineInput = ({
