@@ -63,6 +63,7 @@ const IpImagineInput = ({
   suggestions,
   setSuggestions,
   attachmentLoading = false,
+  progress = 0,
   onRemixRegisterWarning,
   onAddRemixImage,
   creationMode = "image",
