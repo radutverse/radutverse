@@ -315,6 +315,7 @@ const IpImagine = () => {
         setPreviewImages={setPreviewImages}
         uploadRef={uploadRef}
         handleImage={handleImage}
+        resultUrl={resultUrl}
         onSubmit={async () => {
           if (
             !input.trim() &&
@@ -324,7 +325,7 @@ const IpImagine = () => {
             return;
 
           if (creationMode === "video") {
-            setStatusText("🎬 Video generation is coming soon!");
+            setStatusText("��� Video generation is coming soon!");
             return;
           }
 
