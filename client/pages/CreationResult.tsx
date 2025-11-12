@@ -29,8 +29,6 @@ const CreationResult = () => {
       setSelectedId(creations[0].id);
     }
   }, [resultUrl, creations]);
-  const apiKey =
-    import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
     if (!displayUrl) return;
@@ -61,14 +59,8 @@ const CreationResult = () => {
   };
 
   const handleUpscale = async () => {
-    if (!apiKey) {
-      alert(
-        "API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
-      );
-      return;
-    }
     if (!displayUrl) return;
-    await upscale(apiKey);
+    await upscale();
     setShowUpscaler(false);
   };
 
