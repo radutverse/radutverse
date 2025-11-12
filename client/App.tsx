@@ -59,6 +59,7 @@ const AppRoutes = () => (
       <Route path="/" element={<Index />} />
       <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
       <Route path="/ip-imagine" element={<IpImagine />} />
+      <Route path="/ip-imagine/result" element={<IpImagineCreationResult />} />
       <Route path="/creation-result" element={<CreationResult />} />
       <Route path="/nft-marketplace" element={<NftMarketplace />} />
       <Route path="/my-portfolio" element={<MyPortfolio />} />
