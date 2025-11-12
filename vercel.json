@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:client && npm run build:server",
   "builds": [
     {
       "src": "dist/spa/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "dist/server/*.mjs",
-      "use": "@vercel/node"
     },
     {
       "src": "api/**/*.ts",
@@ -21,12 +17,11 @@
       "dest": "/api/$1"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/dist/spa/favicon.ico"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/spa/index.html"
+      "dest": "/index.html"
     }
   ]
 }
