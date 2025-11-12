@@ -536,8 +536,8 @@ const CreationResult = () => {
                 />
               </div>
 
-              <div className="mb-8 rounded-lg bg-blue-900/20 border border-blue-800/50 p-4">
-                <p className="text-sm text-blue-300">
+              <div className="mb-8 rounded-lg bg-slate-800/40 border border-slate-700/50 p-4">
+                <p className="text-sm text-slate-300">
                   Upscaling will increase the image resolution and improve
                   quality using AI enhancement.
                 </p>
