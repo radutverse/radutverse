@@ -1,15 +1,18 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "builds": [
     {
-      "src": "api/**/*.ts",
+      "src": "dist/spa/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "dist/server/*.mjs",
       "use": "@vercel/node"
     },
     {
-      "src": "dist/**",
-      "use": "@vercel/static"
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -19,12 +22,11 @@
     },
     {
       "src": "/favicon.ico",
-      "dest": "/dist/favicon.ico"
+      "dest": "/dist/spa/favicon.ico"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/index.html"
+      "dest": "/dist/spa/index.html"
     }
   ]
 }
-
