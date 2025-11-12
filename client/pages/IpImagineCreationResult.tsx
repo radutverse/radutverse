@@ -269,12 +269,7 @@ const IpImagineCreationResult = () => {
 
       {/* Loading Box or Compact Result Card - Top Left */}
       <AnimatePresence mode="wait">
-        {isLoading ? (
-          <LoadingBox
-            key="loading"
-            message={loadingMessage || "Crafting your image..."}
-          />
-        ) : displayUrl && displayType ? (
+        {!isLoading && displayUrl && displayType ? (
           <CompactResultCard
             key="result"
             imageUrl={upscaledUrl || displayUrl}
