@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreationContext } from "@/context/CreationContext";
-import * as geminiService from "@/services/geminiService";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
 
@@ -30,6 +29,11 @@ const useGeminiGenerator = () => {
     options: GenerationOptions,
     apiKey: string,
   ) => {
+    if (mode === "video") {
+      setError("Video generation is coming soon!");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResultUrl(null);
@@ -40,42 +44,19 @@ const useGeminiGenerator = () => {
       let generatedUrl: string;
       let type: "image" | "video";
 
-      if (mode === "image") {
-        setLoadingMessage("Crafting your image...");
-        if (options.image) {
-          generatedUrl = await openaiService.editImage(
-            options.prompt,
-            options.image,
-          );
-        } else {
-          generatedUrl = await openaiService.generateImageFromText(
-            options.prompt,
-          );
-        }
-        type = "image";
-        setResultType("image");
+      setLoadingMessage("Crafting your image...");
+      if (options.image) {
+        generatedUrl = await openaiService.editImage(
+          options.prompt,
+          options.image,
+        );
       } else {
-        setLoadingMessage("Initializing video generation...");
-        const timeout1 = setTimeout(
-          () =>
-            setLoadingMessage(
-              "Warming up the pixels... This can take a few minutes.",
-            ),
-          20000,
+        generatedUrl = await openaiService.generateImageFromText(
+          options.prompt,
         );
-        const timeout2 = setTimeout(
-          () =>
-            setLoadingMessage("Almost there, composing your masterpiece..."),
-          60000,
-        );
-
-        generatedUrl = await geminiService.generateVideo(options, apiKey);
-
-        clearTimeout(timeout1);
-        clearTimeout(timeout2);
-        type = "video";
-        setResultType("video");
       }
+      type = "image";
+      setResultType("image");
 
       setResultUrl(generatedUrl);
       addCreation(generatedUrl, type);
