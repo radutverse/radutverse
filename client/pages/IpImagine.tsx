@@ -40,6 +40,13 @@ const IpImagine = () => {
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
+  // Track new results for stacking effect
+  useEffect(() => {
+    if (resultUrl && !resultUrls.includes(resultUrl)) {
+      setResultUrls((prev) => [resultUrl, ...prev].slice(0, 5));
+    }
+  }, [resultUrl]);
+
   useEffect(() => {
     let mounted = true;
     const fetchDomain = async (ownerAddress: string) => {
