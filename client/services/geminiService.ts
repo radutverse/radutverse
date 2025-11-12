@@ -34,8 +34,15 @@ export const generateImageFromText = async (
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Image generation failed");
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Image generation failed");
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Image generation failed with status ${response.status}`
+        );
+      }
     }
 
     const data = await response.json();
@@ -91,8 +98,15 @@ export const editImage = async (
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Image editing failed");
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Image editing failed");
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Image editing failed with status ${response.status}`
+        );
+      }
     }
 
     const data = await response.json();
@@ -150,8 +164,15 @@ export const upscaleImage = async (
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Image upscaling failed");
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Image upscaling failed");
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Image upscaling failed with status ${response.status}`
+        );
+      }
     }
 
     const data = await response.json();
@@ -250,10 +271,17 @@ export const generateVideo = async (
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.error?.message || "Video generation initiation failed",
-      );
+      try {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error?.message || "Video generation initiation failed",
+        );
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Video generation initiation failed with status ${response.status}`
+        );
+      }
     }
 
     const operation = await response.json();
