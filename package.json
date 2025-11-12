@@ -18,8 +18,7 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc",
-    "postinstall": "npm run build:sharp-for-serverless || true"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@privy-io/react-auth": "^1.99.1",
