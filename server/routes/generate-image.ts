@@ -80,6 +80,23 @@ export const editImage: RequestHandler = async (req, res) => {
     });
 
     const data = await response.json();
+
+    if (!response.ok) {
+      console.error("❌ OpenAI API error:", data);
+      return res.status(response.status).json({
+        error: "Failed to edit image",
+        details: data.error?.message || "Unknown error",
+      });
+    }
+
+    if (!data.data || !data.data[0] || !data.data[0].url) {
+      console.error("❌ Unexpected OpenAI response:", data);
+      return res.status(500).json({
+        error: "Invalid response from OpenAI",
+        details: "Missing image URL in response",
+      });
+    }
+
     res.json({ editedImageUrl: data.data[0].url });
   } catch (err: any) {
     console.error("❌ Error editing image:", err);
