@@ -67,6 +67,8 @@ const IpImagineInput = ({
   setCreationMode = () => {},
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
+  const galleryButtonRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   return (
