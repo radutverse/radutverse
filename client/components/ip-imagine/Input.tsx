@@ -300,6 +300,12 @@ const IpImagineInput = ({
           <path d="M2.94 2.94a1.5 1.5 0 012.12 0L17 14.88V17a1 1 0 01-1 1h-2.12L2.94 5.06a1.5 1.5 0 010-2.12z" />
         </svg>
       </button>
+
+      <FlyingImageAnimation
+        isActive={showFlyingAnimation}
+        targetRef={galleryButtonRef}
+        onComplete={() => setShowFlyingAnimation(false)}
+      />
     </form>
   );
 };
