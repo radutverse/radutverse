@@ -21,6 +21,7 @@ This guide covers deploying the Fusion Starter application to Vercel with 100% c
 ### 2. Configure Build Settings
 
 The project is pre-configured with `vercel.json`. Vercel will automatically:
+
 - Use `pnpm` as the package manager (specified in `package.json`)
 - Run `pnpm run build` to build both client and server
 - Deploy static files from `dist/spa/`
@@ -64,18 +65,21 @@ After setting environment variables, Vercel will automatically redeploy your pro
 ## How It Works
 
 ### Frontend (SPA)
+
 - Built with Vite and React
 - Served as static files from `dist/spa/`
 - React Router handles client-side routing
 - All non-API routes fall back to `index.html` for SPA routing
 
 ### Backend (Serverless Functions)
+
 - Express server wrapped in serverless-http
 - Deployed as a single serverless function: `/api`
 - All routes starting with `/api/` are handled by the function
 - Static files and other routes are served before API routes
 
 ### Build Process
+
 1. **Client Build**: `vite build` creates optimized SPA in `dist/spa/`
 2. **Server Build**: `vite build --config vite.config.server.ts` creates serverless function
 3. **Deployment**: Vercel combines static files and functions
@@ -94,10 +98,12 @@ Request Flow:
 ### Build Fails
 
 **Issue**: "pnpm: command not found"
+
 - **Solution**: Vercel automatically uses the package manager specified in `package.json` (pnpm)
 - Ensure `packageManager` field is set correctly in package.json
 
 **Issue**: "Module not found" errors
+
 - **Solution**: Check that all dependencies are in package.json
 - Run `pnpm install` locally and verify everything works
 - Commit pnpm-lock.yaml to git
@@ -105,6 +111,7 @@ Request Flow:
 ### API Routes Not Working
 
 **Issue**: 404 on API endpoints
+
 - **Solution**: Ensure environment variables are set (some endpoints require API keys)
 - Check `/api/_debug_openai` to verify OPENAI_API_KEY is loaded
 - Check server logs in Vercel dashboard
@@ -112,6 +119,7 @@ Request Flow:
 ### Static Files Not Serving
 
 **Issue**: Missing CSS/JS or 404 on assets
+
 - **Solution**: Verify `dist/spa/` directory exists after build
 - Check `vercel.json` routing rules are correct
 - Ensure build command runs `build:client` first
@@ -119,6 +127,7 @@ Request Flow:
 ### CORS Issues
 
 **Issue**: Frontend can't call API
+
 - **Solution**: Check CORS configuration in `server/index.ts`
 - Ensure `APP_ORIGIN` environment variable is set if needed
 - Vercel preview and production URLs are automatically allowed
@@ -145,6 +154,7 @@ Request Flow:
 ## Custom Domain
 
 To use a custom domain:
+
 1. Go to Project Settings > Domains
 2. Add your domain
 3. Update your domain's DNS settings to point to Vercel
@@ -153,6 +163,7 @@ To use a custom domain:
 ## Rollback
 
 To rollback to a previous deployment:
+
 1. Go to Vercel dashboard
 2. Find the deployment you want to restore
 3. Click the three dots menu
@@ -161,10 +172,12 @@ To rollback to a previous deployment:
 ## Support
 
 For Vercel-specific issues:
+
 - Visit: https://vercel.com/docs
 - Check: https://vercel.com/support
 
 For application-specific issues:
+
 - Check server logs in Vercel dashboard
 - Review build logs for errors
 - Test locally with `pnpm dev` before pushing
