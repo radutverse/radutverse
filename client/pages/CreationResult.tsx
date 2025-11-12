@@ -489,7 +489,7 @@ const CreationResult = () => {
 
       {/* Upscaler Modal */}
       <AnimatePresence>
-        {showUpscaler && resultUrl && (
+        {showUpscaler && displayUrl && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
             <motion.div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -523,7 +523,7 @@ const CreationResult = () => {
 
               <div className="mb-8 rounded-xl overflow-hidden bg-black/50 border border-slate-800/50">
                 <img
-                  src={resultUrl}
+                  src={displayUrl}
                   alt="Preview"
                   className="w-full h-auto max-h-[250px] object-cover"
                 />
