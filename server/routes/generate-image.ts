@@ -109,7 +109,7 @@ export const editImage: RequestHandler = async (req, res) => {
       });
     }
 
-    res.json({ editedImageUrl: data.data[0].url });
+    res.json({ url: data.data[0].url });
   } catch (err: any) {
     console.error("❌ Error editing image:", err);
     res.status(500).json({
