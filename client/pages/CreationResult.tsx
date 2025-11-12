@@ -199,7 +199,7 @@ const CreationResult = () => {
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
               <Button
-                onClick={() => navigate("/ip-imagine")}
+                onClick={() => setCurrentPage("ip-imagine")}
                 className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
               >
                 Back to Generation
