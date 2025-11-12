@@ -22,7 +22,16 @@ const FlyingImageAnimation = ({
   useEffect(() => {
     // debug logs
     // eslint-disable-next-line no-console
-    console.log("[FlyingImageAnimation] isActive:", isActive, "startRef.current:", startRef?.current, "targetRef.current:", targetRef?.current, "animRef.current:", animRef.current);
+    console.log(
+      "[FlyingImageAnimation] isActive:",
+      isActive,
+      "startRef.current:",
+      startRef?.current,
+      "targetRef.current:",
+      targetRef?.current,
+      "animRef.current:",
+      animRef.current,
+    );
 
     if (
       !isActive ||

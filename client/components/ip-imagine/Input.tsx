@@ -89,7 +89,9 @@ const IpImagineInput = ({
           // start flying animation; actual generation will begin after animation completes
           // debug log to confirm trigger
           // eslint-disable-next-line no-console
-          console.log("[IpImagineInput] submit -> setShowFlyingAnimation(true)");
+          console.log(
+            "[IpImagineInput] submit -> setShowFlyingAnimation(true)",
+          );
           setShowFlyingAnimation(true);
         }
       }}
