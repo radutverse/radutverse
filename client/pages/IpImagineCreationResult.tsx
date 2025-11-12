@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import ResultGallery from "@/components/ip-imagine/results/ResultGallery";
 import ResultMediaDisplay from "@/components/ip-imagine/results/ResultMediaDisplay";
 import ResultDetails from "@/components/ip-imagine/results/ResultDetails";
 import ResultActions from "@/components/ip-imagine/results/ResultActions";
