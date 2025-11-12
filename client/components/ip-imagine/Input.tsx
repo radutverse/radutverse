@@ -122,12 +122,12 @@ const IpImagineInput = ({
         {/* Pink Box with Stacking Effect - Only shows after generation starts */}
         <AnimatePresence>
           {waiting || resultUrl ? (
-            <div className="absolute inset-0 -translate-x-[10%]" style={{ perspective: "1000px" }}>
+            <div className="absolute inset-0 -translate-x-[10%] pointer-events-none" style={{ perspective: "1000px" }}>
               {/* Stacked layers for multiple results */}
               {resultUrls.slice(0, 3).map((url, index) => (
                 <motion.div
                   key={`stack-${index}`}
-                  className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50"
+                  className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 pointer-events-none"
                   initial={{ opacity: 0, y: 0, rotateZ: 0 }}
                   animate={{
                     opacity: 0.7 - index * 0.15,
