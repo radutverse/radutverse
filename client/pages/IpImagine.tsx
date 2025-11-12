@@ -324,6 +324,7 @@ const IpImagine = () => {
         uploadRef={uploadRef}
         handleImage={handleImage}
         resultUrl={resultUrl}
+        resultUrls={resultUrls}
         onSubmit={async () => {
           if (
             !input.trim() &&
