@@ -66,6 +66,7 @@ const IpImagineInput = ({
   onAddRemixImage,
   creationMode = "image",
   setCreationMode = () => {},
+  resultUrl = null,
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
