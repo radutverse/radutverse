@@ -15,8 +15,15 @@ export const generateImageFromText = async (
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Image generation failed");
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Image generation failed");
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Image generation failed with status ${response.status}`
+        );
+      }
     }
 
     const data = await response.json();
