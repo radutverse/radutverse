@@ -314,7 +314,7 @@ const IpImagineInput = ({
         ref={sendButtonRef}
         type="submit"
         disabled={
-          waiting ||
+          waiting || showFlyingAnimation ||
           (!input.trim() &&
             !previewImages.remixImage &&
             !previewImages.additionalImage)
