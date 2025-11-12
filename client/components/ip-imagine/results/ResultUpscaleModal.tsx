@@ -34,9 +34,7 @@ const ResultUpscaleModal = ({
             <div className="text-xs font-semibold uppercase tracking-wider text-[#FF4DA6] mb-1">
               Image Enhancement
             </div>
-            <h2 className="text-2xl font-bold text-slate-100">
-              Upscale Image
-            </h2>
+            <h2 className="text-2xl font-bold text-slate-100">Upscale Image</h2>
           </div>
           <button
             onClick={onClose}

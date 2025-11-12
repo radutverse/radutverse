@@ -276,7 +276,11 @@ const IpImagineCreationResult = () => {
               isLoading={isLoading}
               onDownload={handleDownload}
               onShare={handleShare}
-              onUpscale={displayType === "image" ? () => setShowUpscaler(true) : undefined}
+              onUpscale={
+                displayType === "image"
+                  ? () => setShowUpscaler(true)
+                  : undefined
+              }
               onCreateAnother={() => navigate("/ip-imagine")}
             />
 
