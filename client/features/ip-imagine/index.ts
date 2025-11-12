@@ -1,6 +1,6 @@
 // Components
 export { default as IpImagineInput } from "@/components/ip-imagine/Input";
-export { FlyingImageAnimation } from "@/components/ip-imagine/FlyingImageAnimation";
+export { default as FlyingImageAnimation } from "@/components/ip-imagine/FlyingImageAnimation";
 export { default as CompactResultCard } from "@/components/ip-imagine/results/CompactResultCard";
 export { default as LoadingBox } from "@/components/ip-imagine/results/LoadingBox";
 export { default as ResultActions } from "@/components/ip-imagine/results/ResultActions";
