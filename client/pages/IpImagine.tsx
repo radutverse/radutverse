@@ -22,6 +22,7 @@ const IpImagine = () => {
   const [waiting, setWaiting] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
   const [sessions, setSessions] = useState<unknown[]>([]);
+  const [resultUrls, setResultUrls] = useState<string[]>([]);
   const [previewImages, setPreviewImages] = useState<PreviewImagesState>({
     remixImage: null,
     additionalImage: null,
