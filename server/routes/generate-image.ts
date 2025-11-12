@@ -68,7 +68,8 @@ export const editImage: RequestHandler = async (req, res) => {
     form.append("prompt", prompt);
     form.append(
       "image",
-      new File([buffer], "image.jpg", { type: "image/jpeg" }),
+      new Blob([buffer], { type: "image/jpeg" }),
+      "image.jpg",
     );
 
     const response = await fetch("https://api.openai.com/v1/images/edits", {
