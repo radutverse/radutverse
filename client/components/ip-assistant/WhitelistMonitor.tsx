@@ -209,20 +209,20 @@ export const WhitelistMonitor: React.FC = () => {
 
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-slate-800/50 border border-blue-400/30 rounded-lg p-4"
+            className="bg-slate-800/50 border border-[#FF4DA6]/30 rounded-lg p-4"
           >
             <div className="text-slate-400 text-sm">Original IPs</div>
-            <div className="text-3xl font-bold text-blue-400 mt-2">
+            <div className="text-3xl font-bold text-[#FF4DA6] mt-2">
               {stats.originals}
             </div>
           </motion.div>
 
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-slate-800/50 border border-purple-400/30 rounded-lg p-4"
+            className="bg-slate-800/50 border border-[#FF4DA6]/30 rounded-lg p-4"
           >
             <div className="text-slate-400 text-sm">Derivatives</div>
-            <div className="text-3xl font-bold text-purple-400 mt-2">
+            <div className="text-3xl font-bold text-[#FF4DA6] mt-2">
               {stats.derivatives}
             </div>
           </motion.div>
