@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
 import sharp from "sharp";
-import FormData from "form-data";
+import { FormData } from "formdata-node";
+import { File } from "formdata-node/file";
 import fetch from "node-fetch"; // Node <18
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
