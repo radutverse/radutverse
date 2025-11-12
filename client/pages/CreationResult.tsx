@@ -449,7 +449,7 @@ const CreationResult = () => {
               </Button>
 
               <Button
-                onClick={() => navigate("/ip-imagine")}
+                onClick={() => setCurrentPage("ip-imagine")}
                 className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 ml-auto"
                 variant="outline"
               >
