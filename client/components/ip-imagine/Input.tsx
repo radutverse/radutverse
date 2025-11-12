@@ -100,7 +100,7 @@ const IpImagineInput = ({
           onClick={() => {
             if (resultUrl) navigate("/ip-imagine/result");
           }}
-          disabled={!resultUrl && !(waiting)}
+          disabled={!resultUrl && !waiting}
           className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
             waiting || resultUrl
               ? "text-[#FF4DA6] bg-[#FF4DA6]/10"
@@ -122,7 +122,10 @@ const IpImagineInput = ({
         {/* Pink Box with Stacking Effect - Only shows after generation starts */}
         <AnimatePresence>
           {waiting || resultUrl ? (
-            <div className="absolute inset-0 -translate-x-[10%] pointer-events-none" style={{ perspective: "1000px" }}>
+            <div
+              className="absolute inset-0 -translate-x-[10%] pointer-events-none"
+              style={{ perspective: "1000px" }}
+            >
               {/* Stacked layers for multiple results */}
               {resultUrls.slice(0, 3).map((url, index) => (
                 <motion.div
@@ -167,7 +170,13 @@ const IpImagineInput = ({
                 >
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center bg-[#FF4DA6]/20"
-                    animate={{ backgroundColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.3)", "rgba(255, 77, 166, 0.2)"] }}
+                    animate={{
+                      backgroundColor: [
+                        "rgba(255, 77, 166, 0.2)",
+                        "rgba(255, 77, 166, 0.3)",
+                        "rgba(255, 77, 166, 0.2)",
+                      ],
+                    }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
                     <svg
