@@ -55,9 +55,10 @@ export const editImage: RequestHandler = async (req, res) => {
 
     if (buffer.length > 16384) {
       return res.status(400).json({
-        error: "Image too large. Please use a smaller or lower resolution image.",
+        error:
+          "Image too large. Please use a smaller or lower resolution image.",
         currentSize: buffer.length,
-        maxSize: 16384
+        maxSize: 16384,
       });
     }
 
