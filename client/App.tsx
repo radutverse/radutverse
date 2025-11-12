@@ -1,7 +1,3 @@
-import "./global.css";
-
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -89,8 +85,4 @@ const App = () => {
   return <PrivyProvider appId={privyAppId}>{appContent}</PrivyProvider>;
 };
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+export default App;
