@@ -13,7 +13,7 @@ const LoadingBox = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
-      className="fixed top-6 left-6 z-50 w-40 h-40 rounded-lg bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex flex-col items-center justify-center p-6"
+      className="fixed top-6 left-6 md:left-[calc(256px+1.5rem)] z-50 w-40 h-40 rounded-lg bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex flex-col items-center justify-center p-6"
     >
       {/* Spinner */}
       <motion.div
