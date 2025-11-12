@@ -1,14 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install --frozen-lockfile",
   "builds": [
     {
       "src": "dist/spa/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "dist/server/*.mjs",
-      "use": "@vercel/node"
     },
     {
       "src": "api/**/*.ts",
@@ -18,7 +15,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api"
     },
     {
       "src": "/favicon.ico",
@@ -28,5 +25,8 @@
       "src": "/(.*)",
       "dest": "/dist/spa/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
