@@ -258,20 +258,25 @@ const IpImagineCreationResult = () => {
         </div>
       </div>
 
-      {/* Compact Result Card - Top Left */}
-      {displayUrl && displayType && (
-        <CompactResultCard
-          imageUrl={upscaledUrl || displayUrl}
-          type={displayType}
-          isLoading={isLoading}
-          onDownload={handleDownload}
-          onShare={handleShare}
-          onUpscale={
-            displayType === "image" ? () => setShowUpscaler(true) : undefined
-          }
-          onCreateAnother={() => navigate("/ip-imagine")}
-        />
-      )}
+      {/* Loading Box or Compact Result Card - Top Left */}
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <LoadingBox key="loading" message={loadingMessage || "Crafting your image..."} />
+        ) : displayUrl && displayType ? (
+          <CompactResultCard
+            key="result"
+            imageUrl={upscaledUrl || displayUrl}
+            type={displayType}
+            isLoading={isLoading}
+            onDownload={handleDownload}
+            onShare={handleShare}
+            onUpscale={
+              displayType === "image" ? () => setShowUpscaler(true) : undefined
+            }
+            onCreateAnother={() => navigate("/ip-imagine")}
+          />
+        ) : null}
+      </AnimatePresence>
 
       {/* Upscale Modal */}
       <AnimatePresence>
