@@ -76,7 +76,6 @@ const IpImagine = () => {
     };
   }, [remixAnalysisOpen, remixAnalysisData]);
 
-
   const compressToBlob = useCallback(
     async (file: File, maxWidth = 800, quality = 0.75): Promise<Blob> =>
       new Promise((resolve, reject) => {
