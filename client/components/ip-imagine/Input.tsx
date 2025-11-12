@@ -6,6 +6,7 @@ import React, {
   MutableRefObject,
   RefObject,
   SetStateAction,
+  useRef,
   useState,
 } from "react";
 import { motion } from "framer-motion";
@@ -15,6 +16,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import FlyingImageAnimation from "@/components/ip-imagine/FlyingImageAnimation";
 import {
   RemixImage,
   type PreviewImage,
@@ -65,6 +67,8 @@ const IpImagineInput = ({
   setCreationMode = () => {},
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
+  const galleryButtonRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   return (
@@ -77,30 +81,26 @@ const IpImagineInput = ({
         if (isRemixWithRegister) {
           onRemixRegisterWarning?.();
         } else {
-          void onSubmit();
+          setShowFlyingAnimation(true);
+          setTimeout(() => {
+            void onSubmit();
+          }, 100);
         }
       }}
       autoComplete="off"
     >
       {/* Creations Gallery - Navigate to Creation Result */}
-      <div className="mr-2 flex items-center">
+      <div ref={galleryButtonRef} className="mr-2 flex items-center">
         <button
           type="button"
           onClick={() => {
-            const demoImageUrl =
-              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FF4DA6" width="400" height="300"/%3E%3Ctext x="200" y="150" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle"%3ECreation Demo%3C/text%3E%3C/svg%3E';
-            navigate("/creation-result", {
-              state: {
-                type: creationMode || "image",
-                outputUrl: demoImageUrl,
-                prompt:
-                  input ||
-                  "This is a demo creation. Replace with actual generation results.",
-                timestamp: new Date().toISOString(),
-              },
-            });
+            navigate("/ip-imagine/result");
           }}
-          className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+          className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
+            waiting
+              ? "text-[#FF4DA6] bg-[#FF4DA6]/20 animate-pulse"
+              : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
+          }`}
           aria-label="View creations and results"
           title="Creation Results"
         >
@@ -300,6 +300,12 @@ const IpImagineInput = ({
           <path d="M2.94 2.94a1.5 1.5 0 012.12 0L17 14.88V17a1 1 0 01-1 1h-2.12L2.94 5.06a1.5 1.5 0 010-2.12z" />
         </svg>
       </button>
+
+      <FlyingImageAnimation
+        isActive={showFlyingAnimation}
+        targetRef={galleryButtonRef}
+        onComplete={() => setShowFlyingAnimation(false)}
+      />
     </form>
   );
 };

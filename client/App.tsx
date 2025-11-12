@@ -13,6 +13,7 @@ import MyPortfolio from "./pages/MyPortfolio";
 import Settings from "./pages/Settings";
 import History from "./pages/History";
 import IpImagine from "./pages/IpImagine";
+import IpImagineCreationResult from "./pages/IpImagineCreationResult";
 import CreationResult from "./pages/CreationResult";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +59,7 @@ const AppRoutes = () => (
       <Route path="/" element={<Index />} />
       <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
       <Route path="/ip-imagine" element={<IpImagine />} />
+      <Route path="/ip-imagine/result" element={<IpImagineCreationResult />} />
       <Route path="/creation-result" element={<CreationResult />} />
       <Route path="/nft-marketplace" element={<NftMarketplace />} />
       <Route path="/my-portfolio" element={<MyPortfolio />} />

@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
@@ -16,7 +18,8 @@ import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 
 const IpImagine = () => {
-  const { generate, isLoading } = useGeminiGenerator();
+  const navigate = useNavigate();
+  const { generate, isLoading, resultUrl } = useGeminiGenerator();
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
@@ -77,6 +80,17 @@ const IpImagine = () => {
       mounted = false;
     };
   }, [remixAnalysisOpen, remixAnalysisData]);
+
+  // Auto-navigate to result page when generation completes
+  useEffect(() => {
+    if (resultUrl && !isLoading) {
+      // Small delay to ensure result page can load data properly
+      const timer = setTimeout(() => {
+        navigate("/ip-imagine/result");
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [resultUrl, isLoading, navigate]);
 
   const compressToBlob = useCallback(
     async (file: File, maxWidth = 800, quality = 0.75): Promise<Blob> =>
