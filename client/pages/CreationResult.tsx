@@ -72,7 +72,6 @@ const CreationResult = () => {
     setShowUpscaler(false);
   };
 
-
   if (error) {
     const isQuotaError =
       error.includes("quota") ||
@@ -296,7 +295,11 @@ const CreationResult = () => {
                     <div className="flex flex-col items-center justify-center p-12 min-h-[300px]">
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1.6, repeat: Infinity, ease: "linear" }}
+                        transition={{
+                          duration: 1.6,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
                         className="mb-6"
                       >
                         <svg
@@ -316,7 +319,9 @@ const CreationResult = () => {
                       <p className="text-lg font-semibold text-slate-100 mb-1">
                         {loadingMessage || "Creating your masterpiece..."}
                       </p>
-                      <p className="text-sm text-slate-400">This may take a moment</p>
+                      <p className="text-sm text-slate-400">
+                        This may take a moment
+                      </p>
                     </div>
                   ) : displayType === "image" ? (
                     <img
