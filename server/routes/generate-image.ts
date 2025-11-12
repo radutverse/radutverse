@@ -48,7 +48,7 @@ export const generateImage: RequestHandler = async (req, res) => {
 export const editImage: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
-    const file = req.file;
+    const file = (req as any).file;
 
     if (!file || !prompt) {
       return res.status(400).json({ error: "Missing image or prompt" });
