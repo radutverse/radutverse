@@ -22,7 +22,9 @@ const useGeminiGenerator = () => {
     setResultUrl,
     setResultType,
     resultUrl,
-    addCreation,
+    addPendingCreation,
+    finalizeCreation,
+    removeCreation,
     setProgress,
   } = context;
 
@@ -49,6 +51,9 @@ const useGeminiGenerator = () => {
 
     // Generation should run in the background. Navigation to results is now manual
     // via the gallery/Results button to avoid interrupting the user's flow.
+
+    // insert a pending creation placeholder so history keeps showing
+    const pendingId = addPendingCreation();
 
     try {
       let generatedUrl: string;
@@ -92,7 +97,8 @@ const useGeminiGenerator = () => {
       }
 
       setResultUrl(generatedUrl);
-      addCreation(generatedUrl, type);
+      // finalize the pending item with actual URL and type
+      finalizeCreation(pendingId, generatedUrl, type);
 
       // Mark progress complete and clear the interval
       setProgress(100);
@@ -113,6 +119,12 @@ const useGeminiGenerator = () => {
           "Your API key is invalid or project billing is not enabled. Please check your key and try again.";
       }
       setError(errorMessage);
+      // remove pending placeholder if generation failed
+      try {
+        removeCreation(pendingId);
+      } catch (err) {
+        // ignore
+      }
       clearInterval(progressInterval);
       setProgress(0);
     } finally {
