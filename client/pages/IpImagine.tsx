@@ -327,7 +327,7 @@ const IpImagine = () => {
         uploadRef={uploadRef}
         handleImage={handleImage}
         progress={progress}
-        onSubmit={async () => {
+        onSubmit={async (pendingId?: string) => {
           if (
             !input.trim() &&
             !previewImages.remixImage &&
