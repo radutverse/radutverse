@@ -7,7 +7,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CreationProvider } from "@/context/CreationContext";
 import {
-  IpAssistant,
   IpfiAssistant,
   IpImagine,
   IpImagineCreationResult,
@@ -61,7 +60,6 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
-      <Route path="/ipfi-assistant" element={<IpAssistant />} />
       <Route path="/ip-imagine" element={<IpImagine />} />
       <Route path="/ip-imagine/result" element={<IpImagineCreationResult />} />
       <Route path="/creation-result" element={<CreationResult />} />
