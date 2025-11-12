@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:client && npm run build:server",
+  "buildCommand": "npm run build",
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist/spa" }
+      "src": "dist/**",
+      "use": "@vercel/static"
     },
     {
       "src": "api/**/*.ts",
@@ -13,16 +12,7 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/spa/index.html"
-    }
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/dist/$1" }
   ]
 }
