@@ -326,6 +326,7 @@ const IpImagine = () => {
         setPreviewImages={setPreviewImages}
         uploadRef={uploadRef}
         handleImage={handleImage}
+        progress={progress}
         onSubmit={async () => {
           if (
             !input.trim() &&
