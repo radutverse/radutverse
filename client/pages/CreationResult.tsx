@@ -1,117 +1,41 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const CreationResult = () => {
-  const navigate = useNavigate();
-  const {
-    creations,
-    removeCreation,
-    upscale,
-    isLoading,
-    error,
-  } = useGeminiGenerator();
+  const { creations, removeCreation, upscale, isLoading, error } =
+    useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (creations.length > 0) {
-      setSelectedId(creations[0].id);
-    }
-  }, [creations]);
+  const [selectedCreation, setSelectedCreation] = useState<
+    typeof creations[0] | null
+  >(null);
 
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleUpscale = async () => {
-    if (!apiKey || !selectedId) return;
-    const creation = creations.find((c) => c.id === selectedId);
-    if (!creation) return;
-
+    if (!apiKey || !selectedCreation) return;
     await upscale(apiKey);
     setShowUpscaler(false);
   };
 
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-          >
-            <svg
-              className="h-16 w-16 text-[#FF4DA6]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </motion.div>
-          <p className="text-lg font-semibold text-slate-100 mb-2">
-            Creating your masterpiece...
-          </p>
-          <p className="text-sm text-slate-400">This may take a moment</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md"
-          >
-            <div className="rounded-2xl bg-red-900/20 border border-red-800/50 p-6 mb-6">
-              <p className="text-sm text-slate-300 font-mono break-words">
-                {error}
-              </p>
-              <div className="flex flex-col gap-3 mt-4">
-                <Button
-                  onClick={() => navigate("/ip-imagine")}
-                  className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
-                >
-                  Back to Generation
-                </Button>
-                <Button
-                  onClick={() => window.location.reload()}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-100"
-                  variant="outline"
-                >
-                  Refresh Page
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <DashboardLayout title="Creation Result">
       <div className="flex-1 overflow-y-auto bg-transparent px-4 sm:px-6 md:px-12 py-8 pb-24">
-        {/* Grid Gallery */}
-        {creations.length > 0 ? (
+        {creations.length === 0 ? (
+          <div className="text-center text-slate-400">
+            No creations found
+          </div>
+        ) : (
           <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
           >
             {creations.map((creation) => (
@@ -119,12 +43,7 @@ const CreationResult = () => {
                 key={creation.id}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`relative group cursor-pointer rounded-lg overflow-hidden aspect-square border-2 transition-all ${
-                  selectedId === creation.id
-                    ? "border-[#FF4DA6] ring-2 ring-[#FF4DA6]/50"
-                    : "border-slate-700/50 hover:border-slate-600"
-                }`}
-                onClick={() => setSelectedId(creation.id)}
+                className="relative group cursor-pointer rounded-lg overflow-hidden aspect-square border-2 border-slate-700/50 hover:border-slate-600"
               >
                 {creation.type === "image" ? (
                   <img
@@ -133,35 +52,39 @@ const CreationResult = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <video
-                    src={creation.url}
-                    className="w-full h-full object-cover"
-                  />
+                  <video src={creation.url} className="w-full h-full object-cover" />
                 )}
 
-                {/* Tombol Titik Tiga */}
+                {/* Tombol titik tiga */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedId(creation.id);
+                    setSelectedCreation(creation);
                     setShowUpscaler(true);
                   }}
                   className="absolute top-1 right-1 z-10 p-1 bg-black/50 hover:bg-black/70 text-white rounded-full"
                 >
                   ⋮
                 </button>
+
+                {/* Tombol hapus */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeCreation(creation.id);
+                  }}
+                  className="absolute bottom-1 right-1 z-10 p-1 bg-red-600/80 hover:bg-red-700 text-white rounded-full"
+                >
+                  ✕
+                </button>
               </motion.div>
             ))}
           </motion.div>
-        ) : (
-          <div className="text-center text-slate-400">
-            No creations found
-          </div>
         )}
 
-        {/* Upscaler Modal */}
+        {/* Modal Upscaler */}
         <AnimatePresence>
-          {showUpscaler && selectedId && (
+          {showUpscaler && selectedCreation && (
             <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
               <motion.div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -178,9 +101,6 @@ const CreationResult = () => {
               >
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-[#FF4DA6] mb-1">
-                      Image Enhancement
-                    </div>
                     <h2 className="text-2xl font-bold text-slate-100">
                       Upscale Image
                     </h2>
@@ -195,19 +115,10 @@ const CreationResult = () => {
 
                 <div className="mb-8 rounded-xl overflow-hidden bg-black/50 border border-slate-800/50">
                   <img
-                    src={
-                      creations.find((c) => c.id === selectedId)?.url || ""
-                    }
+                    src={selectedCreation.url}
                     alt="Preview"
                     className="w-full h-auto max-h-[250px] object-cover"
                   />
-                </div>
-
-                <div className="mb-8 rounded-lg bg-blue-900/20 border border-blue-800/50 p-4">
-                  <p className="text-sm text-blue-300">
-                    Upscaling will increase the image resolution and improve
-                    quality using AI enhancement.
-                  </p>
                 </div>
 
                 <div className="flex gap-3">
@@ -215,16 +126,14 @@ const CreationResult = () => {
                     onClick={() => setShowUpscaler(false)}
                     className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-100"
                     variant="outline"
-                    disabled={isLoading}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleUpscale}
-                    className="flex-1 bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white disabled:opacity-70"
-                    disabled={isLoading}
+                    className="flex-1 bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
                   >
-                    {isLoading ? "Upscaling..." : "Upscale Now"}
+                    Upscale Now
                   </Button>
                 </div>
               </motion.div>
