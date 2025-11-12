@@ -119,56 +119,106 @@ const IpImagineInput = ({
           </svg>
         </button>
 
-        {/* Pink Box - Only shows after generation starts */}
+        {/* Pink Box with Stacking Effect - Only shows after generation starts */}
         <AnimatePresence>
           {waiting || resultUrl ? (
-            <motion.div
-              key="generation-box"
-              className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 pointer-events-none -translate-x-[10%]"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              {waiting && !resultUrl ? (
+            <div className="absolute inset-0 -translate-x-[10%]" style={{ perspective: "1000px" }}>
+              {/* Stacked layers for multiple results */}
+              {resultUrls.slice(0, 3).map((url, index) => (
                 <motion.div
-                  className="absolute inset-0 flex items-center justify-center bg-[#FF4DA6]/20"
-                  animate={{ backgroundColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.3)", "rgba(255, 77, 166, 0.2)"] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  key={`stack-${index}`}
+                  className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50"
+                  initial={{ opacity: 0, y: 0, rotateZ: 0 }}
+                  animate={{
+                    opacity: 0.7 - index * 0.15,
+                    y: index * 4,
+                    rotateZ: index * 2,
+                    transition: { delay: index * 0.05 },
+                  }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    zIndex: -index,
+                  }}
                 >
-                  <svg
-                    className="h-6 w-6 text-[#FF4DA6] animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeOpacity="0.15"
-                      strokeWidth="3"
-                    />
-                    <path
-                      d="M22 12a10 10 0 00-10-10"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+                  <motion.img
+                    src={url}
+                    alt="Generation result thumbnail"
+                    className="w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
                 </motion.div>
-              ) : (
-                <motion.img
-                  src={resultUrl}
-                  alt="Generation result thumbnail"
-                  className="w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.4 }}
-                />
+              ))}
+
+              {/* Loading box - shows on top */}
+              {waiting && !resultUrl && (
+                <motion.div
+                  key="loading-box"
+                  className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 flex items-center justify-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    zIndex: resultUrls.length,
+                  }}
+                >
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center bg-[#FF4DA6]/20"
+                    animate={{ backgroundColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.3)", "rgba(255, 77, 166, 0.2)"] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <svg
+                      className="h-6 w-6 text-[#FF4DA6] animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeOpacity="0.15"
+                        strokeWidth="3"
+                      />
+                      <path
+                        d="M22 12a10 10 0 00-10-10"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </motion.div>
+                </motion.div>
               )}
-            </motion.div>
+
+              {/* Current result on top */}
+              {resultUrl && !waiting && (
+                <motion.div
+                  key="current-result"
+                  className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    zIndex: resultUrls.length,
+                  }}
+                >
+                  <motion.img
+                    src={resultUrl}
+                    alt="Generation result thumbnail"
+                    className="w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </motion.div>
+              )}
+            </div>
           ) : null}
         </AnimatePresence>
       </div>
