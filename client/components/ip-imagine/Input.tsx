@@ -6,6 +6,7 @@ import React, {
   MutableRefObject,
   RefObject,
   SetStateAction,
+  useRef,
   useState,
 } from "react";
 import { motion } from "framer-motion";
@@ -15,6 +16,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import FlyingImageAnimation from "@/components/ip-imagine/FlyingImageAnimation";
 import {
   RemixImage,
   type PreviewImage,
