@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -62,37 +63,7 @@ const IpImagineCreationResult = () => {
   const displayUrl = resultUrl;
   const displayType = resultType;
 
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-          >
-            <svg
-              className="h-16 w-16 text-[#FF4DA6]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </motion.div>
-          <p className="text-lg font-semibold text-slate-100 mb-2">
-            {loadingMessage || "Creating your masterpiece..."}
-          </p>
-          <p className="text-sm text-slate-400">This may take a moment</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // keep rendering page when loading — show loader in media area instead of full-screen.
 
   if (error) {
     const isQuotaError =
@@ -203,20 +174,7 @@ const IpImagineCreationResult = () => {
     );
   }
 
-  if (!displayUrl || !displayType) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center">
-            <p className="text-slate-400 mb-4">No creation data found</p>
-            <Button onClick={() => navigate("/ip-imagine")}>
-              Back to IP Imagine
-            </Button>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // allow page to render; history will show pending items if any.
 
   return (
     <DashboardLayout title="IP Imagine Result">
@@ -257,6 +215,59 @@ const IpImagineCreationResult = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Generation History (shows pending placeholders) */}
+      {creations && creations.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-8 px-4 sm:px-6 md:px-12"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-slate-100">
+              Generation History
+            </h3>
+            <span className="text-sm text-slate-400">
+              {creations.length} creation{creations.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 rounded-lg bg-slate-900/30 p-3 border border-slate-800/50">
+            {creations.map((c) => (
+              <div
+                key={c.id}
+                className="relative rounded-lg overflow-hidden aspect-square border-2 border-slate-700/50"
+              >
+                {c.status === "pending" ? (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800/40 to-slate-900/30">
+                    <div className="text-center">
+                      <div className="animate-pulse mb-2 w-10 h-10 rounded bg-[#FF4DA6]/30 mx-auto" />
+                      <div className="text-xs text-slate-300 font-semibold">
+                        Pending
+                      </div>
+                    </div>
+                  </div>
+                ) : c.type === "image" ? (
+                  <img
+                    src={c.url}
+                    alt="thumb"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <video src={c.url} className="w-full h-full object-cover" />
+                )}
+                <div className="absolute top-1 right-1 text-xs font-medium bg-slate-900/80 text-slate-300 px-2 py-1 rounded">
+                  {c.status === "pending"
+                    ? "⏳"
+                    : c.type === "image"
+                      ? "🖼"
+                      : "🎬"}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Loading Box or Compact Result Card - Top Left */}
       <AnimatePresence mode="wait">

@@ -1,21 +1,48 @@
 import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
 interface FlyingImageAnimationProps {
   isActive: boolean;
+  // the element that should be the target (gallery button)
   targetRef: React.RefObject<HTMLElement>;
+  // the element where the animation should start (send button)
+  startRef: React.RefObject<HTMLElement>;
   onComplete?: () => void;
 }
 
 const FlyingImageAnimation = ({
   isActive,
   targetRef,
+  startRef,
   onComplete,
 }: FlyingImageAnimationProps) => {
-  const startRef = useRef<HTMLDivElement>(null);
+  const animRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isActive || !targetRef.current || !startRef.current) return;
+    // debug logs
+    // eslint-disable-next-line no-console
+    console.log(
+      "[FlyingImageAnimation] isActive:",
+      isActive,
+      "startRef.current:",
+      startRef?.current,
+      "targetRef.current:",
+      targetRef?.current,
+      "animRef.current:",
+      animRef.current,
+    );
+
+    if (
+      !isActive ||
+      !targetRef.current ||
+      !startRef?.current ||
+      !animRef.current
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn("[FlyingImageAnimation] missing refs or not active");
+      return;
+    }
 
     const startRect = startRef.current.getBoundingClientRect();
     const targetRect = targetRef.current.getBoundingClientRect();
@@ -28,40 +55,42 @@ const FlyingImageAnimation = ({
     const deltaX = endX - startX;
     const deltaY = endY - startY;
 
-    const animationElement = startRef.current;
-    if (animationElement) {
-      animationElement.animate(
-        [
-          {
-            transform: `translate(0, 0) scale(1)`,
-            opacity: 1,
-          },
-          {
-            transform: `translate(${deltaX}px, ${deltaY}px) scale(0.3)`,
-            opacity: 0,
-          },
-        ],
+    // Position the anim element centered at the start position
+    const el = animRef.current;
+    const size = 64; // w-16 h-16
+    el.style.left = `${startX - size / 2}px`;
+    el.style.top = `${startY - size / 2}px`;
+
+    const animation = el.animate(
+      [
+        { transform: `translate(0px, 0px) scale(1)`, opacity: 1 },
         {
-          duration: 800,
-          easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-          fill: "forwards",
+          transform: `translate(${deltaX}px, ${deltaY}px) scale(0.9)`,
+          opacity: 0.1,
         },
-      );
+      ],
+      {
+        duration: 650,
+        easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        fill: "forwards",
+      },
+    );
 
-      const timer = setTimeout(() => {
-        onComplete?.();
-      }, 800);
+    const handle = setTimeout(() => onComplete?.(), 650);
 
-      return () => clearTimeout(timer);
-    }
-  }, [isActive, targetRef, onComplete]);
+    return () => {
+      animation.cancel();
+      clearTimeout(handle);
+    };
+  }, [isActive, targetRef, startRef, onComplete]);
 
   if (!isActive) return null;
 
   return (
     <div
-      ref={startRef}
-      className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none"
+      ref={animRef}
+      className="fixed z-50 pointer-events-none"
+      style={{ width: 64, height: 64 }}
     >
       <motion.div
         initial={{ opacity: 1, scale: 1 }}

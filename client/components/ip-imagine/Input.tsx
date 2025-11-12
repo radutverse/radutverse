@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 import {
   Popover,
   PopoverTrigger,
@@ -31,7 +32,7 @@ type IpImagineInputProps = {
   setPreviewImages: Dispatch<SetStateAction<PreviewImagesState>>;
   uploadRef: MutableRefObject<HTMLInputElement | null>;
   handleImage: (event: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: () => Promise<void> | void;
+  onSubmit: (pendingId?: string) => Promise<void> | void;
   inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>;
   handleKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   toolsOpen: boolean;
@@ -71,8 +72,12 @@ const IpImagineInput = ({
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
+  const [galleryPulse, setGalleryPulse] = useState(false);
   const galleryButtonRef = useRef<HTMLDivElement>(null);
+  const sendButtonRef = useRef<HTMLButtonElement | null>(null);
+  const pendingIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
+  const { addPendingCreation } = useGeminiGenerator();
 
   return (
     <form
@@ -84,23 +89,37 @@ const IpImagineInput = ({
         if (isRemixWithRegister) {
           onRemixRegisterWarning?.();
         } else {
+          // create pending placeholder immediately so gallery shows 'pending' even during flight
+          try {
+            pendingIdRef.current = addPendingCreation();
+          } catch (err) {
+            pendingIdRef.current = null;
+          }
+
+          // start flying animation; actual generation will begin after animation completes
+          // debug log to confirm trigger
+          // eslint-disable-next-line no-console
+          console.log(
+            "[IpImagineInput] submit -> setShowFlyingAnimation(true)",
+          );
           setShowFlyingAnimation(true);
-          setTimeout(() => {
-            void onSubmit();
-          }, 100);
         }
       }}
       autoComplete="off"
     >
       {/* Creations Gallery - Navigate to Creation Result */}
       <div ref={galleryButtonRef} className="mr-2 flex items-center">
-        <button
+        <motion.button
           type="button"
           onClick={() => {
             navigate("/ip-imagine/result");
           }}
+          animate={{ scale: galleryPulse ? 1.18 : 1 }}
+          transition={{ type: "spring", stiffness: 600, damping: 18 }}
           className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
-            waiting ? "text-[#FF4DA6] bg-[#FF4DA6]/20" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
+            waiting
+              ? "text-[#FF4DA6] bg-[#FF4DA6]/20"
+              : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
           }`}
           aria-label="View creations and results"
           title="Creation Results"
@@ -118,11 +137,13 @@ const IpImagineInput = ({
             {waiting ? (
               // percentage badge
               <span className="absolute -top-2 -right-2 bg-[#FF4DA6] text-black text-[10px] font-semibold px-1 rounded">
-                {typeof progress === "number" ? `${Math.min(100, Math.max(0, progress))}%` : "..."}
+                {typeof progress === "number"
+                  ? `${Math.min(100, Math.max(0, progress))}%`
+                  : "..."}
               </span>
             ) : null}
           </div>
-        </button>
+        </motion.button>
       </div>
 
       <div className="flex-1 flex flex-col gap-2 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
@@ -290,9 +311,11 @@ const IpImagineInput = ({
       </div>
 
       <button
+        ref={sendButtonRef}
         type="submit"
         disabled={
           waiting ||
+          showFlyingAnimation ||
           (!input.trim() &&
             !previewImages.remixImage &&
             !previewImages.additionalImage)
@@ -313,8 +336,19 @@ const IpImagineInput = ({
 
       <FlyingImageAnimation
         isActive={showFlyingAnimation}
-        targetRef={galleryButtonRef}
-        onComplete={() => setShowFlyingAnimation(false)}
+        startRef={sendButtonRef as any}
+        targetRef={galleryButtonRef as any}
+        onComplete={() => {
+          // pulse gallery then start generation
+          setGalleryPulse(true);
+          setShowFlyingAnimation(false);
+          const pulseDur = 420;
+          setTimeout(() => {
+            setGalleryPulse(false);
+            void onSubmit(pendingIdRef.current ?? undefined);
+            pendingIdRef.current = null;
+          }, pulseDur);
+        }}
       />
     </form>
   );

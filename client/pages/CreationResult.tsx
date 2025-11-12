@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -71,38 +72,6 @@ const CreationResult = () => {
     await upscale(apiKey);
     setShowUpscaler(false);
   };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-          >
-            <svg
-              className="h-16 w-16 text-[#FF4DA6]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </motion.div>
-          <p className="text-lg font-semibold text-slate-100 mb-2">
-            {loadingMessage || "Creating your masterpiece..."}
-          </p>
-          <p className="text-sm text-slate-400">This may take a moment</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   if (error) {
     const isQuotaError =
@@ -277,7 +246,16 @@ const CreationResult = () => {
                     }`}
                     onClick={() => setSelectedId(creation.id)}
                   >
-                    {creation.type === "image" ? (
+                    {creation.status === "pending" ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800/40 to-slate-900/30">
+                        <div className="text-center">
+                          <div className="animate-pulse mb-2 w-12 h-12 rounded bg-[#FF4DA6]/30 mx-auto" />
+                          <div className="text-xs text-slate-300 font-semibold">
+                            Pending
+                          </div>
+                        </div>
+                      </div>
+                    ) : creation.type === "image" ? (
                       <img
                         src={creation.url}
                         alt="Creation thumbnail"
@@ -305,7 +283,11 @@ const CreationResult = () => {
                       </button>
                     </div>
                     <div className="absolute top-1 right-1 text-xs font-medium bg-slate-900/80 text-slate-300 px-2 py-1 rounded">
-                      {creation.type === "image" ? "🖼" : "🎬"}
+                      {creation.status === "pending"
+                        ? "⏳"
+                        : creation.type === "image"
+                          ? "🖼"
+                          : "🎬"}
                     </div>
                   </motion.div>
                 ))}
@@ -323,7 +305,39 @@ const CreationResult = () => {
             <div className="mb-8">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-[#FF4DA6]/20 p-1">
                 <div className="bg-black rounded-xl overflow-hidden">
-                  {displayType === "image" ? (
+                  {isLoading ? (
+                    <div className="flex flex-col items-center justify-center p-12 min-h-[300px]">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1.6,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="mb-6"
+                      >
+                        <svg
+                          className="h-12 w-12 text-[#FF4DA6]"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          />
+                        </svg>
+                      </motion.div>
+                      <p className="text-lg font-semibold text-slate-100 mb-1">
+                        {loadingMessage || "Creating your masterpiece..."}
+                      </p>
+                      <p className="text-sm text-slate-400">
+                        This may take a moment
+                      </p>
+                    </div>
+                  ) : displayType === "image" ? (
                     <img
                       src={upscaledUrl || displayUrl}
                       alt="Generated creation"
