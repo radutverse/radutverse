@@ -245,7 +245,14 @@ const CreationResult = () => {
                     }`}
                     onClick={() => setSelectedId(creation.id)}
                   >
-                    {creation.type === "image" ? (
+                    {creation.status === "pending" ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800/40 to-slate-900/30">
+                        <div className="text-center">
+                          <div className="animate-pulse mb-2 w-12 h-12 rounded bg-[#FF4DA6]/30 mx-auto" />
+                          <div className="text-xs text-slate-300 font-semibold">Pending</div>
+                        </div>
+                      </div>
+                    ) : creation.type === "image" ? (
                       <img
                         src={creation.url}
                         alt="Creation thumbnail"
@@ -273,7 +280,7 @@ const CreationResult = () => {
                       </button>
                     </div>
                     <div className="absolute top-1 right-1 text-xs font-medium bg-slate-900/80 text-slate-300 px-2 py-1 rounded">
-                      {creation.type === "image" ? "🖼" : "🎬"}
+                      {creation.status === "pending" ? "⏳" : creation.type === "image" ? "🖼" : "🎬"}
                     </div>
                   </motion.div>
                 ))}
