@@ -86,11 +86,11 @@ const IpImagine = () => {
     if (resultUrl && !isLoading) {
       // Small delay to ensure result page can load data properly
       const timer = setTimeout(() => {
-        navigate("/ip-imagine/result");
+        setCurrentPage("ip-imagine-result");
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [resultUrl, isLoading, navigate]);
+  }, [resultUrl, isLoading, setCurrentPage]);
 
   const compressToBlob = useCallback(
     async (file: File, maxWidth = 800, quality = 0.75): Promise<Blob> =>
