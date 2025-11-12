@@ -11,14 +11,8 @@ import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
-  const {
-    resultUrl,
-    resultType,
-    isLoading,
-    loadingMessage,
-    error,
-    upscale,
-  } = useGeminiGenerator();
+  const { resultUrl, resultType, isLoading, loadingMessage, error, upscale } =
+    useGeminiGenerator();
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
