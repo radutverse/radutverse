@@ -173,20 +173,7 @@ const IpImagineCreationResult = () => {
     );
   }
 
-  if (!displayUrl || !displayType) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center">
-            <p className="text-slate-400 mb-4">No creation data found</p>
-            <Button onClick={() => navigate("/ip-imagine")}>
-              Back to IP Imagine
-            </Button>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // allow page to render; history will show pending items if any.
 
   return (
     <DashboardLayout title="IP Imagine Result">
