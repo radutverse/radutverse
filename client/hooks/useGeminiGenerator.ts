@@ -1,13 +1,13 @@
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { CreationContext } from "@/context/CreationContext";
+import { useNavigation } from "@/context/NavigationContext";
 import * as geminiService from "@/services/geminiService";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
-  const navigate = useNavigate();
+  const { setCurrentPage } = useNavigation();
 
   if (!context) {
     throw new Error(
