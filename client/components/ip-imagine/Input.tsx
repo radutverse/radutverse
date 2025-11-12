@@ -91,20 +91,38 @@ const IpImagineInput = ({
       }}
       autoComplete="off"
     >
-      {/* Gallery Preview Box - Shows Loading or Thumbnail (only after generation starts) */}
-      <div ref={galleryButtonRef} className="mr-2 flex items-center">
-        <AnimatePresence mode="wait">
+      {/* Gallery Button - Always visible, shows icon or preview box */}
+      <div ref={galleryButtonRef} className="mr-2 flex items-center relative">
+        <button
+          type="button"
+          onClick={() => {
+            if (resultUrl) navigate("/ip-imagine/result");
+          }}
+          disabled={!resultUrl && !(waiting)}
+          className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
+            waiting || resultUrl
+              ? "text-[#FF4DA6] bg-[#FF4DA6]/10"
+              : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
+          }`}
+          aria-label="View creations and results"
+          title="Creation Results"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
+          </svg>
+        </button>
+
+        {/* Pink Box - Only shows after generation starts */}
+        <AnimatePresence>
           {waiting || resultUrl ? (
-            <motion.button
+            <motion.div
               key="generation-box"
-              type="button"
-              onClick={() => {
-                if (resultUrl) navigate("/ip-imagine/result");
-              }}
-              disabled={!resultUrl}
-              className="relative flex-shrink-0 w-12 h-12 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 disabled:cursor-default"
-              aria-label="View generation result"
-              title={resultUrl ? "Click to view result" : "Waiting for generation..."}
+              className="absolute left-0 top-0 w-12 h-12 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 pointer-events-none"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
@@ -148,7 +166,7 @@ const IpImagineInput = ({
                   transition={{ duration: 0.4 }}
                 />
               )}
-            </motion.button>
+            </motion.div>
           ) : null}
         </AnimatePresence>
       </div>
