@@ -13,6 +13,7 @@ import MyPortfolio from "./pages/MyPortfolio";
 import Settings from "./pages/Settings";
 import History from "./pages/History";
 import IpImagine from "./pages/IpImagine";
+import IpImagineCreationResult from "./pages/IpImagineCreationResult";
 import CreationResult from "./pages/CreationResult";
 import NotFound from "./pages/NotFound";
 
