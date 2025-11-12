@@ -36,7 +36,7 @@ const CreationResult = () => {
   };
 
   const handleShare = async () => {
-    if (!resultUrl) return;
+    if (!displayUrl) return;
     try {
       if (navigator.share) {
         await navigator.share({
