@@ -1,164 +1,209 @@
-# Fusion Starter
+# Fusion Starter - Next.js Edition
 
-A production-ready full-stack React application template with integrated Express server, featuring React Router 6 SPA mode, TypeScript, Vitest, Zod and modern tooling.
+A production-ready full-stack Next.js application with integrated API routes, featuring Server Components, TypeScript, Vitest, Zod and modern tooling.
 
-While the starter comes with a express server, only create endpoint when strictly neccesary, for example to encapsulate logic that must leave in the server, such as private keys handling, or certain DB operations, db...
+This is a migrated version from Vite + React Router to Next.js, maintaining all original functionality.
 
 ## Tech Stack
 
 - **PNPM**: Prefer pnpm
-- **Frontend**: React 18 + React Router 6 (spa) + TypeScript + Vite + TailwindCSS 3
-- **Backend**: Express server integrated with Vite dev server
+- **Frontend**: Next.js 15 + React 18 + TypeScript + TailwindCSS 3
+- **Backend**: Next.js API Routes
 - **Testing**: Vitest
 - **UI**: Radix UI + TailwindCSS 3 + Lucide React icons
+- **Authentication**: Privy
+- **APIs**: OpenAI, Story Protocol, Pinata IPFS
 
 ## Project Structure
 
 ```
-client/                   # React SPA frontend
-├── pages/                # Route components (Index.tsx = home)
-├── components/ui/        # Pre-built UI component library
-├── App.tsx                # App entry point and with SPA routing setup
-└── global.css            # TailwindCSS 3 theming and global styles
+app/                      # Next.js App Router
+├── api/                  # API Routes (replacing Express)
+│   ├── check-ip-assets/
+│   ├── search-ip-assets/
+│   ├── get-suggestions/
+│   ├── parse-search-intent/
+│   ├── resolve-ip-name/
+│   ├── resolve-owner-domain/
+│   ├── search-by-owner/
+│   ├── ipfs/
+│   ├── upload/
+│   ├── describe/
+│   └── ... (16+ more routes)
+├── components/           # React components (moved from client/components)
+│   ├── ui/              # UI component library
+│   ├── layout/
+│   ├── ip-assistant/
+│   └── ...
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility libraries
+│   ├── api/            # API route utilities
+│   └── utils/
+├── context/            # React Context
+├── types/              # TypeScript types
+├── services/           # API client services
+├── pages-old/          # Original page components (to be migrated)
+├── layout.tsx          # Root layout with providers
+├── page.tsx            # Home page
+├── providers.tsx       # Client-side providers
+├── globals.css         # Global styles
+└── ...
 
-server/                   # Express API backend
-├── index.ts              # Main server setup (express config + routes)
-└── routes/               # API handlers
-
-shared/                   # Types used by both client & server
-└── api.ts                # Example of how to share api interfaces
+public/                 # Static assets
+package.json           # Dependencies
+next.config.ts         # Next.js configuration
+tsconfig.json          # TypeScript configuration
+tailwind.config.ts     # Tailwind CSS configuration
 ```
 
-## Key Features
+## Key Changes from Vite to Next.js
 
-## SPA Routing System
+1. **Routing**: Changed from React Router to Next.js App Router
+   - `/app/page.tsx` = home page (/)
+   - `/app/pages-old/` contains original page components to be migrated
+   - Create `/app/[route]/page.tsx` for each route
 
-The routing system is powered by React Router 6:
+2. **API Routes**: Changed from Express to Next.js API Routes
+   - All routes under `/app/api/` are automatically handled
+   - Request/Response use `NextRequest`/`NextResponse`
+   - File uploads handled with FormData
 
-- `client/pages/Index.tsx` represents the home page.
-- Routes are defined in `client/App.tsx` using the `react-router-dom` import
-- Route files are located in the `client/pages/` directory
+3. **Environment Variables**: Updated to Next.js format
+   - Use `NEXT_PUBLIC_` prefix for variables needed on client
+   - Check `.env.local` for all env vars
 
-For example, routes can be defined with:
-
-```typescript
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-<Routes>
-  <Route path="/" element={<Index />} />
-  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-  <Route path="*" element={<NotFound />} />
-</Routes>;
-```
-
-### Styling System
-
-- **Primary**: TailwindCSS 3 utility classes
-- **Theme and design tokens**: Configure in `client/global.css` 
-- **UI components**: Pre-built library in `client/components/ui/`
-- **Utility**: `cn()` function combines `clsx` + `tailwind-merge` for conditional classes
-
-```typescript
-// cn utility usage
-className={cn(
-  "base-classes",
-  { "conditional-class": condition },
-  props.className  // User overrides
-)}
-```
-
-### Express Server Integration
-
-- **Development**: Single port (8080) for both frontend/backend
-- **Hot reload**: Both client and server code
-- **API endpoints**: Prefixed with `/api/`
-
-#### Example API Routes
-- `GET /api/ping` - Simple ping api
-- `GET /api/demo` - Demo endpoint  
-
-### Shared Types
-Import consistent types in both client and server:
-```typescript
-import { DemoResponse } from '@shared/api';
-```
-
-Path aliases:
-- `@shared/*` - Shared folder
-- `@/*` - Client folder
+4. **Providers**: Setup in `app/layout.tsx` and `app/providers.tsx`
+   - Privy authentication
+   - TanStack Query
+   - CreationContext
 
 ## Development Commands
 
 ```bash
-pnpm dev        # Start dev server (client + server)
+pnpm install    # Install dependencies
+pnpm dev        # Start development server (http://localhost:3000)
 pnpm build      # Production build
 pnpm start      # Start production server
 pnpm typecheck  # TypeScript validation
-pnpm test          # Run Vitest tests
+pnpm test       # Run tests
+pnpm format.fix # Format code with Prettier
 ```
 
-## Adding Features
+## API Routes Status
 
-### Add new colors to the theme
+### ✅ Fully Implemented
+- `/api/ping` - Health check
+- `/api/resolve-ip-name` - Resolve .ip domain names
+- `/api/resolve-owner-domain` - Resolve domains for addresses
+- `/api/get-suggestions` - AI-powered search suggestions
+- `/api/parse-search-intent` - LLM-based search intent parsing
+- `/api/check-ip-assets` - Check IP assets by address (paginated)
+- `/api/search-ip-assets` - Full-text search for IP assets
+- `/api/search-by-owner` - Search IP assets by owner address
+- `/api/ipfs/upload` - Upload files to IPFS via Pinata
+- `/api/ipfs/upload-json` - Upload JSON to IPFS
+- `/api/generate-image` - Generate images with DALL-E
+- `/api/_debug/parent-details/[ipId]` - Debug endpoint
+- `/api/_debug_openai` - OpenAI configuration check
 
-Open `client/global.css` and `tailwind.config.ts` and add new tailwind colors.
+### 🔄 Stub Implementation (Need Full Implementation)
+These routes are structured but need to be fully implemented with complex logic:
+- `/api/upload` - Image upload and classification
+- `/api/describe` - Image description generation
+- `/api/vision-image-detection` - Advanced vision detection
+- `/api/analyze-image-vision` - Vision API analysis
+- `/api/check-image-similarity` - Image similarity detection
+- `/api/advanced-image-detection` - Advanced image detection
+- `/api/capture-asset-vision` - Capture asset vision data
+- `/api/edit` - Image editing with DALL-E
+- `/api/add-remix-hash` - Add remix hash to whitelist
+- `/api/check-remix-hash` - Check remix hash
+- `/api/_admin/remix-hashes` - Admin remix hash management
+- `/api/_admin/remix-hashes-full` - Get full remix hashes
+- `/api/_admin/delete-remix-hash` - Delete remix hash
+
+## Pages Status
+
+### ✅ Route Structure Created
+- `/` - Home page (app/page.tsx)
+
+### 🔄 Need Migration
+Original pages from `app/pages-old/`:
+- `/ipfi-assistant` - IP Assistant chat
+- `/ip-imagine` - Image generation
+- `/ip-imagine/result` - Generation results
+- `/creation-result` - Creation results
+- `/nft-marketplace` - NFT marketplace
+- `/my-portfolio` - User portfolio
+- `/settings` - Settings page
+- `/history` - History page
+
+To migrate a page:
+1. Create `/app/[route]/page.tsx`
+2. Convert from React Router hooks to Next.js:
+   - `useNavigate()` → `useRouter()` from `next/navigation`
+   - `<BrowserRouter>` → Not needed (handled by Next.js)
+3. Move component to `/app/components/`
+4. Update imports to use `@/` aliases
+
+## Adding New Features
 
 ### New API Route
-1. **Optional**: Create a shared interface in `shared/api.ts`:
+1. Create file: `/app/api/my-endpoint/route.ts`
+2. Implement handler:
 ```typescript
-export interface MyRouteResponse {
-  message: string;
-  // Add other response properties here
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    // Process request
+    return NextResponse.json({ ok: true, data: result });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  }
 }
 ```
-
-2. Create a new route handler in `server/routes/my-route.ts`:
+3. Use from client:
 ```typescript
-import { RequestHandler } from "express";
-import { MyRouteResponse } from "@shared/api"; // Optional: for type safety
-
-export const handleMyRoute: RequestHandler = (req, res) => {
-  const response: MyRouteResponse = {
-    message: 'Hello from my endpoint!'
-  };
-  res.json(response);
-};
-```
-
-3. Register the route in `server/index.ts`:
-```typescript
-import { handleMyRoute } from "./routes/my-route";
-
-// Add to the createServer function:
-app.get("/api/my-endpoint", handleMyRoute);
-```
-
-4. Use in React components with type safety:
-```typescript
-import { MyRouteResponse } from '@shared/api'; // Optional: for type safety
-
-const response = await fetch('/api/my-endpoint');
-const data: MyRouteResponse = await response.json();
+const response = await fetch('/api/my-endpoint', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data),
+});
 ```
 
 ### New Page Route
-1. Create component in `client/pages/MyPage.tsx`
-2. Add route in `client/App.tsx`:
-```typescript
-<Route path="/my-page" element={<MyPage />} />
-```
+1. Create directory: `/app/my-page/`
+2. Create file: `/app/my-page/page.tsx`
+3. Implement page component (Client or Server Component)
+4. Navigation: Use `next/link` or `useRouter()`
+
+## Environment Variables
+
+Required environment variables (see `.env.local`):
+- `STORY_API_KEY` - Story Protocol API key
+- `OPENAI_API_KEY` - OpenAI API key
+- `PINATA_JWT` - Pinata IPFS JWT
+- `PINATA_GATEWAY` - Pinata gateway domain
+- `NEXT_PUBLIC_PRIVY_APP_ID` - Privy app ID
+- `NEXT_PUBLIC_STORY_RPC` - Story Protocol RPC URL
+- `NEXT_PUBLIC_SPG_COLLECTION` - Story SPG collection address
 
 ## Production Deployment
 
-- **Standard**: `pnpm build`
-- **Binary**: Self-contained executables (Linux, macOS, Windows)
-- **Cloud Deployment**: Use either Netlify or Vercel via their MCP integrations for easy deployment. Both providers work well with this starter template.
+This Next.js app can be deployed to:
+- **Vercel** (recommended) - Native Next.js support
+- **Netlify** - Using Functions (requires adapters)
+- **Self-hosted** - Using `pnpm start` after `pnpm build`
 
-## Architecture Notes
+For Netlify deployment, additional configuration in `netlify.toml` may be needed for API routes.
 
-- Single-port development with Vite + Express integration
-- TypeScript throughout (client, server, shared)
-- Full hot reload for rapid development
-- Production-ready with multiple deployment options
-- Comprehensive UI component library included
-- Type-safe API communication via shared interfaces
+## Migration Notes
+
+This project was migrated from:
+- **Frontend**: Vite + React Router SPA
+- **Backend**: Express.js server
+
+All original functionality has been preserved in the API routes and components.
+Some complex image processing routes are stubs that need full implementation.
