@@ -24,12 +24,12 @@ const CompactResultCard = ({
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <div className="fixed top-6 left-6 z-40">
+    <div>
       {/* Small Image Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-[#FF4DA6]/30 shadow-lg group"
+        className="relative w-40 h-40 rounded-lg overflow-hidden bg-black border-2 border-[#FF4DA6]/50 shadow-lg group mx-auto"
       >
         {type === "image" ? (
           <img
