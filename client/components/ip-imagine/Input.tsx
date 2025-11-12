@@ -86,10 +86,8 @@ const IpImagineInput = ({
         if (isRemixWithRegister) {
           onRemixRegisterWarning?.();
         } else {
+          // start flying animation; actual generation will begin after animation completes
           setShowFlyingAnimation(true);
-          setTimeout(() => {
-            void onSubmit();
-          }, 100);
         }
       }}
       autoComplete="off"
