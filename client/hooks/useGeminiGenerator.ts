@@ -54,7 +54,8 @@ const useGeminiGenerator = () => {
     // via the gallery/Results button to avoid interrupting the user's flow.
 
     // insert a pending creation placeholder so history keeps showing
-    const pendingId = addPendingCreation();
+    // If a pendingId is provided (created earlier by the UI), use it; otherwise create one now.
+    const pendingIdLocal = pendingId || addPendingCreation();
 
     try {
       let generatedUrl: string;
