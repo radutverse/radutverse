@@ -17,22 +17,29 @@ export const generateImage: RequestHandler = async (req, res) => {
       size: "1024x1024",
     });
 
-    if (!result.data || !result.data[0] || !result.data[0].url) {
+    if (!result.data || !result.data[0]) {
       console.error("❌ Unexpected OpenAI response:", result);
-      return res.status(500).json({
-        error: "No image URL received",
-        details: "OpenAI did not return an image URL",
-      });
+      return res.status(500).json({ error: "No image data received" });
     }
 
-    const imageUrl = result.data[0].url;
-    console.log("✅ Image generated successfully:", imageUrl);
+    let imageUrl: string;
+
+    if (result.data[0].url) {
+      imageUrl = result.data[0].url;
+    } else if (result.data[0].b64_json) {
+      imageUrl = `data:image/png;base64,${result.data[0].b64_json}`;
+    } else {
+      console.error("❌ Unexpected OpenAI response format:", result.data[0]);
+      return res.status(500).json({ error: "No URL or base64 found in response" });
+    }
+
+    console.log("✅ Image generated successfully");
     res.json({ url: imageUrl });
-  } catch (err) {
+  } catch (err: any) {
     console.error("❌ Error generating image:", err);
     res.status(500).json({
       error: "Failed to generate image",
-      details: err instanceof Error ? err.message : String(err),
+      details: err.message || String(err),
     });
   }
 };
