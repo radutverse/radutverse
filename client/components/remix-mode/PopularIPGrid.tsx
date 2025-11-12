@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
 import type { PopularItem } from "./types";
 
 interface PopularIPGridProps {
