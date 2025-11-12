@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
           error: "owner_address_required",
           message: "Owner address is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -25,11 +25,14 @@ export async function POST(request: NextRequest) {
           error: "invalid_address_format",
           message: "Invalid Ethereum address format",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    console.log("[Resolve Owner Domain] Looking up domain for:", trimmedAddress);
+    console.log(
+      "[Resolve Owner Domain] Looking up domain for:",
+      trimmedAddress,
+    );
 
     try {
       const response = await fetch(
@@ -40,12 +43,12 @@ export async function POST(request: NextRequest) {
             Accept: "application/json",
           },
           signal: AbortSignal.timeout(5000),
-        }
+        },
       );
 
       if (!response.ok) {
         console.warn(
-          `[Resolve Owner Domain] Blockscout API error: ${response.status}`
+          `[Resolve Owner Domain] Blockscout API error: ${response.status}`,
         );
 
         if (response.status === 404) {
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
             error: "blockscout_api_error",
             message: `Failed to resolve owner domain: ${response.status}`,
           },
-          { status: response.status }
+          { status: response.status },
         );
       }
 
@@ -108,7 +111,7 @@ export async function POST(request: NextRequest) {
             error: "timeout",
             message: "Blockscout API is responding slowly. Please try again.",
           },
-          { status: 504 }
+          { status: 504 },
         );
       }
 
@@ -117,10 +120,9 @@ export async function POST(request: NextRequest) {
         {
           ok: false,
           error: "network_error",
-          message:
-            fetchError?.message || "Unable to connect to Blockscout API",
+          message: fetchError?.message || "Unable to connect to Blockscout API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error: any) {
@@ -130,7 +132,7 @@ export async function POST(request: NextRequest) {
         ok: false,
         error: error?.message || "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -17,14 +17,14 @@ export async function POST(request: NextRequest) {
           error: "message_required",
           message: "Message is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const messageLower = message.toLowerCase().trim();
 
     const ownerAddressMatch = message.match(
-      /(?:search|find|cari|mencari)\s+(?:for\s+)?(?:assets?|aset)\s+by\s+(0x[a-fA-F0-9]{40})/i
+      /(?:search|find|cari|mencari)\s+(?:for\s+)?(?:assets?|aset)\s+by\s+(0x[a-fA-F0-9]{40})/i,
     );
 
     if (ownerAddressMatch && ownerAddressMatch[1]) {
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     const ipNameMatch = message.match(
-      /([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.ip)/i
+      /([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.ip)/i,
     );
 
     if (ipNameMatch && ipNameMatch[1]) {
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const hasSearchKeyword = /\b(search|find|cari|mencari|lookup)\b/.test(
-      messageLower
+      messageLower,
     );
     const hasIpKeyword = /\b(ip|asset|aset|nft)\b/.test(messageLower);
 
@@ -135,7 +135,7 @@ Be flexible and smart about extracting the actual search term from rambling or n
         ok: false,
         error: error?.message || "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

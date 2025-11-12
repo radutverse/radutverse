@@ -5,13 +5,13 @@ const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
 export async function POST(request: NextRequest) {
   try {
     const idempotencyKey = request.headers.get("Idempotency-Key") || undefined;
-    
+
     if (idempotencyKey && IDP_CHECK.has(idempotencyKey)) {
       const cached = IDP_CHECK.get(idempotencyKey)!;
       if (Date.now() - cached.ts < 60_000) {
         return NextResponse.json(
           { ok: true, ...cached.body },
-          { status: cached.status }
+          { status: cached.status },
         );
       } else {
         IDP_CHECK.delete(idempotencyKey);
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
           error: "address_required",
           message: "Address is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
           error: "invalid_address",
           message: "Invalid Ethereum address format",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           error: "server_config_missing",
           message: "Server configuration error: STORY_API_KEY not set",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
                 },
               }),
               signal: controller.signal,
-            }
+            },
           );
 
           if (!response.ok) {
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
                 address: trimmedAddress,
                 offset,
                 iteration: iterations,
-              }
+              },
             );
 
             let errorDetail = errorText;
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
                 details: errorDetail,
                 status: response.status,
               },
-              { status: response.status }
+              { status: response.status },
             );
           }
 
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
         ok: false,
         error: error?.message || "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

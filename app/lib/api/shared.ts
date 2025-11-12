@@ -2,7 +2,7 @@ export const PINATA_GATEWAY = process.env.PINATA_GATEWAY;
 
 export async function fetchParentIpDetails(
   childIpId: string,
-  apiKey: string
+  apiKey: string,
 ): Promise<any> {
   try {
     const response = await fetch(
@@ -22,12 +22,12 @@ export async function fetchParentIpDetails(
             offset: 0,
           },
         }),
-      }
+      },
     );
 
     if (!response.ok) {
       console.warn(
-        `Failed to fetch parent details for ${childIpId}: ${response.status}`
+        `Failed to fetch parent details for ${childIpId}: ${response.status}`,
       );
       return null;
     }
@@ -93,7 +93,7 @@ export async function fetchIpaMetadata(ipaMetadataUri: string): Promise<any> {
     const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) {
       console.warn(
-        `Failed to fetch IPA metadata from ${url}: ${response.status}`
+        `Failed to fetch IPA metadata from ${url}: ${response.status}`,
       );
       return null;
     }

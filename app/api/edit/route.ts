@@ -6,12 +6,13 @@ export async function POST(request: NextRequest) {
   try {
     const { files, fields } = await parseFormData(request);
     const file = files.image;
-    const prompt = typeof fields.prompt === 'string' ? fields.prompt : fields.prompt?.[0];
+    const prompt =
+      typeof fields.prompt === "string" ? fields.prompt : fields.prompt?.[0];
 
     if (!file || !prompt) {
       return NextResponse.json(
         { error: "Missing image or prompt" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
         error: "Failed to edit image",
         details: err.message || String(err),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

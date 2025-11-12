@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
           error: "ip_name_required",
           message: "IP name is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           error: "invalid_ip_name",
           message: "Must be a valid .ip name (e.g., myname.ip)",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
             Accept: "application/json",
           },
           signal: AbortSignal.timeout(5000),
-        }
+        },
       );
 
       if (!response.ok) {
         console.warn(
-          `[Resolve IP Name] Blockscout API error: ${response.status}`
+          `[Resolve IP Name] Blockscout API error: ${response.status}`,
         );
 
         if (response.status === 404) {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
               error: "ip_name_not_found",
               message: `IP name "${trimmedName}" not found or not registered`,
             },
-            { status: 404 }
+            { status: 404 },
           );
         }
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
             error: "blockscout_api_error",
             message: `Failed to resolve IP name: ${response.status}`,
           },
-          { status: response.status }
+          { status: response.status },
         );
       }
 
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
             error: "resolution_failed",
             message: `Could not resolve "${trimmedName}" to an address`,
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
             error: "timeout",
             message: "Blockscout API is responding slowly. Please try again.",
           },
-          { status: 504 }
+          { status: 504 },
         );
       }
 
@@ -112,10 +112,9 @@ export async function POST(request: NextRequest) {
         {
           ok: false,
           error: "network_error",
-          message:
-            fetchError?.message || "Unable to connect to Blockscout API",
+          message: fetchError?.message || "Unable to connect to Blockscout API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error: any) {
@@ -129,7 +128,7 @@ export async function POST(request: NextRequest) {
             ? error?.stack
             : "An unexpected error occurred",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

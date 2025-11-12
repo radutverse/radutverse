@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 export async function parseFormData(request: NextRequest) {
   const formData = await request.formData();
-  
+
   const files: { [key: string]: File } = {};
   const fields: { [key: string]: string | string[] } = {};
 

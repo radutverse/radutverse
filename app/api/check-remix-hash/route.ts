@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     if (!hash) {
       return NextResponse.json(
         { ok: false, error: "hash_required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     console.error("[Check Remix Hash] Error:", error);
     return NextResponse.json(
       { ok: false, error: "check_hash_failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

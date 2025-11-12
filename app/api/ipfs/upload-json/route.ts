@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     console.error("ipfs json upload error:", err);
     return NextResponse.json(
       { error: "ipfs_json_upload_failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

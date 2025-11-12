@@ -92,6 +92,7 @@ pnpm format.fix # Format code with Prettier
 ## API Routes Status
 
 ### ✅ Fully Implemented
+
 - `/api/ping` - Health check
 - `/api/resolve-ip-name` - Resolve .ip domain names
 - `/api/resolve-owner-domain` - Resolve domains for addresses
@@ -107,7 +108,9 @@ pnpm format.fix # Format code with Prettier
 - `/api/_debug_openai` - OpenAI configuration check
 
 ### 🔄 Stub Implementation (Need Full Implementation)
+
 These routes are structured but need to be fully implemented with complex logic:
+
 - `/api/upload` - Image upload and classification
 - `/api/describe` - Image description generation
 - `/api/vision-image-detection` - Advanced vision detection
@@ -125,10 +128,13 @@ These routes are structured but need to be fully implemented with complex logic:
 ## Pages Status
 
 ### ✅ Route Structure Created
+
 - `/` - Home page (app/page.tsx)
 
 ### 🔄 Need Migration
+
 Original pages from `app/pages-old/`:
+
 - `/ipfi-assistant` - IP Assistant chat
 - `/ip-imagine` - Image generation
 - `/ip-imagine/result` - Generation results
@@ -139,6 +145,7 @@ Original pages from `app/pages-old/`:
 - `/history` - History page
 
 To migrate a page:
+
 1. Create `/app/[route]/page.tsx`
 2. Convert from React Router hooks to Next.js:
    - `useNavigate()` → `useRouter()` from `next/navigation`
@@ -149,8 +156,10 @@ To migrate a page:
 ## Adding New Features
 
 ### New API Route
+
 1. Create file: `/app/api/my-endpoint/route.ts`
 2. Implement handler:
+
 ```typescript
 import { NextRequest, NextResponse } from "next/server";
 
@@ -160,20 +169,26 @@ export async function POST(request: NextRequest) {
     // Process request
     return NextResponse.json({ ok: true, data: result });
   } catch (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: error.message },
+      { status: 500 },
+    );
   }
 }
 ```
+
 3. Use from client:
+
 ```typescript
-const response = await fetch('/api/my-endpoint', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/my-endpoint", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify(data),
 });
 ```
 
 ### New Page Route
+
 1. Create directory: `/app/my-page/`
 2. Create file: `/app/my-page/page.tsx`
 3. Implement page component (Client or Server Component)
@@ -182,6 +197,7 @@ const response = await fetch('/api/my-endpoint', {
 ## Environment Variables
 
 Required environment variables (see `.env.local`):
+
 - `STORY_API_KEY` - Story Protocol API key
 - `OPENAI_API_KEY` - OpenAI API key
 - `PINATA_JWT` - Pinata IPFS JWT
@@ -193,6 +209,7 @@ Required environment variables (see `.env.local`):
 ## Production Deployment
 
 This Next.js app can be deployed to:
+
 - **Vercel** (recommended) - Native Next.js support
 - **Netlify** - Using Functions (requires adapters)
 - **Self-hosted** - Using `pnpm start` after `pnpm build`
@@ -202,6 +219,7 @@ For Netlify deployment, additional configuration in `netlify.toml` may be needed
 ## Migration Notes
 
 This project was migrated from:
+
 - **Frontend**: Vite + React Router SPA
 - **Backend**: Express.js server
 

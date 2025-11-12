@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const cid = await pinFileToPinata(
       file.name || "file",
       buffer,
-      file.type || "application/octet-stream"
+      file.type || "application/octet-stream",
     );
 
     const https = PINATA_GATEWAY
@@ -46,9 +46,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ cid, url: `ipfs://${cid}`, https });
   } catch (err) {
     console.error("ipfs upload error:", err);
-    return NextResponse.json(
-      { error: "ipfs_upload_failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "ipfs_upload_failed" }, { status: 500 });
   }
 }

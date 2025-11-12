@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
           error: "input_required",
           suggestions: [],
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         ?.slice(-3)
         ?.map(
           (msg: any) =>
-            `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+            `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
         )
         .join("\n") || "";
 
@@ -110,7 +110,7 @@ Example format:
         error: "suggestions_error",
         suggestions: [],
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

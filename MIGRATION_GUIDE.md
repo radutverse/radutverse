@@ -12,7 +12,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const IpfiAssistant = () => {
   const navigate = useNavigate();
-  
+
   return (
     <DashboardLayout>
       {/* Content */}
@@ -33,7 +33,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 
 export default function IpfiAssistant() {
   const router = useRouter();
-  
+
   return (
     <DashboardLayout>
       {/* Content */}
@@ -105,12 +105,12 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { ok: false, error: "no_file" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const buffer = await getFileBuffer(file);
-    
+
     // Send to OpenAI Vision API for analysis
     const response = await openai.vision.analyze({
       image: buffer,
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     console.error("[Describe] Error:", error);
     return NextResponse.json(
       { ok: false, error: "description_failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -204,13 +204,13 @@ curl -X POST http://localhost:3000/api/upload \
 
 ```javascript
 // Test resolve-ip-name
-fetch('/api/resolve-ip-name', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ ipName: 'example.ip' })
+fetch("/api/resolve-ip-name", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ ipName: "example.ip" }),
 })
-.then(r => r.json())
-.then(console.log);
+  .then((r) => r.json())
+  .then(console.log);
 ```
 
 ## Development Server
@@ -222,6 +222,7 @@ pnpm dev
 ```
 
 Then access:
+
 - App: http://localhost:3000
 - API: http://localhost:3000/api/ping
 
@@ -238,19 +239,23 @@ pnpm start
 ## Troubleshooting
 
 ### Import errors
+
 - Make sure `@/` alias paths are correct
 - Check that `app/` directory contains the files
 
 ### API route not found
+
 - File must be at `app/api/route-name/route.ts`
 - Export named functions: `export async function GET()` or `export async function POST()`
 
 ### Environment variables not working
+
 - Check `.env.local` exists in root
 - Use `NEXT_PUBLIC_` prefix for client-side vars
 - Restart dev server after changing env vars
 
 ### Build fails
+
 - Check `pnpm typecheck` for TypeScript errors
 - Review error messages in build output
 - Make sure all imports resolve correctly

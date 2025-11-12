@@ -3,7 +3,7 @@ import { fetchParentIpDetails } from "@/lib/api/shared";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ipId: string } }
+  { params }: { params: { ipId: string } },
 ) {
   try {
     const { ipId } = params;
@@ -15,7 +15,7 @@ export async function GET(
           ok: false,
           error: "API key not configured",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function GET(
           ok: false,
           error: `API returned ${response.status}`,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -69,7 +69,7 @@ export async function GET(
         ok: false,
         error: error?.message || "Failed to fetch asset details",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

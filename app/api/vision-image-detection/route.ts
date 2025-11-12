@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { ok: false, error: "no_file" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     console.error("[Vision Detection] Error:", error);
     return NextResponse.json(
       { ok: false, error: "detection_failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

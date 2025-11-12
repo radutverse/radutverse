@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFileBuffer, parseFormData } from "@/lib/api/file-upload";
 
-const IDP_DESCRIBE = new Map<string, { status: number; body: any; ts: number }>();
+const IDP_DESCRIBE = new Map<
+  string,
+  { status: number; body: any; ts: number }
+>();
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +15,7 @@ export async function POST(request: NextRequest) {
       if (Date.now() - cached.ts < 60_000) {
         return NextResponse.json(
           { ok: true, ...cached.body },
-          { status: cached.status }
+          { status: cached.status },
         );
       } else {
         IDP_DESCRIBE.delete(idempotencyKey);
@@ -25,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { ok: false, error: "no_file", message: "No image file provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,7 +53,7 @@ export async function POST(request: NextRequest) {
     console.error("[Describe] Error:", error);
     return NextResponse.json(
       { ok: false, error: "description_failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

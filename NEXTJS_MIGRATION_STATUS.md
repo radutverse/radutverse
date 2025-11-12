@@ -3,6 +3,7 @@
 ## ✅ Completed
 
 ### Infrastructure & Configuration
+
 - [x] Next.js 15 project setup with TypeScript
 - [x] Path aliases configured (`@/`, `@shared/`)
 - [x] TailwindCSS 3 configured with custom theme
@@ -12,18 +13,22 @@
 - [x] Environment variables (.env.local) configured
 
 ### Authentication & Providers
+
 - [x] Privy auth provider setup in layout
 - [x] TanStack React Query provider configured
 - [x] CreationContext provider integrated
 - [x] Custom Providers component created
 
 ### Styling
+
 - [x] Global styles migrated (app/globals.css)
 - [x] CSS variables configured for light/dark mode
 - [x] TailwindCSS utilities ready
 
 ### API Routes (17 Total)
+
 #### Fully Functional (13 routes)
+
 - [x] `/api/ping` - Health check
 - [x] `/api/resolve-ip-name` - Domain resolution
 - [x] `/api/resolve-owner-domain` - Address domain lookup
@@ -39,12 +44,14 @@
 - [x] `/api/_debug_openai` - OpenAI check
 
 #### Stub Implementation (4 routes needing full implementation)
+
 - [x] `/api/upload` - Structure ready, logic needed
 - [x] `/api/describe` - Structure ready, OpenAI Vision integration needed
 - [x] `/api/edit` - Structure ready, DALL-E edit integration needed
 - [x] Other complex image processing routes - Stubs ready
 
 ### Utilities & Libraries
+
 - [x] File upload utility (`app/lib/api/file-upload.ts`)
 - [x] Shared API utilities (`app/lib/api/shared.ts`)
   - Idempotency key caching
@@ -53,6 +60,7 @@
   - IPA metadata fetching
 
 ### Documentation
+
 - [x] Updated AGENTS.md with Next.js info
 - [x] Created MIGRATION_GUIDE.md with examples
 - [x] Created this status report
@@ -62,6 +70,7 @@
 ## 🔄 In Progress / Pending
 
 ### Pages (11 total, 1 done = 1/11 complete)
+
 - [ ] `/` - Home (DONE: app/page.tsx)
 - [ ] `/ipfi-assistant` - IP Assistant chat
 - [ ] `/ip-imagine` - Image generation interface
@@ -75,9 +84,11 @@
 - [ ] `404` - Not found page (DONE: app/not-found.tsx)
 
 ### API Route Full Implementations
+
 Stub routes that need complete implementations:
 
 #### Image Processing Routes (High Priority)
+
 - [ ] `/api/describe` - Needs OpenAI Vision API integration
 - [ ] `/api/upload` - Needs classification logic
 - [ ] `/api/vision-image-detection` - Needs advanced vision features
@@ -88,6 +99,7 @@ Stub routes that need complete implementations:
 - [ ] `/api/edit` - Needs DALL-E image editing
 
 #### Admin Routes (Medium Priority)
+
 - [ ] `/api/add-remix-hash` - Remix whitelist management
 - [ ] `/api/check-remix-hash` - Remix whitelist checking
 - [ ] `/api/_admin/remix-hashes` - Whitelist retrieval
@@ -95,12 +107,14 @@ Stub routes that need complete implementations:
 - [ ] `/api/_admin/delete-remix-hash` - Delete from whitelist
 
 ### Components
+
 - [ ] Verify all components work in Next.js client context
 - [ ] Update any React Router-specific code
 - [ ] Test Privy integration in components
 - [ ] Ensure TanStack Query hooks work correctly
 
 ### Testing
+
 - [ ] Unit tests for utilities
 - [ ] Integration tests for API routes
 - [ ] E2E tests for page flows
@@ -111,6 +125,7 @@ Stub routes that need complete implementations:
 ## 🎯 Quick Start for Completion
 
 ### 1. Migrate Remaining Pages (2-3 hours)
+
 ```bash
 # For each page in app/pages-old/:
 # 1. Create app/[route]/page.tsx
@@ -124,14 +139,17 @@ Stub routes that need complete implementations:
 ```
 
 ### 2. Implement Stub Routes (4-6 hours)
+
 Focus on high-priority routes:
+
 - `/api/describe` - Image analysis
-- `/api/upload` - Image classification  
+- `/api/upload` - Image classification
 - `/api/vision-image-detection` - Detection logic
 
 See MIGRATION_GUIDE.md for implementation examples.
 
 ### 3. Testing (1-2 hours)
+
 ```bash
 pnpm dev    # Start dev server
 pnpm test   # Run tests
@@ -142,24 +160,26 @@ pnpm build  # Build for production
 
 ## 📊 Migration Statistics
 
-| Category | Total | Completed | % Complete |
-|----------|-------|-----------|-----------|
-| API Routes | 17 | 13 | 76% |
-| Pages | 11 | 2 | 18% |
-| Core Setup | 10 | 10 | 100% |
-| Documentation | 3 | 3 | 100% |
-| **Overall** | **41** | **28** | **68%** |
+| Category      | Total  | Completed | % Complete |
+| ------------- | ------ | --------- | ---------- |
+| API Routes    | 17     | 13        | 76%        |
+| Pages         | 11     | 2         | 18%        |
+| Core Setup    | 10     | 10        | 100%       |
+| Documentation | 3      | 3         | 100%       |
+| **Overall**   | **41** | **28**    | **68%**    |
 
 ---
 
 ## 🚀 Deployment Ready
 
 The application can be deployed to:
+
 - **Vercel** (recommended) - Native Next.js support
 - **Netlify** - With function adapters
 - **Self-hosted** - Node.js server
 
 Before deployment, ensure:
+
 1. All pages are migrated
 2. Stub API routes are implemented
 3. Environment variables are set

@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { ok: false, error: "no_file", message: "No image file provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error("[Upload] Error:", error);
     return NextResponse.json(
       { ok: false, error: "upload_failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

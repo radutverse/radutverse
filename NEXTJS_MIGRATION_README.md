@@ -7,6 +7,7 @@ Your application has been successfully migrated from Vite + React Router to **Ne
 ### ✅ Complete (68% of total work)
 
 #### Infrastructure (100% Complete)
+
 - Next.js 15 project initialized with TypeScript
 - App Router configured
 - Path aliases setup (`@/`, `@shared/`)
@@ -15,9 +16,11 @@ Your application has been successfully migrated from Vite + React Router to **Ne
 - Root layout with Privy + React Query providers
 
 #### API Routes (76% Complete - 13/17 fully implemented)
+
 All 17 routes from your Express server have been migrated:
 
 **Fully Functional Routes:**
+
 - Health check (`/api/ping`)
 - Domain resolution (`/api/resolve-ip-name`, `/api/resolve-owner-domain`)
 - Search & suggestions (`/api/parse-search-intent`, `/api/get-suggestions`)
@@ -27,21 +30,25 @@ All 17 routes from your Express server have been migrated:
 - Debug endpoints (`/api/_debug/*`)
 
 **Stub Routes Ready for Implementation** (4 routes):
+
 - `/api/describe` - Image analysis
 - `/api/upload` - Image classification
 - `/api/edit` - Image editing
 - Plus 10+ image processing routes
 
 #### Pages (18% Complete - 2/11)
+
 - Home page (`/`) - Shows migration status
 - 404 page - Auto-handled by Next.js
 
 ### ⏳ What Remains (32% of total work)
 
 #### Pages to Migrate (2-3 hours)
+
 Create page files for these 9 remaining pages:
+
 - `/ipfi-assistant` - IP Assistant chat interface
-- `/ip-imagine` - Image generation interface  
+- `/ip-imagine` - Image generation interface
 - `/ip-imagine/result` - Generation results
 - `/creation-result` - Creation results
 - `/nft-marketplace` - NFT marketplace
@@ -54,7 +61,9 @@ Create page files for these 9 remaining pages:
 See `MIGRATION_GUIDE.md` for detailed instructions.
 
 #### API Route Implementations (4-6 hours)
+
 4 stub routes need full implementations:
+
 1. `/api/describe` - OpenAI Vision integration
 2. `/api/upload` - Image classification logic
 3. `/api/vision-image-detection` - Detection logic
@@ -64,6 +73,7 @@ See `MIGRATION_GUIDE.md` for detailed instructions.
 See `MIGRATION_GUIDE.md` section "API Route Implementation"
 
 #### Testing & Deployment (1-2 hours)
+
 - [ ] Run tests: `pnpm test`
 - [ ] Build check: `pnpm build`
 - [ ] Deploy to Vercel or Netlify
@@ -73,18 +83,23 @@ See `MIGRATION_GUIDE.md` section "API Route Implementation"
 ## 🚀 Getting Started
 
 ### 1. Start Development Server
+
 ```bash
 pnpm dev
 ```
+
 Open http://localhost:3000 to see the app
 
 ### 2. Read the Guides
+
 - **MIGRATION_GUIDE.md** - Step-by-step instructions for completing the migration
 - **AGENTS.md** - Tech stack overview and file structure
 - **NEXTJS_MIGRATION_STATUS.md** - Detailed completion status
 
 ### 3. Complete Remaining Work
+
 The app is fully functional for basic usage. To use all features:
+
 1. Migrate the 9 remaining pages
 2. Implement the 4 stub API routes
 3. Run tests and deploy
@@ -94,6 +109,7 @@ The app is fully functional for basic usage. To use all features:
 ## 📋 File Locations
 
 All original files have been preserved for reference:
+
 ```
 app/pages-old/           # Original page components (reference)
                          # Use these as guides when creating new pages
@@ -124,13 +140,13 @@ pnpm format.fix   # Format code with Prettier
 
 ## 📚 Documentation Files
 
-| File | Purpose |
-|------|---------|
-| **AGENTS.md** | Updated tech stack & project structure |
-| **MIGRATION_GUIDE.md** | Detailed migration instructions with examples |
-| **NEXTJS_MIGRATION_STATUS.md** | Detailed completion breakdown |
-| **DEPLOYMENT_GUIDE.md** | Deployment instructions (Vercel/Netlify) |
-| **NEXTJS_MIGRATION_README.md** | This file |
+| File                           | Purpose                                       |
+| ------------------------------ | --------------------------------------------- |
+| **AGENTS.md**                  | Updated tech stack & project structure        |
+| **MIGRATION_GUIDE.md**         | Detailed migration instructions with examples |
+| **NEXTJS_MIGRATION_STATUS.md** | Detailed completion breakdown                 |
+| **DEPLOYMENT_GUIDE.md**        | Deployment instructions (Vercel/Netlify)      |
+| **NEXTJS_MIGRATION_README.md** | This file                                     |
 
 ---
 
@@ -148,6 +164,7 @@ pnpm format.fix   # Format code with Prettier
 ## 🎯 Next Steps (In Order)
 
 1. **Test the app runs**
+
    ```bash
    pnpm dev
    # Open http://localhost:3000
@@ -158,6 +175,7 @@ pnpm format.fix   # Format code with Prettier
    - Implement the 4 main stub API routes
 
 3. **Test everything**
+
    ```bash
    pnpm test
    pnpm build
@@ -192,18 +210,22 @@ A: Use `'use client'` in page files and components that use hooks. API routes ar
 ## 🆘 Troubleshooting
 
 **Issue: "Cannot find module" errors**
+
 - Solution: Check path aliases in `tsconfig.json`
 - Verify imports use `@/` syntax
 
 **Issue: Environment variables not working**
+
 - Solution: Restart dev server after changing `.env.local`
 - Use `NEXT_PUBLIC_` prefix for client-side vars
 
 **Issue: Page not found**
+
 - Solution: Make sure page file is at `app/[route]/page.tsx`
 - Check file naming matches route exactly
 
 **Issue: API route returning 404**
+
 - Solution: File must be at `app/api/route-name/route.ts`
 - Must export `async function POST()` or `GET()`, etc.
 
@@ -211,14 +233,14 @@ A: Use `'use client'` in page files and components that use hooks. API routes ar
 
 ## 📊 Project Status
 
-| Component | Status | Effort |
-|-----------|--------|--------|
-| Core Setup | ✅ Done | 0 hours |
-| API Routes | ✅ 76% Done | 2-3 hours remain |
-| Pages | 🔄 18% Done | 2-3 hours remain |
-| Testing | ⏳ Not Started | 1-2 hours |
-| Deployment | ⏳ Not Started | 0.5-1 hour |
-| **Total** | **68% Complete** | **5-8 hours remain** |
+| Component  | Status           | Effort               |
+| ---------- | ---------------- | -------------------- |
+| Core Setup | ✅ Done          | 0 hours              |
+| API Routes | ✅ 76% Done      | 2-3 hours remain     |
+| Pages      | 🔄 18% Done      | 2-3 hours remain     |
+| Testing    | ⏳ Not Started   | 1-2 hours            |
+| Deployment | ⏳ Not Started   | 0.5-1 hour           |
+| **Total**  | **68% Complete** | **5-8 hours remain** |
 
 ---
 

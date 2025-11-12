@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { createContext, useState, ReactNode, useEffect } from "react";
 import { ResultType } from "@/types/generation";

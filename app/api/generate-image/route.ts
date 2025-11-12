@@ -7,11 +7,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const prompt = body.prompt?.trim();
-    
+
     if (!prompt) {
       return NextResponse.json(
         { error: "Missing prompt text" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       console.error("❌ Unexpected OpenAI response:", result);
       return NextResponse.json(
         { error: "No image data received" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       console.error("❌ Unexpected OpenAI response format:", result.data[0]);
       return NextResponse.json(
         { error: "No URL or base64 found in response" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         error: "Failed to generate image",
         details: err.message || String(err),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

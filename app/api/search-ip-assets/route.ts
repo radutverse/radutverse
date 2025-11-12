@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchParentIpDetails, convertIpfsUriToHttp, fetchIpaMetadata } from "@/lib/api/shared";
+import {
+  fetchParentIpDetails,
+  convertIpfsUriToHttp,
+  fetchIpaMetadata,
+} from "@/lib/api/shared";
 
 const IDP_SEARCH = new Map<string, { status: number; body: any; ts: number }>();
 
@@ -12,7 +16,7 @@ export async function POST(request: NextRequest) {
       if (Date.now() - cached.ts < 60_000) {
         return NextResponse.json(
           { ok: true, ...cached.body },
-          { status: cached.status }
+          { status: cached.status },
         );
       } else {
         IDP_SEARCH.delete(idempotencyKey);
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
           error: "query_required",
           message: "Search query is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -41,7 +45,7 @@ export async function POST(request: NextRequest) {
           error: "server_config_missing",
           message: "Server configuration error: STORY_API_KEY not set",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -79,7 +83,7 @@ export async function POST(request: NextRequest) {
                 },
               }),
               signal: controller.signal,
-            }
+            },
           );
 
           if (!response.ok) {
@@ -90,7 +94,7 @@ export async function POST(request: NextRequest) {
                 error: "story_api_error",
                 status: response.status,
               },
-              { status: response.status }
+              { status: response.status },
             );
           }
 
@@ -101,7 +105,9 @@ export async function POST(request: NextRequest) {
             break;
           }
 
-          const validAssets = assets.filter((asset: any) => asset && typeof asset === "object");
+          const validAssets = assets.filter(
+            (asset: any) => asset && typeof asset === "object",
+          );
           allAssets = allAssets.concat(validAssets);
 
           const pagination = data?.pagination;
@@ -146,7 +152,7 @@ export async function POST(request: NextRequest) {
         ok: false,
         error: error?.message || "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
