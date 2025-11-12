@@ -1,7 +1,9 @@
 import { RequestHandler } from "express";
+import type { Request } from "express";
 import OpenAI from "openai";
 import sharp from "sharp";
 import { FormData, Blob } from "formdata-node";
+import type { MulterRequest } from "../types/index.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
