@@ -17,6 +17,10 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/dist/spa/favicon.ico"
+    },
+    {
       "src": "/(.*)",
       "dest": "/dist/spa/index.html"
     }
