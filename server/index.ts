@@ -293,16 +293,19 @@ export function createServer() {
     res.json({ ok: true, hasKey: !!process.env.OPENAI_API_KEY }),
   );
 
-  // Serve static files from dist/spa (built SPA)
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const spaDir = path.join(__dirname, "../dist/spa");
-  app.use(express.static(spaDir));
+  // Only serve static files in production
+  // In development, Vite dev server handles client files
+  if (isProduction) {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const spaDir = path.join(__dirname, "../dist/spa");
+    app.use(express.static(spaDir));
 
-  // SPA fallback: serve index.html for all non-API routes
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(spaDir, "index.html"));
-  });
+    // SPA fallback: serve index.html for all non-API routes
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(spaDir, "index.html"));
+    });
+  }
 
   return app;
 }
