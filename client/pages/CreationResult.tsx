@@ -26,10 +26,10 @@ const CreationResult = () => {
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
   const handleDownload = () => {
-    if (!resultUrl) return;
+    if (!displayUrl) return;
     const link = document.createElement("a");
-    link.href = resultUrl;
-    link.download = `creation-${Date.now()}${resultType === "video" ? ".mp4" : ".png"}`;
+    link.href = displayUrl;
+    link.download = `creation-${Date.now()}${displayType === "video" ? ".mp4" : ".png"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
