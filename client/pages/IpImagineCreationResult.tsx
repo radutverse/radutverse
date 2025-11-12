@@ -221,68 +221,58 @@ const IpImagineCreationResult = () => {
     <DashboardLayout title="IP Imagine Result">
       <div className="flex-1 overflow-y-auto bg-transparent">
         <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-4xl mx-auto"
-          >
-            <ResultMediaDisplay
-              url={upscaledUrl || displayUrl}
-              type={displayType}
-            />
-
-            <ResultDetails type={displayType} />
-
-            <ResultActions
-              type={displayType}
-              isLoading={isLoading}
-              onDownload={handleDownload}
-              onShare={handleShare}
-              onUpscale={
-                displayType === "image"
-                  ? () => setShowUpscaler(true)
-                  : undefined
-              }
-              onCreateAnother={() => navigate("/ip-imagine")}
-            />
-
-            <AnimatePresence>
-              {upscaledUrl && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="mt-8 rounded-xl bg-emerald-900/20 border border-emerald-800/50 p-4 flex items-start gap-3"
+          {/* Upscale Success Message */}
+          <AnimatePresence>
+            {upscaledUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="fixed top-48 left-6 z-30 rounded-xl bg-emerald-900/20 border border-emerald-800/50 p-4 flex items-start gap-3 max-w-sm"
+              >
+                <svg
+                  className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-sm text-emerald-300 font-medium">
-                      Upscale completed!
-                    </p>
-                    <p className="text-xs text-emerald-200 mt-1">
-                      Image has been enhanced to higher resolution
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div>
+                  <p className="text-sm text-emerald-300 font-medium">
+                    Upscale completed!
+                  </p>
+                  <p className="text-xs text-emerald-200 mt-1">
+                    Image has been enhanced to higher resolution
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
+      {/* Compact Result Card - Top Left */}
+      {displayUrl && displayType && (
+        <CompactResultCard
+          imageUrl={upscaledUrl || displayUrl}
+          type={displayType}
+          isLoading={isLoading}
+          onDownload={handleDownload}
+          onShare={handleShare}
+          onUpscale={
+            displayType === "image" ? () => setShowUpscaler(true) : undefined
+          }
+          onCreateAnother={() => navigate("/ip-imagine")}
+        />
+      )}
+
+      {/* Upscale Modal */}
       <AnimatePresence>
         {showUpscaler && displayUrl && (
           <ResultUpscaleModal
