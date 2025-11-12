@@ -69,16 +69,8 @@ const IpImagineCreationResult = () => {
     setShowUpscaler(false);
   };
 
-  // Get the currently selected creation or use the first one
-  const currentCreation =
-    selectedId && creations.find((c) => c.id === selectedId)
-      ? creations.find((c) => c.id === selectedId)
-      : resultUrl
-        ? null
-        : creations[0];
-
-  const displayUrl = currentCreation?.url || resultUrl;
-  const displayType = currentCreation?.type || resultType;
+  const displayUrl = resultUrl;
+  const displayType = resultType;
 
   if (isLoading) {
     return (
