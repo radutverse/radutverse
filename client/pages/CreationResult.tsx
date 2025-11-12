@@ -210,7 +210,18 @@ const CreationResult = () => {
     );
   }
 
-  if (!resultUrl || !resultType) {
+  // Get the currently selected creation or use the first one
+  const currentCreation =
+    selectedId && creations.find((c) => c.id === selectedId)
+      ? creations.find((c) => c.id === selectedId)
+      : resultUrl
+        ? null
+        : creations[0];
+
+  const displayUrl = currentCreation?.url || resultUrl;
+  const displayType = currentCreation?.type || resultType;
+
+  if (!displayUrl || !displayType) {
     return (
       <DashboardLayout title="Creation Result">
         <div className="flex-1 flex items-center justify-center px-4">
