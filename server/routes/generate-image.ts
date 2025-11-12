@@ -17,11 +17,23 @@ export const generateImage: RequestHandler = async (req, res) => {
       size: "1024x1024",
     });
 
+    if (!result.data || !result.data[0] || !result.data[0].url) {
+      console.error("❌ Unexpected OpenAI response:", result);
+      return res.status(500).json({
+        error: "No image URL received",
+        details: "OpenAI did not return an image URL",
+      });
+    }
+
     const imageUrl = result.data[0].url;
+    console.log("✅ Image generated successfully:", imageUrl);
     res.json({ imageUrl });
   } catch (err) {
     console.error("❌ Error generating image:", err);
-    res.status(500).json({ error: "Failed to generate image" });
+    res.status(500).json({
+      error: "Failed to generate image",
+      details: err instanceof Error ? err.message : String(err)
+    });
   }
 };
 
