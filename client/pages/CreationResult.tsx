@@ -393,7 +393,7 @@ const CreationResult = () => {
                 Download
               </Button>
 
-              {resultType === "image" && (
+              {displayType === "image" && (
                 <Button
                   onClick={() => setShowUpscaler(true)}
                   className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700"
