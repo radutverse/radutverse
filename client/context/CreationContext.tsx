@@ -23,6 +23,9 @@ interface CreationContextType {
   addCreation: (url: string, type: ResultType) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
+  // Generation progress percentage (0-100)
+  progress: number;
+  setProgress: (value: number) => void;
 }
 
 export const CreationContext = createContext<CreationContextType | undefined>(
@@ -40,6 +43,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
+  const [progress, setProgress] = useState<number>(0);
 
   // Load creations from localStorage on mount
   useEffect(() => {
@@ -99,6 +103,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     addCreation,
     removeCreation,
     clearCreations,
+    progress,
+    setProgress,
   };
 
   return (
