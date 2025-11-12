@@ -72,37 +72,6 @@ const CreationResult = () => {
     setShowUpscaler(false);
   };
 
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-          >
-            <svg
-              className="h-16 w-16 text-[#FF4DA6]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </motion.div>
-          <p className="text-lg font-semibold text-slate-100 mb-2">
-            {loadingMessage || "Creating your masterpiece..."}
-          </p>
-          <p className="text-sm text-slate-400">This may take a moment</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   if (error) {
     const isQuotaError =
@@ -323,7 +292,33 @@ const CreationResult = () => {
             <div className="mb-8">
               <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-[#FF4DA6]/20 p-1">
                 <div className="bg-black rounded-xl overflow-hidden">
-                  {displayType === "image" ? (
+                  {isLoading ? (
+                    <div className="flex flex-col items-center justify-center p-12 min-h-[300px]">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1.6, repeat: Infinity, ease: "linear" }}
+                        className="mb-6"
+                      >
+                        <svg
+                          className="h-12 w-12 text-[#FF4DA6]"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          />
+                        </svg>
+                      </motion.div>
+                      <p className="text-lg font-semibold text-slate-100 mb-1">
+                        {loadingMessage || "Creating your masterpiece..."}
+                      </p>
+                      <p className="text-sm text-slate-400">This may take a moment</p>
+                    </div>
+                  ) : displayType === "image" ? (
                     <img
                       src={upscaledUrl || displayUrl}
                       alt="Generated creation"
