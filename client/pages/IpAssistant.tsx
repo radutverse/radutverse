@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useNavigation } from "@/context/NavigationContext";
 import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
 import ChatInput from "@/components/ip-assistant/ChatInput";
