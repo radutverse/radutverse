@@ -22,6 +22,7 @@ const useGeminiGenerator = () => {
     setResultUrl,
     setResultType,
     resultUrl,
+    addCreation,
   } = context;
 
   const generate = async (
