@@ -53,33 +53,71 @@ const IpImagineCreationResult = () => {
   const displayUrl = resultUrl;
   const displayType = resultType;
 
-  if (isLoading) {
+  if (isLoading || !displayUrl) {
     return (
       <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-          >
-            <svg
-              className="h-16 w-16 text-[#FF4DA6]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </motion.div>
-          <p className="text-lg font-semibold text-slate-100 mb-2">
-            {loadingMessage || "Creating your masterpiece..."}
-          </p>
-          <p className="text-sm text-slate-400">This may take a moment</p>
+        <div className="flex-1 overflow-y-auto bg-transparent">
+          <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
+            {isLoading ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative w-full max-w-4xl mx-auto"
+              >
+                {/* Black Loading Box */}
+                <motion.div
+                  className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800/50"
+                  animate={{
+                    borderColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.5)", "rgba(255, 77, 166, 0.2)"],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <motion.div
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900/50 to-slate-950/50"
+                    animate={{
+                      backgroundColor: [
+                        "rgba(15, 23, 42, 0.5)",
+                        "rgba(15, 23, 42, 0.7)",
+                        "rgba(15, 23, 42, 0.5)",
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                      className="mb-6"
+                    >
+                      <svg
+                        className="h-16 w-16 text-[#FF4DA6]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    </motion.div>
+                    <p className="text-lg font-semibold text-slate-100 mb-2 text-center px-6">
+                      {loadingMessage || "Creating your masterpiece..."}
+                    </p>
+                    <p className="text-sm text-slate-400">This may take a moment</p>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[400px]">
+                <p className="text-slate-400 mb-4">No creation data found</p>
+                <Button onClick={() => navigate("/ip-imagine")}>
+                  Back to IP Imagine
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </DashboardLayout>
     );
