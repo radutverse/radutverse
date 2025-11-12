@@ -338,9 +338,14 @@ const IpImagine = () => {
           )
             return;
 
+          if (creationMode === "video") {
+            setStatusText("🎬 Video generation is coming soon!");
+            return;
+          }
+
           if (!apiKey) {
             setStatusText(
-              "❌ API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
+              "❌ API key not found. Please set VITE_OPENAI_API_KEY environment variable.",
             );
             return;
           }
