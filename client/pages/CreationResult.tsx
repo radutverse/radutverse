@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -7,19 +7,40 @@ import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 const CreationResult = () => {
   const { creations, removeCreation, upscale, isLoading, error } =
     useGeminiGenerator();
-
-  const [showUpscaler, setShowUpscaler] = useState(false);
-  const [selectedCreation, setSelectedCreation] = useState<
-    typeof creations[0] | null
-  >(null);
+  const [dropdownId, setDropdownId] = useState<string | null>(null);
 
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
-  const handleUpscale = async () => {
-    if (!apiKey || !selectedCreation) return;
+  const handleUpscale = async (id: string) => {
+    const creation = creations.find((c) => c.id === id);
+    if (!apiKey || !creation) return;
     await upscale(apiKey);
-    setShowUpscaler(false);
+    setDropdownId(null);
+  };
+
+  const handleDownload = (url: string, type: string) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `creation-${Date.now()}${type === "video" ? ".mp4" : ".png"}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setDropdownId(null);
+  };
+
+  const handleShare = (url: string) => {
+    if (navigator.share) {
+      navigator.share({
+        title: "IP Creation Result",
+        text: "Check out my AI-generated creation!",
+        url,
+      });
+    } else {
+      navigator.clipboard.writeText(url);
+      alert("Link copied to clipboard!");
+    }
+    setDropdownId(null);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -29,9 +50,7 @@ const CreationResult = () => {
     <DashboardLayout title="Creation Result">
       <div className="flex-1 overflow-y-auto bg-transparent px-4 sm:px-6 md:px-12 py-8 pb-24">
         {creations.length === 0 ? (
-          <div className="text-center text-slate-400">
-            No creations found
-          </div>
+          <div className="text-center text-slate-400">No creations found</div>
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
@@ -59,87 +78,54 @@ const CreationResult = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedCreation(creation);
-                    setShowUpscaler(true);
+                    setDropdownId(dropdownId === creation.id ? null : creation.id);
                   }}
                   className="absolute top-1 right-1 z-10 p-1 bg-black/50 hover:bg-black/70 text-white rounded-full"
                 >
                   ⋮
                 </button>
 
-                {/* Tombol hapus */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeCreation(creation.id);
-                  }}
-                  className="absolute bottom-1 right-1 z-10 p-1 bg-red-600/80 hover:bg-red-700 text-white rounded-full"
-                >
-                  ✕
-                </button>
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {dropdownId === creation.id && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="absolute top-8 right-1 z-20 w-36 bg-slate-900/90 border border-slate-700 rounded-lg shadow-lg overflow-hidden"
+                    >
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-slate-800"
+                        onClick={() => handleUpscale(creation.id)}
+                        disabled={creation.type !== "image"}
+                      >
+                        Upscale
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-slate-800"
+                        onClick={() => handleDownload(creation.url, creation.type)}
+                      >
+                        Download
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-slate-800"
+                        onClick={() => handleShare(creation.url)}
+                      >
+                        Share
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-red-700 text-red-200"
+                        onClick={() => removeCreation(creation.id)}
+                      >
+                        Delete
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             ))}
           </motion.div>
         )}
-
-        {/* Modal Upscaler */}
-        <AnimatePresence>
-          {showUpscaler && selectedCreation && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-              <motion.div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                onClick={() => setShowUpscaler(false)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              />
-              <motion.div
-                className="relative z-10 w-full max-w-lg rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-[#FF4DA6]/20 p-8 shadow-2xl"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-              >
-                <div className="flex items-start justify-between gap-4 mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-100">
-                      Upscale Image
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => setShowUpscaler(false)}
-                    className="rounded-full p-2 text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="mb-8 rounded-xl overflow-hidden bg-black/50 border border-slate-800/50">
-                  <img
-                    src={selectedCreation.url}
-                    alt="Preview"
-                    className="w-full h-auto max-h-[250px] object-cover"
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setShowUpscaler(false)}
-                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-100"
-                    variant="outline"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleUpscale}
-                    className="flex-1 bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
-                  >
-                    Upscale Now
-                  </Button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
       </div>
     </DashboardLayout>
   );
