@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
@@ -17,7 +16,6 @@ import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 
 const IpImagine = () => {
-  const navigate = useNavigate();
   const { generate, isLoading, resultUrl } = useGeminiGenerator();
 
   const [input, setInput] = useState("");
