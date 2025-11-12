@@ -58,9 +58,7 @@ const ResultDetailsPanel = ({
         <div className="space-y-3 text-sm">
           <div>
             <div className="text-xs text-slate-500 mb-1">Type</div>
-            <div className="text-slate-200 capitalize font-medium">
-              {type}
-            </div>
+            <div className="text-slate-200 capitalize font-medium">{type}</div>
           </div>
           <div>
             <div className="text-xs text-slate-500 mb-1">Generated At</div>

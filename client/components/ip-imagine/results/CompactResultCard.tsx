@@ -38,10 +38,7 @@ const CompactResultCard = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <video
-            src={imageUrl}
-            className="w-full h-full object-cover"
-          />
+          <video src={imageUrl} className="w-full h-full object-cover" />
         )}
 
         {/* Hover Overlay */}

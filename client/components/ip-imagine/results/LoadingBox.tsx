@@ -4,7 +4,9 @@ interface LoadingBoxProps {
   message?: string;
 }
 
-const LoadingBox = ({ message = "Crafting your image..." }: LoadingBoxProps) => {
+const LoadingBox = ({
+  message = "Crafting your image...",
+}: LoadingBoxProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
