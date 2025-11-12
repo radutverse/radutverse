@@ -1,10 +1,10 @@
 {
   "version": 2,
+  "buildCommand": "npm run build:client && npm run build:server",
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist/spa" }
+      "src": "dist/spa/**",
+      "use": "@vercel/static"
     },
     {
       "src": "api/**/*.ts",
