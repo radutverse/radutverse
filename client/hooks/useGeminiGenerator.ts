@@ -27,7 +27,6 @@ const useGeminiGenerator = () => {
   const generate = async (
     mode: ToggleMode,
     options: GenerationOptions,
-    apiKey: string,
   ) => {
     if (mode === "video") {
       setError("Video generation is coming soon!");
@@ -80,7 +79,7 @@ const useGeminiGenerator = () => {
     }
   };
 
-  const upscale = async (apiKey: string) => {
+  const upscale = async () => {
     if (!resultUrl || !resultUrl.startsWith("data:image")) {
       setError("Upscaling is only available for a generated image.");
       return;
