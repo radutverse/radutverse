@@ -67,10 +67,7 @@ export const editImage: RequestHandler = async (req, res) => {
     const form = new FormData();
     form.append("model", "gpt-image-1");
     form.append("prompt", prompt);
-    form.append("image", buffer, {
-      filename: "image.jpg",
-      contentType: "image/jpeg",
-    });
+    form.append("image", new File([buffer], "image.jpg", { type: "image/jpeg" }));
 
     const response = await fetch("https://api.openai.com/v1/images/edits", {
       method: "POST",
