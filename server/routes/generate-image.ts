@@ -30,7 +30,9 @@ export const generateImage: RequestHandler = async (req, res) => {
       imageUrl = `data:image/png;base64,${result.data[0].b64_json}`;
     } else {
       console.error("❌ Unexpected OpenAI response format:", result.data[0]);
-      return res.status(500).json({ error: "No URL or base64 found in response" });
+      return res
+        .status(500)
+        .json({ error: "No URL or base64 found in response" });
     }
 
     console.log("✅ Image generated successfully");
