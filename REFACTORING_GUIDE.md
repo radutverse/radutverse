@@ -90,11 +90,7 @@ import {
 } from "@/features/ip-assistant";
 
 // ✅ Import from features barrel
-import {
-  IpImagine,
-  PopularIPGrid,
-  NftMarketplace,
-} from "@/features";
+import { IpImagine, PopularIPGrid, NftMarketplace } from "@/features";
 ```
 
 ### Using Shared Exports
@@ -116,6 +112,7 @@ import { ANSWER_DETAILS } from "@/lib/ip-assistant/answer-details";
 ## Migration Path
 
 ### Phase 1 (Current) ✅
+
 - Created feature folder structure with index.ts files
 - Feature index files re-export from old locations
 - App.tsx updated to use feature imports
@@ -123,12 +120,14 @@ import { ANSWER_DETAILS } from "@/lib/ip-assistant/answer-details";
 - **Status**: No breaking changes, fully backward compatible
 
 ### Phase 2 (Planned)
+
 - Move component files to feature folders
 - Update imports in component files
 - Create feature-specific hooks folders
 - Move feature utilities to feature lib folders
 
 ### Phase 3 (Planned)
+
 - Delete old `components/`, `lib/`, `hooks/` directories
 - Complete migration to folder-per-feature structure
 - Deprecate old import paths
@@ -189,6 +188,7 @@ export * from "@/features/new-feature";
 ## Gradual Migration Notes
 
 The refactoring was done gradually to maintain stability:
+
 - Old file structure still exists and works
 - New feature index files re-export from old locations
 - No import paths were broken
@@ -205,5 +205,6 @@ As files are gradually moved to their feature folders, update imports incrementa
 ## Questions?
 
 Refer to existing feature folders as examples:
+
 - `client/features/ip-assistant/` - Most complete example
 - `client/features/ip-imagine/` - Another example
