@@ -75,6 +75,7 @@ const useGeminiGenerator = () => {
       }
 
       setResultUrl(generatedUrl);
+      addCreation(generatedUrl, resultType || "image");
     } catch (e: any) {
       console.error(e);
       let errorMessage =
