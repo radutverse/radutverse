@@ -166,4 +166,4 @@ MIT © 2025 RadutVerse
 
 ---
 
-RadutVerse — Tokenizing creativity for the blockchain.
+RadutVerse, Tokenizing creativity for the blockchain.
