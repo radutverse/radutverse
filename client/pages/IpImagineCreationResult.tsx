@@ -276,7 +276,7 @@ const IpImagineCreationResult = () => {
             onUpscale={
               displayType === "image" ? () => setShowUpscaler(true) : undefined
             }
-            onCreateAnother={() => navigate("/ip-imagine")}
+            onCreateAnother={() => setCurrentPage("ip-imagine")}
           />
         ) : null}
       </AnimatePresence>
