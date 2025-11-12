@@ -147,8 +147,9 @@ const IpImagineCreationResult = () => {
                                 Generation Limit Reached
                               </p>
                               <p className="text-sm text-amber-200/80 leading-relaxed">
-                                You've reached your daily generation limit. Please try
-                                again later or contact support for more information.
+                                You've reached your daily generation limit.
+                                Please try again later or contact support for
+                                more information.
                               </p>
                             </div>
                           </div>
@@ -164,9 +165,9 @@ const IpImagineCreationResult = () => {
                                 Configuration Error
                               </p>
                               <p className="text-sm text-orange-200/80 leading-relaxed">
-                                There's an issue with the generation service. Please
-                                refresh the page and try again, or contact support if the
-                                problem persists.
+                                There's an issue with the generation service.
+                                Please refresh the page and try again, or
+                                contact support if the problem persists.
                               </p>
                             </div>
                           </div>
