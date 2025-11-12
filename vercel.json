@@ -3,8 +3,9 @@
   "buildCommand": "npm run build:client && npm run build:server",
   "builds": [
     {
-      "src": "dist/spa/**",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist/spa" }
     },
     {
       "src": "api/**/*.ts",
@@ -21,7 +22,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/dist/spa/index.html"
     }
   ]
 }
