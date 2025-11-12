@@ -32,6 +32,7 @@ const useGeminiGenerator = () => {
     mode: ToggleMode,
     options: GenerationOptions,
     apiKey: string,
+    pendingId?: string,
   ) => {
     setIsLoading(true);
     setError(null);
