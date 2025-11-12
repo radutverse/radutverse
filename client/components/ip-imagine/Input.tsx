@@ -194,7 +194,7 @@ const IpImagineInput = ({
             onBlur={() => setIsInputFocused(false)}
             placeholder={
               !isInputFocused
-                ? "Type to create���"
+                ? "Type to create…"
                 : creationMode === "video"
                   ? "Type to make video…"
                   : "Type to make image…"
@@ -292,6 +292,7 @@ const IpImagineInput = ({
       </div>
 
       <button
+        ref={sendButtonRef}
         type="submit"
         disabled={
           waiting ||
