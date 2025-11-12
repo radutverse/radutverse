@@ -87,18 +87,7 @@ const IpImagineInput = ({
         <button
           type="button"
           onClick={() => {
-            const demoImageUrl =
-              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FF4DA6" width="400" height="300"/%3E%3Ctext x="200" y="150" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle"%3ECreation Demo%3C/text%3E%3C/svg%3E';
-            navigate("/creation-result", {
-              state: {
-                type: creationMode || "image",
-                outputUrl: demoImageUrl,
-                prompt:
-                  input ||
-                  "This is a demo creation. Replace with actual generation results.",
-                timestamp: new Date().toISOString(),
-              },
-            });
+            navigate("/ip-imagine/result");
           }}
           className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
           aria-label="View creations and results"
