@@ -69,7 +69,7 @@ const IpImagineInput = ({
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
   const galleryButtonRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const { setCurrentPage } = useNavigation();
 
   return (
     <form
