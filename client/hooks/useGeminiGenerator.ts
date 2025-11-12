@@ -34,7 +34,9 @@ const useGeminiGenerator = () => {
     setError(null);
     setResultUrl(null);
     setResultType(null);
-    navigate("/creation-result");
+
+    // Generation should run in the background. Navigation to results is now manual
+    // via the gallery/Results button to avoid interrupting the user's flow.
 
     try {
       let generatedUrl: string;
