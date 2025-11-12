@@ -20,13 +20,20 @@ const FlyingImageAnimation = ({
   const animRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // debug logs
+    // eslint-disable-next-line no-console
+    console.log("[FlyingImageAnimation] isActive:", isActive, "startRef.current:", startRef?.current, "targetRef.current:", targetRef?.current, "animRef.current:", animRef.current);
+
     if (
       !isActive ||
       !targetRef.current ||
       !startRef?.current ||
       !animRef.current
-    )
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn("[FlyingImageAnimation] missing refs or not active");
       return;
+    }
 
     const startRect = startRef.current.getBoundingClientRect();
     const targetRect = targetRef.current.getBoundingClientRect();
