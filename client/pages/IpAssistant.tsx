@@ -3232,8 +3232,8 @@ const IpAssistant = () => {
                         <span
                           className={`text-xs px-2 py-1 rounded font-semibold whitespace-nowrap ${
                             asset.isDerivative
-                              ? "bg-blue-500/20 text-blue-300"
-                              : "bg-green-500/20 text-green-300"
+                              ? "bg-[#FF4DA6]/20 text-[#FF4DA6]"
+                              : "bg-emerald-500/20 text-emerald-300"
                           }`}
                         >
                           Original
@@ -3699,8 +3699,8 @@ const IpAssistant = () => {
                         <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                           Derivative Status
                         </label>
-                        <div className="mt-4 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 space-y-4">
-                          <p className="text-sm text-blue-200">
+                        <div className="mt-4 bg-[#FF4DA6]/10 border border-[#FF4DA6]/30 rounded-lg p-4 space-y-4">
+                          <p className="text-sm text-slate-200">
                             This is a derivative work with{" "}
                             {expandedAsset.parentsCount} parent IP asset
                             {expandedAsset.parentsCount > 1 ? "s" : ""}.
