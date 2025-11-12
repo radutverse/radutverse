@@ -11,17 +11,17 @@ export { YouTubeStyleSearchResults } from "@/components/ip-assistant/YouTubeStyl
 export { default as IpAssistant } from "@/pages/IpAssistant";
 export { default as IpfiAssistant } from "@/pages/IpfiAssistant";
 
-// Types and Utils
+// Keep old paths as fallback for now - gradual migration
 export {
   type BotMessage,
   type Message,
   type ChatSession,
-} from "@/features/ip-assistant/lib/types";
+} from "@/lib/ip-assistant/types";
 export {
   IP_ASSISTANT_AVATAR,
   STORAGE_KEY,
   CURRENT_SESSION_KEY,
-} from "@/features/ip-assistant/lib/constants";
+} from "@/lib/ip-assistant/constants";
 export {
   truncateAddress,
   getCurrentTimestamp,
@@ -29,5 +29,5 @@ export {
   isValidEthereumAddress,
   getMessagePreview,
   summaryFromAnswer,
-} from "@/features/ip-assistant/lib/utils";
-export { ANSWER_DETAILS } from "@/features/ip-assistant/lib/answer-details";
+} from "@/lib/ip-assistant/utils";
+export { ANSWER_DETAILS } from "@/lib/ip-assistant/answer-details";
