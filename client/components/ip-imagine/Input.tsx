@@ -94,7 +94,7 @@ const IpImagineInput = ({
         <button
           type="button"
           onClick={() => {
-            navigate("/ip-imagine/result");
+            setCurrentPage("ip-imagine-result");
           }}
           className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
             waiting
