@@ -5,20 +5,15 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist/spa" }
-    },
-    {
-      "src": "dist/server/node-build.mjs",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/server/node-build.mjs"
+      "dest": "/index.html"
     }
   ]
 }
