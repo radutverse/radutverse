@@ -248,7 +248,7 @@ const IpImagineCreationResult = () => {
   }
 
   return (
-    <DashboardLayout title="IP Imagine Result">
+    <DashboardLayout title="Creation Result">
       <div className="flex-1 overflow-y-auto bg-transparent">
         <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
           {/* Upscale Success Message */}
