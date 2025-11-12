@@ -10,12 +10,12 @@ import React, {
   useState,
 } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { useNavigation } from "@/context/NavigationContext";
 import FlyingImageAnimation from "@/components/ip-imagine/FlyingImageAnimation";
 import {
   RemixImage,
