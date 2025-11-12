@@ -4,8 +4,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CreationProvider } from "@/context/CreationContext";
+import { NavigationProvider, useNavigation } from "@/context/NavigationContext";
 import Index from "./pages/Index";
 import IpfiAssistant from "./pages/IpfiAssistant";
 import NftMarketplace from "./pages/NftMarketplace";
@@ -15,7 +15,6 @@ import History from "./pages/History";
 import IpImagine from "./pages/IpImagine";
 import IpImagineCreationResult from "./pages/IpImagineCreationResult";
 import CreationResult from "./pages/CreationResult";
-import NotFound from "./pages/NotFound";
 
 declare global {
   interface Window {
@@ -53,33 +52,48 @@ const ensurePrivyAnalyticsFetchPatched = () => {
 const queryClient = new QueryClient();
 const privyAppId = import.meta.env.VITE_PRIVY_APP_ID;
 
-const AppRoutes = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
-      <Route path="/ip-imagine" element={<IpImagine />} />
-      <Route path="/ip-imagine/result" element={<IpImagineCreationResult />} />
-      <Route path="/creation-result" element={<CreationResult />} />
-      <Route path="/nft-marketplace" element={<NftMarketplace />} />
-      <Route path="/my-portfolio" element={<MyPortfolio />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/history" element={<History />} />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  </BrowserRouter>
-);
+const AppRoutes = () => {
+  const { currentPage } = useNavigation();
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case "index":
+        return <Index />;
+      case "ipfi-assistant":
+        return <IpfiAssistant />;
+      case "ip-imagine":
+        return <IpImagine />;
+      case "ip-imagine-result":
+        return <IpImagineCreationResult />;
+      case "creation-result":
+        return <CreationResult />;
+      case "nft-marketplace":
+        return <NftMarketplace />;
+      case "my-portfolio":
+        return <MyPortfolio />;
+      case "settings":
+        return <Settings />;
+      case "history":
+        return <History />;
+      default:
+        return <Index />;
+    }
+  };
+
+  return renderPage();
+};
 
 const App = () => {
   ensurePrivyAnalyticsFetchPatched();
 
   const appContent = (
-    <CreationProvider>
-      <QueryClientProvider client={queryClient}>
-        <AppRoutes />
-      </QueryClientProvider>
-    </CreationProvider>
+    <NavigationProvider>
+      <CreationProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppRoutes />
+        </QueryClientProvider>
+      </CreationProvider>
+    </NavigationProvider>
   );
 
   if (!privyAppId) {
