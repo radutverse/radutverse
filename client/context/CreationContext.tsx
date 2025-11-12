@@ -104,7 +104,11 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   // Finalize an existing pending creation by id (replace URL, type and mark done)
   const finalizeCreation = (id: string, url: string, type: ResultType) => {
     setCreations((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, url, type, status: "done", timestamp: Date.now() } : c)),
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, url, type, status: "done", timestamp: Date.now() }
+          : c,
+      ),
     );
   };
 
