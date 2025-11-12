@@ -94,11 +94,13 @@ const IpImagineInput = ({
     >
       {/* Creations Gallery - Navigate to Creation Result */}
       <div ref={galleryButtonRef} className="mr-2 flex items-center">
-        <button
+        <motion.button
           type="button"
           onClick={() => {
             navigate("/ip-imagine/result");
           }}
+          animate={{ scale: galleryPulse ? 1.18 : 1 }}
+          transition={{ type: "spring", stiffness: 600, damping: 18 }}
           className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
             waiting ? "text-[#FF4DA6] bg-[#FF4DA6]/20" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
           }`}
@@ -122,7 +124,7 @@ const IpImagineInput = ({
               </span>
             ) : null}
           </div>
-        </button>
+        </motion.button>
       </div>
 
       <div className="flex-1 flex flex-col gap-2 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
@@ -192,7 +194,7 @@ const IpImagineInput = ({
             onBlur={() => setIsInputFocused(false)}
             placeholder={
               !isInputFocused
-                ? "Type to create…"
+                ? "Type to create���"
                 : creationMode === "video"
                   ? "Type to make video…"
                   : "Type to make image…"
