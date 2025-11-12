@@ -4,8 +4,10 @@ import { ResultType } from "@/types/generation";
 export interface Creation {
   id: string;
   url: string;
-  type: ResultType;
+  type: ResultType | null;
   timestamp: number;
+  // optional status: 'pending' while generation is in progress, 'done' when finished
+  status?: "pending" | "done";
 }
 
 interface CreationContextType {
@@ -75,9 +77,31 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       id: `creation_${Date.now()}`,
       url,
       type,
+      status: "done",
       timestamp: Date.now(),
     };
     setCreations((prev) => [newCreation, ...prev]);
+  };
+
+  // Add a pending creation placeholder and return its id so it can be finalized later
+  const addPendingCreation = (): string => {
+    const id = `creation_pending_${Date.now()}`;
+    const pending: Creation = {
+      id,
+      url: "",
+      type: null,
+      status: "pending",
+      timestamp: Date.now(),
+    };
+    setCreations((prev) => [pending, ...prev]);
+    return id;
+  };
+
+  // Finalize an existing pending creation by id (replace URL, type and mark done)
+  const finalizeCreation = (id: string, url: string, type: ResultType) => {
+    setCreations((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, url, type, status: "done", timestamp: Date.now() } : c)),
+    );
   };
 
   const removeCreation = (id: string) => {
@@ -101,6 +125,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     setError,
     creations,
     addCreation,
+    addPendingCreation,
+    finalizeCreation,
     removeCreation,
     clearCreations,
     progress,
