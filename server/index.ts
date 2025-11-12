@@ -80,6 +80,7 @@ async function fetchParentIpDetails(
 
 export function createServer() {
   const app = express();
+  const isProduction = process.env.NODE_ENV === "production";
 
   // Setup multer for image upload handling in watermark verification
   const upload = multer({
