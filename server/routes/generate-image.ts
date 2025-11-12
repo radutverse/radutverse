@@ -101,15 +101,30 @@ export const editImage: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!data.data || !data.data[0] || !data.data[0].url) {
+    if (!data.data || !data.data[0]) {
       console.error("❌ Unexpected OpenAI response:", data);
       return res.status(500).json({
         error: "Invalid response from OpenAI",
-        details: "Missing image URL in response",
+        details: "Missing image data in response",
       });
     }
 
-    res.json({ url: data.data[0].url });
+    // Handle both URL (text-to-image) and b64_json (image edit) responses
+    let imageUrl: string;
+    if (data.data[0].url) {
+      imageUrl = data.data[0].url;
+    } else if (data.data[0].b64_json) {
+      imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+    } else {
+      console.error("❌ Unexpected OpenAI response format:", data.data[0]);
+      return res.status(500).json({
+        error: "Invalid response from OpenAI",
+        details: "Missing both URL and base64 image data",
+      });
+    }
+
+    console.log("✅ Image edited successfully");
+    res.json({ url: imageUrl });
   } catch (err: any) {
     console.error("❌ Error editing image:", err);
     res.status(500).json({
