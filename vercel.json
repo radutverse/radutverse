@@ -18,8 +18,12 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/dist/favicon.ico"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/dist/$1"
+      "dest": "/dist/index.html"
     }
   ]
 }
