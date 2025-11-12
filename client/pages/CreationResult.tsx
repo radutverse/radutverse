@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import UpscalerModal from "@/components/creation/UpscalerModal";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
+import { useNavigation } from "@/context/NavigationContext";
 
 const CreationResult = () => {
-  const navigate = useNavigate();
+  const { setCurrentPage } = useNavigation();
   const {
     resultUrl,
     resultType,
