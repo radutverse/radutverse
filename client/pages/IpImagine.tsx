@@ -371,6 +371,7 @@ const IpImagine = () => {
                 image: imageData,
               },
               apiKey,
+              pendingId,
             );
 
             setInput("");
