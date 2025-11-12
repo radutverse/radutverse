@@ -64,8 +64,15 @@ export const editImage = async (
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Image editing failed");
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Image editing failed");
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Image editing failed with status ${response.status}`
+        );
+      }
     }
 
     const data = await response.json();
