@@ -11,7 +11,6 @@ import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const {
     resultUrl,
     resultType,
