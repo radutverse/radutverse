@@ -53,207 +53,187 @@ const IpImagineCreationResult = () => {
   const displayUrl = resultUrl;
   const displayType = resultType;
 
-  if (isLoading || !displayUrl) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 overflow-y-auto bg-transparent">
-          <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
-            {isLoading ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="relative w-full max-w-4xl mx-auto"
-              >
-                {/* Black Loading Box */}
-                <motion.div
-                  className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800/50"
-                  animate={{
-                    borderColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.5)", "rgba(255, 77, 166, 0.2)"],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <motion.div
-                    className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900/50 to-slate-950/50"
-                    animate={{
-                      backgroundColor: [
-                        "rgba(15, 23, 42, 0.5)",
-                        "rgba(15, 23, 42, 0.7)",
-                        "rgba(15, 23, 42, 0.5)",
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-                      className="mb-6"
-                    >
-                      <svg
-                        className="h-16 w-16 text-[#FF4DA6]"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                    </motion.div>
-                    <p className="text-lg font-semibold text-slate-100 mb-2 text-center px-6">
-                      {loadingMessage || "Creating your masterpiece..."}
-                    </p>
-                    <p className="text-sm text-slate-400">This may take a moment</p>
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[400px]">
-                <p className="text-slate-400 mb-4">No creation data found</p>
-                <Button onClick={() => navigate("/ip-imagine")}>
-                  Back to IP Imagine
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (error) {
-    const isQuotaError =
-      error.includes("quota") ||
-      error.includes("Quota") ||
-      error.includes("exceeded");
-    const isAuthError =
-      error.includes("API key") ||
-      error.includes("not valid") ||
-      error.includes("PERMISSION_DENIED");
-
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md"
-          >
-            <div className="rounded-2xl bg-red-900/20 border border-red-800/50 p-6 mb-6">
-              <div className="flex gap-3 mb-4">
-                <svg
-                  className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-red-300">
-                    {isQuotaError
-                      ? "Usage Limit Exceeded"
-                      : isAuthError
-                        ? "Authentication Error"
-                        : "Generation Failed"}
-                  </h3>
-                </div>
-              </div>
-            </div>
-
-            {isQuotaError && (
-              <div className="rounded-2xl bg-amber-900/20 border border-amber-800/50 p-6 mb-6">
-                <div className="flex gap-4">
-                  <div className="text-3xl">⏳</div>
-                  <div>
-                    <p className="text-amber-300 font-semibold mb-2">
-                      Generation Limit Reached
-                    </p>
-                    <p className="text-sm text-amber-200/80 leading-relaxed">
-                      You've reached your daily generation limit. Please try
-                      again later or contact support for more information.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isAuthError && (
-              <div className="rounded-2xl bg-orange-900/20 border border-orange-800/50 p-6 mb-6">
-                <div className="flex gap-4">
-                  <div className="text-3xl">⚠️</div>
-                  <div>
-                    <p className="text-orange-300 font-semibold mb-2">
-                      Configuration Error
-                    </p>
-                    <p className="text-sm text-orange-200/80 leading-relaxed">
-                      There's an issue with the generation service. Please
-                      refresh the page and try again, or contact support if the
-                      problem persists.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {!isQuotaError && !isAuthError && (
-              <div className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-4 mb-6">
-                <p className="text-sm text-slate-300 font-mono break-words">
-                  {error}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-3">
-              <Button
-                onClick={() => navigate("/ip-imagine")}
-                className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
-              >
-                Back to Generation
-              </Button>
-              <Button
-                onClick={() => window.location.reload()}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-100"
-                variant="outline"
-              >
-                Refresh Page
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!displayUrl || !displayType) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center">
-            <p className="text-slate-400 mb-4">No creation data found</p>
-            <Button onClick={() => navigate("/ip-imagine")}>
-              Back to IP Imagine
-            </Button>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout title="Creation Result">
       <div className="flex-1 overflow-y-auto bg-transparent">
         <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
+          {/* Loading State */}
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative w-full max-w-4xl mx-auto"
+            >
+              {/* Black Loading Box */}
+              <motion.div
+                className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800/50"
+                animate={{
+                  borderColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.5)", "rgba(255, 77, 166, 0.2)"],
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <motion.div
+                  className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900/50 to-slate-950/50"
+                  animate={{
+                    backgroundColor: [
+                      "rgba(15, 23, 42, 0.5)",
+                      "rgba(15, 23, 42, 0.7)",
+                      "rgba(15, 23, 42, 0.5)",
+                    ],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                    className="mb-6"
+                  >
+                    <svg
+                      className="h-16 w-16 text-[#FF4DA6]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                  </motion.div>
+                  <p className="text-lg font-semibold text-slate-100 mb-2 text-center px-6">
+                    {loadingMessage || "Creating your masterpiece..."}
+                  </p>
+                  <p className="text-sm text-slate-400">This may take a moment</p>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-md mx-auto"
+            >
+              {(() => {
+                const isQuotaError =
+                  error.includes("quota") ||
+                  error.includes("Quota") ||
+                  error.includes("exceeded");
+                const isAuthError =
+                  error.includes("API key") ||
+                  error.includes("not valid") ||
+                  error.includes("PERMISSION_DENIED");
+
+                return (
+                  <>
+                    <div className="rounded-2xl bg-red-900/20 border border-red-800/50 p-6 mb-6">
+                      <div className="flex gap-3 mb-4">
+                        <svg
+                          className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div>
+                          <h3 className="text-lg font-semibold text-red-300">
+                            {isQuotaError
+                              ? "Usage Limit Exceeded"
+                              : isAuthError
+                                ? "Authentication Error"
+                                : "Generation Failed"}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    {isQuotaError && (
+                      <div className="rounded-2xl bg-amber-900/20 border border-amber-800/50 p-6 mb-6">
+                        <div className="flex gap-4">
+                          <div className="text-3xl">⏳</div>
+                          <div>
+                            <p className="text-amber-300 font-semibold mb-2">
+                              Generation Limit Reached
+                            </p>
+                            <p className="text-sm text-amber-200/80 leading-relaxed">
+                              You've reached your daily generation limit. Please try
+                              again later or contact support for more information.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isAuthError && (
+                      <div className="rounded-2xl bg-orange-900/20 border border-orange-800/50 p-6 mb-6">
+                        <div className="flex gap-4">
+                          <div className="text-3xl">⚠️</div>
+                          <div>
+                            <p className="text-orange-300 font-semibold mb-2">
+                              Configuration Error
+                            </p>
+                            <p className="text-sm text-orange-200/80 leading-relaxed">
+                              There's an issue with the generation service. Please
+                              refresh the page and try again, or contact support if the
+                              problem persists.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {!isQuotaError && !isAuthError && (
+                      <div className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-4 mb-6">
+                        <p className="text-sm text-slate-300 font-mono break-words">
+                          {error}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-3">
+                      <Button
+                        onClick={() => navigate("/ip-imagine")}
+                        className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
+                      >
+                        Back to IP Imagine
+                      </Button>
+                      <Button
+                        onClick={() => window.location.reload()}
+                        className="bg-slate-800 hover:bg-slate-700 text-slate-100"
+                        variant="outline"
+                      >
+                        Refresh Page
+                      </Button>
+                    </div>
+                  </>
+                );
+              })()}
+            </motion.div>
+          )}
+
+          {/* No Data State */}
+          {!isLoading && !error && (!displayUrl || !displayType) && (
+            <div className="flex flex-col items-center justify-center h-[400px]">
+              <p className="text-slate-400 mb-4">No creation data found</p>
+              <Button onClick={() => navigate("/ip-imagine")}>
+                Back to IP Imagine
+              </Button>
+            </div>
+          )}
+
           {/* Upscale Success Message */}
           <AnimatePresence>
-            {upscaledUrl && (
+            {upscaledUrl && !isLoading && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
