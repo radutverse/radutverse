@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import UpscalerModal from "@/components/creation/UpscalerModal";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
 const CreationResult = () => {
@@ -19,7 +18,6 @@ const CreationResult = () => {
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Auto-select newest creation
   useEffect(() => {
     if (creations.length > 0) {
       setSelectedId(creations[0].id);
@@ -36,34 +34,6 @@ const CreationResult = () => {
 
     await upscale(apiKey);
     setShowUpscaler(false);
-  };
-
-  const handleDownload = (creationUrl: string, creationType: string) => {
-    const link = document.createElement("a");
-    link.href = creationUrl;
-    link.download = `creation-${Date.now()}${
-      creationType === "video" ? ".mp4" : ".png"
-    }`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleShare = (creationUrl: string) => {
-    try {
-      if (navigator.share) {
-        navigator.share({
-          title: "IP Creation Result",
-          text: "Check out my AI-generated creation!",
-          url: window.location.href,
-        });
-      } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Link copied to clipboard!");
-      }
-    } catch (err) {
-      console.error("Share error:", err);
-    }
   };
 
   if (isLoading) {
@@ -108,32 +78,10 @@ const CreationResult = () => {
             className="w-full max-w-md"
           >
             <div className="rounded-2xl bg-red-900/20 border border-red-800/50 p-6 mb-6">
-              <div className="flex gap-3 mb-4">
-                <svg
-                  className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-red-300">
-                    Generation Failed
-                  </h3>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-4 mb-6">
-                <p className="text-sm text-slate-300 font-mono break-words">
-                  {error}
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
+              <p className="text-sm text-slate-300 font-mono break-words">
+                {error}
+              </p>
+              <div className="flex flex-col gap-3 mt-4">
                 <Button
                   onClick={() => navigate("/ip-imagine")}
                   className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
