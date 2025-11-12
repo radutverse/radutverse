@@ -24,10 +24,7 @@ const useGeminiGenerator = () => {
     addCreation,
   } = context;
 
-  const generate = async (
-    mode: ToggleMode,
-    options: GenerationOptions,
-  ) => {
+  const generate = async (mode: ToggleMode, options: GenerationOptions) => {
     if (mode === "video") {
       setError("Video generation is coming soon!");
       return;

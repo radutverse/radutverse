@@ -244,7 +244,9 @@ const IpImagineInput = ({
                 <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
               </svg>
               Video
-              <span className="text-xs ml-1 px-2 py-0.5 rounded bg-slate-700/60 text-slate-300">Coming Soon</span>
+              <span className="text-xs ml-1 px-2 py-0.5 rounded bg-slate-700/60 text-slate-300">
+                Coming Soon
+              </span>
             </button>
           </motion.div>
         )}
