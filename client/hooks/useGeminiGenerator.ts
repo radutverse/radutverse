@@ -100,7 +100,7 @@ const useGeminiGenerator = () => {
 
       setResultUrl(generatedUrl);
       // finalize the pending item with actual URL and type
-      finalizeCreation(pendingId, generatedUrl, type);
+      finalizeCreation(pendingIdLocal, generatedUrl, type);
 
       // Mark progress complete and clear the interval
       setProgress(100);
