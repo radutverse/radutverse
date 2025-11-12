@@ -316,8 +316,18 @@ const IpImagineInput = ({
 
       <FlyingImageAnimation
         isActive={showFlyingAnimation}
-        targetRef={galleryButtonRef}
-        onComplete={() => setShowFlyingAnimation(false)}
+        startRef={sendButtonRef as any}
+        targetRef={galleryButtonRef as any}
+        onComplete={() => {
+          // pulse gallery then start generation
+          setGalleryPulse(true);
+          setShowFlyingAnimation(false);
+          const pulseDur = 420;
+          setTimeout(() => {
+            setGalleryPulse(false);
+            void onSubmit();
+          }, pulseDur);
+        }}
       />
     </form>
   );
