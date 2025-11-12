@@ -22,6 +22,7 @@ const IpImagine = () => {
   const [waiting, setWaiting] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
   const [sessions, setSessions] = useState<unknown[]>([]);
+  const [resultUrls, setResultUrls] = useState<string[]>([]);
   const [previewImages, setPreviewImages] = useState<PreviewImagesState>({
     remixImage: null,
     additionalImage: null,
@@ -38,6 +39,13 @@ const IpImagine = () => {
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+
+  // Track new results for stacking effect
+  useEffect(() => {
+    if (resultUrl && !resultUrls.includes(resultUrl)) {
+      setResultUrls((prev) => [resultUrl, ...prev].slice(0, 5));
+    }
+  }, [resultUrl]);
 
   useEffect(() => {
     let mounted = true;
@@ -315,6 +323,8 @@ const IpImagine = () => {
         setPreviewImages={setPreviewImages}
         uploadRef={uploadRef}
         handleImage={handleImage}
+        resultUrl={resultUrl}
+        resultUrls={resultUrls}
         onSubmit={async () => {
           if (
             !input.trim() &&
@@ -324,7 +334,7 @@ const IpImagine = () => {
             return;
 
           if (creationMode === "video") {
-            setStatusText("🎬 Video generation is coming soon!");
+            setStatusText("��� Video generation is coming soon!");
             return;
           }
 
