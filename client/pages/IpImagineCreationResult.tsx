@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import ResultMediaDisplay from "@/components/ip-imagine/results/ResultMediaDisplay";
-import ResultDetails from "@/components/ip-imagine/results/ResultDetails";
-import ResultActions from "@/components/ip-imagine/results/ResultActions";
+import CompactResultCard from "@/components/ip-imagine/results/CompactResultCard";
 import ResultUpscaleModal from "@/components/ip-imagine/results/ResultUpscaleModal";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 
