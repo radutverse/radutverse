@@ -11,6 +11,14 @@ export interface GenerationOptions {
   aspectRatio?: string;
 }
 
+export interface Generation {
+  id: string;
+  type: ResultType;
+  url: string;
+  prompt?: string;
+  timestamp?: number;
+}
+
 export interface CreationContextType {
   resultUrl: string | null;
   setResultUrl: (url: string | null) => void;
