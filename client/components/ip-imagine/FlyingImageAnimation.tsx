@@ -19,7 +19,12 @@ const FlyingImageAnimation = ({
   const animRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isActive || !targetRef.current || !startRef?.current || !animRef.current)
+    if (
+      !isActive ||
+      !targetRef.current ||
+      !startRef?.current ||
+      !animRef.current
+    )
       return;
 
     const startRect = startRef.current.getBoundingClientRect();
@@ -42,7 +47,10 @@ const FlyingImageAnimation = ({
     const animation = el.animate(
       [
         { transform: `translate(0px, 0px) scale(1)`, opacity: 1 },
-        { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.9)`, opacity: 0.1 },
+        {
+          transform: `translate(${deltaX}px, ${deltaY}px) scale(0.9)`,
+          opacity: 0.1,
+        },
       ],
       {
         duration: 650,
