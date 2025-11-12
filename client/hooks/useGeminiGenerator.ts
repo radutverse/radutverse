@@ -5,7 +5,6 @@ import { GenerationOptions, ToggleMode } from "@/types/generation";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
-  const navigate = useNavigate();
 
   if (!context) {
     throw new Error(
