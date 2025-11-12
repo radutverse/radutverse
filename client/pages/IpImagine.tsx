@@ -19,7 +19,7 @@ import { getImageVisionDescription } from "@/lib/utils/vision-api";
 
 const IpImagine = () => {
   const navigate = useNavigate();
-  const { generate, isLoading, resultUrl } = useGeminiGenerator();
+  const { generate, isLoading, resultUrl, progress } = useGeminiGenerator();
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
