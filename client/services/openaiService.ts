@@ -21,7 +21,7 @@ export const generateImageFromText = async (
       } catch (parseError) {
         const text = await response.text();
         throw new Error(
-          text || `Image generation failed with status ${response.status}`
+          text || `Image generation failed with status ${response.status}`,
         );
       }
     }
@@ -70,7 +70,7 @@ export const editImage = async (
       } catch (parseError) {
         const text = await response.text();
         throw new Error(
-          text || `Image editing failed with status ${response.status}`
+          text || `Image editing failed with status ${response.status}`,
         );
       }
     }

@@ -40,7 +40,7 @@ export const generateImageFromText = async (
       } catch (parseError) {
         const text = await response.text();
         throw new Error(
-          text || `Image generation failed with status ${response.status}`
+          text || `Image generation failed with status ${response.status}`,
         );
       }
     }
@@ -104,7 +104,7 @@ export const editImage = async (
       } catch (parseError) {
         const text = await response.text();
         throw new Error(
-          text || `Image editing failed with status ${response.status}`
+          text || `Image editing failed with status ${response.status}`,
         );
       }
     }
@@ -170,7 +170,7 @@ export const upscaleImage = async (
       } catch (parseError) {
         const text = await response.text();
         throw new Error(
-          text || `Image upscaling failed with status ${response.status}`
+          text || `Image upscaling failed with status ${response.status}`,
         );
       }
     }
@@ -279,7 +279,8 @@ export const generateVideo = async (
       } catch (parseError) {
         const text = await response.text();
         throw new Error(
-          text || `Video generation initiation failed with status ${response.status}`
+          text ||
+            `Video generation initiation failed with status ${response.status}`,
         );
       }
     }
