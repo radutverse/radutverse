@@ -16,9 +16,6 @@ const IpImagineCreationResult = () => {
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
 
-  const apiKey =
-    import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
-
   const handleDownload = () => {
     if (!displayUrl) return;
     const link = document.createElement("a");
@@ -48,14 +45,8 @@ const IpImagineCreationResult = () => {
   };
 
   const handleUpscale = async () => {
-    if (!apiKey) {
-      alert(
-        "API key not found. Please set VITE_GEMINI_API_KEY environment variable.",
-      );
-      return;
-    }
     if (!displayUrl) return;
-    await upscale(apiKey);
+    await upscale();
     setShowUpscaler(false);
   };
 
