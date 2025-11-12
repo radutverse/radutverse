@@ -23,6 +23,10 @@ interface CreationContextType {
   setError: (error: string | null) => void;
   creations: Creation[];
   addCreation: (url: string, type: ResultType) => void;
+  // Add a pending placeholder and return its id
+  addPendingCreation: () => string;
+  // Finalize a pending placeholder
+  finalizeCreation: (id: string, url: string, type: ResultType) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
   // Generation progress percentage (0-100)
