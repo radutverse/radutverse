@@ -305,7 +305,7 @@ export function createServer() {
   }
 
   // SPA fallback: serve index.html for all non-API, non-static routes
-  app.get("*", (req, res) => {
+  app.use((req, res) => {
     const indexPath = path.join(spaDir, "index.html");
     try {
       res.sendFile(indexPath);
