@@ -62,37 +62,7 @@ const IpImagineCreationResult = () => {
   const displayUrl = resultUrl;
   const displayType = resultType;
 
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Creation Result">
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-          >
-            <svg
-              className="h-16 w-16 text-[#FF4DA6]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </motion.div>
-          <p className="text-lg font-semibold text-slate-100 mb-2">
-            {loadingMessage || "Creating your masterpiece..."}
-          </p>
-          <p className="text-sm text-slate-400">This may take a moment</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // keep rendering page when loading — show loader in media area instead of full-screen.
 
   if (error) {
     const isQuotaError =
