@@ -71,7 +71,9 @@ const IpImagineInput = ({
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
+  const [galleryPulse, setGalleryPulse] = useState(false);
   const galleryButtonRef = useRef<HTMLDivElement>(null);
+  const sendButtonRef = useRef<HTMLButtonElement | null>(null);
   const navigate = useNavigate();
 
   return (
