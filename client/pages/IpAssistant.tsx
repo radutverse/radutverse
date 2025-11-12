@@ -46,7 +46,7 @@ import type {
 } from "@/lib/ip-assistant/types";
 
 const IpAssistant = () => {
-  const navigate = useNavigate();
+  const { setCurrentPage } = useNavigation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
