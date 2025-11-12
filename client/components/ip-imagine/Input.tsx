@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 import {
   Popover,
   PopoverTrigger,
@@ -31,7 +32,7 @@ type IpImagineInputProps = {
   setPreviewImages: Dispatch<SetStateAction<PreviewImagesState>>;
   uploadRef: MutableRefObject<HTMLInputElement | null>;
   handleImage: (event: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: () => Promise<void> | void;
+  onSubmit: (pendingId?: string) => Promise<void> | void;
   inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>;
   handleKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   toolsOpen: boolean;
@@ -74,7 +75,9 @@ const IpImagineInput = ({
   const [galleryPulse, setGalleryPulse] = useState(false);
   const galleryButtonRef = useRef<HTMLDivElement>(null);
   const sendButtonRef = useRef<HTMLButtonElement | null>(null);
+  const pendingIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
+  const { addPendingCreation } = useGeminiGenerator();
 
   return (
     <form
@@ -86,6 +89,13 @@ const IpImagineInput = ({
         if (isRemixWithRegister) {
           onRemixRegisterWarning?.();
         } else {
+          // create pending placeholder immediately so gallery shows 'pending' even during flight
+          try {
+            pendingIdRef.current = addPendingCreation();
+          } catch (err) {
+            pendingIdRef.current = null;
+          }
+
           // start flying animation; actual generation will begin after animation completes
           setShowFlyingAnimation(true);
         }
@@ -329,7 +339,8 @@ const IpImagineInput = ({
           const pulseDur = 420;
           setTimeout(() => {
             setGalleryPulse(false);
-            void onSubmit();
+            void onSubmit(pendingIdRef.current ?? undefined);
+            pendingIdRef.current = null;
           }, pulseDur);
         }}
       />
