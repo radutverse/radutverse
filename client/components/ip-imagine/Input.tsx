@@ -91,30 +91,69 @@ const IpImagineInput = ({
       }}
       autoComplete="off"
     >
-      {/* Creations Gallery - Navigate to Creation Result */}
+      {/* Gallery Preview Box - Shows Loading or Thumbnail */}
       <div ref={galleryButtonRef} className="mr-2 flex items-center">
-        <button
+        <motion.button
           type="button"
           onClick={() => {
-            navigate("/ip-imagine/result");
+            if (resultUrl) navigate("/ip-imagine/result");
           }}
-          className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
-            waiting
-              ? "text-[#FF4DA6] bg-[#FF4DA6]/20 animate-pulse"
-              : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
-          }`}
-          aria-label="View creations and results"
-          title="Creation Results"
+          disabled={!resultUrl && !waiting}
+          className="relative flex-shrink-0 w-12 h-12 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 disabled:cursor-default"
+          aria-label="View generation result"
+          title={resultUrl ? "Click to view result" : "Waiting for generation..."}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
-          </svg>
-        </button>
+          {waiting && !resultUrl ? (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center bg-[#FF4DA6]/20"
+              animate={{ backgroundColor: ["rgba(255, 77, 166, 0.2)", "rgba(255, 77, 166, 0.3)", "rgba(255, 77, 166, 0.2)"] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <svg
+                className="h-6 w-6 text-[#FF4DA6] animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeOpacity="0.15"
+                  strokeWidth="3"
+                />
+                <path
+                  d="M22 12a10 10 0 00-10-10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </motion.div>
+          ) : resultUrl ? (
+            <motion.img
+              src={resultUrl}
+              alt="Generation result thumbnail"
+              className="w-full h-full object-cover"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+            />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-[#FF4DA6]"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
+            </svg>
+          )}
+        </motion.button>
       </div>
 
       <div className="flex-1 flex flex-col gap-2 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
