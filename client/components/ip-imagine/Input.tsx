@@ -43,6 +43,8 @@ type IpImagineInputProps = {
   onAddRemixImage?: () => void;
   creationMode?: "image" | "video";
   setCreationMode?: Dispatch<SetStateAction<"image" | "video">>;
+  // Optional generation progress percentage (0-100)
+  progress?: number;
 };
 
 const IpImagineInput = ({
@@ -97,21 +99,28 @@ const IpImagineInput = ({
             navigate("/ip-imagine/result");
           }}
           className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${
-            waiting
-              ? "text-[#FF4DA6] bg-[#FF4DA6]/20 animate-pulse"
-              : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
+            waiting ? "text-[#FF4DA6] bg-[#FF4DA6]/20" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/10"
           }`}
           aria-label="View creations and results"
           title="Creation Results"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
-          </svg>
+          <div className="relative flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM11 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM11 12a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z" />
+            </svg>
+
+            {waiting ? (
+              // percentage badge
+              <span className="absolute -top-2 -right-2 bg-[#FF4DA6] text-black text-[10px] font-semibold px-1 rounded">
+                {typeof progress === "number" ? `${Math.min(100, Math.max(0, progress))}%` : "..."}
+              </span>
+            ) : null}
+          </div>
         </button>
       </div>
 
