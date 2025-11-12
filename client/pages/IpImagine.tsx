@@ -81,15 +81,10 @@ const IpImagine = () => {
     };
   }, [remixAnalysisOpen, remixAnalysisData]);
 
-  // Auto-navigate to result page when generation completes
+  // Auto-navigation disabled — keep generation running in background.
+  // Users can manually open the gallery/results via the gallery button.
   useEffect(() => {
-    if (resultUrl && !isLoading) {
-      // Small delay to ensure result page can load data properly
-      const timer = setTimeout(() => {
-        navigate("/ip-imagine/result");
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    // Intentionally left blank to avoid automatic navigation when generation completes.
   }, [resultUrl, isLoading, navigate]);
 
   const compressToBlob = useCallback(
