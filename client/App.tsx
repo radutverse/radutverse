@@ -6,15 +6,17 @@ import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CreationProvider } from "@/context/CreationContext";
+import {
+  IpfiAssistant,
+  IpImagine,
+  IpImagineCreationResult,
+  NftMarketplace,
+  MyPortfolio,
+  Settings,
+  History,
+  CreationResult,
+} from "@/features";
 import Index from "./pages/Index";
-import IpfiAssistant from "./pages/IpfiAssistant";
-import NftMarketplace from "./pages/NftMarketplace";
-import MyPortfolio from "./pages/MyPortfolio";
-import Settings from "./pages/Settings";
-import History from "./pages/History";
-import IpImagine from "./pages/IpImagine";
-import IpImagineCreationResult from "./pages/IpImagineCreationResult";
-import CreationResult from "./pages/CreationResult";
 import NotFound from "./pages/NotFound";
 
 declare global {
