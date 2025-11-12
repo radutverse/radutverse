@@ -14,7 +14,6 @@ import {
   MyPortfolio,
   Settings,
   History,
-  CreationResult,
 } from "@/features";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -62,7 +61,6 @@ const AppRoutes = () => (
       <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
       <Route path="/ip-imagine" element={<IpImagine />} />
       <Route path="/ip-imagine/result" element={<IpImagineCreationResult />} />
-      <Route path="/creation-result" element={<CreationResult />} />
       <Route path="/nft-marketplace" element={<NftMarketplace />} />
       <Route path="/my-portfolio" element={<MyPortfolio />} />
       <Route path="/settings" element={<Settings />} />
