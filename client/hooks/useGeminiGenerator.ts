@@ -34,7 +34,6 @@ const useGeminiGenerator = () => {
     setError(null);
     setResultUrl(null);
     setResultType(null);
-    navigate("/creation-result");
 
     try {
       let generatedUrl: string;
