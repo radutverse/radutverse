@@ -1,7 +1,7 @@
 import { type ReactNode, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { NavLink } from "react-router-dom";
 import { APP_NAV_ITEMS, type AppNavItem } from "@/config/navigation";
+import { useNavigation } from "@/context/NavigationContext";
 
 const BRAND_NAME = "Radut Verse";
 const BRAND_IMAGE_URL =
@@ -33,10 +33,42 @@ export const DashboardLayout = ({
   onLogoClick,
 }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { currentPage, setCurrentPage } = useNavigation();
+
+  const getPageFromPath = (path: string) => {
+    const pathMap: Record<string, any> = {
+      "/": "index",
+      "/ip-imagine": "ip-imagine",
+      "/ipfi-assistant": "ipfi-assistant",
+      "/nft-marketplace": "nft-marketplace",
+      "/my-portfolio": "my-portfolio",
+      "/settings": "settings",
+      "/history": "history",
+      "/ip-imagine/result": "ip-imagine-result",
+      "/creation-result": "creation-result",
+    };
+    return pathMap[path] || "index";
+  };
+
+  const handleNavClick = (path: string) => {
+    const page = getPageFromPath(path);
+    setCurrentPage(page);
+    setSidebarOpen(false);
+  };
+
+  const isActive = (path: string) => {
+    return currentPage === getPageFromPath(path);
+  };
 
   const renderBrandHeader = () => (
     <button
-      onClick={onLogoClick}
+      onClick={() => {
+        if (onLogoClick) {
+          onLogoClick();
+        } else {
+          setCurrentPage("index");
+        }
+      }}
       className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300 border-0 bg-transparent hover:opacity-80 transition-opacity cursor-pointer"
     >
       <span
@@ -60,26 +92,22 @@ export const DashboardLayout = ({
           const ItemIcon = item.icon;
           return (
             <li key={item.id}>
-              <NavLink
-                to={item.to}
-                className={({ isActive }) => {
-                  const baseClasses =
-                    "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors";
-                  const activeClasses = "bg-[#FF4DA6]/15 text-[#FF4DA6]";
-                  const inactiveClasses =
-                    "text-slate-400 hover:text-slate-200 hover:bg-white/5";
-                  return [
-                    baseClasses,
-                    isActive ? activeClasses : inactiveClasses,
-                  ].join(" ");
+              <button
+                onClick={() => {
+                  handleNavClick(item.to);
+                  closeSidebar?.();
                 }}
-                onClick={() => closeSidebar?.()}
+                className={`w-full flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors border-0 bg-transparent cursor-pointer ${
+                  isActive(item.to)
+                    ? "bg-[#FF4DA6]/15 text-[#FF4DA6]"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                }`}
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-800/50 text-slate-500">
                   <ItemIcon className="h-4 w-4" />
                 </span>
                 <span>{item.label}</span>
-              </NavLink>
+              </button>
             </li>
           );
         })}
