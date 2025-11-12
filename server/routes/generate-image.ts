@@ -14,7 +14,7 @@ export const generateImage: RequestHandler = async (req, res) => {
     const result = await client.images.generate({
       model: "gpt-image-1",
       prompt,
-      size: "512x512",
+      size: "1024x1024",
     });
 
     const imageUrl = result.data[0].url;
