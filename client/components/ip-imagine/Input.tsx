@@ -227,7 +227,7 @@ const IpImagineInput = ({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => setCreationMode("video")}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${creationMode === "video" ? "bg-[#FF4DA6] text-white" : "bg-slate-800/50 text-slate-400 hover:bg-slate-800"}`}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 relative ${creationMode === "video" ? "bg-[#FF4DA6] text-white" : "bg-slate-800/50 text-slate-400 hover:bg-slate-800"}`}
               aria-pressed={creationMode === "video"}
             >
               <svg
@@ -244,6 +244,7 @@ const IpImagineInput = ({
                 <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
               </svg>
               Video
+              <span className="text-xs ml-1 px-2 py-0.5 rounded bg-slate-700/60 text-slate-300">Coming Soon</span>
             </button>
           </motion.div>
         )}
