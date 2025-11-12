@@ -32,7 +32,7 @@ export const generateImage: RequestHandler = async (req, res) => {
     console.error("❌ Error generating image:", err);
     res.status(500).json({
       error: "Failed to generate image",
-      details: err instanceof Error ? err.message : String(err)
+      details: err instanceof Error ? err.message : String(err),
     });
   }
 };
