@@ -22,6 +22,13 @@ const CreationResult = () => {
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Auto-select newest creation when resultUrl changes
+  useEffect(() => {
+    if (resultUrl && creations.length > 0) {
+      setSelectedId(creations[0].id);
+    }
+  }, [resultUrl, creations]);
   const apiKey =
     import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
