@@ -340,7 +340,7 @@ const CreationResult = () => {
                     Result Type
                   </h3>
                   <p className="text-slate-200 leading-relaxed capitalize">
-                    {resultType} generation completed successfully
+                    {displayType} generation completed successfully
                   </p>
                 </div>
               </div>
