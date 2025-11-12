@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
 import { handleUpload } from "./routes/upload.js";
 import { handleIpfsUpload, handleIpfsUploadJson } from "./routes/ipfs.js";
 import { handleDescribe } from "./routes/describe.js";
@@ -289,6 +291,29 @@ export function createServer() {
   app.get("/api/_debug_openai", (req, res) =>
     res.json({ ok: true, hasKey: !!process.env.OPENAI_API_KEY }),
   );
+
+  // Serve static files from dist/spa (for production builds)
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const spaDir = path.join(__dirname, "../dist/spa");
+
+  try {
+    app.use(express.static(spaDir, { maxAge: "1d" }));
+  } catch (e) {
+    // In development, dist/spa might not exist yet (Vite serves client files instead)
+    console.log("Note: dist/spa not available, using Vite dev server");
+  }
+
+  // SPA fallback: serve index.html for all non-API, non-static routes
+  app.use((req, res) => {
+    const indexPath = path.join(spaDir, "index.html");
+    try {
+      res.sendFile(indexPath);
+    } catch (e) {
+      // If index.html doesn't exist (development), Vite will handle it
+      res.status(404).json({ error: "Not found" });
+    }
+  });
 
   return app;
 }
