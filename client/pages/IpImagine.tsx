@@ -7,7 +7,6 @@ import IpImagineInput from "@/components/ip-imagine/Input";
 import {
   PopularIPGrid,
   AddRemixImageModal,
-  IpImagineSearch,
   type PreviewImagesState,
 } from "@/components/remix-mode";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
