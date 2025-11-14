@@ -31,6 +31,7 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
   >(null);
   const [lastResolvedAddress, setLastResolvedAddress] = useState("");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [expandedAsset, setExpandedAsset] = useState<SearchResult | null>(null);
 
   // Custom hooks
   const uniqueOwners = useUniqueOwners(searchResults);
