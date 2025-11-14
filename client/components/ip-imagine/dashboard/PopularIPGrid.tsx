@@ -612,8 +612,36 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
             </div>
           )}
         </div>
-      ) : (
+      ) : activeCategory === "ip" ? (
         <FeaturedCatalog />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
+          {DUMMY_DATA[activeCategory].map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.03 }}
+              className="group cursor-pointer rounded-lg overflow-hidden bg-slate-800 hover:bg-slate-700 transition-colors duration-200"
+            >
+              <div className="relative overflow-hidden h-24">
+                <img
+                  src={item.preview}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-2">
+                <h3 className="font-semibold text-white mb-1 line-clamp-2 text-xs">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {truncateAddress(item.owner)}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       )}
 
       {/* Expanded Asset Details Modal */}
