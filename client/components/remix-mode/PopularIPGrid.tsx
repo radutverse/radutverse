@@ -585,252 +585,213 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
       </div>
 
       {hasSearched ? (
-        <div className="w-full">
+        <div className="w-full flex-1 overflow-y-auto">
           {searchResults.length > 0 ? (
-            <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-max pb-4">
-                {searchResults.map((asset, idx) => {
-                  const ownerLower = asset.ownerAddress?.toLowerCase() || "";
-                  const domainInfo = ownerDomains[ownerLower];
-                  const displayDomain = domainInfo?.domain;
-                  const displayText =
-                    displayDomain ||
-                    (asset.ownerAddress
-                      ? truncateAddressDisplay(asset.ownerAddress)
-                      : "Unknown");
-                  const remixTypes = getRemixTypes(asset);
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-max pb-8">
+              {searchResults.map((asset, idx) => {
+                const ownerLower = asset.ownerAddress?.toLowerCase() || "";
+                const domainInfo = ownerDomains[ownerLower];
+                const displayDomain = domainInfo?.domain;
+                const displayText =
+                  displayDomain ||
+                  (asset.ownerAddress
+                    ? truncateAddressDisplay(asset.ownerAddress)
+                    : "Unknown");
+                const remixTypes = getRemixTypes(asset);
 
-                  return (
-                    <motion.div
-                      key={asset.ipId || `${asset.name}-${idx}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.03 }}
-                      onMouseEnter={() => setHoveredIndex(idx)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                      className="group flex flex-col h-full cursor-pointer"
+                return (
+                  <div
+                    key={asset.ipId || idx}
+                    onMouseEnter={() => setHoveredIndex(idx)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    className="group flex flex-col h-full cursor-pointer"
+                  >
+                    {/* Thumbnail Container */}
+                    <div
+                      className="relative w-full aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 hover:-translate-y-1"
                     >
-                      {/* Thumbnail Container with aspect video */}
-                      <div
-                        className="relative w-full aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 hover:-translate-y-1"
-                      >
-                        {asset.mediaUrl ? (
-                          asset.mediaType?.startsWith("video") ? (
-                            <div className="w-full h-full relative group/video">
-                              <video
-                                key={asset.ipId}
-                                src={asset.mediaUrl}
-                                poster={asset.thumbnailUrl}
-                                className="w-full h-full object-cover"
-                                preload="metadata"
-                                playsInline
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover/video:opacity-100">
-                                <div className="w-16 h-16 rounded-full bg-[#FF4DA6] flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
-                                  <svg
-                                    className="w-8 h-8 text-white fill-current ml-1"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path d="M3 3v18h18V3H3zm9 14V7l5 5-5 5z" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-white">
-                                VIDEO
-                              </div>
-                            </div>
-                          ) : asset.mediaType?.startsWith("audio") ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-purple-900/80 via-purple-800/40 to-slate-900 cursor-pointer hover:scale-102 transition-transform">
-                              <svg
-                                className="w-14 h-14 text-purple-300 hover:scale-110 transition-transform"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                              </svg>
-                              <span className="text-xs text-purple-200 font-semibold">
-                                AUDIO
-                              </span>
-                            </div>
-                          ) : (
-                            <img
+                      {asset.mediaUrl ? (
+                        asset.mediaType?.startsWith("video") ? (
+                          <div className="w-full h-full relative group/video">
+                            <video
+                              key={asset.ipId}
                               src={asset.mediaUrl}
-                              alt={asset.title || asset.name || "IP Asset"}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement;
-                                const parent = img.parentElement;
-                                if (parent && parent.querySelector("img") === img) {
-                                  img.replaceWith(
-                                    Object.assign(document.createElement("div"), {
-                                      className:
-                                        "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-800",
-                                      innerHTML: `
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span class="text-xs">Failed to load</span>
-                              `,
-                                    }),
-                                  );
-                                }
-                              }}
+                              poster={asset.thumbnailUrl}
+                              className="w-full h-full object-cover"
+                              preload="metadata"
+                              playsInline
                             />
-                          )
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-800">
+                            {/* Play button overlay */}
+                            <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover/video:opacity-100">
+                              <div className="w-16 h-16 rounded-full bg-[#FF4DA6] flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+                                <svg
+                                  className="w-8 h-8 text-white fill-current ml-1"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M3 3v18h18V3H3zm9 14V7l5 5-5 5z" />
+                                </svg>
+                              </div>
+                            </div>
+                            {/* Video badge */}
+                            <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-white">
+                              VIDEO
+                            </div>
+                          </div>
+                        ) : asset.mediaType?.startsWith("audio") ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-purple-900/80 via-purple-800/40 to-slate-900 cursor-pointer hover:scale-102 transition-transform">
                             <svg
-                              className="w-8 h-8"
-                              fill="none"
-                              stroke="currentColor"
+                              className="w-14 h-14 text-purple-300 hover:scale-110 transition-transform"
+                              fill="currentColor"
                               viewBox="0 0 24 24"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
+                              <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                             </svg>
-                            <span className="text-xs">No media</span>
+                            <span className="text-xs text-purple-200 font-semibold">
+                              AUDIO
+                            </span>
                           </div>
-                        )}
-                        {hoveredIndex === idx && (
-                          <div className="absolute inset-0 ring-2 ring-[#FF4DA6]/60 rounded-xl pointer-events-none" />
-                        )}
+                        ) : (
+                          <img
+                            src={asset.mediaUrl}
+                            alt={asset.title || asset.name || "IP Asset"}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              const parent = img.parentElement;
+                              if (parent && parent.querySelector("img") === img) {
+                                img.replaceWith(
+                                  Object.assign(document.createElement("div"), {
+                                    className:
+                                      "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-800",
+                                    innerHTML: `
+                                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                  </svg>
+                                  <span class="text-xs">Failed to load</span>
+                                `,
+                                  }),
+                                );
+                              }
+                            }}
+                          />
+                        )
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-800">
+                          <svg
+                            className="w-8 h-8"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span className="text-xs">No media</span>
+                        </div>
+                      )}
+                      {hoveredIndex === idx && (
+                        <div className="absolute inset-0 ring-2 ring-[#FF4DA6]/60 rounded-xl pointer-events-none" />
+                      )}
 
-                        {/* Remix Type Badges - Top Right */}
-                        {remixTypes.length > 0 && (
-                          <div className="absolute top-2 right-2 flex flex-col gap-1">
-                            {remixTypes.map((remixTypeInfo) => (
-                              <span
-                                key={remixTypeInfo.type}
-                                className="text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm bg-slate-900/80 border"
-                                style={{
-                                  backgroundColor:
-                                    remixTypeInfo.type === "paid"
-                                      ? "rgba(34, 197, 94, 0.2)"
-                                      : "rgba(59, 130, 246, 0.2)",
-                                  borderColor:
-                                    remixTypeInfo.type === "paid"
-                                      ? "rgb(134, 239, 172)"
-                                      : "rgb(147, 197, 253)",
-                                  color:
-                                    remixTypeInfo.type === "paid"
-                                      ? "rgb(134, 239, 172)"
-                                      : "rgb(147, 197, 253)",
-                                }}
-                              >
-                                {remixTypeInfo.type === "paid"
-                                  ? "💰 Paid"
-                                  : "🆓 Free"}
-                              </span>
-                            ))}
-                          </div>
+                      {/* Remix Type Badges - Top Right */}
+                      {remixTypes.length > 0 && (
+                        <div className="absolute top-2 right-2 flex flex-col gap-1">
+                          {remixTypes.map((remixTypeInfo) => (
+                            <span
+                              key={remixTypeInfo.type}
+                              className="text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm bg-slate-900/80 border"
+                              style={{
+                                backgroundColor:
+                                  remixTypeInfo.type === "paid"
+                                    ? "rgba(34, 197, 94, 0.2)"
+                                    : "rgba(59, 130, 246, 0.2)",
+                                borderColor:
+                                  remixTypeInfo.type === "paid"
+                                    ? "rgb(134, 239, 172)"
+                                    : "rgb(147, 197, 253)",
+                                color:
+                                  remixTypeInfo.type === "paid"
+                                    ? "rgb(134, 239, 172)"
+                                    : "rgb(147, 197, 253)",
+                              }}
+                            >
+                              {remixTypeInfo.type === "paid"
+                                ? "💰 Paid"
+                                : "🆓 Free"}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="pt-4 space-y-2 flex flex-col flex-grow">
+                      {/* Title */}
+                      <h3 className="text-sm font-bold text-slate-100 line-clamp-2 group-hover:text-[#FF4DA6] transition-colors duration-200">
+                        {asset.title || asset.name || "Untitled Asset"}
+                      </h3>
+
+                      {/* Badges Row */}
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span
+                          className={`text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm transition-all ${
+                            asset.isDerivative
+                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          }`}
+                        >
+                          {asset.isDerivative ? "🔄 Remix" : "✨ Original"}
+                        </span>
+
+                        {asset.score !== undefined && (
+                          <span className="text-xs px-2.5 py-1 rounded-full bg-[#FF4DA6]/20 text-[#FF4DA6] border border-[#FF4DA6]/30 font-semibold whitespace-nowrap backdrop-blur-sm">
+                            {(asset.score * 100).toFixed(0)}% Match
+                          </span>
                         )}
                       </div>
 
-                      {/* Content */}
-                      <div className="pt-4 space-y-2 flex flex-col flex-grow">
-                        {/* Title */}
-                        <h3 className="text-sm font-bold text-slate-100 line-clamp-2 group-hover:text-[#FF4DA6] transition-colors duration-200">
-                          {asset.title || asset.name || "Untitled Asset"}
-                        </h3>
+                      {/* Description */}
+                      {asset.description && (
+                        <p className="text-xs text-slate-400 line-clamp-1 leading-relaxed">
+                          {asset.description}
+                        </p>
+                      )}
 
-                        {/* Badges Row */}
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span
-                            className={`text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm transition-all ${
-                              asset.isDerivative
-                                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                            }`}
-                          >
-                            {asset.isDerivative ? "🔄 Remix" : "✨ Original"}
-                          </span>
-
-                          {asset.score !== undefined && (
-                            <span className="text-xs px-2.5 py-1 rounded-full bg-[#FF4DA6]/20 text-[#FF4DA6] border border-[#FF4DA6]/30 font-semibold whitespace-nowrap backdrop-blur-sm">
-                              {(asset.score * 100).toFixed(0)}% Match
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Description */}
-                        {asset.description && (
-                          <p className="text-xs text-slate-400 line-clamp-1 leading-relaxed">
-                            {asset.description}
-                          </p>
-                        )}
-
-                        {/* Metadata */}
-                        <div className="text-xs text-slate-500 space-y-1">
-                          {asset.ownerAddress && (
-                            <div className="space-y-1">
-                              <button
-                                type="button"
-                                className="font-mono text-[0.7rem] px-2 py-1 rounded w-fit border transition-all duration-200 bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 cursor-pointer hover:scale-105 active:scale-95"
-                                title={`View all assets by ${displayText}`}
-                              >
-                                {displayText}
-                              </button>
-                            </div>
-                          )}
-
-                          {asset.mediaType && (
-                            <p className="capitalize text-xs text-slate-400">
-                              {asset.mediaType
-                                .replace("video/", "")
-                                .replace("audio/", "")
-                                .replace("image/", "")
-                                .toUpperCase()}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2 mt-3 pt-2 border-t border-slate-700/30">
-                          <button
-                            type="button"
-                            className="flex-1 text-xs px-2 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-medium transition-all duration-200 active:scale-95"
-                            title="View details"
-                          >
-                            Detail
-                          </button>
-                          {allowsDerivatives(asset) && (
+                      {/* Metadata */}
+                      <div className="text-xs text-slate-500 space-y-1">
+                        {asset.ownerAddress && (
+                          <div className="space-y-1">
                             <button
                               type="button"
-                              className="flex-1 text-xs px-2 py-2 rounded-lg bg-[#FF4DA6]/20 hover:bg-[#FF4DA6]/30 text-[#FF4DA6] font-medium transition-all duration-200 active:scale-95"
-                              title="Remix this asset"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              className="font-mono text-[0.7rem] px-2 py-1 rounded w-fit border transition-all duration-200 bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 cursor-pointer hover:scale-105 active:scale-95"
+                              title={`View all assets by ${displayText}`}
                             >
-                              Remix
+                              {displayText}
                             </button>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                          </div>
+                        )}
 
-              {hasMore && (
-                <div className="flex justify-center pt-4">
-                  <button
-                    onClick={handleLoadMore}
-                    disabled={isLoadingMore}
-                    className="text-sm text-[#FF4DA6] hover:text-[#FF4DA6]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                  >
-                    {isLoadingMore ? (
-                      <>
-                        <Loader className="h-3 w-3 animate-spin" />
-                        <span>Loading...</span>
-                      </>
-                    ) : (
-                      <span>Load more</span>
-                    )}
-                  </button>
-                </div>
-              )}
+                        {asset.mediaType && (
+                          <p className="capitalize text-xs text-slate-400">
+                            {asset.mediaType
+                              .replace("video/", "")
+                              .replace("audio/", "")
+                              .replace("image/", "")
+                              .toUpperCase()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
@@ -839,6 +800,27 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
               <p className="text-slate-500 text-xs mt-1">
                 Try searching with different keywords
               </p>
+            </div>
+          )}
+
+          {hasMore && searchResults.length > 0 && (
+            <div className="flex justify-center pt-8 pb-8">
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="text-sm text-[#FF4DA6] hover:text-[#FF4DA6]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load more</span>
+                  </>
+                )}
+              </button>
             </div>
           )}
         </div>
