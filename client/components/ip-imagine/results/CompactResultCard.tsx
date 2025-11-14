@@ -41,26 +41,24 @@ const CompactResultCard = ({
           <video src={imageUrl} className="w-full h-full object-cover" />
         )}
 
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/20"
-            type="button"
-            title="Options"
-            aria-label="Show details and actions"
+        {/* Options Button - Bottom Right */}
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="absolute bottom-2 right-2 p-2 rounded-full hover:bg-white/20 transition-colors bg-slate-900/80"
+          type="button"
+          title="Options"
+          aria-label="Show details and actions"
+        >
+          <svg
+            className="w-4 h-4 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="12" cy="5" r="2" />
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="12" cy="19" r="2" />
-            </svg>
-          </button>
-        </div>
+            <circle cx="5" cy="12" r="2" />
+            <circle cx="12" cy="12" r="2" />
+            <circle cx="19" cy="12" r="2" />
+          </svg>
+        </button>
 
         {/* Type Badge */}
         <div className="absolute top-1 right-1 text-xs font-medium bg-slate-900/80 text-slate-300 px-2 py-1 rounded">
