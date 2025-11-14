@@ -15,9 +15,7 @@ interface PopularIPGridProps {
   onBack: () => void;
 }
 
-type Category = "ip" | "image" | "video" | "music";
-
-const DUMMY_DATA: Record<Category, PopularItem[]> = {
+const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
   ip: [
     {
       id: "ippy-bg",
@@ -159,13 +157,6 @@ const DUMMY_DATA: Record<Category, PopularItem[]> = {
         "https://images.unsplash.com/photo-1513320291840-2e0a9bf2a9ae?w=300&h=200&fit=crop",
     },
   ],
-};
-
-const CATEGORY_LABELS: Record<Category, string> = {
-  ip: "Iconic IPs",
-  image: "Popular Images",
-  video: "Popular Videos",
-  music: "Popular Music",
 };
 
 export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
