@@ -14,6 +14,10 @@ import { getCurrentTimestamp } from "@/lib/ip-assistant/utils";
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
+import {
+  compressToBlob,
+  compressAndEnsureSize,
+} from "@/lib/utils/image";
 
 const IpImagine = () => {
   const { generate, isLoading, resultUrl } = useGeminiGenerator();
