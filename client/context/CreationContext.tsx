@@ -30,6 +30,8 @@ export const CreationContext = createContext<CreationContextType | undefined>(
 );
 
 const STORAGE_KEY = "creation_history";
+const RESULT_URL_KEY = "current_result_url";
+const RESULT_TYPE_KEY = "current_result_type";
 
 export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -41,15 +43,24 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
 
-  // Load creations from localStorage on mount
+  // Load creations and current result from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    const storedCreations = localStorage.getItem(STORAGE_KEY);
+    if (storedCreations) {
       try {
-        setCreations(JSON.parse(stored));
+        setCreations(JSON.parse(storedCreations));
       } catch (err) {
         console.error("Failed to load creation history:", err);
       }
+    }
+
+    const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
+    const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
+    if (storedResultUrl) {
+      setResultUrl(storedResultUrl);
+    }
+    if (storedResultType) {
+      setResultType(storedResultType as ResultType);
     }
   }, []);
 
@@ -57,6 +68,24 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(creations));
   }, [creations]);
+
+  // Save current result URL to localStorage
+  useEffect(() => {
+    if (resultUrl) {
+      localStorage.setItem(RESULT_URL_KEY, resultUrl);
+    } else {
+      localStorage.removeItem(RESULT_URL_KEY);
+    }
+  }, [resultUrl]);
+
+  // Save current result type to localStorage
+  useEffect(() => {
+    if (resultType) {
+      localStorage.setItem(RESULT_TYPE_KEY, resultType);
+    } else {
+      localStorage.removeItem(RESULT_TYPE_KEY);
+    }
+  }, [resultType]);
 
   useEffect(() => {
     return () => {
