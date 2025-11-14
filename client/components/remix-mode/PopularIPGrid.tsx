@@ -193,6 +193,8 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
     Record<string, { domain: string | null; loading: boolean }>
   >({});
   const [expandedAsset, setExpandedAsset] = useState<SearchResult | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [remixMenuOpen, setRemixMenuOpen] = useState(false);
   const domainFetchControllerRef = useRef<AbortController | null>(null);
 
   const ITEMS_PER_PAGE = 20;
