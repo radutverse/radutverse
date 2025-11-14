@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { SearchResultsGrid } from "@/components/remix-mode/SearchResultsGrid";
 
 interface License {
   licenseTermsId?: string;
