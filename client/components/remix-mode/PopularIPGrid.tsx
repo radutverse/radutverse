@@ -529,7 +529,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
         <div className="w-full">
           {searchResults.length > 0 ? (
             <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-4">
                 {searchResults.map((asset, idx) => {
                   const ownerLower = asset.ownerAddress?.toLowerCase() || "";
                   const domainInfo = ownerDomains[ownerLower];
@@ -550,8 +550,8 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                       onMouseLeave={() => setHoveredIndex(null)}
                       className="group flex flex-col h-full cursor-pointer"
                     >
-                      {/* Thumbnail Container */}
-                      <div className="relative w-full aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 hover:-translate-y-1">
+                      {/* Image Container */}
+                      <div className="relative w-full aspect-square bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg overflow-hidden flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
                         {asset.mediaUrl ? (
                           asset.mediaType?.startsWith("video") ? (
                             <div className="w-full h-full relative group/video">
@@ -563,38 +563,32 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                                 preload="metadata"
                                 playsInline
                               />
-                              <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover/video:opacity-100">
-                                <div className="w-16 h-16 rounded-full bg-[#FF4DA6] flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+                              <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover/video:opacity-100">
+                                <div className="w-12 h-12 rounded-full bg-[#FF4DA6] flex items-center justify-center shadow-lg">
                                   <svg
-                                    className="w-8 h-8 text-white fill-current ml-1"
+                                    className="w-6 h-6 text-white fill-current ml-0.5"
                                     viewBox="0 0 24 24"
                                   >
                                     <path d="M3 3v18h18V3H3zm9 14V7l5 5-5 5z" />
                                   </svg>
                                 </div>
                               </div>
-                              <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-white">
-                                VIDEO
-                              </div>
                             </div>
                           ) : asset.mediaType?.startsWith("audio") ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-purple-900/80 via-purple-800/40 to-slate-900">
+                            <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-900/60 via-purple-800/30 to-slate-900">
                               <svg
-                                className="w-14 h-14 text-purple-300"
+                                className="w-12 h-12 text-purple-300"
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                               </svg>
-                              <span className="text-xs text-purple-200 font-semibold">
-                                AUDIO
-                              </span>
                             </div>
                           ) : (
                             <img
                               src={asset.mediaUrl}
                               alt={asset.title || asset.name || "IP Asset"}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                               onError={(e) => {
                                 const img = e.target as HTMLImageElement;
                                 const parent = img.parentElement;
@@ -602,12 +596,11 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                                   img.replaceWith(
                                     Object.assign(document.createElement("div"), {
                                       className:
-                                        "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-800",
+                                        "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700",
                                       innerHTML: `
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
-                                    <span class="text-xs">Failed to load</span>
                                   `,
                                     }),
                                   );
@@ -616,7 +609,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                             />
                           )
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-800">
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700">
                             <svg
                               className="w-8 h-8"
                               fill="none"
@@ -630,65 +623,40 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                                 d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                               />
                             </svg>
-                            <span className="text-xs">No media</span>
                           </div>
                         )}
+
+                        {/* Badge on hover */}
                         {hoveredIndex === idx && (
-                          <div className="absolute inset-0 ring-2 ring-[#FF4DA6]/60 rounded-xl pointer-events-none" />
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute top-2 right-2"
+                          >
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full font-semibold backdrop-blur-sm ${
+                                asset.isDerivative
+                                  ? "bg-blue-500/90 text-white"
+                                  : "bg-emerald-500/90 text-white"
+                              }`}
+                            >
+                              {asset.isDerivative ? "🔄 Remix" : "✨ Original"}
+                            </span>
+                          </motion.div>
                         )}
                       </div>
 
-                      {/* Content */}
-                      <div className="pt-4 space-y-2 flex flex-col flex-grow">
+                      {/* Info Section */}
+                      <div className="pt-3 flex flex-col flex-grow">
                         {/* Title */}
-                        <h3 className="text-sm font-bold text-slate-100 line-clamp-2 group-hover:text-[#FF4DA6] transition-colors duration-200">
-                          {asset.title || asset.name || "Untitled Asset"}
+                        <h3 className="text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-[#FF4DA6] transition-colors duration-200">
+                          {asset.title || asset.name || "Untitled"}
                         </h3>
 
-                        {/* Badges Row */}
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span
-                            className={`text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm transition-all ${
-                              asset.isDerivative
-                                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                            }`}
-                          >
-                            {asset.isDerivative ? "🔄 Remix" : "✨ Original"}
-                          </span>
-
-                          {allowsDerivatives(asset) && (
-                            <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/20 text-green-300 border border-green-500/30 font-semibold whitespace-nowrap backdrop-blur-sm">
-                              💰 Remixable
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Metadata */}
-                        <div className="text-xs text-slate-500 space-y-1">
-                          {asset.ownerAddress && (
-                            <button
-                              type="button"
-                              className={`font-mono text-[0.7rem] px-2 py-1 rounded w-fit border transition-all duration-200 ${
-                                displayDomain
-                                  ? "bg-gradient-to-r from-[#FF4DA6]/20 to-[#FF4DA6]/10 text-[#FF4DA6] border-[#FF4DA6]/30 hover:from-[#FF4DA6]/30 hover:to-[#FF4DA6]/20 hover:border-[#FF4DA6]/50 cursor-pointer hover:scale-105"
-                                  : "bg-slate-800/40 hover:bg-slate-700/40 cursor-pointer hover:scale-105"
-                              }`}
-                            >
-                              {displayText}
-                            </button>
-                          )}
-
-                          {asset.mediaType && (
-                            <p className="capitalize text-xs text-slate-400">
-                              {asset.mediaType
-                                .replace("video/", "")
-                                .replace("audio/", "")
-                                .replace("image/", "")
-                                .toUpperCase()}
-                            </p>
-                          )}
-                        </div>
+                        {/* Owner/Domain - Show on hover or always small */}
+                        <p className="text-xs text-slate-400 mt-1 truncate group-hover:text-[#FF4DA6]/70 transition-colors">
+                          {displayText}
+                        </p>
                       </div>
                     </motion.div>
                   );
