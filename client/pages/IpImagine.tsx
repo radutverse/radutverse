@@ -309,7 +309,6 @@ const IpImagine = () => {
             onBack={() => {
               /* no-op for standalone imagine */
             }}
-            onOpenSearch={() => setShowSearchModal(true)}
           />
         </AnimatePresence>
 
