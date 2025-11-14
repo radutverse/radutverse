@@ -15,6 +15,28 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-ui": [
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-alert-dialog",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-hover-card",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-select",
+            "@radix-ui/react-sheet",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-toast",
+          ],
+          "vendor-animation": ["framer-motion"],
+          "vendor-charts": ["recharts"],
+          "vendor-utils": ["date-fns", "lucide-react", "clsx"],
+          "vendor-forms": ["react-hook-form", "@hookform/resolvers", "zod"],
+        },
+      },
+    },
   },
   plugins: [react(), expressPlugin()],
   resolve: {

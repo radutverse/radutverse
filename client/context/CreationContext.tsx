@@ -1,4 +1,11 @@
-import React, { createContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { ResultType } from "@/types/generation";
 
 export interface Creation {
@@ -95,7 +102,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, [resultUrl]);
 
-  const addCreation = (url: string, type: ResultType) => {
+  const addCreation = useCallback((url: string, type: ResultType) => {
     const newCreation: Creation = {
       id: `creation_${Date.now()}`,
       url,
@@ -103,32 +110,45 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       timestamp: Date.now(),
     };
     setCreations((prev) => [newCreation, ...prev]);
-  };
+  }, []);
 
-  const removeCreation = (id: string) => {
+  const removeCreation = useCallback((id: string) => {
     setCreations((prev) => prev.filter((c) => c.id !== id));
-  };
+  }, []);
 
-  const clearCreations = () => {
+  const clearCreations = useCallback(() => {
     setCreations([]);
-  };
+  }, []);
 
-  const contextValue: CreationContextType = {
-    resultUrl,
-    setResultUrl,
-    resultType,
-    setResultType,
-    isLoading,
-    setIsLoading,
-    loadingMessage,
-    setLoadingMessage,
-    error,
-    setError,
-    creations,
-    addCreation,
-    removeCreation,
-    clearCreations,
-  };
+  const contextValue = useMemo(
+    () => ({
+      resultUrl,
+      setResultUrl,
+      resultType,
+      setResultType,
+      isLoading,
+      setIsLoading,
+      loadingMessage,
+      setLoadingMessage,
+      error,
+      setError,
+      creations,
+      addCreation,
+      removeCreation,
+      clearCreations,
+    }),
+    [
+      resultUrl,
+      resultType,
+      isLoading,
+      loadingMessage,
+      error,
+      creations,
+      addCreation,
+      removeCreation,
+      clearCreations,
+    ],
+  ) as CreationContextType;
 
   return (
     <CreationContext.Provider value={contextValue}>

@@ -34,6 +34,7 @@ import {
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
+import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
 import {
   CURRENT_SESSION_KEY,
   IP_ASSISTANT_AVATAR,
@@ -689,8 +690,6 @@ const IpAssistant = () => {
       try {
         setWaiting(true);
 
-        console.log("[Search IP] Searching for:", trimmedQuery, { mediaType });
-
         const requestBody: any = {
           query: trimmedQuery,
         };
@@ -706,8 +705,6 @@ const IpAssistant = () => {
           },
           body: JSON.stringify(requestBody),
         });
-
-        console.log("[Search IP] Response status:", response.status);
 
         if (!response.ok) {
           let errorMessage = `API Error: ${response.status}`;
@@ -727,7 +724,6 @@ const IpAssistant = () => {
         }
 
         const data = await response.json();
-        console.log("[Search IP] Response data:", data);
         const { results = [], message = "" } = data;
 
         // Cancel any pending owner search when new search is performed
@@ -842,8 +838,6 @@ const IpAssistant = () => {
             : undefined,
         });
 
-        console.log("[Search By Owner] Response status:", response.status);
-
         if (!response.ok) {
           let errorMessage = `API Error: ${response.status}`;
 
@@ -862,7 +856,6 @@ const IpAssistant = () => {
         }
 
         const data = await response.json();
-        console.log("[Search By Owner] Response data:", data);
         const { results = [], message = "" } = data;
 
         if (fromModal) {
@@ -990,7 +983,6 @@ const IpAssistant = () => {
         try {
           const hash = await calculateBlobHash(imageToProcess.blob);
           const pHash = await calculatePerceptualHash(imageToProcess.blob);
-          console.log("[Hash Detection] SHA256:", hash, "pHash:", pHash);
 
           const hashCheckResponse = await fetch("/api/check-remix-hash", {
             method: "POST",
@@ -1008,7 +1000,6 @@ const IpAssistant = () => {
 
           if (hashCheckResponse.ok) {
             const hashCheck = await hashCheckResponse.json();
-            console.log("[Hash Detection] Response:", hashCheck);
             if (hashCheck.found) {
               // Hash found - offer remix instead of blocking
               console.log(
@@ -1082,7 +1073,6 @@ const IpAssistant = () => {
 
           if (hashCheckResponse.ok) {
             const hashCheck = await hashCheckResponse.json();
-            console.log("[Hash Detection] Response:", hashCheck);
             if (hashCheck.found) {
               // Hash found - offer remix instead of blocking
               autoScrollNextRef.current = true;
@@ -1312,79 +1302,6 @@ const IpAssistant = () => {
     [handleSend, previewImages, input],
   );
 
-  const compressToBlob = useCallback(
-    async (file: File, maxWidth = 800, quality = 0.75): Promise<Blob> =>
-      new Promise((resolve, reject) => {
-        if (!file.type || !file.type.startsWith("image/")) {
-          reject(new Error("File is not an image"));
-          return;
-        }
-        const img = new Image();
-        const reader = new FileReader();
-        reader.onload = () => {
-          img.onload = () => {
-            try {
-              const scale = Math.min(1, maxWidth / img.width);
-              const width = Math.round(img.width * scale);
-              const height = Math.round(img.height * scale);
-              const canvas = document.createElement("canvas");
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext("2d");
-              if (!ctx) {
-                reject(new Error("Canvas not supported"));
-                return;
-              }
-              ctx.drawImage(img, 0, 0, width, height);
-              canvas.toBlob(
-                (blob) => {
-                  if (!blob) {
-                    reject(new Error("Compression failed"));
-                    return;
-                  }
-                  resolve(blob);
-                },
-                "image/jpeg",
-                quality,
-              );
-            } catch (error) {
-              reject(error);
-            }
-          };
-          img.onerror = () => reject(new Error("Image load failed"));
-          img.src = reader.result as string;
-        };
-        reader.onerror = () => reject(new Error("File read failed"));
-        reader.readAsDataURL(file);
-      }),
-    [],
-  );
-
-  const compressAndEnsureSize = useCallback(
-    async (file: File, targetSize = 250 * 1024): Promise<Blob> => {
-      let quality = 0.75;
-      let maxWidth = 800;
-      let blob = await compressToBlob(file, maxWidth, quality);
-      let attempts = 0;
-      while (blob.size > targetSize && attempts < 6) {
-        if (quality > 0.4) {
-          quality = Math.max(0.35, quality - 0.15);
-        } else {
-          maxWidth = Math.max(300, Math.floor(maxWidth * 0.8));
-        }
-        try {
-          blob = await compressToBlob(file, maxWidth, quality);
-        } catch (error) {
-          console.error("Compression loop error", error);
-          break;
-        }
-        attempts += 1;
-      }
-      return blob;
-    },
-    [compressToBlob],
-  );
-
   const checkIpAssets = useCallback(async (address: string) => {
     if (!address || address.trim().length === 0) {
       return;
@@ -1396,8 +1313,6 @@ const IpAssistant = () => {
     try {
       setIpCheckLoading(loadingKey);
 
-      console.log("[IP Check] Sending address:", trimmedAddress);
-
       const response = await fetch("/api/check-ip-assets", {
         method: "POST",
         headers: {
@@ -1407,8 +1322,6 @@ const IpAssistant = () => {
           address: trimmedAddress,
         }),
       });
-
-      console.log("[IP Check] Response status:", response.status);
 
       if (!response.ok) {
         let errorMessage = `API Error: ${response.status}`;
@@ -1434,7 +1347,6 @@ const IpAssistant = () => {
       }
 
       const data = await response.json();
-      console.log("[IP Check] Response data:", data);
       const { totalCount, originalCount } = data;
 
       setMessages((prev) =>

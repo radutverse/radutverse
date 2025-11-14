@@ -1,16 +1,56 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import CompactResultCard from "@/components/ip-imagine/results/CompactResultCard";
 import ResultUpscaleModal from "@/components/ip-imagine/results/ResultUpscaleModal";
-import useGeminiGenerator from "@/hooks/useGeminiGenerator";
+import { CreationContext } from "@/context/CreationContext";
+import * as openaiService from "@/services/openaiService";
 
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
-  const { resultUrl, resultType, isLoading, loadingMessage, error, upscale } =
-    useGeminiGenerator();
+  const context = useContext(CreationContext);
+
+  if (!context) {
+    return (
+      <DashboardLayout title="Creation Result">
+        <div className="flex-1 overflow-y-auto bg-transparent">
+          <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center h-[400px]"
+            >
+              <p className="text-slate-400 mb-4">
+                No creation data found. Please generate an image first.
+              </p>
+              <Button
+                onClick={() => navigate("/ip-imagine")}
+                className="bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white"
+              >
+                Back to IP Imagine
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const {
+    setIsLoading,
+    setLoadingMessage,
+    setError,
+    setResultUrl,
+    setResultType,
+    resultUrl,
+    resultType,
+    isLoading,
+    loadingMessage,
+    error,
+    addCreation,
+  } = context;
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
@@ -44,8 +84,33 @@ const IpImagineCreationResult = () => {
   };
 
   const handleUpscale = async () => {
-    if (!displayUrl) return;
-    await upscale();
+    if (!resultUrl || !resultUrl.startsWith("data:image")) {
+      setError("Upscaling is only available for a generated image.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      setLoadingMessage("Upscaling image...");
+      const [header, base64Data] = resultUrl.split(",");
+      const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
+
+      const upscaledUrl = await openaiService.upscaleImage({
+        imageBytes: base64Data,
+        mimeType,
+      });
+      setResultUrl(upscaledUrl);
+      setResultType("image");
+    } catch (e: any) {
+      console.error(e);
+      setError(e.message || "An unknown error occurred during upscaling.");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
+    }
+
     setShowUpscaler(false);
   };
 
