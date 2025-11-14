@@ -172,7 +172,9 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [currentOffset, setCurrentOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [totalResults, setTotalResults] = useState(0);
-  const [lastQueryType, setLastQueryType] = useState<"keyword" | "owner" | null>(null);
+  const [lastQueryType, setLastQueryType] = useState<
+    "keyword" | "owner" | null
+  >(null);
   const [lastResolvedAddress, setLastResolvedAddress] = useState("");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [ownerDomains, setOwnerDomains] = useState<
@@ -207,7 +209,10 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     try {
       // Check if input is .ip name
       if (isIpName(searchInput)) {
-        console.log("[PopularIPGrid] Detected .ip name, resolving:", searchInput);
+        console.log(
+          "[PopularIPGrid] Detected .ip name, resolving:",
+          searchInput,
+        );
 
         // First resolve the .ip name to address
         const resolveResponse = await fetch("/api/resolve-ip-name", {
@@ -273,7 +278,9 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
         setSearchResults(results);
         setTotalResults(data.totalSearched || results.length);
         setCurrentOffset(ITEMS_PER_PAGE);
-        setHasMore(data.pagination?.hasMore || results.length >= ITEMS_PER_PAGE);
+        setHasMore(
+          data.pagination?.hasMore || results.length >= ITEMS_PER_PAGE,
+        );
         setLastQueryType("keyword");
       }
     } catch (error) {
@@ -303,7 +310,10 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
 
         const searchData = await searchResponse.json();
         const allResults = searchData.results || [];
-        const newResults = allResults.slice(currentOffset, currentOffset + ITEMS_PER_PAGE);
+        const newResults = allResults.slice(
+          currentOffset,
+          currentOffset + ITEMS_PER_PAGE,
+        );
 
         setSearchResults((prev) => [...prev, ...newResults]);
         setCurrentOffset(currentOffset + ITEMS_PER_PAGE);
@@ -340,16 +350,19 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     }
   }, [currentOffset, searchInput, lastQueryType, lastResolvedAddress]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchInput(value);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInput(value);
 
-    // Clear search results when input is cleared
-    if (!value.trim()) {
-      setSearchResults([]);
-      setHasSearched(false);
-    }
-  }, []);
+      // Clear search results when input is cleared
+      if (!value.trim()) {
+        setSearchResults([]);
+        setHasSearched(false);
+      }
+    },
+    [],
+  );
 
   // Get unique owner addresses to fetch domains for
   const uniqueOwners = useMemo(() => {
@@ -594,15 +607,18 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                                 const parent = img.parentElement;
                                 if (parent) {
                                   img.replaceWith(
-                                    Object.assign(document.createElement("div"), {
-                                      className:
-                                        "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700",
-                                      innerHTML: `
+                                    Object.assign(
+                                      document.createElement("div"),
+                                      {
+                                        className:
+                                          "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700",
+                                        innerHTML: `
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
                                   `,
-                                    }),
+                                      },
+                                    ),
                                   );
                                 }
                               }}
