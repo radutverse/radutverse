@@ -463,20 +463,20 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                 ))}
               </div>
 
-              {currentOffset < allSearchResults.length && (
-                <div className="flex justify-center">
+              {hasMore && (
+                <div className="flex justify-center pt-4">
                   <button
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
-                    className="px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="text-sm text-[#FF4DA6] hover:text-[#FF4DA6]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                   >
                     {isLoadingMore ? (
                       <>
-                        <Loader className="h-4 w-4 animate-spin" />
-                        <span>Loading more...</span>
+                        <Loader className="h-3 w-3 animate-spin" />
+                        <span>Loading...</span>
                       </>
                     ) : (
-                      <span>Load More ({currentOffset} / {allSearchResults.length})</span>
+                      <span>Load more</span>
                     )}
                   </button>
                 </div>
