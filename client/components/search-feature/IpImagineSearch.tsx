@@ -26,9 +26,9 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
   const [currentOffset, setCurrentOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [totalResults, setTotalResults] = useState(0);
-  const [lastQueryType, setLastQueryType] = useState<"keyword" | "owner" | null>(
-    null,
-  );
+  const [lastQueryType, setLastQueryType] = useState<
+    "keyword" | "owner" | null
+  >(null);
   const [lastResolvedAddress, setLastResolvedAddress] = useState("");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -59,7 +59,10 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
     try {
       // Check if input is .ip name
       if (isIpName(searchInput)) {
-        console.log("[IpImagineSearch] Detected .ip name, resolving:", searchInput);
+        console.log(
+          "[IpImagineSearch] Detected .ip name, resolving:",
+          searchInput,
+        );
 
         // First resolve the .ip name to address
         const resolveResponse = await fetch("/api/resolve-ip-name", {
@@ -70,7 +73,10 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
 
         if (!resolveResponse.ok) {
           const resolveData = await resolveResponse.json();
-          console.error("[IpImagineSearch] Failed to resolve .ip name:", resolveData);
+          console.error(
+            "[IpImagineSearch] Failed to resolve .ip name:",
+            resolveData,
+          );
           setIsSearching(false);
           return;
         }

@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import type { SearchResult, OwnerDomainInfo, RemixTypeInfo, License } from "./types";
+import type {
+  SearchResult,
+  OwnerDomainInfo,
+  RemixTypeInfo,
+  License,
+} from "./types";
 
 /**
  * Hook untuk fetch domain dari owner address
@@ -87,7 +92,10 @@ export const useRemixTypes = () => {
       return [];
     }
 
-    const remixTypesMap = new Map<"paid" | "free", { hasAttribution: boolean }>();
+    const remixTypesMap = new Map<
+      "paid" | "free",
+      { hasAttribution: boolean }
+    >();
 
     for (const license of asset.licenses) {
       const terms = license.terms || license;
@@ -158,7 +166,11 @@ export const useUniqueOwners = (searchResults: SearchResult[]) => {
 /**
  * Utility function untuk truncate address
  */
-export const truncateAddress = (address: string, startChars = 6, endChars = 4) => {
+export const truncateAddress = (
+  address: string,
+  startChars = 6,
+  endChars = 4,
+) => {
   return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
 };
 
