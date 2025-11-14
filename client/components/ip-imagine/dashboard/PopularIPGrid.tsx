@@ -508,15 +508,6 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     }));
   };
 
-  const categories: Category[] = ["ip", "image", "video", "music"];
-  const currentItems = DUMMY_DATA[activeCategory];
-
-  const filteredItems = currentItems.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.owner.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
