@@ -278,7 +278,7 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
                 allowsDerivatives={allowsDerivatives}
                 truncateAddressDisplay={truncateAddressDisplay}
                 isLoadingOwnerAssets={false}
-                onAssetClick={() => {}}
+                onAssetClick={(asset) => setExpandedAsset(asset)}
                 onOwnerClick={() => {}}
               />
 
