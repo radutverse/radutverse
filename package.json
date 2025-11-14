@@ -2,6 +2,10 @@
   "name": "fusion-starter",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=18.12.0",
+    "pnpm": ">=10.14.0"
+  },
   "pkg": {
     "assets": [
       "dist/spa/*"
