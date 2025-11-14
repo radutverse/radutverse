@@ -462,6 +462,52 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     );
   };
 
+  // Get remix types based on licenses (paid/free)
+  type RemixTypeInfo = { type: "paid" | "free"; hasAttribution: boolean };
+  const getRemixTypes = (asset: SearchResult): RemixTypeInfo[] => {
+    if (!asset.licenses || asset.licenses.length === 0) {
+      return [];
+    }
+
+    const remixTypesMap = new Map<
+      "paid" | "free",
+      { hasAttribution: boolean }
+    >();
+
+    for (const license of asset.licenses) {
+      const terms = license.terms || license;
+      const derivativesAllowed =
+        terms?.derivativesAllowed === true ||
+        license.derivativesAllowed === true;
+
+      if (!derivativesAllowed) continue;
+
+      const commercialUse = terms?.commercialUse === true;
+      const remixType: "paid" | "free" = commercialUse ? "paid" : "free";
+
+      // Check if this license has derivativesAttribution
+      const derivativesAttribution =
+        terms?.derivativesAttribution === true ||
+        license.derivativesAttribution === true;
+
+      // Update map - set hasAttribution to true if any license of this type requires attribution
+      if (!remixTypesMap.has(remixType)) {
+        remixTypesMap.set(remixType, {
+          hasAttribution: derivativesAttribution,
+        });
+      } else {
+        const existing = remixTypesMap.get(remixType)!;
+        existing.hasAttribution =
+          existing.hasAttribution || derivativesAttribution;
+      }
+    }
+
+    return Array.from(remixTypesMap.entries()).map(([type, info]) => ({
+      type,
+      hasAttribution: info.hasAttribution,
+    }));
+  };
+
   const categories: Category[] = ["ip", "image", "video", "music"];
   const currentItems = DUMMY_DATA[activeCategory];
 
