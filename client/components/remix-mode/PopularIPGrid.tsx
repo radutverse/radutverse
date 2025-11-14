@@ -169,6 +169,14 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalResults, setTotalResults] = useState(0);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [lastQuery, setLastQuery] = useState("");
+  const [lastQueryType, setLastQueryType] = useState<"keyword" | "owner" | null>(null);
+  const [lastResolvedAddress, setLastResolvedAddress] = useState("");
+
+  const ITEMS_PER_PAGE = 20;
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -179,81 +187,152 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     return ipNameRegex.test(query);
   };
 
-  const handleSearch = useCallback(async () => {
-    if (!searchInput.trim()) {
-      setSearchResults([]);
-      setHasSearched(false);
-      return;
-    }
-
-    setIsSearching(true);
-    setHasSearched(true);
-
-    try {
-      // Check if input is .ip name
-      if (isIpName(searchInput)) {
-        console.log("[PopularIPGrid] Detected .ip name, resolving:", searchInput);
-
-        // First resolve the .ip name to address
-        const resolveResponse = await fetch("/api/resolve-ip-name", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ipName: searchInput }),
-        });
-
-        if (!resolveResponse.ok) {
-          const resolveData = await resolveResponse.json();
-          console.error("Failed to resolve .ip name:", resolveData);
-          setSearchResults([]);
-          setIsSearching(false);
-          return;
-        }
-
-        const resolveData = await resolveResponse.json();
-        const resolvedAddress = resolveData.address;
-
-        console.log(
-          "[PopularIPGrid] Resolved to address:",
-          resolvedAddress,
-        );
-
-        // Now search by owner
-        const searchResponse = await fetch("/api/search-by-owner", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ownerAddress: resolvedAddress }),
-        });
-
-        if (!searchResponse.ok) {
-          throw new Error("Search by owner failed");
-        }
-
-        const searchData = await searchResponse.json();
-        setSearchResults(searchData.results || []);
-      } else {
-        // Regular keyword search
-        const response = await fetch("/api/search-ip-assets", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: searchInput,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Search failed");
-        }
-
-        const data = await response.json();
-        setSearchResults(data.results || []);
+  const performSearch = useCallback(
+    async (isLoadMore: boolean = false) => {
+      if (!searchInput.trim()) {
+        setSearchResults([]);
+        setHasSearched(false);
+        return;
       }
-    } catch (error) {
-      console.error("Search error:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
+
+      if (isLoadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsSearching(true);
+        setHasSearched(true);
+        setSearchResults([]);
+        setCurrentOffset(0);
+      }
+
+      try {
+        // Check if input is .ip name
+        if (isIpName(searchInput)) {
+          console.log("[PopularIPGrid] Detected .ip name, resolving:", searchInput);
+
+          if (!isLoadMore) {
+            // First resolve the .ip name to address
+            const resolveResponse = await fetch("/api/resolve-ip-name", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ipName: searchInput }),
+            });
+
+            if (!resolveResponse.ok) {
+              const resolveData = await resolveResponse.json();
+              console.error("Failed to resolve .ip name:", resolveData);
+              setSearchResults([]);
+              setIsSearching(false);
+              return;
+            }
+
+            const resolveData = await resolveResponse.json();
+            const resolvedAddress = resolveData.address;
+
+            console.log(
+              "[PopularIPGrid] Resolved to address:",
+              resolvedAddress,
+            );
+
+            setLastResolvedAddress(resolvedAddress);
+            setLastQueryType("owner");
+            setLastQuery(searchInput);
+          }
+
+          // Search by owner
+          const offset = isLoadMore ? currentOffset + ITEMS_PER_PAGE : 0;
+          const searchResponse = await fetch("/api/search-by-owner", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ownerAddress: lastResolvedAddress || (await resolveIpName(searchInput)),
+            }),
+          });
+
+          if (!searchResponse.ok) {
+            throw new Error("Search by owner failed");
+          }
+
+          const searchData = await searchResponse.json();
+          const newResults = searchData.results || [];
+
+          if (isLoadMore) {
+            setSearchResults((prev) => [...prev, ...newResults.slice(offset, offset + ITEMS_PER_PAGE)]);
+            setCurrentOffset(offset + ITEMS_PER_PAGE);
+          } else {
+            setSearchResults(newResults.slice(0, ITEMS_PER_PAGE));
+            setTotalResults(newResults.length);
+            setCurrentOffset(ITEMS_PER_PAGE);
+          }
+        } else {
+          // Regular keyword search
+          const offset = isLoadMore ? currentOffset + ITEMS_PER_PAGE : 0;
+          const response = await fetch("/api/search-ip-assets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query: searchInput,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Search failed");
+          }
+
+          const data = await response.json();
+          const allResults = data.results || [];
+
+          if (isLoadMore) {
+            setSearchResults((prev) => [
+              ...prev,
+              ...allResults.slice(offset, offset + ITEMS_PER_PAGE),
+            ]);
+            setCurrentOffset(offset + ITEMS_PER_PAGE);
+          } else {
+            setSearchResults(allResults.slice(0, ITEMS_PER_PAGE));
+            setTotalResults(allResults.length);
+            setCurrentOffset(ITEMS_PER_PAGE);
+            setLastQueryType("keyword");
+            setLastQuery(searchInput);
+          }
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        if (!isLoadMore) {
+          setSearchResults([]);
+        }
+      } finally {
+        if (isLoadMore) {
+          setIsLoadingMore(false);
+        } else {
+          setIsSearching(false);
+        }
+      }
+    },
+    [searchInput, currentOffset, lastResolvedAddress],
+  );
+
+  const resolveIpName = useCallback(async (ipName: string) => {
+    const resolveResponse = await fetch("/api/resolve-ip-name", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ipName }),
+    });
+
+    if (!resolveResponse.ok) {
+      throw new Error("Failed to resolve .ip name");
     }
-  }, [searchInput]);
+
+    const resolveData = await resolveResponse.json();
+    return resolveData.address;
+  }, []);
+
+  const handleSearch = useCallback(() => {
+    performSearch(false);
+  }, [performSearch]);
+
+  const handleLoadMore = useCallback(() => {
+    performSearch(true);
+  }, [performSearch]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
