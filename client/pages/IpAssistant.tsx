@@ -34,10 +34,7 @@ import {
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
-import {
-  compressToBlob,
-  compressAndEnsureSize,
-} from "@/lib/utils/image";
+import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
 import {
   CURRENT_SESSION_KEY,
   IP_ASSISTANT_AVATAR,
@@ -693,7 +690,6 @@ const IpAssistant = () => {
       try {
         setWaiting(true);
 
-
         const requestBody: any = {
           query: trimmedQuery,
         };
@@ -709,7 +705,6 @@ const IpAssistant = () => {
           },
           body: JSON.stringify(requestBody),
         });
-
 
         if (!response.ok) {
           let errorMessage = `API Error: ${response.status}`;
@@ -842,7 +837,6 @@ const IpAssistant = () => {
             ? ownerSearchControllerRef.current?.signal
             : undefined,
         });
-
 
         if (!response.ok) {
           let errorMessage = `API Error: ${response.status}`;
@@ -1308,7 +1302,6 @@ const IpAssistant = () => {
     [handleSend, previewImages, input],
   );
 
-
   const checkIpAssets = useCallback(async (address: string) => {
     if (!address || address.trim().length === 0) {
       return;
@@ -1320,7 +1313,6 @@ const IpAssistant = () => {
     try {
       setIpCheckLoading(loadingKey);
 
-
       const response = await fetch("/api/check-ip-assets", {
         method: "POST",
         headers: {
@@ -1330,7 +1322,6 @@ const IpAssistant = () => {
           address: trimmedAddress,
         }),
       });
-
 
       if (!response.ok) {
         let errorMessage = `API Error: ${response.status}`;

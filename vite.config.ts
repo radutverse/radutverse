@@ -33,11 +33,7 @@ export default defineConfig(({ mode }) => ({
           "vendor-animation": ["framer-motion"],
           "vendor-charts": ["recharts"],
           "vendor-utils": ["date-fns", "lucide-react", "clsx"],
-          "vendor-forms": [
-            "react-hook-form",
-            "@hookform/resolvers",
-            "zod",
-          ],
+          "vendor-forms": ["react-hook-form", "@hookform/resolvers", "zod"],
         },
       },
     },
