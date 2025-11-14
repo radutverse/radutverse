@@ -7,7 +7,7 @@ import {
   useDomainFetch,
   useUniqueOwners,
 } from "@/components/search-feature";
-import type { PopularItem, SearchResult } from "../types";
+import type { PopularItem, SearchResult } from "../../remix-mode/types";
 
 interface PopularIPGridProps {
   onBack: () => void;
