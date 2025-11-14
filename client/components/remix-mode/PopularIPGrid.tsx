@@ -169,7 +169,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   music: "Popular Music",
 };
 
-export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
+export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("ip");
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -189,6 +189,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [ownerDomains, setOwnerDomains] = useState<
     Record<string, { domain: string | null; loading: boolean }>
   >({});
+  const [expandedAsset, setExpandedAsset] = useState<SearchResult | null>(null);
   const domainFetchControllerRef = useRef<AbortController | null>(null);
 
   const ITEMS_PER_PAGE = 20;
