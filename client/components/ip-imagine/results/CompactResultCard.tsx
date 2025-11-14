@@ -213,7 +213,9 @@ const CompactResultCard = ({
                       </svg>
                       <div>
                         <p className="font-medium text-slate-100">Remix</p>
-                        <p className="text-xs text-slate-400">Create variations</p>
+                        <p className="text-xs text-slate-400">
+                          Create variations
+                        </p>
                       </div>
                     </button>
 
