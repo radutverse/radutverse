@@ -784,12 +784,14 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-6"
           >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
               onClick={() => setShowDetailsModal(false)}
               aria-hidden="true"
@@ -799,126 +801,276 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 w-full max-w-2xl bg-slate-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/50 overflow-hidden"
+              className="relative z-10 w-full max-w-lg bg-slate-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/50 overflow-hidden"
             >
-              <div className="p-6 sm:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-100">
-                    Asset Details
-                  </h2>
-                  <button
-                    onClick={() => setShowDetailsModal(false)}
-                    className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6]"
-                    aria-label="Close"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-400 mb-1">
-                      Title
-                    </h3>
-                    <p className="text-slate-100">
-                      {expandedAsset.title || expandedAsset.name || "Untitled"}
-                    </p>
-                  </div>
-
-                  {expandedAsset.description && (
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-400 mb-1">
-                        Description
-                      </h3>
-                      <p className="text-slate-300">
-                        {expandedAsset.description}
-                      </p>
-                    </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-400 mb-1">
-                      Owner
-                    </h3>
-                    <p className="text-slate-100 font-mono">
-                      {expandedAsset.ownerAddress
-                        ? `${expandedAsset.ownerAddress.slice(0, 8)}...${expandedAsset.ownerAddress.slice(-6)}`
-                        : "Unknown"}
-                    </p>
-                  </div>
-
-                  {expandedAsset.mediaType && (
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-400 mb-1">
-                        Media Type
-                      </h3>
-                      <p className="text-slate-100">
-                        {expandedAsset.mediaType
-                          .replace("video/", "")
-                          .replace("audio/", "")
-                          .replace("image/", "")
-                          .toUpperCase()}
-                      </p>
-                    </div>
-                  )}
-
-                  {expandedAsset.score !== undefined && (
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-400 mb-1">
-                        Match Score
-                      </h3>
-                      <p className="text-slate-100">
-                        {(expandedAsset.score * 100).toFixed(0)}%
-                      </p>
-                    </div>
-                  )}
-
-                  {expandedAsset.licenses && expandedAsset.licenses.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-400 mb-2">
-                        Licenses
-                      </h3>
-                      <div className="space-y-2">
-                        {expandedAsset.licenses.map((license: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50"
-                          >
-                            <p className="text-xs font-semibold text-[#FF4DA6] mb-1">
-                              {license.type || "License"}
-                            </p>
-                            <p className="text-xs text-slate-300">
-                              Derivatives:{" "}
-                              {license.terms?.derivativesAllowed === true ||
-                              license.derivativesAllowed === true
-                                ? "✓ Allowed"
-                                : "✗ Not allowed"}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
+              <div className="flex items-center justify-between gap-4 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/30 px-6 py-4">
+                <h3 className="text-lg font-semibold text-slate-100">
+                  IP Asset Details
+                </h3>
                 <button
+                  type="button"
                   onClick={() => setShowDetailsModal(false)}
-                  className="w-full mt-6 px-4 py-2.5 rounded-lg bg-[#FF4DA6] text-white font-semibold transition-all hover:shadow-lg hover:shadow-[#FF4DA6]/25"
+                  className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+                  aria-label="Close"
                 >
-                  Close
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
                 </button>
+              </div>
+
+              <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-4">
+                  {expandedAsset.ipId && (
+                    <div>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                        IP ID
+                      </label>
+                      <p className="text-sm text-slate-200 font-mono mt-2 break-all bg-slate-900/40 p-3 rounded-lg border border-slate-800/50">
+                        {expandedAsset.ipId}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="pt-4 border-t border-slate-800/30">
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                      Asset Information
+                    </label>
+                    <div className="mt-4 space-y-3">
+                      {expandedAsset.title && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Title
+                          </div>
+                          <p className="text-sm text-slate-200">
+                            {expandedAsset.title}
+                          </p>
+                        </div>
+                      )}
+
+                      {expandedAsset.ownerAddress && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Owner Address
+                          </div>
+                          <p className="text-sm text-slate-200 font-mono break-all">
+                            {expandedAsset.ownerAddress}
+                          </p>
+                        </div>
+                      )}
+
+                      {expandedAsset.mediaType && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Media Type
+                          </div>
+                          <p className="text-sm text-slate-200">
+                            {expandedAsset.mediaType
+                              ?.replace("video/", "")
+                              .replace("audio/", "")
+                              .replace("image/", "")
+                              .toUpperCase() || "Unknown"}
+                          </p>
+                        </div>
+                      )}
+
+                      {expandedAsset.score !== undefined && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Match Score
+                          </div>
+                          <p className="text-sm text-slate-200">
+                            {(expandedAsset.score * 100).toFixed(1)}%
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {expandedAsset.licenses &&
+                    expandedAsset.licenses.length > 0 && (
+                      <div className="pt-4 border-t border-slate-800/30">
+                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                          Licenses
+                        </label>
+                        <div className="mt-4 space-y-3">
+                          {expandedAsset.licenses.map(
+                            (license: any, index: number) => (
+                              <div
+                                key={index}
+                                className="bg-slate-900/40 border border-slate-700/50 rounded-lg p-4 space-y-3"
+                              >
+                                {license.templateName && (
+                                  <div>
+                                    <div className="text-xs text-slate-400 mb-1">
+                                      Template Name
+                                    </div>
+                                    <p className="text-sm text-slate-200 font-semibold">
+                                      {license.templateName}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {license.licenseTermsId && (
+                                  <div>
+                                    <div className="text-xs text-slate-400 mb-1">
+                                      License Terms ID
+                                    </div>
+                                    <p className="text-xs text-slate-300 font-mono break-all">
+                                      {license.licenseTermsId}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {license.terms && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-700/30">
+                                    <div className="text-xs font-semibold text-slate-300 mb-2">
+                                      Terms:
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                      {license.terms.commercialUse !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Commercial Use:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.commercialUse
+                                              ? "✓ Allowed"
+                                              : "✗ Not Allowed"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.derivativesAllowed !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Derivatives:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.derivativesAllowed
+                                              ? "✓ Allowed"
+                                              : "��� Not Allowed"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.transferable !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Transferable:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.transferable
+                                              ? "✓ Yes"
+                                              : "✗ No"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.commercialAttribution !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Attribution Required:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.commercialAttribution
+                                              ? "✓ Yes"
+                                              : "✗ No"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.commercialRevShare !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Rev Share:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {(
+                                              Number(
+                                                license.terms
+                                                  .commercialRevShare,
+                                              ) / 1000000
+                                            ).toFixed(2)}
+                                            %
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.licensingConfig?.mintingFee && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Minting Fee:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {(
+                                              Number(
+                                                license.licensingConfig
+                                                  .mintingFee,
+                                              ) / 1e18
+                                            ).toFixed(6)}{" "}
+                                            tokens
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.currency && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Currency:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.currency}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.expiration && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Expiration:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.expiration}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {license.createdAt && (
+                                  <div className="pt-2 border-t border-slate-700/30">
+                                    <div className="text-xs text-slate-500">
+                                      Created:{" "}
+                                      {new Date(
+                                        license.createdAt,
+                                      ).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
+                </div>
               </div>
             </motion.div>
           </motion.div>
