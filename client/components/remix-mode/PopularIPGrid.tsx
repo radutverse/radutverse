@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
-import { SearchResultsGrid } from "./SearchResultsGrid";
+import { SearchResultsGrid } from "@/components/search-feature/SearchResultsGrid";
 import {
   useDomainFetch,
   useRemixTypes,
