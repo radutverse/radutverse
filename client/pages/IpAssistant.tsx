@@ -2988,7 +2988,7 @@ const IpAssistant = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
             />
-            <YouTubeStyleSearchResults
+            <IpAssistantSearch
               searchResults={searchResults}
               onClose={() => setShowSearchModal(false)}
               onAssetClick={(asset) => {
