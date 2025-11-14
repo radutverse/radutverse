@@ -30,7 +30,9 @@ interface SearchResultsGridProps {
   ownerDomains: Record<string, { domain: string | null; loading: boolean }>;
   hoveredIndex: number | null;
   setHoveredIndex: (idx: number | null) => void;
-  getRemixTypes: (asset: SearchResult) => Array<{ type: "paid" | "free"; hasAttribution: boolean }>;
+  getRemixTypes: (
+    asset: SearchResult,
+  ) => Array<{ type: "paid" | "free"; hasAttribution: boolean }>;
   allowsDerivatives: (asset: SearchResult) => boolean;
   truncateAddressDisplay: (address: string) => string;
   isLoadingOwnerAssets?: boolean;
