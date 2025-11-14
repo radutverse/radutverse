@@ -49,7 +49,7 @@ That's it! This single command will:
 Run these before starting:
 
 ```bash
-# Check Node version (need 18+)
+# Check Node version (need 18.12.0+)
 node --version
 
 # Check pnpm version (need 10.14.0+)
