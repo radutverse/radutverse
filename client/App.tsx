@@ -1,22 +1,25 @@
 import "./global.css";
 
-import { StrictMode } from "react";
+import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CreationProvider } from "@/context/CreationContext";
-import {
-  IpfiAssistant,
-  IpImagine,
-  IpImagineCreationResult,
-  NftMarketplace,
-  MyPortfolio,
-  Settings,
-  History,
-} from "@/features";
+import { RouteLoader } from "@/components/common/RouteLoader";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+
+// Lazy load route components for code splitting
+const IpfiAssistant = lazy(() => import("@/pages/IpAssistant"));
+const IpImagine = lazy(() => import("@/pages/IpImagine"));
+const IpImagineCreationResult = lazy(
+  () => import("@/pages/IpImagineCreationResult"),
+);
+const NftMarketplace = lazy(() => import("@/pages/NftMarketplace"));
+const MyPortfolio = lazy(() => import("@/pages/MyPortfolio"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const History = lazy(() => import("@/pages/History"));
 
 declare global {
   interface Window {
@@ -58,13 +61,62 @@ const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/ipfi-assistant" element={<IpfiAssistant />} />
-      <Route path="/ip-imagine" element={<IpImagine />} />
-      <Route path="/ip-imagine/result" element={<IpImagineCreationResult />} />
-      <Route path="/nft-marketplace" element={<NftMarketplace />} />
-      <Route path="/my-portfolio" element={<MyPortfolio />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/history" element={<History />} />
+      <Route
+        path="/ipfi-assistant"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <IpfiAssistant />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/ip-imagine"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <IpImagine />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/ip-imagine/result"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <IpImagineCreationResult />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/nft-marketplace"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <NftMarketplace />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/my-portfolio"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <MyPortfolio />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <Settings />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <Suspense fallback={<RouteLoader />}>
+            <History />
+          </Suspense>
+        }
+      />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

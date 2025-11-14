@@ -137,22 +137,27 @@ export const YouTubeStyleSearchResults = ({
             };
           });
       }),
-    ).then((results) => {
-      console.log("[YouTubeSearchResults] All domain fetch results:", results);
-      const newDomains: Record<
-        string,
-        { domain: string | null; loading: boolean }
-      > = {};
-      results.forEach(({ address, domain }) => {
-        newDomains[address] = { domain, loading: false };
+    )
+      .then((results) => {
+        console.log(
+          "[YouTubeSearchResults] All domain fetch results:",
+          results,
+        );
+        const newDomains: Record<
+          string,
+          { domain: string | null; loading: boolean }
+        > = {};
+        results.forEach(({ address, domain }) => {
+          newDomains[address] = { domain, loading: false };
+        });
+        setOwnerDomains(newDomains);
+      })
+      .catch((err) => {
+        // Silently ignore abort errors
+        if (err.name !== "AbortError") {
+          console.error("[YouTubeSearchResults] Error fetching domains:", err);
+        }
       });
-      setOwnerDomains(newDomains);
-    }).catch((err) => {
-      // Silently ignore abort errors
-      if (err.name !== "AbortError") {
-        console.error("[YouTubeSearchResults] Error fetching domains:", err);
-      }
-    });
 
     return () => {
       if (domainFetchControllerRef.current) {
