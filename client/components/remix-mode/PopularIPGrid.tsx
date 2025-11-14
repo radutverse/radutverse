@@ -167,11 +167,14 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [allSearchResults, setAllSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [currentOffset, setCurrentOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalResults, setTotalResults] = useState(0);
+  const [lastQueryType, setLastQueryType] = useState<"keyword" | "owner" | null>(null);
+  const [lastResolvedAddress, setLastResolvedAddress] = useState("");
 
   const ITEMS_PER_PAGE = 20;
 
@@ -194,8 +197,8 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     setIsSearching(true);
     setHasSearched(true);
     setSearchResults([]);
-    setAllSearchResults([]);
     setCurrentOffset(0);
+    setHasMore(false);
 
     try {
       // Check if input is .ip name
@@ -221,7 +224,10 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
 
         console.log("[PopularIPGrid] Resolved to address:", resolvedAddress);
 
-        // Search by owner
+        setLastResolvedAddress(resolvedAddress);
+        setLastQueryType("owner");
+
+        // Search by owner - fetch with pagination
         const searchResponse = await fetch("/api/search-by-owner", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -233,18 +239,23 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
         }
 
         const searchData = await searchResponse.json();
-        const allResults = searchData.results || [];
+        const results = searchData.results || [];
 
-        setAllSearchResults(allResults);
-        setSearchResults(allResults.slice(0, ITEMS_PER_PAGE));
+        setSearchResults(results.slice(0, ITEMS_PER_PAGE));
+        setTotalResults(results.length);
         setCurrentOffset(ITEMS_PER_PAGE);
+        setHasMore(results.length > ITEMS_PER_PAGE);
       } else {
-        // Regular keyword search
+        // Regular keyword search - fetch with pagination
         const response = await fetch("/api/search-ip-assets", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: searchInput,
+            pagination: {
+              limit: ITEMS_PER_PAGE,
+              offset: 0,
+            },
           }),
         });
 
@@ -253,33 +264,77 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
         }
 
         const data = await response.json();
-        const allResults = data.results || [];
+        const results = data.results || [];
 
-        setAllSearchResults(allResults);
-        setSearchResults(allResults.slice(0, ITEMS_PER_PAGE));
+        setSearchResults(results);
+        setTotalResults(data.totalSearched || results.length);
         setCurrentOffset(ITEMS_PER_PAGE);
+        setHasMore(data.pagination?.hasMore || results.length >= ITEMS_PER_PAGE);
+        setLastQueryType("keyword");
       }
     } catch (error) {
       console.error("Search error:", error);
       setSearchResults([]);
-      setAllSearchResults([]);
+      setHasMore(false);
     } finally {
       setIsSearching(false);
     }
   }, [searchInput]);
 
-  const handleLoadMore = useCallback(() => {
+  const handleLoadMore = useCallback(async () => {
     setIsLoadingMore(true);
 
-    setTimeout(() => {
-      const newOffset = currentOffset + ITEMS_PER_PAGE;
-      const newResults = allSearchResults.slice(currentOffset, newOffset);
+    try {
+      if (lastQueryType === "owner") {
+        // For owner search, fetch more results
+        const searchResponse = await fetch("/api/search-by-owner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: lastResolvedAddress }),
+        });
 
-      setSearchResults((prev) => [...prev, ...newResults]);
-      setCurrentOffset(newOffset);
+        if (!searchResponse.ok) {
+          throw new Error("Search by owner failed");
+        }
+
+        const searchData = await searchResponse.json();
+        const allResults = searchData.results || [];
+        const newResults = allResults.slice(currentOffset, currentOffset + ITEMS_PER_PAGE);
+
+        setSearchResults((prev) => [...prev, ...newResults]);
+        setCurrentOffset(currentOffset + ITEMS_PER_PAGE);
+        setHasMore(currentOffset + ITEMS_PER_PAGE < allResults.length);
+      } else {
+        // For keyword search, fetch next page
+        const response = await fetch("/api/search-ip-assets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: searchInput,
+            pagination: {
+              limit: ITEMS_PER_PAGE,
+              offset: currentOffset,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Search failed");
+        }
+
+        const data = await response.json();
+        const newResults = data.results || [];
+
+        setSearchResults((prev) => [...prev, ...newResults]);
+        setCurrentOffset(currentOffset + ITEMS_PER_PAGE);
+        setHasMore(data.pagination?.hasMore || false);
+      }
+    } catch (error) {
+      console.error("Load more error:", error);
+    } finally {
       setIsLoadingMore(false);
-    }, 300);
-  }, [currentOffset, allSearchResults]);
+    }
+  }, [currentOffset, searchInput, lastQueryType, lastResolvedAddress]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
