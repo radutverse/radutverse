@@ -353,7 +353,9 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
               <div className="sticky top-0 z-20 flex items-start justify-between gap-4 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/30 px-6 py-4">
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl font-bold text-slate-100 line-clamp-2">
-                    {expandedAsset.title || expandedAsset.name || "Untitled Asset"}
+                    {expandedAsset.title ||
+                      expandedAsset.name ||
+                      "Untitled Asset"}
                   </h2>
                 </div>
                 <button
@@ -386,18 +388,25 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
                       >
                         <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                       </svg>
-                      <audio src={expandedAsset.mediaUrl} controls className="w-full" />
+                      <audio
+                        src={expandedAsset.mediaUrl}
+                        controls
+                        className="w-full"
+                      />
                     </div>
                   ) : (
                     <img
                       src={expandedAsset.mediaUrl}
-                      alt={expandedAsset.title || expandedAsset.name || "IP Asset"}
+                      alt={
+                        expandedAsset.title || expandedAsset.name || "IP Asset"
+                      }
                       className="w-full h-full object-contain rounded-lg"
                       onError={(e) => {
                         const img = e.target as HTMLImageElement;
                         img.replaceWith(
                           Object.assign(document.createElement("div"), {
-                            className: "flex flex-col items-center justify-center gap-2 text-slate-400 w-full h-full",
+                            className:
+                              "flex flex-col items-center justify-center gap-2 text-slate-400 w-full h-full",
                             innerHTML: `
                               <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -428,7 +437,9 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
                             : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                         }`}
                       >
-                        {expandedAsset.isDerivative ? "🔄 Remix" : "✨ Original"}
+                        {expandedAsset.isDerivative
+                          ? "🔄 Remix"
+                          : "✨ Original"}
                       </span>
                     </div>
 
@@ -462,7 +473,9 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
                   {/* Remix Types */}
                   {getRemixTypesFunc(expandedAsset).length > 0 && (
                     <div className="pt-4 border-t border-slate-800/30">
-                      <p className="text-xs text-slate-400 font-semibold mb-3">Remix Types:</p>
+                      <p className="text-xs text-slate-400 font-semibold mb-3">
+                        Remix Types:
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {getRemixTypesFunc(expandedAsset).map((remixConfig) => (
                           <span
@@ -483,7 +496,9 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
                                   : "rgb(147, 197, 253)",
                             }}
                           >
-                            {remixConfig.type === "paid" ? "💰 Paid" : "🆓 Free"}
+                            {remixConfig.type === "paid"
+                              ? "💰 Paid"
+                              : "🆓 Free"}
                             {remixConfig.hasAttribution && " • Attribution"}
                           </span>
                         ))}
