@@ -320,6 +320,181 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
           <p>Start searching for IP assets</p>
         </div>
       )}
+
+      {/* Expanded Asset Details Modal */}
+      <AnimatePresence>
+        {expandedAsset ? (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+              onClick={() => setExpandedAsset(null)}
+              aria-hidden="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            />
+
+            <motion.div
+              className="relative z-10 w-full max-w-2xl max-h-[90vh] rounded-2xl bg-slate-950/95 border border-slate-800/50 shadow-2xl overflow-hidden flex flex-col"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.24 }}
+            >
+              {/* Header */}
+              <div className="sticky top-0 z-20 flex items-start justify-between gap-4 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/30 px-6 py-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl font-bold text-slate-100 line-clamp-2">
+                    {expandedAsset.title || expandedAsset.name || "Untitled Asset"}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setExpandedAsset(null)}
+                  className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6] focus:outline-none"
+                  aria-label="Close asset details"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto">
+                {/* Media Display */}
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 aspect-video flex items-center justify-center p-4">
+                  {expandedAsset.mediaType?.startsWith("video") ? (
+                    <video
+                      src={expandedAsset.mediaUrl}
+                      poster={expandedAsset.thumbnailUrl}
+                      controls
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  ) : expandedAsset.mediaType?.startsWith("audio") ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <svg
+                        className="w-16 h-16 text-slate-400"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                      </svg>
+                      <audio src={expandedAsset.mediaUrl} controls className="w-full" />
+                    </div>
+                  ) : (
+                    <img
+                      src={expandedAsset.mediaUrl}
+                      alt={expandedAsset.title || expandedAsset.name || "IP Asset"}
+                      className="w-full h-full object-contain rounded-lg"
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        img.replaceWith(
+                          Object.assign(document.createElement("div"), {
+                            className: "flex flex-col items-center justify-center gap-2 text-slate-400 w-full h-full",
+                            innerHTML: `
+                              <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                              </svg>
+                              <span class="text-sm">Failed to load media</span>
+                            `,
+                          }),
+                        );
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Details */}
+                <div className="border-t border-slate-800/30 bg-slate-950/95 px-6 py-6 space-y-6">
+                  {expandedAsset.description && (
+                    <p className="text-sm text-slate-300 leading-relaxed">
+                      {expandedAsset.description}
+                    </p>
+                  )}
+
+                  <div className="space-y-3">
+                    <div>
+                      <span
+                        className={`text-xs px-3 py-2 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm border ${
+                          expandedAsset.isDerivative
+                            ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                            : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                        }`}
+                      >
+                        {expandedAsset.isDerivative ? "🔄 Remix" : "✨ Original"}
+                      </span>
+                    </div>
+
+                    {expandedAsset.score !== undefined && (
+                      <span className="text-xs px-3 py-2 rounded-full bg-[#FF4DA6]/20 text-[#FF4DA6] border border-[#FF4DA6]/30 font-semibold whitespace-nowrap backdrop-blur-sm">
+                        {(expandedAsset.score * 100).toFixed(0)}% Match
+                      </span>
+                    )}
+
+                    {expandedAsset.mediaType && (
+                      <span className="text-xs text-slate-400">
+                        {expandedAsset.mediaType
+                          ?.replace("video/", "")
+                          .replace("audio/", "")
+                          .replace("image/", "")
+                          .toUpperCase()}
+                      </span>
+                    )}
+
+                    {expandedAsset.ownerAddress && (
+                      <div className="text-xs">
+                        <span className="text-slate-500">Owner:</span>
+                        <span className="text-slate-200 font-mono ml-2">
+                          {expandedAsset.ownerAddress.slice(0, 8)}...
+                          {expandedAsset.ownerAddress.slice(-6)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Remix Types */}
+                  {getRemixTypesFunc(expandedAsset).length > 0 && (
+                    <div className="pt-4 border-t border-slate-800/30">
+                      <p className="text-xs text-slate-400 font-semibold mb-3">Remix Types:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {getRemixTypesFunc(expandedAsset).map((remixConfig) => (
+                          <span
+                            key={remixConfig.type}
+                            className="text-xs px-3 py-2 rounded-full font-semibold whitespace-nowrap backdrop-blur-sm border"
+                            style={{
+                              backgroundColor:
+                                remixConfig.type === "paid"
+                                  ? "rgba(34, 197, 94, 0.2)"
+                                  : "rgba(59, 130, 246, 0.2)",
+                              borderColor:
+                                remixConfig.type === "paid"
+                                  ? "rgb(134, 239, 172)"
+                                  : "rgb(147, 197, 253)",
+                              color:
+                                remixConfig.type === "paid"
+                                  ? "rgb(134, 239, 172)"
+                                  : "rgb(147, 197, 253)",
+                            }}
+                          >
+                            {remixConfig.type === "paid" ? "💰 Paid" : "🆓 Free"}
+                            {remixConfig.hasAttribution && " • Attribution"}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </motion.div>
   );
 };
