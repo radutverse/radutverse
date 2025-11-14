@@ -206,6 +206,17 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     }
   }, [searchInput]);
 
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+
+    // Clear search results when input is cleared
+    if (!value.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
+    }
+  }, []);
+
   const categories: Category[] = ["ip", "image", "video", "music"];
   const currentItems = DUMMY_DATA[activeCategory];
 
