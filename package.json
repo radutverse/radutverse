@@ -16,13 +16,13 @@
     "typecheck": "turbo run typecheck",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "migrate:all": "node scripts/migrate-all.js",
-    "migrate:shared": "node scripts/migrate-shared.js",
-    "migrate:frontend": "node scripts/migrate-frontend.js",
-    "migrate:api": "node scripts/migrate-api.js",
-    "migrate:imports": "node scripts/update-imports.js",
-    "migrate:check": "node scripts/migration-check.js",
-    "verify:deployment": "node scripts/verify-deployment.js"
+    "migrate:all": "node scripts/migrate-all.cjs",
+    "migrate:shared": "node scripts/migrate-shared.cjs",
+    "migrate:frontend": "node scripts/migrate-frontend.cjs",
+    "migrate:api": "node scripts/migrate-api.cjs",
+    "migrate:imports": "node scripts/update-imports.cjs",
+    "migrate:check": "node scripts/migration-check.cjs",
+    "verify:deployment": "node scripts/verify-deployment.cjs"
   },
   "dependencies": {
     "@privy-io/react-auth": "^1.99.1",
