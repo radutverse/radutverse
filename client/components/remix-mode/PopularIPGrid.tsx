@@ -174,6 +174,11 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
+  const isIpName = (query: string): boolean => {
+    const ipNameRegex = /([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.ip)$/i;
+    return ipNameRegex.test(query);
+  };
+
   const handleSearch = useCallback(async () => {
     if (!searchInput.trim()) {
       setSearchResults([]);
@@ -183,21 +188,65 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
 
     setIsSearching(true);
     setHasSearched(true);
+
     try {
-      const response = await fetch("/api/search-ip-assets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: searchInput,
-        }),
-      });
+      // Check if input is .ip name
+      if (isIpName(searchInput)) {
+        console.log("[PopularIPGrid] Detected .ip name, resolving:", searchInput);
 
-      if (!response.ok) {
-        throw new Error("Search failed");
+        // First resolve the .ip name to address
+        const resolveResponse = await fetch("/api/resolve-ip-name", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ipName: searchInput }),
+        });
+
+        if (!resolveResponse.ok) {
+          const resolveData = await resolveResponse.json();
+          console.error("Failed to resolve .ip name:", resolveData);
+          setSearchResults([]);
+          setIsSearching(false);
+          return;
+        }
+
+        const resolveData = await resolveResponse.json();
+        const resolvedAddress = resolveData.address;
+
+        console.log(
+          "[PopularIPGrid] Resolved to address:",
+          resolvedAddress,
+        );
+
+        // Now search by owner
+        const searchResponse = await fetch("/api/search-by-owner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: resolvedAddress }),
+        });
+
+        if (!searchResponse.ok) {
+          throw new Error("Search by owner failed");
+        }
+
+        const searchData = await searchResponse.json();
+        setSearchResults(searchData.results || []);
+      } else {
+        // Regular keyword search
+        const response = await fetch("/api/search-ip-assets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: searchInput,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Search failed");
+        }
+
+        const data = await response.json();
+        setSearchResults(data.results || []);
       }
-
-      const data = await response.json();
-      setSearchResults(data.results || []);
     } catch (error) {
       console.error("Search error:", error);
       setSearchResults([]);
