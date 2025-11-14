@@ -768,7 +768,257 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
           asset={expandedAsset}
           isOpen={!!expandedAsset}
           onClose={() => setExpandedAsset(null)}
+          onShowDetails={() => {
+            setShowDetailsModal(true);
+          }}
+          onRemixMenu={() => {
+            setRemixMenuOpen(true);
+          }}
         />
+      </AnimatePresence>
+
+      {/* Details Modal */}
+      <AnimatePresence>
+        {showDetailsModal && expandedAsset && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+              onClick={() => setShowDetailsModal(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative z-10 w-full max-w-2xl bg-slate-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/50 overflow-hidden"
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-100">
+                    Asset Details
+                  </h2>
+                  <button
+                    onClick={() => setShowDetailsModal(false)}
+                    className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6]"
+                    aria-label="Close"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-400 mb-1">
+                      Title
+                    </h3>
+                    <p className="text-slate-100">
+                      {expandedAsset.title || expandedAsset.name || "Untitled"}
+                    </p>
+                  </div>
+
+                  {expandedAsset.description && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-400 mb-1">
+                        Description
+                      </h3>
+                      <p className="text-slate-300">
+                        {expandedAsset.description}
+                      </p>
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-400 mb-1">
+                      Owner
+                    </h3>
+                    <p className="text-slate-100 font-mono">
+                      {expandedAsset.ownerAddress
+                        ? `${expandedAsset.ownerAddress.slice(0, 8)}...${expandedAsset.ownerAddress.slice(-6)}`
+                        : "Unknown"}
+                    </p>
+                  </div>
+
+                  {expandedAsset.mediaType && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-400 mb-1">
+                        Media Type
+                      </h3>
+                      <p className="text-slate-100">
+                        {expandedAsset.mediaType
+                          .replace("video/", "")
+                          .replace("audio/", "")
+                          .replace("image/", "")
+                          .toUpperCase()}
+                      </p>
+                    </div>
+                  )}
+
+                  {expandedAsset.score !== undefined && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-400 mb-1">
+                        Match Score
+                      </h3>
+                      <p className="text-slate-100">
+                        {(expandedAsset.score * 100).toFixed(0)}%
+                      </p>
+                    </div>
+                  )}
+
+                  {expandedAsset.licenses && expandedAsset.licenses.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-400 mb-2">
+                        Licenses
+                      </h3>
+                      <div className="space-y-2">
+                        {expandedAsset.licenses.map((license: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50"
+                          >
+                            <p className="text-xs font-semibold text-[#FF4DA6] mb-1">
+                              {license.type || "License"}
+                            </p>
+                            <p className="text-xs text-slate-300">
+                              Derivatives:{" "}
+                              {license.terms?.derivativesAllowed === true ||
+                              license.derivativesAllowed === true
+                                ? "✓ Allowed"
+                                : "✗ Not allowed"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="w-full mt-6 px-4 py-2.5 rounded-lg bg-[#FF4DA6] text-white font-semibold transition-all hover:shadow-lg hover:shadow-[#FF4DA6]/25"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Remix Menu Modal */}
+      <AnimatePresence>
+        {remixMenuOpen && expandedAsset && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+              onClick={() => setRemixMenuOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative z-10 w-full max-w-md bg-slate-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/50 overflow-hidden"
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-100">
+                    Choose Remix Type
+                  </h2>
+                  <button
+                    onClick={() => setRemixMenuOpen(false)}
+                    className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6]"
+                    aria-label="Close"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {getRemixTypes(expandedAsset).map((remixConfig) => (
+                    <button
+                      key={remixConfig.type}
+                      onClick={() => {
+                        console.log(
+                          `Starting ${remixConfig.type} remix for asset:`,
+                          expandedAsset.title,
+                        );
+                        setRemixMenuOpen(false);
+                      }}
+                      className="w-full p-4 rounded-lg bg-gradient-to-r from-slate-800 to-slate-700 border border-slate-600/50 hover:border-[#FF4DA6]/50 hover:bg-gradient-to-r hover:from-[#FF4DA6]/20 hover:to-slate-700 transition-all text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">
+                          {remixConfig.type === "paid" ? "💰" : "🆓"}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">
+                            {remixConfig.type === "paid"
+                              ? "Paid Remix"
+                              : "Free Remix"}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {remixConfig.hasAttribution
+                              ? "Requires attribution"
+                              : "No attribution required"}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setRemixMenuOpen(false)}
+                  className="w-full mt-6 px-4 py-2 rounded-lg bg-slate-700/40 text-slate-200 border border-slate-600/50 font-semibold transition-all hover:bg-slate-700/60"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </motion.div>
   );
