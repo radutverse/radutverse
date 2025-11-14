@@ -1,27 +1,28 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:client && npm run build:server",
+  "buildCommand": "npm run build",
   "builds": [
     {
-      "src": "dist/spa/**",
+      "src": "dist/spa",
       "use": "@vercel/static"
     },
     {
-      "src": "api/**/*.ts",
+      "src": "api/index.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api"
     },
     {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "status": 200
     }
   ]
 }
