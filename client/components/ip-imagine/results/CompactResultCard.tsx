@@ -21,6 +21,7 @@ const CompactResultCard = ({
   onCreateAnother,
 }: CompactResultCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
   if (isExpanded) {
     return (
