@@ -7,6 +7,8 @@ import {
   useDomainFetch,
   useUniqueOwners,
 } from "@/components/search-feature";
+import { CategoryBrowser } from "./CategoryBrowser";
+import { FeaturedCatalog } from "./FeaturedCatalog";
 import type { PopularItem, SearchResult } from "../../remix-mode/types";
 
 interface PopularIPGridProps {
