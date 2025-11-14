@@ -607,7 +607,7 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
                 allowsDerivatives={allowsDerivatives}
                 truncateAddressDisplay={truncateAddressDisplay}
                 isLoadingOwnerAssets={false}
-                onAssetClick={() => {}}
+                onAssetClick={(asset) => setExpandedAsset(asset)}
                 onOwnerClick={() => {}}
               />
 
