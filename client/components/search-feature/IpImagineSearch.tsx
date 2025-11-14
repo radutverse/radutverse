@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
-import { SearchResultsGrid } from "@/components/remix-mode/SearchResultsGrid";
+import { SearchResultsGrid } from "./SearchResultsGrid";
 import {
   useDomainFetch,
   useRemixTypes,
@@ -131,9 +131,7 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
         setSearchResults(results);
         setTotalResults(data.totalSearched || results.length);
         setCurrentOffset(ITEMS_PER_PAGE);
-        setHasMore(
-          data.pagination?.hasMore || results.length >= ITEMS_PER_PAGE,
-        );
+        setHasMore(data.pagination?.hasMore || results.length > ITEMS_PER_PAGE);
         setLastQueryType("keyword");
       }
     } catch (error) {

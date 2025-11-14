@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { SearchResultsGrid } from "@/components/remix-mode/SearchResultsGrid";
+import { SearchResultsGrid } from "./SearchResultsGrid";
 import {
   useDomainFetch,
   useRemixTypes,

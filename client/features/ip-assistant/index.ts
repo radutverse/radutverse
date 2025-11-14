@@ -5,7 +5,6 @@ export { default as SidebarExtras } from "@/components/ip-assistant/SidebarExtra
 export { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
 export { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
 export { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
-export { YouTubeStyleSearchResults } from "@/components/ip-assistant/YouTubeStyleSearchResults";
 
 // Page
 export { default as IpAssistant } from "@/pages/IpAssistant";
