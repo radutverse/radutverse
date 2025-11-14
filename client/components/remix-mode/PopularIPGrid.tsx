@@ -408,7 +408,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                 ))}
               </div>
 
-              {currentOffset < totalResults && (
+              {currentOffset < allSearchResults.length && (
                 <div className="flex justify-center">
                   <button
                     onClick={handleLoadMore}
@@ -421,7 +421,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                         <span>Loading more...</span>
                       </>
                     ) : (
-                      <span>Load More ({currentOffset} / {totalResults})</span>
+                      <span>Load More ({currentOffset} / {allSearchResults.length})</span>
                     )}
                   </button>
                 </div>
