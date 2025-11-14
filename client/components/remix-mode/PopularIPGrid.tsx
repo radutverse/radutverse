@@ -4,13 +4,8 @@ import { Search, Loader } from "lucide-react";
 import {
   SearchResultsGrid,
   ExpandedAssetModal,
-} from "@/components/search-feature";
-import {
   useDomainFetch,
-  useRemixTypes,
-  useAllowsDerivatives,
   useUniqueOwners,
-  truncateAddressDisplay as truncateAddressDisplay_new,
 } from "@/components/search-feature";
 import type { PopularItem, SearchResult } from "./types";
 
@@ -764,17 +759,19 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
 
       {/* Expanded Asset Details Modal */}
       <AnimatePresence>
-        <ExpandedAssetModal
-          asset={expandedAsset}
-          isOpen={!!expandedAsset}
-          onClose={() => setExpandedAsset(null)}
-          onShowDetails={() => {
-            setShowDetailsModal(true);
-          }}
-          onRemixMenu={() => {
-            setRemixMenuOpen(true);
-          }}
-        />
+        {expandedAsset && (
+          <ExpandedAssetModal
+            asset={expandedAsset}
+            isOpen={true}
+            onClose={() => setExpandedAsset(null)}
+            onShowDetails={() => {
+              setShowDetailsModal(true);
+            }}
+            onRemixMenu={() => {
+              setRemixMenuOpen(true);
+            }}
+          />
+        )}
       </AnimatePresence>
 
       {/* Details Modal */}
