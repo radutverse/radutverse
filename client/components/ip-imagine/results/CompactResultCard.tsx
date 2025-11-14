@@ -30,11 +30,11 @@ const CompactResultCard = ({
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="w-full max-w-2xl mx-auto space-y-6"
+        className="w-full max-w-2xl mx-auto flex flex-col h-[calc(100vh-180px)]"
       >
         {/* Large Image */}
         <motion.div
-          className="relative rounded-lg overflow-hidden bg-black border-2 border-[#FF4DA6]/50 shadow-lg"
+          className="relative rounded-lg overflow-hidden bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex-1 flex items-center justify-center min-h-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -42,12 +42,12 @@ const CompactResultCard = ({
             <img
               src={imageUrl}
               alt="Generation result"
-              className="w-full h-auto object-cover"
+              className="max-w-full max-h-full object-contain"
             />
           ) : (
             <video
               src={imageUrl}
-              className="w-full h-auto object-cover"
+              className="max-w-full max-h-full object-contain"
               controls
             />
           )}
@@ -82,7 +82,7 @@ const CompactResultCard = ({
 
         {/* Action Buttons - Horizontal */}
         <motion.div
-          className="flex flex-wrap gap-3 justify-center"
+          className="flex flex-wrap gap-2 justify-center mt-4 flex-shrink-0"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
