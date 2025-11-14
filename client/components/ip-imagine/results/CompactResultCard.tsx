@@ -181,78 +181,80 @@ const CompactResultCard = ({
             </button>
 
             {/* Settings Menu Popup */}
-            {showSettingsMenu && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 8 }}
-                className="absolute bottom-full mb-2 right-0 bg-slate-950 border border-slate-800 rounded-lg shadow-xl z-50 min-w-[200px]"
-              >
-                <button
-                  onClick={() => {
-                    setShowSettingsMenu(false);
-                    // Navigate to remix mode or open remix dialog
-                    window.location.hash = "#remix";
-                  }}
-                  className="w-full px-4 py-3 text-left hover:bg-slate-900 first:rounded-t-lg transition-colors flex items-center gap-3 group"
-                >
-                  <svg
-                    className="w-5 h-5 text-[#FF4DA6] group-hover:text-[#FF4DA6]/80"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            <AnimatePresence>
+              {showSettingsMenu && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 8 }}
+                    className="absolute bottom-full mb-2 right-0 bg-slate-950 border border-slate-800 rounded-lg shadow-xl z-50 min-w-[200px]"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 16V4m0 0L3 8m4-4l4 4V20m6-4v4m0-12l4-4m-4 4l-4-4"
-                    />
-                  </svg>
-                  <div>
-                    <p className="font-medium text-slate-100">Remix</p>
-                    <p className="text-xs text-slate-400">Create variations</p>
-                  </div>
-                </button>
+                    <button
+                      onClick={() => {
+                        setShowSettingsMenu(false);
+                        // Navigate to remix mode or open remix dialog
+                        window.location.hash = "#remix";
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-slate-900 first:rounded-t-lg transition-colors flex items-center gap-3 group"
+                    >
+                      <svg
+                        className="w-5 h-5 text-[#FF4DA6] group-hover:text-[#FF4DA6]/80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16V4m0 0L3 8m4-4l4 4V20m6-4v4m0-12l4-4m-4 4l-4-4"
+                        />
+                      </svg>
+                      <div>
+                        <p className="font-medium text-slate-100">Remix</p>
+                        <p className="text-xs text-slate-400">Create variations</p>
+                      </div>
+                    </button>
 
-                <div className="border-t border-slate-800" />
+                    <div className="border-t border-slate-800" />
 
-                <button
-                  onClick={() => {
-                    setShowSettingsMenu(false);
-                    // Navigate to licensing or open licensing dialog
-                    window.location.hash = "#licensing";
-                  }}
-                  className="w-full px-4 py-3 text-left hover:bg-slate-900 last:rounded-b-lg transition-colors flex items-center gap-3 group"
-                >
-                  <svg
-                    className="w-5 h-5 text-[#FF4DA6] group-hover:text-[#FF4DA6]/80"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div>
-                    <p className="font-medium text-slate-100">Licensing</p>
-                    <p className="text-xs text-slate-400">Manage rights</p>
-                  </div>
-                </button>
-              </motion.div>
-            )}
+                    <button
+                      onClick={() => {
+                        setShowSettingsMenu(false);
+                        // Navigate to licensing or open licensing dialog
+                        window.location.hash = "#licensing";
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-slate-900 last:rounded-b-lg transition-colors flex items-center gap-3 group"
+                    >
+                      <svg
+                        className="w-5 h-5 text-[#FF4DA6] group-hover:text-[#FF4DA6]/80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <div>
+                        <p className="font-medium text-slate-100">Licensing</p>
+                        <p className="text-xs text-slate-400">Manage rights</p>
+                      </div>
+                    </button>
+                  </motion.div>
 
-            {/* Close menu when clicking outside */}
-            {showSettingsMenu && (
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setShowSettingsMenu(false)}
-              />
-            )}
+                  {/* Close menu when clicking outside */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowSettingsMenu(false)}
+                  />
+                </>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
       </motion.div>
