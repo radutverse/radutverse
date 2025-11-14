@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, Loader } from "lucide-react";
 import type { PopularItem } from "./types";
+import type { SearchResult } from "./types";
 
 interface PopularIPGridProps {
   onBack: () => void;
@@ -164,10 +165,46 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("ip");
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
+
+  const handleSearch = useCallback(async () => {
+    if (!searchInput.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setHasSearched(true);
+    try {
+      const response = await fetch("/api/search-ip-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: searchInput,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Search failed");
+      }
+
+      const data = await response.json();
+      setSearchResults(data.results || []);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [searchInput]);
 
   const categories: Category[] = ["ip", "image", "video", "music"];
   const currentItems = DUMMY_DATA[activeCategory];
@@ -212,19 +249,88 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
           ))}
         </div>
 
-        <div className="relative">
+        <div className="relative flex gap-2">
           <input
             type="text"
             placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 pr-10 rounded-lg bg-slate-800 text-white placeholder:text-slate-400 border border-slate-700 focus:border-[#FF4DA6] focus:outline-none transition-colors w-full"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            className="px-4 py-2 pr-10 rounded-lg bg-slate-800 text-white placeholder:text-slate-400 border border-slate-700 focus:border-[#FF4DA6] focus:outline-none transition-colors flex-1"
           />
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <button
+            onClick={handleSearch}
+            disabled={isSearching}
+            className="px-4 py-2 rounded-lg bg-[#FF4DA6] text-white font-semibold hover:bg-[#FF4DA6]/80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isSearching ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                <span>Searching...</span>
+              </>
+            ) : (
+              <>
+                <Search className="h-4 w-4" />
+                <span>Search</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {activeCategory === "ip" ? (
+      {hasSearched ? (
+        <div className="w-full">
+          {searchResults.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
+              {searchResults.map((item, index) => (
+                <motion.div
+                  key={item.ipId || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="group cursor-pointer rounded-lg overflow-hidden bg-slate-800 hover:bg-slate-700 transition-colors duration-200"
+                >
+                  <div className="relative overflow-hidden h-24">
+                    {item.mediaUrl || item.thumbnailUrl ? (
+                      <img
+                        src={item.mediaUrl || item.thumbnailUrl}
+                        alt={item.name || "Asset"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-700 flex items-center justify-center">
+                        <span className="text-xs text-slate-400">No image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-2">
+                    <h3 className="font-semibold text-white mb-1 line-clamp-2 text-xs">
+                      {item.name || "Unnamed Asset"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {item.ownerAddress
+                        ? truncateAddress(item.ownerAddress)
+                        : "Unknown"}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Search className="h-12 w-12 text-slate-500 mb-3" />
+              <p className="text-slate-300 text-sm">No results found</p>
+              <p className="text-slate-500 text-xs mt-1">
+                Try searching with different keywords
+              </p>
+            </div>
+          )}
+        </div>
+      ) : activeCategory === "ip" ? (
         <div className="w-full">
           {filteredItems[0] && (
             <motion.div
