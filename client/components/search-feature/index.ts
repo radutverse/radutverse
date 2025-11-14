@@ -1,5 +1,4 @@
 // Komponen
-export { IpImagineSearch } from "./IpImagineSearch";
 export { IpAssistantSearch } from "./IpAssistantSearch";
 export { SearchResultsGrid } from "./SearchResultsGrid";
 export { ExpandedAssetModal } from "./ExpandedAssetModal";
