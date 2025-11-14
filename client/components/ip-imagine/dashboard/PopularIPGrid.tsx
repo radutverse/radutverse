@@ -166,7 +166,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   music: "Popular Music",
 };
 
-export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
+export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("ip");
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -957,7 +957,7 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
                                           <p className="text-slate-200 font-semibold">
                                             {license.terms.derivativesAllowed
                                               ? "✓ Allowed"
-                                              : "✗ Not Allowed"}
+                                              : "�� Not Allowed"}
                                           </p>
                                         </div>
                                       )}
