@@ -7,7 +7,7 @@ import {
   useDomainFetch,
   useUniqueOwners,
 } from "@/components/search-feature";
-import type { PopularItem, SearchResult } from "./types";
+import type { PopularItem, SearchResult } from "../../remix-mode/types";
 
 interface PopularIPGridProps {
   onBack: () => void;
@@ -958,7 +958,7 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
                                           <p className="text-slate-200 font-semibold">
                                             {license.terms.derivativesAllowed
                                               ? "✓ Allowed"
-                                              : "��� Not Allowed"}
+                                              : "✗ Not Allowed"}
                                           </p>
                                         </div>
                                       )}
