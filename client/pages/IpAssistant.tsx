@@ -693,7 +693,6 @@ const IpAssistant = () => {
       try {
         setWaiting(true);
 
-        console.log("[Search IP] Searching for:", trimmedQuery, { mediaType });
 
         const requestBody: any = {
           query: trimmedQuery,
@@ -711,7 +710,6 @@ const IpAssistant = () => {
           body: JSON.stringify(requestBody),
         });
 
-        console.log("[Search IP] Response status:", response.status);
 
         if (!response.ok) {
           let errorMessage = `API Error: ${response.status}`;
@@ -731,7 +729,6 @@ const IpAssistant = () => {
         }
 
         const data = await response.json();
-        console.log("[Search IP] Response data:", data);
         const { results = [], message = "" } = data;
 
         // Cancel any pending owner search when new search is performed
@@ -846,7 +843,6 @@ const IpAssistant = () => {
             : undefined,
         });
 
-        console.log("[Search By Owner] Response status:", response.status);
 
         if (!response.ok) {
           let errorMessage = `API Error: ${response.status}`;
@@ -866,7 +862,6 @@ const IpAssistant = () => {
         }
 
         const data = await response.json();
-        console.log("[Search By Owner] Response data:", data);
         const { results = [], message = "" } = data;
 
         if (fromModal) {
@@ -994,7 +989,6 @@ const IpAssistant = () => {
         try {
           const hash = await calculateBlobHash(imageToProcess.blob);
           const pHash = await calculatePerceptualHash(imageToProcess.blob);
-          console.log("[Hash Detection] SHA256:", hash, "pHash:", pHash);
 
           const hashCheckResponse = await fetch("/api/check-remix-hash", {
             method: "POST",
@@ -1012,7 +1006,6 @@ const IpAssistant = () => {
 
           if (hashCheckResponse.ok) {
             const hashCheck = await hashCheckResponse.json();
-            console.log("[Hash Detection] Response:", hashCheck);
             if (hashCheck.found) {
               // Hash found - offer remix instead of blocking
               console.log(
@@ -1086,7 +1079,6 @@ const IpAssistant = () => {
 
           if (hashCheckResponse.ok) {
             const hashCheck = await hashCheckResponse.json();
-            console.log("[Hash Detection] Response:", hashCheck);
             if (hashCheck.found) {
               // Hash found - offer remix instead of blocking
               autoScrollNextRef.current = true;
@@ -1328,7 +1320,6 @@ const IpAssistant = () => {
     try {
       setIpCheckLoading(loadingKey);
 
-      console.log("[IP Check] Sending address:", trimmedAddress);
 
       const response = await fetch("/api/check-ip-assets", {
         method: "POST",
@@ -1340,7 +1331,6 @@ const IpAssistant = () => {
         }),
       });
 
-      console.log("[IP Check] Response status:", response.status);
 
       if (!response.ok) {
         let errorMessage = `API Error: ${response.status}`;
@@ -1366,7 +1356,6 @@ const IpAssistant = () => {
       }
 
       const data = await response.json();
-      console.log("[IP Check] Response data:", data);
       const { totalCount, originalCount } = data;
 
       setMessages((prev) =>
