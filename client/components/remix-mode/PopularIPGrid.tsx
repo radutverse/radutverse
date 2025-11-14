@@ -13,6 +13,7 @@ import type { PopularItem, SearchResult } from "./types";
 
 interface PopularIPGridProps {
   onBack: () => void;
+  onOpenSearch?: () => void;
 }
 
 type Category = "ip" | "image" | "video" | "music";
