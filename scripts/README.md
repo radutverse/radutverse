@@ -5,6 +5,7 @@ This directory contains automated scripts to migrate RadutVerse from a tradition
 ## 📋 Overview
 
 All scripts are designed to be:
+
 - **Safe**: Never delete original files
 - **Idempotent**: Can be run multiple times without issues
 - **Informative**: Detailed logging with emoji indicators
@@ -27,9 +28,11 @@ pnpm migrate:check       # Step 5: Verify migration
 ## 📚 Script Descriptions
 
 ### 1. migrate-shared.js
+
 **Purpose:** Extract shared code into a standalone package  
 **Time:** ~5 seconds  
 **What it does:**
+
 - Copies TypeScript types from `client/types/` → `packages/shared/src/types/`
 - Copies utilities from `client/lib/utils/` → `packages/shared/src/utils/`
 - Copies constants from `client/lib/ip-assistant/` → `packages/shared/src/constants/`
@@ -37,6 +40,7 @@ pnpm migrate:check       # Step 5: Verify migration
 - Creates proper directory structure
 
 **Output:**
+
 ```
 ✅ Created shared directory structure
 ✅ Copied types: generation.ts
@@ -51,9 +55,11 @@ pnpm migrate:check       # Step 5: Verify migration
 ---
 
 ### 2. migrate-frontend.js
+
 **Purpose:** Move React application to Vercel-optimized structure  
 **Time:** ~10 seconds  
 **What it does:**
+
 - Copies `client/src/` → `apps/web/src/` (excluding types/utils)
 - Copies `client/public/` → `apps/web/public/`
 - Copies `client/index.html` → `apps/web/index.html`
@@ -61,6 +67,7 @@ pnpm migrate:check       # Step 5: Verify migration
 - Skips node_modules, dist, and .git directories
 
 **Output:**
+
 ```
 ✅ Created apps/web directory structure
 📋 Copying client source code...
@@ -75,9 +82,11 @@ pnpm migrate:check       # Step 5: Verify migration
 ---
 
 ### 3. migrate-api.js
+
 **Purpose:** Convert Express routes to Vercel serverless functions  
 **Time:** ~8 seconds  
 **What it does:**
+
 - Copies Express routes from `server/routes/` → `apps/web/api/`
 - Copies server utilities → `apps/web/api/_lib/utils/`
 - Copies data files → `apps/web/api/_lib/data/`
@@ -85,6 +94,7 @@ pnpm migrate:check       # Step 5: Verify migration
 - Prepares for Vercel deployment
 
 **Output:**
+
 ```
 ✅ Created apps/web/api directory structure
 📝 Converting check-ip-assets.ts...
@@ -99,9 +109,11 @@ pnpm migrate:check       # Step 5: Verify migration
 ---
 
 ### 4. update-imports.js
+
 **Purpose:** Update all import paths to use the shared package  
 **Time:** ~3 seconds  
 **What it does:**
+
 - Finds all TypeScript/TSX files in `apps/web/src/` and `apps/web/api/`
 - Replaces `from '@/types'` → `from 'shared/types'`
 - Replaces `from '@/utils'` → `from 'shared/utils'`
@@ -109,6 +121,7 @@ pnpm migrate:check       # Step 5: Verify migration
 - Preserves code formatting
 
 **Patterns updated:**
+
 ```
 from '@/types'                    → from 'shared/types'
 from '@/lib/utils'                → from 'shared/utils'
@@ -118,6 +131,7 @@ from '@shared/...'                → from 'shared/...'
 ```
 
 **Output:**
+
 ```
 ✅ Updated: apps/web/src/components/Index.tsx
 ✅ Updated: apps/web/src/pages/History.tsx
@@ -130,9 +144,11 @@ from '@shared/...'                → from 'shared/...'
 ---
 
 ### 5. migration-check.js
+
 **Purpose:** Verify the migration was successful  
 **Time:** ~5 seconds  
 **What it does:**
+
 - ✅ Verifies directory structure exists
 - ✅ Checks configuration files created
 - ✅ Tests TypeScript compilation
@@ -140,6 +156,7 @@ from '@shared/...'                → from 'shared/...'
 - ✅ Checks for shared package exports
 
 **Checks performed:**
+
 ```
 ✅ apps directory exists
 ✅ apps/web/src directory exists
@@ -151,6 +168,7 @@ from '@shared/...'                → from 'shared/...'
 ```
 
 **Output:**
+
 ```
 📂 Checking directory structure...
 ✅ apps directory exists at apps
@@ -166,9 +184,11 @@ from '@shared/...'                → from 'shared/...'
 ---
 
 ### 6. verify-deployment.js
+
 **Purpose:** Test that the migrated application works  
 **Time:** ~10 seconds  
 **What it does:**
+
 - Tests homepage loads (GET /)
 - Tests API endpoints
 - Verifies HTTP responses
@@ -176,6 +196,7 @@ from '@shared/...'                → from 'shared/...'
 - Useful for CI/CD integration
 
 **Usage:**
+
 ```bash
 # Test local dev server
 pnpm dev &
@@ -186,6 +207,7 @@ pnpm verify:deployment https://example.vercel.app
 ```
 
 **Output:**
+
 ```
 🔍 Testing GET /...
 ✅ GET / - Status: 200
@@ -202,9 +224,11 @@ pnpm verify:deployment https://example.vercel.app
 ---
 
 ### 7. migrate-all.js
+
 **Purpose:** Orchestrate all migration steps in sequence  
 **Time:** ~60 seconds total  
 **What it does:**
+
 - Runs all migration scripts in proper order
 - Creates workspace structure
 - Handles errors gracefully
@@ -212,6 +236,7 @@ pnpm verify:deployment https://example.vercel.app
 - Provides clear progress feedback
 
 **Execution sequence:**
+
 ```
 1. Create Workspace Structure
 2. Migrate Shared Package (calls migrate-shared.js)
@@ -222,6 +247,7 @@ pnpm verify:deployment https://example.vercel.app
 ```
 
 **Output:**
+
 ```
 🚀 Starting shared types and utilities migration...
 ✅ Step 1/6: Migrate Shared Package ✅
@@ -241,6 +267,7 @@ pnpm verify:deployment https://example.vercel.app
 ## 🔧 Common Usage Patterns
 
 ### Full Automated Migration
+
 ```bash
 pnpm migrate:all
 pnpm install
@@ -248,6 +275,7 @@ pnpm build
 ```
 
 ### Step-by-Step with Verification
+
 ```bash
 pnpm migrate:shared
 pnpm migrate:frontend
@@ -257,6 +285,7 @@ pnpm migrate:check
 ```
 
 ### Verify Before Cleanup
+
 ```bash
 pnpm dev &
 pnpm verify:deployment http://localhost:5173
@@ -264,6 +293,7 @@ pnpm verify:deployment http://localhost:5173
 ```
 
 ### CI/CD Integration
+
 ```bash
 pnpm migrate:all
 pnpm migrate:check
@@ -272,35 +302,39 @@ exit $?  # Exit with proper code
 
 ## 📊 Script Comparison
 
-| Script | Purpose | Duration | Destructive |
-|--------|---------|----------|-------------|
-| migrate-shared.js | Extract shared code | ~5s | No |
-| migrate-frontend.js | Move React app | ~10s | No |
-| migrate-api.js | Convert API routes | ~8s | No |
-| update-imports.js | Fix imports | ~3s | No* |
-| migration-check.js | Verify structure | ~5s | No |
-| verify-deployment.js | Test endpoints | ~10s | No |
-| migrate-all.js | Run all above | ~60s | No |
+| Script               | Purpose             | Duration | Destructive |
+| -------------------- | ------------------- | -------- | ----------- |
+| migrate-shared.js    | Extract shared code | ~5s      | No          |
+| migrate-frontend.js  | Move React app      | ~10s     | No          |
+| migrate-api.js       | Convert API routes  | ~8s      | No          |
+| update-imports.js    | Fix imports         | ~3s      | No\*        |
+| migration-check.js   | Verify structure    | ~5s      | No          |
+| verify-deployment.js | Test endpoints      | ~10s     | No          |
+| migrate-all.js       | Run all above       | ~60s     | No          |
 
-*update-imports.js modifies files but leaves originals intact
+\*update-imports.js modifies files but leaves originals intact
 
 ## ⚙️ Technical Details
 
 ### Dependencies
+
 - Node.js built-in modules only (fs, path, https, http, child_process)
 - fs-extra (already in devDependencies)
 - No other external dependencies required
 
 ### Exit Codes
+
 - `0` - Success
 - `1` - Failure or errors found
 
 ### Environment
+
 - Works on Windows, Mac, Linux
 - Works with bash, zsh, PowerShell
 - Compatible with CI/CD systems
 
 ### Performance
+
 - Total migration time: ~60 seconds
 - Fastest step: update-imports.js (~3s)
 - Slowest step: migrate-all.js (~60s, orchestrator)
@@ -308,6 +342,7 @@ exit $?  # Exit with proper code
 ## 🐛 Troubleshooting
 
 ### Script not found
+
 ```bash
 # Make sure you're in the project root
 pwd  # Should end with 'radutverse' or similar
@@ -317,6 +352,7 @@ ls scripts/
 ```
 
 ### Permission denied
+
 ```bash
 # Make scripts executable
 chmod +x scripts/migrate-*.js
@@ -324,6 +360,7 @@ chmod +x scripts/update-*.js
 ```
 
 ### pnpm command not found
+
 ```bash
 # Install pnpm globally
 npm install -g pnpm@10.14.0
@@ -333,6 +370,7 @@ pnpm --version
 ```
 
 ### Import errors after migration
+
 ```bash
 # Re-run import update
 pnpm migrate:imports
@@ -345,6 +383,7 @@ pnpm install
 ## 📝 Script Output Examples
 
 ### Successful run
+
 ```bash
 $ pnpm migrate:shared
 ✅ Created shared directory structure
@@ -355,6 +394,7 @@ $ pnpm migrate:shared
 ```
 
 ### With warnings
+
 ```bash
 $ pnpm migrate:frontend
 ✅ Created apps/web directory structure
@@ -364,6 +404,7 @@ $ pnpm migrate:frontend
 ```
 
 ### Error handling
+
 ```bash
 $ pnpm migrate:api
 ❌ Failed to convert check-ip-assets.ts: File not found

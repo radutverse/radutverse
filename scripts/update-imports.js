@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra');
-const path = require('path');
-const glob = require('glob');
+const fs = require("fs-extra");
+const path = require("path");
+const glob = require("glob");
 
 const COLORS = {
-  reset: '\x1b[0m',
-  green: '\x1b[32m',
-  red: '\x1b[31m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
+  reset: "\x1b[0m",
+  green: "\x1b[32m",
+  red: "\x1b[31m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
 };
 
 const log = (emoji, message, color = COLORS.reset) => {
   console.log(`${emoji} ${color}${message}${COLORS.reset}`);
 };
 
-const rootDir = path.resolve(__dirname, '..');
-const webSrcDir = path.join(rootDir, 'apps', 'web', 'src');
+const rootDir = path.resolve(__dirname, "..");
+const webSrcDir = path.join(rootDir, "apps", "web", "src");
 
 let updatedFiles = 0;
 let totalMatches = 0;
@@ -26,59 +26,59 @@ let errorCount = 0;
 const importPatterns = [
   {
     pattern: /from\s+['"]@\/types\/?(['"];?)/g,
-    replacement: 'from \'shared/types$1',
-    desc: '@/types imports'
+    replacement: "from 'shared/types$1",
+    desc: "@/types imports",
   },
   {
     pattern: /from\s+['"]@\/lib\/utils\/?(['"];?)/g,
-    replacement: 'from \'shared/utils$1',
-    desc: '@/lib/utils imports'
+    replacement: "from 'shared/utils$1",
+    desc: "@/lib/utils imports",
   },
   {
     pattern: /from\s+['"]@\/utils\/?(['"];?)/g,
-    replacement: 'from \'shared/utils$1',
-    desc: '@/utils imports'
+    replacement: "from 'shared/utils$1",
+    desc: "@/utils imports",
   },
   {
     pattern: /from\s+['"]\.\.\/\.\.\/types\/?(['"];?)/g,
-    replacement: 'from \'shared/types$1',
-    desc: '../../types relative imports'
+    replacement: "from 'shared/types$1",
+    desc: "../../types relative imports",
   },
   {
     pattern: /from\s+['"]\.\.\/types\/?(['"];?)/g,
-    replacement: 'from \'shared/types$1',
-    desc: '../types relative imports'
+    replacement: "from 'shared/types$1",
+    desc: "../types relative imports",
   },
   {
     pattern: /from\s+['"]\.\.\/\.\.\/lib\/utils\/?(['"];?)/g,
-    replacement: 'from \'shared/utils$1',
-    desc: '../../lib/utils relative imports'
+    replacement: "from 'shared/utils$1",
+    desc: "../../lib/utils relative imports",
   },
   {
     pattern: /from\s+['"]\.\.\/lib\/utils\/?(['"];?)/g,
-    replacement: 'from \'shared/utils$1',
-    desc: '../lib/utils relative imports'
+    replacement: "from 'shared/utils$1",
+    desc: "../lib/utils relative imports",
   },
   {
     pattern: /from\s+['"]\.\.\/\.\.\/utils\/?(['"];?)/g,
-    replacement: 'from \'shared/utils$1',
-    desc: '../../../utils relative imports'
+    replacement: "from 'shared/utils$1",
+    desc: "../../../utils relative imports",
   },
   {
     pattern: /from\s+['"]\.\.\/utils\/?(['"];?)/g,
-    replacement: 'from \'shared/utils$1',
-    desc: '../utils relative imports'
+    replacement: "from 'shared/utils$1",
+    desc: "../utils relative imports",
   },
   {
     pattern: /from\s+['"]@shared\//g,
-    replacement: 'from \'shared/',
-    desc: '@shared/ imports (update to workspace reference)'
+    replacement: "from 'shared/",
+    desc: "@shared/ imports (update to workspace reference)",
   },
 ];
 
 async function updateImportsInFile(filePath) {
   try {
-    let content = await fs.readFile(filePath, 'utf-8');
+    let content = await fs.readFile(filePath, "utf-8");
     let originalContent = content;
     let matches = 0;
 
@@ -91,14 +91,14 @@ async function updateImportsInFile(filePath) {
     }
 
     if (matches > 0) {
-      await fs.writeFile(filePath, content, 'utf-8');
+      await fs.writeFile(filePath, content, "utf-8");
       totalMatches += matches;
       return true;
     }
 
     return false;
   } catch (error) {
-    log('❌', `Error updating file ${filePath}: ${error.message}`);
+    log("❌", `Error updating file ${filePath}: ${error.message}`);
     errorCount++;
     return false;
   }
@@ -106,11 +106,15 @@ async function updateImportsInFile(filePath) {
 
 async function updateImports() {
   try {
-    log('🚀', 'Starting import path updates...', COLORS.blue);
+    log("🚀", "Starting import path updates...", COLORS.blue);
 
     // Find all TypeScript and TSX files in apps/web/src
-    if (!await fs.pathExists(webSrcDir)) {
-      log('⚠️', `apps/web/src does not exist yet. Run migrate-frontend.js first.`, COLORS.yellow);
+    if (!(await fs.pathExists(webSrcDir))) {
+      log(
+        "⚠️",
+        `apps/web/src does not exist yet. Run migrate-frontend.js first.`,
+        COLORS.yellow,
+      );
       process.exit(0);
     }
 
@@ -123,14 +127,21 @@ async function updateImports() {
         const fullPath = path.join(dir, entry.name);
 
         // Skip node_modules, dist, etc.
-        if (['node_modules', 'dist', '.git', '.next', 'build'].includes(entry.name)) {
+        if (
+          ["node_modules", "dist", ".git", ".next", "build"].includes(
+            entry.name,
+          )
+        ) {
           continue;
         }
 
         if (entry.isDirectory()) {
           const subFiles = await findTsFiles(fullPath);
           files.push(...subFiles);
-        } else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))) {
+        } else if (
+          entry.isFile() &&
+          (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx"))
+        ) {
           files.push(fullPath);
         }
       }
@@ -139,37 +150,45 @@ async function updateImports() {
     }
 
     const tsFiles = await findTsFiles(webSrcDir);
-    log('📋', `Found ${tsFiles.length} TypeScript files to process`);
+    log("📋", `Found ${tsFiles.length} TypeScript files to process`);
 
     for (const file of tsFiles) {
       if (await updateImportsInFile(file)) {
         const relPath = path.relative(rootDir, file);
-        log('✅', `Updated: ${relPath}`);
+        log("✅", `Updated: ${relPath}`);
         updatedFiles++;
       }
     }
 
     // Also update imports in api files if they exist
-    const apiDir = path.join(rootDir, 'apps', 'web', 'api');
+    const apiDir = path.join(rootDir, "apps", "web", "api");
     if (await fs.pathExists(apiDir)) {
       const apiFiles = await findTsFiles(apiDir);
       for (const file of apiFiles) {
         if (await updateImportsInFile(file)) {
           const relPath = path.relative(rootDir, file);
-          log('✅', `Updated: ${relPath}`);
+          log("✅", `Updated: ${relPath}`);
           updatedFiles++;
         }
       }
     }
 
-    log('🎉', `Import update complete: ${updatedFiles} files updated, ${totalMatches} total replacements made`, COLORS.green);
-    
+    log(
+      "🎉",
+      `Import update complete: ${updatedFiles} files updated, ${totalMatches} total replacements made`,
+      COLORS.green,
+    );
+
     if (errorCount > 0) {
-      log('⚠️', `Encountered ${errorCount} errors during import updates`, COLORS.yellow);
+      log(
+        "⚠️",
+        `Encountered ${errorCount} errors during import updates`,
+        COLORS.yellow,
+      );
       process.exit(1);
     }
   } catch (error) {
-    log('❌', `Fatal error: ${error.message}`, COLORS.red);
+    log("❌", `Fatal error: ${error.message}`, COLORS.red);
     process.exit(1);
   }
 }

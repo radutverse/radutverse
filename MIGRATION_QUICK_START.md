@@ -7,15 +7,17 @@
 ## 📋 What Will Happen
 
 Your app will be restructured from:
+
 ```
 radutverse/
 ├── client/        # React frontend
-├── server/        # Express backend  
+├── server/        # Express backend
 ├── api/          # Serverless functions
 └── public/
 ```
 
 To:
+
 ```
 radutverse/
 ├── apps/web/
@@ -34,6 +36,7 @@ pnpm migrate:all
 ```
 
 That's it! This single command will:
+
 1. ✅ Create workspace structure
 2. ✅ Migrate shared types and utilities
 3. ✅ Migrate React frontend code
@@ -64,11 +67,13 @@ git checkout -
 ## 🚀 Step-by-Step
 
 ### 1. Run the Migration (2 minutes)
+
 ```bash
 pnpm migrate:all
 ```
 
 **Expected output:**
+
 ```
 🚀 RadutVerse Monorepo Migration Tool
 ============================================================
@@ -81,11 +86,13 @@ pnpm migrate:all
 ```
 
 ### 2. Install Dependencies (3-5 minutes)
+
 ```bash
 pnpm install
 ```
 
 ### 3. Verify It Works (1-2 minutes)
+
 ```bash
 pnpm typecheck    # Should complete with no errors
 pnpm build        # Should create dist directories
@@ -93,6 +100,7 @@ pnpm dev          # Should start the dev server
 ```
 
 ### 4. Test Your App (1-2 minutes)
+
 Open browser to `http://localhost:5173` and verify your app loads and works.
 
 ## ✅ What You Should See
@@ -124,23 +132,27 @@ After running `pnpm migrate:all`:
 ## 🆘 If Something Goes Wrong
 
 ### "pnpm: command not found"
+
 ```bash
 npm install -g pnpm@10.14.0
 ```
 
 ### "Cannot find module 'shared'"
+
 ```bash
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
 ```
 
 ### TypeScript errors
+
 ```bash
 pnpm typecheck        # See what's wrong
 pnpm migrate:imports  # Fix import paths
 ```
 
 ### API routes not working
+
 Check that files are in `apps/web/api/` with `.ts` extension (not `.js`)
 
 ## 📊 Success Checklist
@@ -148,7 +160,7 @@ Check that files are in `apps/web/api/` with `.ts` extension (not `.js`)
 After migration, verify:
 
 - [ ] `pnpm migrate:all` ran without errors
-- [ ] `pnpm install` completed successfully  
+- [ ] `pnpm install` completed successfully
 - [ ] `pnpm typecheck` passes
 - [ ] `pnpm build` succeeds
 - [ ] `pnpm dev` starts the server
@@ -187,17 +199,20 @@ pnpm verify:deployment http://localhost:5173
 ## 🎁 What's Included
 
 ### 7 Migration Scripts
+
 - All created in `scripts/` directory
 - Fully automated and safe
 - Can be run multiple times
 
 ### 6 Configuration Files
+
 - pnpm workspace setup
 - Turbo build orchestration
 - Vercel deployment configuration
 - TypeScript paths updated
 
 ### 3 Documentation Files
+
 - Complete migration guide
 - Verification checklist
 - This quick start
@@ -205,18 +220,21 @@ pnpm verify:deployment http://localhost:5173
 ## 🌍 After Migration - Next Steps
 
 ### Local Development
+
 ```bash
 pnpm dev              # Start dev server
 pnpm build            # Build for production
 ```
 
 ### Deploy to Vercel
+
 ```bash
 npm install -g vercel
 vercel                # Follow prompts
 ```
 
 ### Cleanup (after testing)
+
 ```bash
 # Keep old directories for now, just add to .gitignore
 echo "client/" >> .gitignore
@@ -229,14 +247,14 @@ echo "api/" >> .gitignore
 
 ## ⏰ Timeline
 
-| Step | Duration | Command |
-|------|----------|---------|
-| Run Migration | 1 min | `pnpm migrate:all` |
-| Install | 3-5 min | `pnpm install` |
-| Type Check | 30 sec | `pnpm typecheck` |
-| Build | 1-2 min | `pnpm build` |
-| Test Dev | 1 min | `pnpm dev` |
-| **Total** | **~10 min** | |
+| Step          | Duration    | Command            |
+| ------------- | ----------- | ------------------ |
+| Run Migration | 1 min       | `pnpm migrate:all` |
+| Install       | 3-5 min     | `pnpm install`     |
+| Type Check    | 30 sec      | `pnpm typecheck`   |
+| Build         | 1-2 min     | `pnpm build`       |
+| Test Dev      | 1 min       | `pnpm dev`         |
+| **Total**     | **~10 min** |                    |
 
 ## 💡 Pro Tips
 
@@ -248,14 +266,14 @@ echo "api/" >> .gitignore
 
 ## 🎯 Key Changes for Your Team
 
-| Old | New |
-|-----|-----|
-| `client/` | `apps/web/src/` |
-| `server/routes/` | `apps/web/api/` |
-| `client/types/` | `packages/shared/src/types/` |
+| Old                 | New                          |
+| ------------------- | ---------------------------- |
+| `client/`           | `apps/web/src/`              |
+| `server/routes/`    | `apps/web/api/`              |
+| `client/types/`     | `packages/shared/src/types/` |
 | `client/lib/utils/` | `packages/shared/src/utils/` |
-| `from '@/types'` | `from 'shared/types'` |
-| `npm run dev` | `pnpm dev` |
+| `from '@/types'`    | `from 'shared/types'`        |
+| `npm run dev`       | `pnpm dev`                   |
 
 ## ❓ FAQ
 

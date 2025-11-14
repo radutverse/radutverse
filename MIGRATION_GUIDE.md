@@ -12,6 +12,7 @@ This migration restructures your application from a mixed Express + serverless s
 - **Shared packages** for reusable code
 
 ### Current Structure
+
 ```
 radutverse/
 ├── client/              # React frontend
@@ -21,6 +22,7 @@ radutverse/
 ```
 
 ### Target Structure
+
 ```
 radutverse/
 ├── apps/
@@ -66,6 +68,7 @@ pnpm migrate:all
 ```
 
 This command:
+
 1. ✅ Creates the workspace directory structure
 2. ✅ Migrates shared types and utilities to `packages/shared`
 3. ✅ Moves frontend code to `apps/web`
@@ -125,16 +128,19 @@ pnpm verify:deployment http://localhost:5173
 ### 1. Shared Package (`packages/shared`)
 
 **Copied from:**
+
 - `client/types/*` → `packages/shared/src/types/`
 - `client/lib/utils/*` → `packages/shared/src/utils/`
 - `client/lib/ip-assistant/constants.ts` → `packages/shared/src/constants/`
 
 **Generated:**
+
 - `packages/shared/src/index.ts` - Exports all types and utilities
 
 ### 2. Frontend (`apps/web`)
 
 **Copied from:**
+
 - `client/src/*` → `apps/web/src/` (excluding types and utils)
 - `client/public/*` → `apps/web/public/`
 - `client/index.html` → `apps/web/index.html`
@@ -143,6 +149,7 @@ pnpm verify:deployment http://localhost:5173
 ### 3. API Routes (`apps/web/api`)
 
 **Copied from:**
+
 - `server/routes/*` → `apps/web/api/`
 - `server/utils/*` → `apps/web/api/_lib/utils/`
 - `server/data/*` → `apps/web/api/_lib/data/`
@@ -150,6 +157,7 @@ pnpm verify:deployment http://localhost:5173
 ### 4. Import Paths
 
 **Updated from:**
+
 - `from '@/types'` → `from 'shared/types'`
 - `from '@/utils'` → `from 'shared/utils'`
 - `from '../types'` → `from 'shared/types'`

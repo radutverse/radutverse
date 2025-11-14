@@ -126,7 +126,7 @@ All scripts are located in the `scripts/` directory and use CommonJS for maximum
 
 - **Root `tsconfig.json`** - Updated path aliases
   - Added workspace paths for shared package
-  - Maintains backward compatibility with @/* paths
+  - Maintains backward compatibility with @/\* paths
   - Configured for monorepo structure
 
 ## 🚀 Quick Start Commands
@@ -155,6 +155,7 @@ pnpm verify:deployment http://localhost:5173
 ## 📁 File Locations Reference
 
 ### Scripts Location
+
 ```
 scripts/
 ├── migrate-shared.js          # Migrate types and utilities
@@ -167,6 +168,7 @@ scripts/
 ```
 
 ### Configuration Files Location
+
 ```
 root/
 ├── pnpm-workspace.yaml       # Workspace definition
@@ -183,6 +185,7 @@ root/
 ```
 
 ### Documentation Location
+
 ```
 root/
 ├── MIGRATION_GUIDE.md          # Complete guide
@@ -214,25 +217,25 @@ root/
 
 ### Logging Emoji Reference
 
-| Emoji | Meaning |
-|-------|---------|
-| 🚀 | Starting operation |
-| ✅ | Success |
-| ❌ | Error |
-| ⚠️ | Warning |
-| 📋 | Information |
-| 📝 | Processing |
-| 📁 | Directory operation |
-| 📂 | Directory structure |
-| 📄 | File operation |
-| 📊 | Summary/Results |
-| 🎉 | Completion |
-| 🔍 | Testing |
-| 📚 | Learning resources |
-| 📞 | Help/Support |
-| ℹ️ | Additional info |
-| 🔄 | Progression |
-| 🧪 | Testing |
+| Emoji | Meaning             |
+| ----- | ------------------- |
+| 🚀    | Starting operation  |
+| ✅    | Success             |
+| ❌    | Error               |
+| ⚠️    | Warning             |
+| 📋    | Information         |
+| 📝    | Processing          |
+| 📁    | Directory operation |
+| 📂    | Directory structure |
+| 📄    | File operation      |
+| 📊    | Summary/Results     |
+| 🎉    | Completion          |
+| 🔍    | Testing             |
+| 📚    | Learning resources  |
+| 📞    | Help/Support        |
+| ℹ️    | Additional info     |
+| 🔄    | Progression         |
+| 🧪    | Testing             |
 
 ## 📊 Generated Files During Migration
 
@@ -247,17 +250,19 @@ When you run the migration, these files will be generated:
 ## 🔧 Configuration Details
 
 ### pnpm-workspace.yaml
+
 ```yaml
 packages:
-  - 'apps/*'      # All app workspaces
-  - 'packages/*'  # All package workspaces
+  - "apps/*" # All app workspaces
+  - "packages/*" # All package workspaces
 ```
 
 ### Key tsconfig.json paths
+
 ```json
 {
   "paths": {
-    "@/*": ["./apps/web/src/*"],           // New web app path
+    "@/*": ["./apps/web/src/*"], // New web app path
     "@shared/*": ["./packages/shared/src/*"],
     "shared": ["./packages/shared/src"],
     "shared/*": ["./packages/shared/src/*"]
@@ -266,6 +271,7 @@ packages:
 ```
 
 ### Key turbo.json tasks
+
 ```json
 {
   "pipeline": {
@@ -358,22 +364,26 @@ Vercel auto-deployment
 ## 📞 Support
 
 ### Check Status
+
 ```bash
 pnpm migrate:check  # Verify structure
 ```
 
 ### View Report
+
 ```bash
 cat MIGRATION_REPORT.md
 ```
 
 ### Run Tests
+
 ```bash
 pnpm typecheck
 pnpm test
 ```
 
 ### Verify Deployment
+
 ```bash
 pnpm dev &
 pnpm verify:deployment http://localhost:5173
@@ -389,7 +399,7 @@ pnpm verify:deployment http://localhost:5173
 ## 🎓 Learning Path
 
 1. Read `MIGRATION_SETUP_SUMMARY.md` (this file) - Overview
-2. Read `MIGRATION_GUIDE.md` - Detailed instructions  
+2. Read `MIGRATION_GUIDE.md` - Detailed instructions
 3. Read `MIGRATION_CHECKLIST.md` - Verification steps
 4. Run `pnpm migrate:all` - Automated migration
 5. Check `MIGRATION_REPORT.md` - Results

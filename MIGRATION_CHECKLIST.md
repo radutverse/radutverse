@@ -31,6 +31,7 @@ Use this checklist to track your migration progress and verify each step.
 - [ ] `scripts/verify-deployment.js` created
 
 **Verify:**
+
 ```bash
 ls -la scripts/migrate*.js scripts/update*.js scripts/migration*.js scripts/verify*.js
 ```
@@ -68,6 +69,7 @@ ls -la scripts/migrate*.js scripts/update*.js scripts/migration*.js scripts/veri
   - [ ] Exports configured correctly
 
 **Verify:**
+
 ```bash
 ls -la pnpm-workspace.yaml turbo.json apps/web/package.json apps/web/vercel.json packages/shared/package.json
 ```
@@ -82,6 +84,7 @@ ls -la pnpm-workspace.yaml turbo.json apps/web/package.json apps/web/vercel.json
 - [ ] Reviewed report for any warnings
 
 **Command:**
+
 ```bash
 pnpm migrate:all
 ```
@@ -138,6 +141,7 @@ pnpm migrate:all
   - [ ] `MIGRATION_GUIDE.md` exists
 
 **Verify structure:**
+
 ```bash
 tree -L 2 -I 'node_modules|dist' apps packages
 ```
@@ -157,6 +161,7 @@ tree -L 2 -I 'node_modules|dist' apps packages
   - [ ] All packages listed correctly
 
 **Verify:**
+
 ```bash
 pnpm list
 ```
@@ -178,6 +183,7 @@ pnpm list
   - [ ] `apps/web/dist/` was created
 
 **Verify:**
+
 ```bash
 pnpm typecheck
 pnpm migrate:check
@@ -207,6 +213,7 @@ pnpm build
   - [ ] No webpack errors
 
 **Commands:**
+
 ```bash
 pnpm dev
 # In another terminal:
@@ -227,6 +234,7 @@ curl http://localhost:5173/api/ping
   - [ ] No IDE import errors
 
 **Check imports:**
+
 ```bash
 grep -r "from '@/types'" apps/web/src || echo "✓ No @/types imports found"
 grep -r "from '@/utils'" apps/web/src || echo "✓ No @/utils imports found"
@@ -250,6 +258,7 @@ grep -r "from 'shared/" apps/web/src | head -5
   - [ ] No secrets in version control
 
 **Verify:**
+
 ```bash
 ls apps/web/api/*.ts | head -5
 cat .env.local | grep -c "="
@@ -291,6 +300,7 @@ cat .env.local | grep -c "="
   - [ ] No console errors
 
 **Commands:**
+
 ```bash
 npm install -g vercel
 vercel
@@ -316,6 +326,7 @@ vercel env ls
   - [ ] Or removed entirely after verification
 
 **Verify final state:**
+
 ```bash
 git status
 ls -la | grep -v node_modules
@@ -373,9 +384,9 @@ If you encounter issues, check:
 
 ## Sign-Off
 
-- [ ] **Developer:** __________________ **Date:** __________
-- [ ] **Reviewer:** __________________ **Date:** __________
-- [ ] **Approved for production:** __________________ **Date:** __________
+- [ ] **Developer:** ********\_\_******** **Date:** ****\_\_****
+- [ ] **Reviewer:** ********\_\_******** **Date:** ****\_\_****
+- [ ] **Approved for production:** ********\_\_******** **Date:** ****\_\_****
 
 ## Notes
 
@@ -383,9 +394,9 @@ Use this space to document any issues encountered or special configurations:
 
 ```
 Notes:
-- 
-- 
-- 
+-
+-
+-
 ```
 
 ---

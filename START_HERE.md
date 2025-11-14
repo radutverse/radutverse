@@ -19,7 +19,9 @@ That's it! Your app will be transformed in ~15 minutes.
 ## 📋 What's Been Created For You
 
 ### ✅ 7 Fully Functional Migration Scripts
+
 Located in `scripts/` directory:
+
 - `migrate-shared.js` - Extract shared code
 - `migrate-frontend.js` - Move React app
 - `migrate-api.js` - Convert API routes
@@ -31,6 +33,7 @@ Located in `scripts/` directory:
 **Status:** Ready to run immediately ✨
 
 ### ✅ 6 Production-Ready Configuration Files
+
 - `pnpm-workspace.yaml` - Workspace definition
 - `turbo.json` - Build orchestration
 - `apps/web/package.json` - Web app config
@@ -41,6 +44,7 @@ Located in `scripts/` directory:
 **Status:** Fully configured ✨
 
 ### ✅ 5 Comprehensive Documentation Files
+
 - `MIGRATION_QUICK_START.md` ← **Read this first (5 min)**
 - `MIGRATION_GUIDE.md` - Complete detailed guide
 - `MIGRATION_CHECKLIST.md` - Progress tracking
@@ -54,6 +58,7 @@ Located in `scripts/` directory:
 ## 🚀 Three Ways to Proceed
 
 ### Option 1: Super Quick (Recommended) ⚡
+
 **Perfect if you just want to get started**
 
 ```bash
@@ -68,6 +73,7 @@ pnpm dev
 ---
 
 ### Option 2: Guided Step-by-Step 📖
+
 **Perfect if you want to understand everything**
 
 1. Read `MIGRATION_QUICK_START.md` (5 min)
@@ -80,6 +86,7 @@ pnpm dev
 ---
 
 ### Option 3: Manual Control 🎮
+
 **Perfect if you want fine-grained control**
 
 ```bash
@@ -98,6 +105,7 @@ pnpm install                 # Step 6
 ## ✨ What Will Happen
 
 Your app will be restructured from:
+
 ```
 client/         →  apps/web/src/
 server/         →  apps/web/api/
@@ -111,15 +119,15 @@ All import paths will be automatically updated. No manual refactoring needed!
 
 ## 📚 Documentation Quick Reference
 
-| Document | Purpose | Read When |
-|----------|---------|-----------|
-| **START_HERE.md** | This file - overview | Now! |
-| **MIGRATION_QUICK_START.md** | Quick reference guide | Before running migration |
-| **MIGRATION_GUIDE.md** | Detailed step-by-step | Need detailed help |
-| **MIGRATION_CHECKLIST.md** | Track your progress | During migration |
-| **MIGRATION_SETUP_SUMMARY.md** | Technical reference | Need to understand setup |
-| **EVERYTHING_CREATED.md** | Complete file index | Need to see all files |
-| **scripts/README.md** | Script documentation | Want script details |
+| Document                       | Purpose               | Read When                |
+| ------------------------------ | --------------------- | ------------------------ |
+| **START_HERE.md**              | This file - overview  | Now!                     |
+| **MIGRATION_QUICK_START.md**   | Quick reference guide | Before running migration |
+| **MIGRATION_GUIDE.md**         | Detailed step-by-step | Need detailed help       |
+| **MIGRATION_CHECKLIST.md**     | Track your progress   | During migration         |
+| **MIGRATION_SETUP_SUMMARY.md** | Technical reference   | Need to understand setup |
+| **EVERYTHING_CREATED.md**      | Complete file index   | Need to see all files    |
+| **scripts/README.md**          | Script documentation  | Want script details      |
 
 ---
 
@@ -152,6 +160,7 @@ pnpm migrate:all
 ```
 
 This single command will:
+
 1. ✅ Create workspace directories
 2. ✅ Migrate shared types/utils
 3. ✅ Move React frontend code
@@ -230,11 +239,13 @@ Most issues have quick fixes documented!
 Pick one:
 
 ### I want to jump right in! ⚡
+
 ```bash
 pnpm migrate:all
 ```
 
 ### I want the guided experience 📖
+
 ```bash
 cat MIGRATION_QUICK_START.md
 # Read it, then run:
@@ -242,6 +253,7 @@ pnpm migrate:all
 ```
 
 ### I want to understand everything 🎓
+
 ```bash
 cat MIGRATION_GUIDE.md
 # Read it completely, then:
@@ -270,6 +282,7 @@ After migration completes, you should see:
 ## 🎁 Bonus Features
 
 Once migrated, you have:
+
 - 🚀 Vercel-ready deployment
 - 📦 Monorepo with pnpm workspaces
 - 🏗️ Turborepo build orchestration
@@ -292,15 +305,15 @@ Once migrated, you have:
 
 ## ⏱️ Timeline
 
-| Step | Duration | Command |
-|------|----------|---------|
-| Pre-flight checks | 1 min | `node --version && pnpm --version` |
-| Run migration | 1 min | `pnpm migrate:all` |
-| Install deps | 3-5 min | `pnpm install` |
-| Type check | 30 sec | `pnpm typecheck` |
-| Build | 1-2 min | `pnpm build` |
-| Test dev | 1 min | `pnpm dev` |
-| **Total** | **~10 min** | |
+| Step              | Duration    | Command                            |
+| ----------------- | ----------- | ---------------------------------- |
+| Pre-flight checks | 1 min       | `node --version && pnpm --version` |
+| Run migration     | 1 min       | `pnpm migrate:all`                 |
+| Install deps      | 3-5 min     | `pnpm install`                     |
+| Type check        | 30 sec      | `pnpm typecheck`                   |
+| Build             | 1-2 min     | `pnpm build`                       |
+| Test dev          | 1 min       | `pnpm dev`                         |
+| **Total**         | **~10 min** |                                    |
 
 ---
 
@@ -317,15 +330,18 @@ Once migrated, you have:
 ## 🎯 Next Steps
 
 ### Right Now
+
 1. Run `pnpm migrate:all`
 2. Let it complete (takes ~60 seconds)
 
 ### Then
+
 1. Run `pnpm install`
 2. Run `pnpm dev`
 3. Test your app
 
 ### Finally
+
 1. Check `MIGRATION_REPORT.md`
 2. Use `MIGRATION_CHECKLIST.md` to verify
 3. Deploy to Vercel!
@@ -346,7 +362,7 @@ Once migrated, you have:
 
 Everything is set up and ready to go. No additional configuration needed.
 
-**Ready to transform your app?** 
+**Ready to transform your app?**
 
 Run this:
 
