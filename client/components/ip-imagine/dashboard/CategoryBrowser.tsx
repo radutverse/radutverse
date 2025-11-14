@@ -11,7 +11,6 @@ interface PopularItem {
 }
 
 interface CategoryBrowserProps {
-  items: Record<Category, PopularItem[]>;
   activeCategory: Category;
   onCategoryChange: (category: Category) => void;
 }
