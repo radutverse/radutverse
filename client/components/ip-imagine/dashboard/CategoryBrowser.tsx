@@ -14,7 +14,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
 
 export const CategoryBrowser = ({
   activeCategory,
-  onCategoryChange
+  onCategoryChange,
 }: CategoryBrowserProps) => {
   const categories: Category[] = ["ip", "image", "video", "music"];
 
