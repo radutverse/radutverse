@@ -1,7 +1,10 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
-import { SearchResultsGrid } from "@/components/search-feature/SearchResultsGrid";
+import {
+  SearchResultsGrid,
+  ExpandedAssetModal,
+} from "@/components/search-feature";
 import {
   useDomainFetch,
   useRemixTypes,
@@ -13,6 +16,7 @@ import type { PopularItem, SearchResult } from "./types";
 
 interface PopularIPGridProps {
   onBack: () => void;
+  onOpenSearch?: () => void;
 }
 
 type Category = "ip" | "image" | "video" | "music";
@@ -168,7 +172,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   music: "Popular Music",
 };
 
-export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
+export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("ip");
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -188,6 +192,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [ownerDomains, setOwnerDomains] = useState<
     Record<string, { domain: string | null; loading: boolean }>
   >({});
+  const [expandedAsset, setExpandedAsset] = useState<SearchResult | null>(null);
   const domainFetchControllerRef = useRef<AbortController | null>(null);
 
   const ITEMS_PER_PAGE = 20;
@@ -605,7 +610,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
                 allowsDerivatives={allowsDerivatives}
                 truncateAddressDisplay={truncateAddressDisplay}
                 isLoadingOwnerAssets={false}
-                onAssetClick={() => {}}
+                onAssetClick={(asset) => setExpandedAsset(asset)}
                 onOwnerClick={() => {}}
               />
 
@@ -753,6 +758,15 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Expanded Asset Details Modal */}
+      <AnimatePresence>
+        <ExpandedAssetModal
+          asset={expandedAsset}
+          isOpen={!!expandedAsset}
+          onClose={() => setExpandedAsset(null)}
+        />
       </AnimatePresence>
     </motion.div>
   );

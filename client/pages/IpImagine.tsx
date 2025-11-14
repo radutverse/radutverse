@@ -7,6 +7,7 @@ import IpImagineInput from "@/components/ip-imagine/Input";
 import {
   PopularIPGrid,
   AddRemixImageModal,
+  IpImagineSearch,
   type PreviewImagesState,
 } from "@/components/remix-mode";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
@@ -36,6 +37,7 @@ const IpImagine = () => {
     loading: boolean;
   }>({ domain: null, loading: false });
   const [creationMode, setCreationMode] = useState<"image" | "video">("image");
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -309,6 +311,7 @@ const IpImagine = () => {
             onBack={() => {
               /* no-op for standalone imagine */
             }}
+            onOpenSearch={() => setShowSearchModal(true)}
           />
         </AnimatePresence>
 
