@@ -119,11 +119,41 @@ async function checkPackageManager() {
   }
 }
 
+async function checkNodeVersion() {
+  try {
+    log("📋", "Checking Node.js version...");
+    const nodeVersion = process.version;
+    const majorMinorPatch = nodeVersion.slice(1).split(".");
+    const major = parseInt(majorMinorPatch[0], 10);
+    const minor = parseInt(majorMinorPatch[1], 10);
+    const patch = parseInt(majorMinorPatch[2], 10);
+
+    if (major > 18 || (major === 18 && minor > 12) || (major === 18 && minor === 12 && patch >= 0)) {
+      log("✅", `Node.js version ${nodeVersion} (required: >=18.12.0)`);
+      checksPassed++;
+      return true;
+    } else {
+      log("❌", `Node.js version ${nodeVersion} is too old (required: >=18.12.0)`);
+      checksFailed++;
+      return false;
+    }
+  } catch (error) {
+    log("❌", `Error checking Node.js version: ${error.message}`);
+    checksFailed++;
+    return false;
+  }
+}
+
 async function runMigrationChecks() {
   try {
     log("🚀", "Starting migration verification checks...", COLORS.blue);
     log("", "");
 
+    log("📋", "Checking requirements...", COLORS.blue);
+    await checkNodeVersion();
+    await checkPackageManager();
+
+    log("", "");
     log("📂", "Checking directory structure...", COLORS.blue);
     await checkDirectoryExists("apps", "apps directory");
     await checkDirectoryExists("apps/web", "apps/web directory");
