@@ -1,14 +1,4 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-
 type Category = "ip" | "image" | "video" | "music";
-
-interface PopularItem {
-  id: string;
-  title: string;
-  owner: string;
-  preview: string;
-}
 
 interface CategoryBrowserProps {
   activeCategory: Category;
