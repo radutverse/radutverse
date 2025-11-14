@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import ResultDetailsPanel from "./ResultDetailsPanel";
+import { motion } from "framer-motion";
 
 interface CompactResultCardProps {
   imageUrl: string;
