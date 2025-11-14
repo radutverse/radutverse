@@ -160,9 +160,6 @@ const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
 };
 
 export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
-  const [activeCategory, setActiveCategory] = useState<Category>("ip");
-  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
