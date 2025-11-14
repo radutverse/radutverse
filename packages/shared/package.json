@@ -25,6 +25,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
