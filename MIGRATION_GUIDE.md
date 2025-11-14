@@ -1,9 +1,11 @@
 # Migration Guide: Monorepo Structure
 
 ## Overview
+
 Perubahan struktur dari single-app ke monorepo dengan Vercel deployment.
 
 **Sebelum:**
+
 ```
 client/          → Frontend React SPA
 server/          → Express backend
@@ -12,6 +14,7 @@ api/             → Vercel serverless function
 ```
 
 **Sesudah:**
+
 ```
 apps/web/
 ├── src/         → Frontend React SPA (dari client/)
@@ -30,6 +33,7 @@ packages/shared/
 ## Phase 5: File Reorganization
 
 ### Step 1: Backup Current Structure
+
 ```bash
 # Jika belum, backup dulu:
 git add .
@@ -41,6 +45,7 @@ git commit -m "backup: before monorepo migration"
 Pindahkan semua file dari `client/` ke `apps/web/src/`:
 
 **Files to move (156 files):**
+
 - `client/App.tsx` → `apps/web/src/App.tsx`
 - `client/components/` → `apps/web/src/components/`
 - `client/pages/` → `apps/web/src/pages/`
@@ -55,6 +60,7 @@ Pindahkan semua file dari `client/` ke `apps/web/src/`:
 - `client/vite-env.d.ts` → `apps/web/src/vite-env.d.ts`
 
 **Automated approach menggunakan bash:**
+
 ```bash
 #!/bin/bash
 # Dari root directory
@@ -67,6 +73,7 @@ cp -r client/* apps/web/src/
 Pindahkan semua file dari `server/` ke `apps/web/server/`:
 
 **Files to move (16 files):**
+
 - `server/index.ts` → `apps/web/server/index.ts`
 - `server/node-build.ts` → `apps/web/server/node-build.ts`
 - `server/routes/` → `apps/web/server/routes/`
@@ -74,6 +81,7 @@ Pindahkan semua file dari `server/` ke `apps/web/server/`:
 - `server/data/` → `apps/web/server/data/`
 
 **Automated approach:**
+
 ```bash
 #!/bin/bash
 # Dari root directory
@@ -87,16 +95,17 @@ Setelah file pindah, update import paths:
 **Old paths → New paths:**
 
 Dalam `apps/web/src/**/*.ts(x)`:
+
 ```typescript
 // OLD
 import { cn } from "@/lib/utils"; // ✓ still works (@ = apps/web/src)
-import { keccakOfJson } from "@/lib/utils/crypto"; 
+import { keccakOfJson } from "@/lib/utils/crypto";
 // Becomes
 import { keccakOfJson } from "@shared/utils/crypto";
 
 // OLD
 import { Generation } from "@/types/generation";
-// Becomes  
+// Becomes
 import { Generation } from "@shared/types";
 ```
 
@@ -116,6 +125,7 @@ import { Generation } from "@shared/types";
 ### Step 5: Clean Up Old Directories
 
 Setelah migrasi dan testing berhasil:
+
 ```bash
 # Hapus old directories (setelah yakin tidak ada yang tertinggal):
 rm -rf client/
@@ -146,6 +156,7 @@ pnpm build
 ## Import Path Mapping
 
 ### In apps/web/tsconfig.json (sudah di-setup):
+
 ```json
 {
   "compilerOptions": {
@@ -159,6 +170,7 @@ pnpm build
 ```
 
 ### In packages/shared/tsconfig.json (sudah di-setup):
+
 ```json
 {
   "extends": "../../tsconfig.json",
@@ -171,13 +183,16 @@ pnpm build
 ## Vercel Deployment
 
 ### Configuration (sudah di-setup di apps/web/vercel.json):
+
 - ✅ Build command: `pnpm run build`
 - ✅ Output directory: `dist/spa`
 - ✅ API routes: `api/index.ts` → Vercel Node functions
 - ✅ SPA fallback: `/(.*) → /index.html`
 
 ### Environment Variables di Vercel:
+
 Set di Vercel Dashboard:
+
 ```
 STORY_API_KEY=***
 OPENAI_API_KEY=***
@@ -204,6 +219,7 @@ OPENAI_ORGANIZATION=apil
 ## Rollback
 
 Jika ada masalah:
+
 ```bash
 # Revert to previous commit
 git reset --hard HEAD~1

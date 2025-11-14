@@ -3,12 +3,14 @@
 ## Completed Phases
 
 ### ✅ Phase 1: Monorepo Foundation
+
 - Created `pnpm-workspace.yaml` untuk monorepo workspaces
 - Set up root `package.json` dengan scripts
 - Root `tsconfig.json` configured
 - **Status**: COMPLETE
 
 ### ✅ Phase 2: Shared Package
+
 - Created `packages/shared/` structure
 - Extracted shared types:
   - `src/types/generation.ts` - Generation & Creation types
@@ -20,6 +22,7 @@
 - **Status**: COMPLETE
 
 ### ✅ Phase 3: App Web Structure
+
 - Created `apps/web/` directory structure
 - Configured `vite.config.ts` dengan monorepo paths
 - Configured `vite.config.server.ts` for server build
@@ -29,6 +32,7 @@
 - **Status**: COMPLETE
 
 ### ✅ Phase 4: Vercel Configuration
+
 - Created `apps/web/vercel.json` dengan routing config
 - Set up API handler at `apps/web/api/index.ts`
 - Created `.env.example` template
@@ -36,6 +40,7 @@
 - **Status**: COMPLETE
 
 ### 🚀 Phase 5: File Migration & Validation
+
 - Created `scripts/migrate-to-monorepo.sh` untuk automated migration
 - Created comprehensive migration guides
 - Set up critical files:
@@ -51,6 +56,7 @@
 ## What's Been Set Up
 
 ### Directory Structure
+
 ```
 radutverse/
 ├── pnpm-workspace.yaml          ✅ Monorepo config
@@ -90,6 +96,7 @@ radutverse/
 ```
 
 ### Files to Copy (Next Step)
+
 - **client/** (156 files) → `apps/web/src/`
 - **server/** (16 files) → `apps/web/server/`
 - **public/** (3 files) → `apps/web/public/`
@@ -101,22 +108,26 @@ radutverse/
 ### Immediate (Required)
 
 1. **Run Migration Script**
+
 ```bash
 bash scripts/migrate-to-monorepo.sh
 ```
 
 2. **Test Development**
+
 ```bash
 pnpm install
 pnpm dev
 ```
 
 3. **Validate Build**
+
 ```bash
 pnpm build
 ```
 
 4. **Check All Features**
+
 - Frontend loads at http://localhost:8080
 - All routes work (/, /ip-imagine, /ipfi-assistant, etc.)
 - API endpoints respond
@@ -125,6 +136,7 @@ pnpm build
 ### Post-Validation (Cleanup)
 
 5. **Delete Old Directories** (after everything works)
+
 ```bash
 rm -rf client/
 rm -rf server/
@@ -134,6 +146,7 @@ rm -rf netlify/
 ```
 
 6. **Commit Changes**
+
 ```bash
 git add .
 git commit -m "feat: migrate to monorepo with Vercel deployment"
@@ -141,6 +154,7 @@ git push origin main
 ```
 
 7. **Deploy to Vercel**
+
 - Connect repo to Vercel
 - Set Root Directory: `apps/web`
 - Environment Variables set in Dashboard
@@ -178,6 +192,7 @@ Created comprehensive guides:
 ## ⚙️ Configuration Details
 
 ### Path Aliases
+
 ```typescript
 // In apps/web/tsconfig.json
 {
@@ -187,12 +202,14 @@ Created comprehensive guides:
 ```
 
 ### Build Configuration
+
 - Frontend: Vite React + SWC
 - Backend: Express server
 - Deploy: Vercel (serverless + static)
 - Package Manager: pnpm workspaces
 
 ### Environment Variables
+
 ```
 STORY_API_KEY              (Secret)
 OPENAI_API_KEY            (Secret)

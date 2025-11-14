@@ -14,6 +14,7 @@ bash scripts/migrate-to-monorepo.sh
 ```
 
 Script ini akan:
+
 1. ✅ Copy client/ → apps/web/src/
 2. ✅ Copy server/ → apps/web/server/
 3. ✅ Copy public/ → apps/web/public/
@@ -57,6 +58,7 @@ pnpm dev
 ```
 
 **Expected output:**
+
 ```
   ➜  Local:   http://localhost:8080/
   ➜  press h to show help
@@ -74,11 +76,12 @@ pnpm build
 ```
 
 **Expected output:**
+
 ```
 ✓ 1234 modules transformed
 ✓ built in 45.23s
 
-dist/spa/index.html        
+dist/spa/index.html
 dist/spa/assets/index-xxx.js
 dist/server/node-build.mjs
 ```
@@ -92,16 +95,18 @@ dist/server/node-build.mjs
 - [ ] `pnpm build` completes successfully
 - [ ] No TypeScript errors (`pnpm typecheck`)
 - [ ] All routes accessible (/, /ip-imagine, /ipfi-assistant, etc.)
-- [ ] API endpoints respond (/api/*)
+- [ ] API endpoints respond (/api/\*)
 - [ ] Environment variables loaded correctly
 
 ## Troubleshooting
 
 ### "client/ directory not found"
+
 - This is expected if you already moved files manually
 - Check that files are in apps/web/src/
 
 ### "pnpm install fails"
+
 ```bash
 # Clear cache and reinstall
 pnpm store prune
@@ -110,6 +115,7 @@ pnpm install
 ```
 
 ### "Port 8080 already in use"
+
 ```bash
 # Kill process on port 8080
 lsof -i :8080
@@ -120,11 +126,13 @@ cd apps/web && pnpm dev -- --port 8081
 ```
 
 ### "TypeScript errors"
+
 - Files might not be in right location
 - Imports might need updating (@shared paths)
 - Run `pnpm typecheck` for details
 
 ### "Build fails"
+
 1. Check all files were copied
 2. Verify vercel.json config
 3. Check environment variables
@@ -137,12 +145,14 @@ After migration, some imports might need updating:
 ### Files that use crypto/hash utilities
 
 Old:
+
 ```typescript
 import { keccakOfJson } from "@/lib/utils/crypto";
 import { calculateBlobHash } from "@/lib/utils/hash";
 ```
 
 New:
+
 ```typescript
 import { keccakOfJson } from "@shared/utils/crypto";
 import { calculateBlobHash } from "@shared/utils/hash";
@@ -151,11 +161,13 @@ import { calculateBlobHash } from "@shared/utils/hash";
 ### Files that use cn() utility
 
 Old:
+
 ```typescript
 import { cn } from "@/lib/utils";
 ```
 
 Can stay same OR update to:
+
 ```typescript
 import { cn } from "@shared/utils";
 ```
@@ -163,16 +175,19 @@ import { cn } from "@shared/utils";
 ### Files that use generation types
 
 Old:
+
 ```typescript
 import type { Generation } from "@/types/generation";
 ```
 
 Can stay same (types are copied to apps/web/src/types) OR update to:
+
 ```typescript
 import type { Generation } from "@shared/types";
 ```
 
 **Note:** Automatic import replacement:
+
 ```bash
 # Find all files that need import updates
 grep -r "@/lib/utils/crypto" apps/web/src/
@@ -199,6 +214,7 @@ rm -rf node_modules/.bin/old-*
 ```
 
 Or keep them for backup:
+
 ```bash
 mkdir old-structure
 mv client old-structure/
@@ -219,6 +235,7 @@ pnpm dev      # Dev server
 After validation:
 
 1. Push to git:
+
 ```bash
 git add .
 git commit -m "feat: migrate to monorepo structure with Vercel"
