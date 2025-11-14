@@ -233,7 +233,6 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
         const resolveData = await resolveResponse.json();
         const resolvedAddress = resolveData.address;
 
-        console.log("[PopularIPGrid] Resolved to address:", resolvedAddress);
 
         setLastResolvedAddress(resolvedAddress);
         setLastQueryType("owner");
