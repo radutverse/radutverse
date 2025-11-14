@@ -13,8 +13,8 @@ import NotFound from "./pages/NotFound";
 // Lazy load route components for code splitting
 const IpfiAssistant = lazy(() => import("@/pages/IpAssistant"));
 const IpImagine = lazy(() => import("@/pages/IpImagine"));
-const IpImagineCreationResult = lazy(() =>
-  import("@/pages/IpImagineCreationResult")
+const IpImagineCreationResult = lazy(
+  () => import("@/pages/IpImagineCreationResult"),
 );
 const NftMarketplace = lazy(() => import("@/pages/NftMarketplace"));
 const MyPortfolio = lazy(() => import("@/pages/MyPortfolio"));
