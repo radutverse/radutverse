@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search } from "lucide-react";
-import type { PopularItem } from "./types";
+import { Search, Loader } from "lucide-react";
+import type { PopularItem, SearchResult } from "./types";
 
 interface PopularIPGridProps {
   onBack: () => void;
@@ -164,9 +164,302 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<Category>("ip");
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalResults, setTotalResults] = useState(0);
+  const [lastQueryType, setLastQueryType] = useState<
+    "keyword" | "owner" | null
+  >(null);
+  const [lastResolvedAddress, setLastResolvedAddress] = useState("");
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [ownerDomains, setOwnerDomains] = useState<
+    Record<string, { domain: string | null; loading: boolean }>
+  >({});
+  const domainFetchControllerRef = useRef<AbortController | null>(null);
+
+  const ITEMS_PER_PAGE = 20;
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const isIpName = (query: string): boolean => {
+    const ipNameRegex = /([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.ip)$/i;
+    return ipNameRegex.test(query);
+  };
+
+  const handleSearch = useCallback(async () => {
+    if (!searchInput.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setHasSearched(true);
+    setSearchResults([]);
+    setCurrentOffset(0);
+    setHasMore(false);
+
+    try {
+      // Check if input is .ip name
+      if (isIpName(searchInput)) {
+        console.log(
+          "[PopularIPGrid] Detected .ip name, resolving:",
+          searchInput,
+        );
+
+        // First resolve the .ip name to address
+        const resolveResponse = await fetch("/api/resolve-ip-name", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ipName: searchInput }),
+        });
+
+        if (!resolveResponse.ok) {
+          const resolveData = await resolveResponse.json();
+          console.error("Failed to resolve .ip name:", resolveData);
+          setIsSearching(false);
+          return;
+        }
+
+        const resolveData = await resolveResponse.json();
+        const resolvedAddress = resolveData.address;
+
+        console.log("[PopularIPGrid] Resolved to address:", resolvedAddress);
+
+        setLastResolvedAddress(resolvedAddress);
+        setLastQueryType("owner");
+
+        // Search by owner - fetch with pagination
+        const searchResponse = await fetch("/api/search-by-owner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: resolvedAddress }),
+        });
+
+        if (!searchResponse.ok) {
+          throw new Error("Search by owner failed");
+        }
+
+        const searchData = await searchResponse.json();
+        const results = searchData.results || [];
+
+        setSearchResults(results.slice(0, ITEMS_PER_PAGE));
+        setTotalResults(results.length);
+        setCurrentOffset(ITEMS_PER_PAGE);
+        setHasMore(results.length > ITEMS_PER_PAGE);
+      } else {
+        // Regular keyword search - fetch with pagination
+        const response = await fetch("/api/search-ip-assets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: searchInput,
+            pagination: {
+              limit: ITEMS_PER_PAGE,
+              offset: 0,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Search failed");
+        }
+
+        const data = await response.json();
+        const results = data.results || [];
+
+        setSearchResults(results);
+        setTotalResults(data.totalSearched || results.length);
+        setCurrentOffset(ITEMS_PER_PAGE);
+        setHasMore(
+          data.pagination?.hasMore || results.length >= ITEMS_PER_PAGE,
+        );
+        setLastQueryType("keyword");
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+      setHasMore(false);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [searchInput]);
+
+  const handleLoadMore = useCallback(async () => {
+    setIsLoadingMore(true);
+
+    try {
+      if (lastQueryType === "owner") {
+        // For owner search, fetch more results
+        const searchResponse = await fetch("/api/search-by-owner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: lastResolvedAddress }),
+        });
+
+        if (!searchResponse.ok) {
+          throw new Error("Search by owner failed");
+        }
+
+        const searchData = await searchResponse.json();
+        const allResults = searchData.results || [];
+        const newResults = allResults.slice(
+          currentOffset,
+          currentOffset + ITEMS_PER_PAGE,
+        );
+
+        setSearchResults((prev) => [...prev, ...newResults]);
+        setCurrentOffset(currentOffset + ITEMS_PER_PAGE);
+        setHasMore(currentOffset + ITEMS_PER_PAGE < allResults.length);
+      } else {
+        // For keyword search, fetch next page
+        const response = await fetch("/api/search-ip-assets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: searchInput,
+            pagination: {
+              limit: ITEMS_PER_PAGE,
+              offset: currentOffset,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Search failed");
+        }
+
+        const data = await response.json();
+        const newResults = data.results || [];
+
+        setSearchResults((prev) => [...prev, ...newResults]);
+        setCurrentOffset(currentOffset + ITEMS_PER_PAGE);
+        setHasMore(data.pagination?.hasMore || false);
+      }
+    } catch (error) {
+      console.error("Load more error:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [currentOffset, searchInput, lastQueryType, lastResolvedAddress]);
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInput(value);
+
+      // Clear search results when input is cleared
+      if (!value.trim()) {
+        setSearchResults([]);
+        setHasSearched(false);
+      }
+    },
+    [],
+  );
+
+  // Get unique owner addresses to fetch domains for
+  const uniqueOwners = useMemo(() => {
+    const owners = new Set<string>();
+    searchResults.forEach((asset) => {
+      if (asset.ownerAddress) {
+        owners.add(asset.ownerAddress.toLowerCase());
+      }
+    });
+    return Array.from(owners);
+  }, [searchResults]);
+
+  // Fetch domains for all owners when results change
+  useEffect(() => {
+    if (uniqueOwners.length === 0) {
+      return;
+    }
+
+    // Cancel previous domain fetch if still in progress
+    if (domainFetchControllerRef.current) {
+      domainFetchControllerRef.current.abort();
+    }
+    domainFetchControllerRef.current = new AbortController();
+
+    // Mark all owners as loading
+    const loadingState: Record<
+      string,
+      { domain: string | null; loading: boolean }
+    > = {};
+    uniqueOwners.forEach((owner) => {
+      loadingState[owner] = { domain: null, loading: true };
+    });
+    setOwnerDomains(loadingState);
+
+    // Fetch domains for all owners in parallel
+    Promise.all(
+      uniqueOwners.map((owner) => {
+        return fetch("/api/resolve-owner-domain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: owner }),
+          signal: domainFetchControllerRef.current?.signal,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            return {
+              address: owner,
+              domain: data.ok ? data.domain : null,
+            };
+          })
+          .catch((err) => {
+            if (err.name !== "AbortError") {
+              console.error("Error fetching domain:", err);
+            }
+            return {
+              address: owner,
+              domain: null,
+            };
+          });
+      }),
+    )
+      .then((results) => {
+        const newDomains: Record<
+          string,
+          { domain: string | null; loading: boolean }
+        > = {};
+        results.forEach(({ address, domain }) => {
+          newDomains[address] = { domain, loading: false };
+        });
+        setOwnerDomains(newDomains);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Error fetching domains:", err);
+        }
+      });
+
+    return () => {
+      if (domainFetchControllerRef.current) {
+        domainFetchControllerRef.current.abort();
+      }
+    };
+  }, [uniqueOwners]);
+
+  const truncateAddressDisplay = (address: string) => {
+    return `${address.slice(0, 8)}...${address.slice(-6)}`;
+  };
+
+  const allowsDerivatives = (asset: SearchResult): boolean => {
+    if (!asset.licenses || asset.licenses.length === 0) {
+      return false;
+    }
+    return asset.licenses.some(
+      (license: any) =>
+        license.terms?.derivativesAllowed === true ||
+        license.derivativesAllowed === true,
+    );
   };
 
   const categories: Category[] = ["ip", "image", "video", "music"];
@@ -212,19 +505,210 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
           ))}
         </div>
 
-        <div className="relative">
+        <div className="relative flex gap-2">
           <input
             type="text"
             placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 pr-10 rounded-lg bg-slate-800 text-white placeholder:text-slate-400 border border-slate-700 focus:border-[#FF4DA6] focus:outline-none transition-colors w-full"
+            value={searchInput}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            className="px-4 py-2 pr-10 rounded-lg bg-slate-800 text-white placeholder:text-slate-400 border border-slate-700 focus:border-[#FF4DA6] focus:outline-none transition-colors flex-1"
           />
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <button
+            onClick={handleSearch}
+            disabled={isSearching}
+            className="px-4 py-2 rounded-lg bg-[#FF4DA6] text-white font-semibold hover:bg-[#FF4DA6]/80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isSearching ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                <span>Searching...</span>
+              </>
+            ) : (
+              <>
+                <Search className="h-4 w-4" />
+                <span>Search</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {activeCategory === "ip" ? (
+      {hasSearched ? (
+        <div className="w-full">
+          {searchResults.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-4">
+                {searchResults.map((asset, idx) => {
+                  const ownerLower = asset.ownerAddress?.toLowerCase() || "";
+                  const domainInfo = ownerDomains[ownerLower];
+                  const displayDomain = domainInfo?.domain;
+                  const displayText =
+                    displayDomain ||
+                    (asset.ownerAddress
+                      ? truncateAddressDisplay(asset.ownerAddress)
+                      : "Unknown");
+
+                  return (
+                    <motion.div
+                      key={asset.ipId || `${asset.name}-${idx}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.03 }}
+                      onMouseEnter={() => setHoveredIndex(idx)}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                      className="group flex flex-col h-full cursor-pointer"
+                    >
+                      {/* Image Container */}
+                      <div className="relative w-full aspect-square bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg overflow-hidden flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
+                        {asset.mediaUrl ? (
+                          asset.mediaType?.startsWith("video") ? (
+                            <div className="w-full h-full relative group/video">
+                              <video
+                                key={asset.ipId}
+                                src={asset.mediaUrl}
+                                poster={asset.thumbnailUrl}
+                                className="w-full h-full object-cover"
+                                preload="metadata"
+                                playsInline
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover/video:opacity-100">
+                                <div className="w-12 h-12 rounded-full bg-[#FF4DA6] flex items-center justify-center shadow-lg">
+                                  <svg
+                                    className="w-6 h-6 text-white fill-current ml-0.5"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M3 3v18h18V3H3zm9 14V7l5 5-5 5z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+                          ) : asset.mediaType?.startsWith("audio") ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-900/60 via-purple-800/30 to-slate-900">
+                              <svg
+                                className="w-12 h-12 text-purple-300"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                              </svg>
+                            </div>
+                          ) : (
+                            <img
+                              src={asset.mediaUrl}
+                              alt={asset.title || asset.name || "IP Asset"}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                const parent = img.parentElement;
+                                if (parent) {
+                                  img.replaceWith(
+                                    Object.assign(
+                                      document.createElement("div"),
+                                      {
+                                        className:
+                                          "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700",
+                                        innerHTML: `
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                  `,
+                                      },
+                                    ),
+                                  );
+                                }
+                              }}
+                            />
+                          )
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700">
+                            <svg
+                              className="w-8 h-8"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </div>
+                        )}
+
+                        {/* Badge on hover */}
+                        {hoveredIndex === idx && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute top-2 right-2"
+                          >
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full font-semibold backdrop-blur-sm ${
+                                asset.isDerivative
+                                  ? "bg-blue-500/90 text-white"
+                                  : "bg-emerald-500/90 text-white"
+                              }`}
+                            >
+                              {asset.isDerivative ? "🔄 Remix" : "✨ Original"}
+                            </span>
+                          </motion.div>
+                        )}
+                      </div>
+
+                      {/* Info Section */}
+                      <div className="pt-3 flex flex-col flex-grow">
+                        {/* Title */}
+                        <h3 className="text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-[#FF4DA6] transition-colors duration-200">
+                          {asset.title || asset.name || "Untitled"}
+                        </h3>
+
+                        {/* Owner/Domain - Show on hover or always small */}
+                        <p className="text-xs text-slate-400 mt-1 truncate group-hover:text-[#FF4DA6]/70 transition-colors">
+                          {displayText}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {hasMore && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="text-sm text-[#FF4DA6] hover:text-[#FF4DA6]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <Loader className="h-3 w-3 animate-spin" />
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <span>Load more</span>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Search className="h-12 w-12 text-slate-500 mb-3" />
+              <p className="text-slate-300 text-sm">No results found</p>
+              <p className="text-slate-500 text-xs mt-1">
+                Try searching with different keywords
+              </p>
+            </div>
+          )}
+        </div>
+      ) : activeCategory === "ip" ? (
         <div className="w-full">
           {filteredItems[0] && (
             <motion.div
