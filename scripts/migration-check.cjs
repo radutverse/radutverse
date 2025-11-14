@@ -128,12 +128,19 @@ async function checkNodeVersion() {
     const minor = parseInt(majorMinorPatch[1], 10);
     const patch = parseInt(majorMinorPatch[2], 10);
 
-    if (major > 18 || (major === 18 && minor > 12) || (major === 18 && minor === 12 && patch >= 0)) {
+    if (
+      major > 18 ||
+      (major === 18 && minor > 12) ||
+      (major === 18 && minor === 12 && patch >= 0)
+    ) {
       log("✅", `Node.js version ${nodeVersion} (required: >=18.12.0)`);
       checksPassed++;
       return true;
     } else {
-      log("❌", `Node.js version ${nodeVersion} is too old (required: >=18.12.0)`);
+      log(
+        "❌",
+        `Node.js version ${nodeVersion} is too old (required: >=18.12.0)`,
+      );
       checksFailed++;
       return false;
     }
