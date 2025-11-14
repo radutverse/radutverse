@@ -4,13 +4,8 @@ import { Search, Loader } from "lucide-react";
 import {
   SearchResultsGrid,
   ExpandedAssetModal,
-} from "@/components/search-feature";
-import {
   useDomainFetch,
-  useRemixTypes,
-  useAllowsDerivatives,
   useUniqueOwners,
-  truncateAddressDisplay as truncateAddressDisplay_new,
 } from "@/components/search-feature";
 import type { PopularItem, SearchResult } from "./types";
 
@@ -193,6 +188,8 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
     Record<string, { domain: string | null; loading: boolean }>
   >({});
   const [expandedAsset, setExpandedAsset] = useState<SearchResult | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [remixMenuOpen, setRemixMenuOpen] = useState(false);
   const domainFetchControllerRef = useRef<AbortController | null>(null);
 
   const ITEMS_PER_PAGE = 20;
@@ -762,11 +759,415 @@ export const PopularIPGrid = ({ onBack, onOpenSearch }: PopularIPGridProps) => {
 
       {/* Expanded Asset Details Modal */}
       <AnimatePresence>
-        <ExpandedAssetModal
-          asset={expandedAsset}
-          isOpen={!!expandedAsset}
-          onClose={() => setExpandedAsset(null)}
-        />
+        {expandedAsset && (
+          <ExpandedAssetModal
+            asset={expandedAsset}
+            isOpen={true}
+            onClose={() => setExpandedAsset(null)}
+            onShowDetails={() => {
+              setShowDetailsModal(true);
+            }}
+            onRemixMenu={() => {
+              setRemixMenuOpen(true);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Details Modal */}
+      <AnimatePresence>
+        {showDetailsModal && expandedAsset && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-6"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+              onClick={() => setShowDetailsModal(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative z-10 w-full max-w-lg bg-slate-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/50 overflow-hidden"
+            >
+              <div className="flex items-center justify-between gap-4 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/30 px-6 py-4">
+                <h3 className="text-lg font-semibold text-slate-100">
+                  IP Asset Details
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowDetailsModal(false)}
+                  className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+                  aria-label="Close"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-4">
+                  {expandedAsset.ipId && (
+                    <div>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                        IP ID
+                      </label>
+                      <p className="text-sm text-slate-200 font-mono mt-2 break-all bg-slate-900/40 p-3 rounded-lg border border-slate-800/50">
+                        {expandedAsset.ipId}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="pt-4 border-t border-slate-800/30">
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                      Asset Information
+                    </label>
+                    <div className="mt-4 space-y-3">
+                      {expandedAsset.title && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Title
+                          </div>
+                          <p className="text-sm text-slate-200">
+                            {expandedAsset.title}
+                          </p>
+                        </div>
+                      )}
+
+                      {expandedAsset.ownerAddress && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Owner Address
+                          </div>
+                          <p className="text-sm text-slate-200 font-mono break-all">
+                            {expandedAsset.ownerAddress}
+                          </p>
+                        </div>
+                      )}
+
+                      {expandedAsset.mediaType && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Media Type
+                          </div>
+                          <p className="text-sm text-slate-200">
+                            {expandedAsset.mediaType
+                              ?.replace("video/", "")
+                              .replace("audio/", "")
+                              .replace("image/", "")
+                              .toUpperCase() || "Unknown"}
+                          </p>
+                        </div>
+                      )}
+
+                      {expandedAsset.score !== undefined && (
+                        <div>
+                          <div className="text-xs text-slate-400 mb-1">
+                            Match Score
+                          </div>
+                          <p className="text-sm text-slate-200">
+                            {(expandedAsset.score * 100).toFixed(1)}%
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {expandedAsset.licenses &&
+                    expandedAsset.licenses.length > 0 && (
+                      <div className="pt-4 border-t border-slate-800/30">
+                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                          Licenses
+                        </label>
+                        <div className="mt-4 space-y-3">
+                          {expandedAsset.licenses.map(
+                            (license: any, index: number) => (
+                              <div
+                                key={index}
+                                className="bg-slate-900/40 border border-slate-700/50 rounded-lg p-4 space-y-3"
+                              >
+                                {license.templateName && (
+                                  <div>
+                                    <div className="text-xs text-slate-400 mb-1">
+                                      Template Name
+                                    </div>
+                                    <p className="text-sm text-slate-200 font-semibold">
+                                      {license.templateName}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {license.licenseTermsId && (
+                                  <div>
+                                    <div className="text-xs text-slate-400 mb-1">
+                                      License Terms ID
+                                    </div>
+                                    <p className="text-xs text-slate-300 font-mono break-all">
+                                      {license.licenseTermsId}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {license.terms && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-700/30">
+                                    <div className="text-xs font-semibold text-slate-300 mb-2">
+                                      Terms:
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                      {license.terms.commercialUse !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Commercial Use:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.commercialUse
+                                              ? "✓ Allowed"
+                                              : "✗ Not Allowed"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.derivativesAllowed !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Derivatives:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.derivativesAllowed
+                                              ? "✓ Allowed"
+                                              : "��� Not Allowed"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.transferable !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Transferable:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.transferable
+                                              ? "✓ Yes"
+                                              : "✗ No"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.commercialAttribution !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Attribution Required:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.commercialAttribution
+                                              ? "✓ Yes"
+                                              : "✗ No"}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.commercialRevShare !==
+                                        undefined && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Rev Share:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {(
+                                              Number(
+                                                license.terms
+                                                  .commercialRevShare,
+                                              ) / 1000000
+                                            ).toFixed(2)}
+                                            %
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.licensingConfig?.mintingFee && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Minting Fee:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {(
+                                              Number(
+                                                license.licensingConfig
+                                                  .mintingFee,
+                                              ) / 1e18
+                                            ).toFixed(6)}{" "}
+                                            tokens
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.currency && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Currency:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.currency}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {license.terms.expiration && (
+                                        <div>
+                                          <span className="text-slate-400">
+                                            Expiration:
+                                          </span>
+                                          <p className="text-slate-200 font-semibold">
+                                            {license.terms.expiration}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {license.createdAt && (
+                                  <div className="pt-2 border-t border-slate-700/30">
+                                    <div className="text-xs text-slate-500">
+                                      Created:{" "}
+                                      {new Date(
+                                        license.createdAt,
+                                      ).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Remix Menu Modal */}
+      <AnimatePresence>
+        {remixMenuOpen && expandedAsset && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+              onClick={() => setRemixMenuOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative z-10 w-full max-w-md bg-slate-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/50 overflow-hidden"
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-100">
+                    Choose Remix Type
+                  </h2>
+                  <button
+                    onClick={() => setRemixMenuOpen(false)}
+                    className="flex-shrink-0 rounded-full p-2 text-slate-400 transition-colors hover:bg-[#FF4DA6]/20 hover:text-[#FF4DA6]"
+                    aria-label="Close"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {getRemixTypes(expandedAsset).map((remixConfig) => (
+                    <button
+                      key={remixConfig.type}
+                      onClick={() => {
+                        console.log(
+                          `Starting ${remixConfig.type} remix for asset:`,
+                          expandedAsset.title,
+                        );
+                        setRemixMenuOpen(false);
+                      }}
+                      className="w-full p-4 rounded-lg bg-gradient-to-r from-slate-800 to-slate-700 border border-slate-600/50 hover:border-[#FF4DA6]/50 hover:bg-gradient-to-r hover:from-[#FF4DA6]/20 hover:to-slate-700 transition-all text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">
+                          {remixConfig.type === "paid" ? "💰" : "🆓"}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">
+                            {remixConfig.type === "paid"
+                              ? "Paid Remix"
+                              : "Free Remix"}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {remixConfig.hasAttribution
+                              ? "Requires attribution"
+                              : "No attribution required"}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setRemixMenuOpen(false)}
+                  className="w-full mt-6 px-4 py-2 rounded-lg bg-slate-700/40 text-slate-200 border border-slate-600/50 font-semibold transition-all hover:bg-slate-700/60"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </motion.div>
   );
