@@ -1,8 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
-import type { PopularItem } from "./types";
-import type { SearchResult } from "./types";
+import type { PopularItem, SearchResult } from "./types";
 
 interface PopularIPGridProps {
   onBack: () => void;
@@ -175,6 +174,11 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
   const [totalResults, setTotalResults] = useState(0);
   const [lastQueryType, setLastQueryType] = useState<"keyword" | "owner" | null>(null);
   const [lastResolvedAddress, setLastResolvedAddress] = useState("");
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [ownerDomains, setOwnerDomains] = useState<
+    Record<string, { domain: string | null; loading: boolean }>
+  >({});
+  const domainFetchControllerRef = useRef<AbortController | null>(null);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -346,6 +350,104 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
       setHasSearched(false);
     }
   }, []);
+
+  // Get unique owner addresses to fetch domains for
+  const uniqueOwners = useMemo(() => {
+    const owners = new Set<string>();
+    searchResults.forEach((asset) => {
+      if (asset.ownerAddress) {
+        owners.add(asset.ownerAddress.toLowerCase());
+      }
+    });
+    return Array.from(owners);
+  }, [searchResults]);
+
+  // Fetch domains for all owners when results change
+  useEffect(() => {
+    if (uniqueOwners.length === 0) {
+      return;
+    }
+
+    // Cancel previous domain fetch if still in progress
+    if (domainFetchControllerRef.current) {
+      domainFetchControllerRef.current.abort();
+    }
+    domainFetchControllerRef.current = new AbortController();
+
+    // Mark all owners as loading
+    const loadingState: Record<
+      string,
+      { domain: string | null; loading: boolean }
+    > = {};
+    uniqueOwners.forEach((owner) => {
+      loadingState[owner] = { domain: null, loading: true };
+    });
+    setOwnerDomains(loadingState);
+
+    // Fetch domains for all owners in parallel
+    Promise.all(
+      uniqueOwners.map((owner) => {
+        return fetch("/api/resolve-owner-domain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerAddress: owner }),
+          signal: domainFetchControllerRef.current?.signal,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            return {
+              address: owner,
+              domain: data.ok ? data.domain : null,
+            };
+          })
+          .catch((err) => {
+            if (err.name !== "AbortError") {
+              console.error("Error fetching domain:", err);
+            }
+            return {
+              address: owner,
+              domain: null,
+            };
+          });
+      }),
+    )
+      .then((results) => {
+        const newDomains: Record<
+          string,
+          { domain: string | null; loading: boolean }
+        > = {};
+        results.forEach(({ address, domain }) => {
+          newDomains[address] = { domain, loading: false };
+        });
+        setOwnerDomains(newDomains);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Error fetching domains:", err);
+        }
+      });
+
+    return () => {
+      if (domainFetchControllerRef.current) {
+        domainFetchControllerRef.current.abort();
+      }
+    };
+  }, [uniqueOwners]);
+
+  const truncateAddressDisplay = (address: string) => {
+    return `${address.slice(0, 8)}...${address.slice(-6)}`;
+  };
+
+  const allowsDerivatives = (asset: SearchResult): boolean => {
+    if (!asset.licenses || asset.licenses.length === 0) {
+      return false;
+    }
+    return asset.licenses.some(
+      (license: any) =>
+        license.terms?.derivativesAllowed === true ||
+        license.derivativesAllowed === true,
+    );
+  };
 
   const categories: Category[] = ["ip", "image", "video", "music"];
   const currentItems = DUMMY_DATA[activeCategory];
