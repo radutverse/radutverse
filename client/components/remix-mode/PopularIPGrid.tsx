@@ -2,6 +2,13 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
 import { SearchResultsGrid } from "./SearchResultsGrid";
+import {
+  useDomainFetch,
+  useRemixTypes,
+  useAllowsDerivatives,
+  useUniqueOwners,
+  truncateAddressDisplay as truncateAddressDisplay_new,
+} from "@/components/search-feature";
 import type { PopularItem, SearchResult } from "./types";
 
 interface PopularIPGridProps {
