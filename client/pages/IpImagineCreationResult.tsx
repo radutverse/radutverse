@@ -84,8 +84,33 @@ const IpImagineCreationResult = () => {
   };
 
   const handleUpscale = async () => {
-    if (!displayUrl) return;
-    await upscale();
+    if (!resultUrl || !resultUrl.startsWith("data:image")) {
+      setError("Upscaling is only available for a generated image.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      setLoadingMessage("Upscaling image...");
+      const [header, base64Data] = resultUrl.split(",");
+      const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
+
+      const upscaledUrl = await openaiService.upscaleImage({
+        imageBytes: base64Data,
+        mimeType,
+      });
+      setResultUrl(upscaledUrl);
+      setResultType("image");
+    } catch (e: any) {
+      console.error(e);
+      setError(e.message || "An unknown error occurred during upscaling.");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
+    }
+
     setShowUpscaler(false);
   };
 
