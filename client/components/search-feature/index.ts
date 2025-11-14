@@ -1,6 +1,7 @@
 // Komponen
 export { IpImagineSearch } from "./IpImagineSearch";
 export { IpAssistantSearch } from "./IpAssistantSearch";
+export { SearchResultsGrid } from "./SearchResultsGrid";
 
 // Custom Hooks
 export {
