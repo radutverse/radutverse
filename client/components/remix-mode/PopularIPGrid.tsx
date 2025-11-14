@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
+import { SearchResultsGrid } from "./SearchResultsGrid";
 import type { PopularItem, SearchResult } from "./types";
 
 interface PopularIPGridProps {
@@ -462,6 +463,52 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
     );
   };
 
+  // Get remix types based on licenses (paid/free)
+  type RemixTypeInfo = { type: "paid" | "free"; hasAttribution: boolean };
+  const getRemixTypes = (asset: SearchResult): RemixTypeInfo[] => {
+    if (!asset.licenses || asset.licenses.length === 0) {
+      return [];
+    }
+
+    const remixTypesMap = new Map<
+      "paid" | "free",
+      { hasAttribution: boolean }
+    >();
+
+    for (const license of asset.licenses) {
+      const terms = license.terms || license;
+      const derivativesAllowed =
+        terms?.derivativesAllowed === true ||
+        license.derivativesAllowed === true;
+
+      if (!derivativesAllowed) continue;
+
+      const commercialUse = terms?.commercialUse === true;
+      const remixType: "paid" | "free" = commercialUse ? "paid" : "free";
+
+      // Check if this license has derivativesAttribution
+      const derivativesAttribution =
+        terms?.derivativesAttribution === true ||
+        license.derivativesAttribution === true;
+
+      // Update map - set hasAttribution to true if any license of this type requires attribution
+      if (!remixTypesMap.has(remixType)) {
+        remixTypesMap.set(remixType, {
+          hasAttribution: derivativesAttribution,
+        });
+      } else {
+        const existing = remixTypesMap.get(remixType)!;
+        existing.hasAttribution =
+          existing.hasAttribution || derivativesAttribution;
+      }
+    }
+
+    return Array.from(remixTypesMap.entries()).map(([type, info]) => ({
+      type,
+      hasAttribution: info.hasAttribution,
+    }));
+  };
+
   const categories: Category[] = ["ip", "image", "video", "music"];
   const currentItems = DUMMY_DATA[activeCategory];
 
@@ -539,165 +586,43 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
       </div>
 
       {hasSearched ? (
-        <div className="w-full">
+        <div className="w-full flex-1 overflow-y-auto">
           {searchResults.length > 0 ? (
-            <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-4">
-                {searchResults.map((asset, idx) => {
-                  const ownerLower = asset.ownerAddress?.toLowerCase() || "";
-                  const domainInfo = ownerDomains[ownerLower];
-                  const displayDomain = domainInfo?.domain;
-                  const displayText =
-                    displayDomain ||
-                    (asset.ownerAddress
-                      ? truncateAddressDisplay(asset.ownerAddress)
-                      : "Unknown");
-
-                  return (
-                    <motion.div
-                      key={asset.ipId || `${asset.name}-${idx}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.03 }}
-                      onMouseEnter={() => setHoveredIndex(idx)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                      className="group flex flex-col h-full cursor-pointer"
-                    >
-                      {/* Image Container */}
-                      <div className="relative w-full aspect-square bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg overflow-hidden flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
-                        {asset.mediaUrl ? (
-                          asset.mediaType?.startsWith("video") ? (
-                            <div className="w-full h-full relative group/video">
-                              <video
-                                key={asset.ipId}
-                                src={asset.mediaUrl}
-                                poster={asset.thumbnailUrl}
-                                className="w-full h-full object-cover"
-                                preload="metadata"
-                                playsInline
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover/video:opacity-100">
-                                <div className="w-12 h-12 rounded-full bg-[#FF4DA6] flex items-center justify-center shadow-lg">
-                                  <svg
-                                    className="w-6 h-6 text-white fill-current ml-0.5"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path d="M3 3v18h18V3H3zm9 14V7l5 5-5 5z" />
-                                  </svg>
-                                </div>
-                              </div>
-                            </div>
-                          ) : asset.mediaType?.startsWith("audio") ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-900/60 via-purple-800/30 to-slate-900">
-                              <svg
-                                className="w-12 h-12 text-purple-300"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M12 3v9.28c-.47-.46-1.12-.75-1.84-.75-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                              </svg>
-                            </div>
-                          ) : (
-                            <img
-                              src={asset.mediaUrl}
-                              alt={asset.title || asset.name || "IP Asset"}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement;
-                                const parent = img.parentElement;
-                                if (parent) {
-                                  img.replaceWith(
-                                    Object.assign(
-                                      document.createElement("div"),
-                                      {
-                                        className:
-                                          "w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700",
-                                        innerHTML: `
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                  `,
-                                      },
-                                    ),
-                                  );
-                                }
-                              }}
-                            />
-                          )
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-700">
-                            <svg
-                              className="w-8 h-8"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="m4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </div>
-                        )}
-
-                        {/* Badge on hover */}
-                        {hoveredIndex === idx && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="absolute top-2 right-2"
-                          >
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full font-semibold backdrop-blur-sm ${
-                                asset.isDerivative
-                                  ? "bg-blue-500/90 text-white"
-                                  : "bg-emerald-500/90 text-white"
-                              }`}
-                            >
-                              {asset.isDerivative ? "🔄 Remix" : "✨ Original"}
-                            </span>
-                          </motion.div>
-                        )}
-                      </div>
-
-                      {/* Info Section */}
-                      <div className="pt-3 flex flex-col flex-grow">
-                        {/* Title */}
-                        <h3 className="text-sm font-semibold text-slate-100 line-clamp-2 group-hover:text-[#FF4DA6] transition-colors duration-200">
-                          {asset.title || asset.name || "Untitled"}
-                        </h3>
-
-                        {/* Owner/Domain - Show on hover or always small */}
-                        <p className="text-xs text-slate-400 mt-1 truncate group-hover:text-[#FF4DA6]/70 transition-colors">
-                          {displayText}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
+            <>
+              <SearchResultsGrid
+                searchResults={searchResults}
+                ownerDomains={ownerDomains}
+                hoveredIndex={hoveredIndex}
+                setHoveredIndex={setHoveredIndex}
+                getRemixTypes={getRemixTypes}
+                allowsDerivatives={allowsDerivatives}
+                truncateAddressDisplay={truncateAddressDisplay}
+                isLoadingOwnerAssets={false}
+                onAssetClick={() => {}}
+                onOwnerClick={() => {}}
+              />
 
               {hasMore && (
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center pt-8 pb-8">
                   <button
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
-                    className="text-sm text-[#FF4DA6] hover:text-[#FF4DA6]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                    className="text-sm text-[#FF4DA6] hover:text-[#FF4DA6]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {isLoadingMore ? (
                       <>
-                        <Loader className="h-3 w-3 animate-spin" />
+                        <Loader className="h-4 w-4 animate-spin" />
                         <span>Loading...</span>
                       </>
                     ) : (
-                      <span>Load more</span>
+                      <>
+                        <span>Load more</span>
+                      </>
                     )}
                   </button>
                 </div>
               )}
-            </div>
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
               <Search className="h-12 w-12 text-slate-500 mb-3" />
