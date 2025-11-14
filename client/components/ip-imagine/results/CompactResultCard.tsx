@@ -79,19 +79,20 @@ const CompactResultCard = ({
           </button>
         </motion.div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Horizontal */}
         <motion.div
-          className="flex flex-col gap-3"
+          className="flex flex-wrap gap-3 justify-center"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
           <button
             onClick={onDownload}
-            className="w-full px-4 py-3 rounded-lg bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 min-w-[100px] px-4 py-3 rounded-lg bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-medium transition-colors flex items-center justify-center gap-2"
+            title="Download"
           >
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -108,10 +109,11 @@ const CompactResultCard = ({
 
           <button
             onClick={onShare}
-            className="w-full px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 min-w-[100px] px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+            title="Share"
           >
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -129,10 +131,11 @@ const CompactResultCard = ({
           {onUpscale && type === "image" && (
             <button
               onClick={onUpscale}
-              className="w-full px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 min-w-[100px] px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+              title="Upscale"
             >
               <svg
-                className="w-4 h-4"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -150,10 +153,11 @@ const CompactResultCard = ({
 
           <button
             onClick={onCreateAnother}
-            className="w-full px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 min-w-[100px] px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+            title="Create Another"
           >
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
