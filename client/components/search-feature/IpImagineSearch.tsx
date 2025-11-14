@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader } from "lucide-react";
-import { SearchResultsGrid } from "@/components/remix-mode/SearchResultsGrid";
+import { SearchResultsGrid } from "./SearchResultsGrid";
 import {
   useDomainFetch,
   useRemixTypes,
