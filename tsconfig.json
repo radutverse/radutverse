@@ -27,8 +27,10 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./client/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./apps/web/src/*"],
+      "@shared/*": ["./packages/shared/src/*"],
+      "shared": ["./packages/shared/src"],
+      "shared/*": ["./packages/shared/src/*"]
     }
   },
   "include": [
