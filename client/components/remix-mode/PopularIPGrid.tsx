@@ -265,7 +265,7 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
             type="text"
             placeholder="Search..."
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleSearch();
