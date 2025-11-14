@@ -17,25 +17,11 @@
       "dest": "/api"
     },
     {
-      "src": "/index.html",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/robots.txt"
-    },
-    {
-      "src": "/placeholder.svg",
-      "dest": "/placeholder.svg"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200
+      "dest": "/index.html"
     }
   ]
 }
