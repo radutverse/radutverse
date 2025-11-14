@@ -11,7 +11,6 @@ import type { PopularItem, SearchResult } from "../../remix-mode/types";
 
 interface PopularIPGridProps {
   onBack: () => void;
-  onOpenSearch?: () => void;
 }
 
 type Category = "ip" | "image" | "video" | "music";
