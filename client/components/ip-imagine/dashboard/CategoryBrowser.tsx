@@ -55,22 +55,22 @@ export const CategoryBrowser = ({
 
       {activeCategory === "ip" ? (
         <div className="w-full">
-          {filteredItems[0] && (
+          {currentItems[0] && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative rounded-2xl overflow-hidden bg-slate-800"
             >
               <img
-                src={filteredItems[0].preview}
-                alt={filteredItems[0].title}
+                src={currentItems[0].preview}
+                alt={currentItems[0].title}
                 className="w-full h-[180px] sm:h-[220px] md:h-[280px] object-cover"
               />
 
               <div className="absolute left-6 top-6 text-left">
                 <div className="flex items-center gap-2">
                   <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                    {filteredItems[0].title.replace(/\s+Background$/i, "")}
+                    {currentItems[0].title.replace(/\s+Background$/i, "")}
                   </h3>
                   <span className="text-xs bg-white/10 text-white px-2 py-1 rounded-full">
                     IP
@@ -83,7 +83,7 @@ export const CategoryBrowser = ({
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
-          {filteredItems.map((item, index) => (
+          {currentItems.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}
