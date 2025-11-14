@@ -424,40 +424,61 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
       {hasSearched ? (
         <div className="w-full">
           {searchResults.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
-              {searchResults.map((item, index) => (
-                <motion.div
-                  key={item.ipId || index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  className="group cursor-pointer rounded-lg overflow-hidden bg-slate-800 hover:bg-slate-700 transition-colors duration-200"
-                >
-                  <div className="relative overflow-hidden h-24">
-                    {item.mediaUrl || item.thumbnailUrl ? (
-                      <img
-                        src={item.mediaUrl || item.thumbnailUrl}
-                        alt={item.name || "Asset"}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
+                {searchResults.map((item, index) => (
+                  <motion.div
+                    key={item.ipId || `${item.name}-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="group cursor-pointer rounded-lg overflow-hidden bg-slate-800 hover:bg-slate-700 transition-colors duration-200"
+                  >
+                    <div className="relative overflow-hidden h-24">
+                      {item.mediaUrl || item.thumbnailUrl ? (
+                        <img
+                          src={item.mediaUrl || item.thumbnailUrl}
+                          alt={item.name || "Asset"}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-slate-700 flex items-center justify-center">
+                          <span className="text-xs text-slate-400">No image</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2">
+                      <h3 className="font-semibold text-white mb-1 line-clamp-2 text-xs">
+                        {item.name || "Unnamed Asset"}
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        {item.ownerAddress
+                          ? truncateAddress(item.ownerAddress)
+                          : "Unknown"}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {currentOffset < totalResults && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <Loader className="h-4 w-4 animate-spin" />
+                        <span>Loading more...</span>
+                      </>
                     ) : (
-                      <div className="w-full h-full bg-slate-700 flex items-center justify-center">
-                        <span className="text-xs text-slate-400">No image</span>
-                      </div>
+                      <span>Load More ({currentOffset} / {totalResults})</span>
                     )}
-                  </div>
-                  <div className="p-2">
-                    <h3 className="font-semibold text-white mb-1 line-clamp-2 text-xs">
-                      {item.name || "Unnamed Asset"}
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      {item.ownerAddress
-                        ? truncateAddress(item.ownerAddress)
-                        : "Unknown"}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
