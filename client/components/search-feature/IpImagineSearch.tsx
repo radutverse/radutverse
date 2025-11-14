@@ -131,9 +131,7 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
         setSearchResults(results);
         setTotalResults(data.totalSearched || results.length);
         setCurrentOffset(ITEMS_PER_PAGE);
-        setHasMore(
-          data.pagination?.hasMore || results.length > ITEMS_PER_PAGE,
-        );
+        setHasMore(data.pagination?.hasMore || results.length > ITEMS_PER_PAGE);
         setLastQueryType("keyword");
       }
     } catch (error) {
