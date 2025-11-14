@@ -5,12 +5,19 @@
     {
       "src": "dist/spa",
       "use": "@vercel/static"
+    },
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "status": 404
+      "dest": "/api"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
