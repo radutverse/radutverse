@@ -525,54 +525,42 @@ export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
         </button>
       </div>
 
-      <div className="flex gap-2 mb-4 flex-wrap items-center justify-between">
-        <div className="flex gap-2 flex-wrap">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                activeCategory === cat
-                  ? "bg-[#FF4DA6] text-white shadow-lg shadow-[#FF4DA6]/30"
-                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-              }`}
-            >
-              {CATEGORY_LABELS[cat]}
-            </button>
-          ))}
-        </div>
+      <CategoryBrowser
+        items={DUMMY_DATA}
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+      />
 
-        <div className="relative flex gap-2">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchInput}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            className="px-4 py-2 pr-10 rounded-lg bg-slate-800 text-white placeholder:text-slate-400 border border-slate-700 focus:border-[#FF4DA6] focus:outline-none transition-colors flex-1"
-          />
-          <button
-            onClick={handleSearch}
-            disabled={isSearching}
-            className="px-4 py-2 rounded-lg bg-[#FF4DA6] text-white font-semibold hover:bg-[#FF4DA6]/80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {isSearching ? (
-              <>
-                <Loader className="h-4 w-4 animate-spin" />
-                <span>Searching...</span>
-              </>
-            ) : (
-              <>
-                <Search className="h-4 w-4" />
-                <span>Search</span>
-              </>
-            )}
-          </button>
-        </div>
+      <div className="relative flex gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchInput}
+          onChange={handleInputChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+          className="px-4 py-2 pr-10 rounded-lg bg-slate-800 text-white placeholder:text-slate-400 border border-slate-700 focus:border-[#FF4DA6] focus:outline-none transition-colors flex-1"
+        />
+        <button
+          onClick={handleSearch}
+          disabled={isSearching}
+          className="px-4 py-2 rounded-lg bg-[#FF4DA6] text-white font-semibold hover:bg-[#FF4DA6]/80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isSearching ? (
+            <>
+              <Loader className="h-4 w-4 animate-spin" />
+              <span>Searching...</span>
+            </>
+          ) : (
+            <>
+              <Search className="h-4 w-4" />
+              <span>Search</span>
+            </>
+          )}
+        </button>
       </div>
 
       {hasSearched ? (
