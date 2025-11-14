@@ -216,6 +216,8 @@ export const IpImagineSearch = ({ onBack }: IpImagineSearchProps) => {
     [],
   );
 
+  const getRemixTypesFunc = useRemixTypes();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
