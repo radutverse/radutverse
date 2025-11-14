@@ -11,14 +11,18 @@
     ]
   },
   "scripts": {
-    "dev": "vite",
-    "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build",
-    "build:server": "vite build --config vite.config.server.ts",
-    "start": "node dist/server/node-build.mjs",
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "migrate:all": "node scripts/migrate-all.js",
+    "migrate:shared": "node scripts/migrate-shared.js",
+    "migrate:frontend": "node scripts/migrate-frontend.js",
+    "migrate:api": "node scripts/migrate-api.js",
+    "migrate:imports": "node scripts/update-imports.js",
+    "migrate:check": "node scripts/migration-check.js",
+    "verify:deployment": "node scripts/verify-deployment.js"
   },
   "dependencies": {
     "@privy-io/react-auth": "^1.99.1",
