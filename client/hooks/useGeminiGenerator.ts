@@ -70,46 +70,10 @@ const useGeminiGenerator = () => {
       let finalUrl = generatedUrl;
       const { remixType, assetData } = options;
 
-      if (remixType === "paid") {
-        try {
-          if (demoModeParam) {
-            // For demo mode paid remix, use the provided watermarked image
-            console.log("📸 Using demo mode watermarked image");
-            finalUrl = paidRemixWatermarkedImageUrl;
-          } else {
-            // For production paid remix, apply invisible watermark embedding
-            console.log("🔐 Applying invisible watermark to image");
-
-            // Convert image URL to blob
-            const imageResponse = await fetch(generatedUrl);
-            const imageBlob = await imageResponse.blob();
-
-            // Create watermark data
-            const watermarkData: WatermarkData = {
-              ipId: `remix-${Date.now()}`,
-              licenseTerms: "paid-remix",
-              copyrightInfo: "Protected IP - Remix",
-              metadata: {
-                protected: true,
-                remixType: "paid",
-                createdAt: new Date().toISOString(),
-              },
-              timestamp: Date.now(),
-            };
-
-            // Embed watermark into image pixels
-            const watermarkedBlob = await embedWatermark(imageBlob, watermarkData);
-
-            // Convert back to URL
-            finalUrl = URL.createObjectURL(watermarkedBlob);
-            console.log("✅ Invisible watermark applied successfully");
-          }
-        } catch (watermarkError) {
-          console.error("❌ Failed to apply watermark:", watermarkError);
-          // Continue with unwatermarked image if watermark fails
-          finalUrl = generatedUrl;
-        }
-      }
+      // Watermark disabled - investigating black image issue
+      // if (remixType === "paid") {
+      //   // Watermark logic to be fixed
+      // }
 
       setResultUrl(finalUrl);
       addCreation(finalUrl, type, options.prompt, demoModeParam, remixType);
