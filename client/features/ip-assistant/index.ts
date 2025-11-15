@@ -1,10 +1,10 @@
 // Components
-export { default as ChatHeaderActions } from "@/components/ip-assistant/ChatHeaderActions";
-export { default as ChatInput } from "@/components/ip-assistant/ChatInput";
-export { default as SidebarExtras } from "@/components/ip-assistant/SidebarExtras";
-export { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
-export { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
-export { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
+export { default as ChatHeaderActions } from "@/components/ip/assistant/ChatHeaderActions";
+export { default as ChatInput } from "@/components/ip/assistant/ChatInput";
+export { default as SidebarExtras } from "@/components/ip/assistant/SidebarExtras";
+export { WelcomeScreen } from "@/components/ip/assistant/WelcomeScreen";
+export { WhitelistDetailsModal } from "@/components/ip/assistant/WhitelistDetailsModal";
+export { WhitelistMonitor } from "@/components/ip/assistant/WhitelistMonitor";
 
 // Page
 export { default as IpAssistant } from "@/pages/IpAssistant";
