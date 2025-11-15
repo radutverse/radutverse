@@ -125,15 +125,25 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   }, [resultUrl]);
 
   const addCreation = useCallback(
-    (url: string, type: ResultType, prompt: string) => {
+    (url: string, type: ResultType, prompt: string, isDemo: boolean = false) => {
       const newCreation: Creation = {
         id: `creation_${Date.now()}`,
         url,
         type,
         timestamp: Date.now(),
         prompt,
+        isDemo,
       };
       setCreations((prev) => [newCreation, ...prev]);
+
+      // Auto-remove demo creations after 6 minutes (360000ms)
+      if (isDemo) {
+        const timeoutId = setTimeout(() => {
+          setCreations((prev) => prev.filter((c) => c.id !== newCreation.id));
+        }, 360000);
+
+        return () => clearTimeout(timeoutId);
+      }
     },
     [],
   );
