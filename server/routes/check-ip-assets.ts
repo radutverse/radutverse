@@ -1,17 +1,22 @@
-import { Request, Response, RequestHandler } from "express";
+// server/routes/check-ip-assets.ts
+
+// PERBAIKAN: Import * (semua) dari express sebagai 'E' (alias)
+import * as E from "express";
 
 // Definisikan tipe untuk body request agar TypeScript mengenali properti 'address'
 interface CheckIpAssetsRequestBody {
   address?: string;
 }
 
-// Gunakan tipe generik Request dan Response dengan tipe Body yang spesifik
-export const handleCheckIpAssets: RequestHandler = async (
-  req: Request<any, any, CheckIpAssetsRequestBody>, // Tipe Request dengan Body yang spesifik
-  res: Response, // Tipe Response Express
+const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
+
+// Gunakan E.RequestHandler, E.Request, dan E.Response
+export const handleCheckIpAssets: E.RequestHandler = async (
+  req: E.Request<any, any, CheckIpAssetsRequestBody>, // Tipe Request dari alias E
+  res: E.Response, // Tipe Response dari alias E
 ) => {
   try {
-    // Properti 'get' sekarang dikenali
+    // Properti 'get' sekarang akan dikenali karena berasal dari tipe E.Request
     const idempotencyKey = (req.get("Idempotency-Key") ||
       req.get("Idempotency-Key")) as string | undefined;
       
@@ -26,7 +31,7 @@ export const handleCheckIpAssets: RequestHandler = async (
       }
     }
 
-    // Properti 'body' sekarang dikenali dan memiliki tipe yang benar
+    // Properti 'body' sekarang dikenali
     const { address } = req.body;
 
     if (!address || typeof address !== "string") {
@@ -243,5 +248,3 @@ export const handleCheckIpAssets: RequestHandler = async (
     });
   }
 };
-
-const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
