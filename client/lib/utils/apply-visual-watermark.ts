@@ -39,13 +39,7 @@ export async function applyVisualWatermark(
 
         // Draw watermark to fill entire image area
         ctx.globalAlpha = watermarkOpacity;
-        ctx.drawImage(
-          watermarkImage,
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        );
+        ctx.drawImage(watermarkImage, 0, 0, canvas.width, canvas.height);
         ctx.globalAlpha = 1.0;
 
         canvas.toBlob((blob) => {
