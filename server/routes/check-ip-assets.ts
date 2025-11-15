@@ -1,8 +1,12 @@
-import { RequestHandler } from "express";
+import { Request, Response, RequestHandler } from "express"; // PERBAIKAN: Import Request dan Response
 
 const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
 
-export const handleCheckIpAssets: any = async (req: any, res: any) => {
+// PERBAIKAN: Mengganti :any dan req:any, res:any dengan anotasi RequestHandler dan tipe generik yang spesifik
+export const handleCheckIpAssets: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const idempotencyKey = (req.get("Idempotency-Key") ||
       req.get("Idempotency-Key")) as string | undefined;
@@ -16,7 +20,8 @@ export const handleCheckIpAssets: any = async (req: any, res: any) => {
       }
     }
 
-    const { address } = req.body;
+    // Mengasumsikan req.body memiliki properti 'address'
+    const { address } = req.body as { address?: string }; // PERBAIKAN: Menambahkan anotasi tipe pada req.body
 
     if (!address || typeof address !== "string") {
       return res.status(400).json({
