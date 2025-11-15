@@ -350,6 +350,8 @@ const IpImagineCreationResult = () => {
                     : undefined
                 }
                 onCreateAnother={() => {}}
+                isExpanded={isCardExpanded}
+                setIsExpanded={setIsCardExpanded}
               />
             </motion.div>
           )}
