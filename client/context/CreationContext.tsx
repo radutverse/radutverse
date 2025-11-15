@@ -35,6 +35,7 @@ interface CreationContextType {
     type: ResultType,
     prompt: string,
     isDemo?: boolean,
+    remixType?: "paid" | "free" | null,
   ) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
