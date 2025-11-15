@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CompactResultCardProps {
@@ -9,6 +9,8 @@ interface CompactResultCardProps {
   onShare: () => void;
   onUpscale?: () => void;
   onCreateAnother: () => void;
+  isExpanded?: boolean;
+  setIsExpanded?: Dispatch<SetStateAction<boolean>>;
 }
 
 const CompactResultCard = ({
@@ -19,8 +21,12 @@ const CompactResultCard = ({
   onShare,
   onUpscale,
   onCreateAnother,
+  isExpanded: externalIsExpanded = false,
+  setIsExpanded: externalSetIsExpanded,
 }: CompactResultCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [localIsExpanded, setLocalIsExpanded] = useState(false);
+  const isExpanded = externalSetIsExpanded ? externalIsExpanded : localIsExpanded;
+  const setIsExpanded = externalSetIsExpanded || setLocalIsExpanded;
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
   if (isExpanded) {
