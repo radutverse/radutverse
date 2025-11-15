@@ -1,4 +1,3 @@
-import { RequestHandler } from "express";
 import sharp from "sharp";
 
 // Generate a hash-based color from the prompt
