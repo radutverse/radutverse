@@ -43,6 +43,7 @@ export const generateImageFromText = async (
 export const editImage = async (
   prompt: string,
   image: { imageBytes: string; mimeType: string },
+  demoMode: boolean = false,
 ): Promise<string> => {
   if (!prompt) throw new Error("Prompt is required.");
   if (!image || !image.imageBytes)
@@ -60,7 +61,8 @@ export const editImage = async (
     formData.append("image", imageBlob, "image.png");
     formData.append("prompt", prompt);
 
-    const response = await fetch("/api/edit", {
+    const endpoint = demoMode ? "/api/demo-edit" : "/api/edit";
+    const response = await fetch(endpoint, {
       method: "POST",
       body: formData,
     });
