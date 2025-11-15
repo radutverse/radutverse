@@ -375,7 +375,7 @@ const IpImagineCreationResult = () => {
               className="flex flex-wrap gap-4 pb-2"
             >
               <AnimatePresence mode="popLayout">
-                {isLoading && demoMode && (
+                {isLoading && (
                   <motion.div
                     key="loading-spinner"
                     initial={{ opacity: 0, scale: 0.9 }}
