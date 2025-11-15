@@ -16,6 +16,7 @@ import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
 import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
+import { applyDemoWatermark } from "@/lib/utils/apply-demo-watermark";
 
 const IpImagine = () => {
   const {
