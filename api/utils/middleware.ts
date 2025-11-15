@@ -1,6 +1,4 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
-
-export function setCorsHeaders(req: VercelRequest, res: VercelResponse) {
+export function setCorsHeaders(req: any, res: any) {
   const origin = req.headers.origin || req.headers.referer;
 
   const allowedOrigins = [
@@ -43,14 +41,14 @@ export function setCorsHeaders(req: VercelRequest, res: VercelResponse) {
   res.setHeader("X-XSS-Protection", "1; mode=block");
 }
 
-export function handleOptions(res: VercelResponse) {
+export function handleOptions(res: any) {
   res.status(200).end();
 }
 
 export function handleCorsError(
   error: any,
   origin: string | undefined,
-  res: VercelResponse,
+  res: any,
 ) {
   if (process.env.NODE_ENV === "production") {
     console.warn(`CORS request from unauthorized origin: ${origin}`);
