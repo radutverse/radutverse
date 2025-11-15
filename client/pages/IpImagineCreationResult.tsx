@@ -454,39 +454,36 @@ const IpImagineCreationResult = () => {
         </AnimatePresence>
 
         {isLoading && demoMode && (
-          <div className="flex items-center gap-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="mt-4 w-40 h-40 rounded-lg bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex flex-col items-center justify-center p-6"
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="w-40 h-40 rounded-lg bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex flex-col items-center justify-center p-6 flex-shrink-0"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="mb-4"
             >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="mb-4"
+              <svg
+                className="h-10 w-10 text-[#FF4DA6]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <svg
-                  className="h-10 w-10 text-[#FF4DA6]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </motion.div>
-
-              <p className="text-xs font-semibold text-slate-200 text-center leading-tight">
-                {loadingMessage || "Crafting..."}
-              </p>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
             </motion.div>
-          </div>
+
+            <p className="text-xs font-semibold text-slate-200 text-center leading-tight">
+              {loadingMessage || "Crafting..."}
+            </p>
+          </motion.div>
         )}
 
         {upscaledUrl && !isLoading && (
