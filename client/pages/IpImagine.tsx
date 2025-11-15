@@ -38,6 +38,7 @@ const IpImagine = () => {
     loading: boolean;
   }>({ domain: null, loading: false });
   const [creationMode, setCreationMode] = useState<"image" | "video">("image");
+  const [remixLoading, setRemixLoading] = useState(false);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -215,6 +216,49 @@ const IpImagine = () => {
     // Clear result URL to properly isolate demo and real modes
     setResultUrl(null);
     setResultType(null);
+  };
+
+  const handleRemixSelected = async (
+    asset: any,
+    remixType: "paid" | "free",
+  ) => {
+    setRemixLoading(true);
+    try {
+      const imageUrl = asset.mediaUrl || asset.thumbnailUrl;
+      if (!imageUrl) {
+        throw new Error("No image URL available for this asset");
+      }
+
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error("Failed to fetch image");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const fileName = asset.title || "remix-image";
+
+      setPreviewImages({
+        remixImage: {
+          blob,
+          name: fileName,
+          url,
+        },
+        additionalImage: null,
+      });
+
+      setStatusText(`✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`);
+
+      // Scroll input into view
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 300);
+    } catch (error) {
+      console.error("Error loading remix image:", error);
+      setStatusText("❌ Failed to load remix image. Please try again.");
+    } finally {
+      setRemixLoading(false);
+    }
   };
 
   const headerActions = (
