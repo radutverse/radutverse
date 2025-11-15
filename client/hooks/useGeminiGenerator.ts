@@ -43,23 +43,18 @@ const useGeminiGenerator = () => {
       let generatedUrl: string;
       let type: "image" | "video";
 
-      if (demoMode) {
-        // Demo mode: simulate loading delay and generate dummy image
-        setLoadingMessage("Crafting your image...");
-        await new Promise((resolve) => setTimeout(resolve, 3500));
-        generatedUrl = generateDemoImage();
+      setLoadingMessage("Crafting your image...");
+      if (options.image) {
+        generatedUrl = await openaiService.editImage(
+          options.prompt,
+          options.image,
+          demoMode,
+        );
       } else {
-        setLoadingMessage("Crafting your image...");
-        if (options.image) {
-          generatedUrl = await openaiService.editImage(
-            options.prompt,
-            options.image,
-          );
-        } else {
-          generatedUrl = await openaiService.generateImageFromText(
-            options.prompt,
-          );
-        }
+        generatedUrl = await openaiService.generateImageFromText(
+          options.prompt,
+          demoMode,
+        );
       }
 
       type = "image";
