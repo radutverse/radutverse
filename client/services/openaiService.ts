@@ -1,10 +1,12 @@
 export const generateImageFromText = async (
   prompt: string,
+  demoMode: boolean = false,
 ): Promise<string> => {
   if (!prompt) throw new Error("Prompt is required.");
 
   try {
-    const response = await fetch("/api/generate", {
+    const endpoint = demoMode ? "/api/demo-generate" : "/api/generate";
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,6 +43,7 @@ export const generateImageFromText = async (
 export const editImage = async (
   prompt: string,
   image: { imageBytes: string; mimeType: string },
+  demoMode: boolean = false,
 ): Promise<string> => {
   if (!prompt) throw new Error("Prompt is required.");
   if (!image || !image.imageBytes)
@@ -58,7 +61,8 @@ export const editImage = async (
     formData.append("image", imageBlob, "image.png");
     formData.append("prompt", prompt);
 
-    const response = await fetch("/api/edit", {
+    const endpoint = demoMode ? "/api/demo-edit" : "/api/edit";
+    const response = await fetch(endpoint, {
       method: "POST",
       body: formData,
     });
@@ -87,15 +91,18 @@ export const editImage = async (
   }
 };
 
-export const upscaleImage = async (image: {
-  imageBytes: string;
-  mimeType: string;
-}): Promise<string> => {
+export const upscaleImage = async (
+  image: {
+    imageBytes: string;
+    mimeType: string;
+  },
+  demoMode: boolean = false,
+): Promise<string> => {
   const prompt =
     "Create a high-resolution upscaled version of this image with enhanced details and improved clarity without changing the composition.";
 
   try {
-    return await editImage(prompt, image);
+    return await editImage(prompt, image, demoMode);
   } catch (error) {
     throw error;
   }

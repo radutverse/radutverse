@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
-import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -36,31 +35,30 @@ const useGeminiGenerator = () => {
 
     setIsLoading(true);
     setError(null);
-    setResultUrl(null);
-    setResultType(null);
+    // For demo mode, keep the previous image visible while loading
+    // For real mode, clear it immediately
+    if (!demoMode) {
+      setResultUrl(null);
+      setResultType(null);
+    }
     setOriginalPrompt(options.prompt);
 
     try {
       let generatedUrl: string;
       let type: "image" | "video";
 
-      if (demoMode) {
-        // Demo mode: simulate loading delay and generate dummy image
-        setLoadingMessage("Crafting your image...");
-        await new Promise((resolve) => setTimeout(resolve, 3500));
-        generatedUrl = generateDemoImage();
+      setLoadingMessage("Crafting your image...");
+      if (options.image) {
+        generatedUrl = await openaiService.editImage(
+          options.prompt,
+          options.image,
+          demoMode,
+        );
       } else {
-        setLoadingMessage("Crafting your image...");
-        if (options.image) {
-          generatedUrl = await openaiService.editImage(
-            options.prompt,
-            options.image,
-          );
-        } else {
-          generatedUrl = await openaiService.generateImageFromText(
-            options.prompt,
-          );
-        }
+        generatedUrl = await openaiService.generateImageFromText(
+          options.prompt,
+          demoMode,
+        );
       }
 
       type = "image";
@@ -102,10 +100,13 @@ const useGeminiGenerator = () => {
       const [header, base64Data] = resultUrl.split(",");
       const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledUrl = await openaiService.upscaleImage({
-        imageBytes: base64Data,
-        mimeType,
-      });
+      const upscaledUrl = await openaiService.upscaleImage(
+        {
+          imageBytes: base64Data,
+          mimeType,
+        },
+        context.demoMode,
+      );
       setResultUrl(upscaledUrl);
       setResultType("image");
     } catch (e: any) {

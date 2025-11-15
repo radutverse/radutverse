@@ -25,6 +25,7 @@ import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
 import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
 import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
 import { generateImage, editImage } from "./routes/generate-image.js";
+import { demoGenerateImage, demoEditImage } from "./routes/demo-generate.js";
 
 async function fetchParentIpDetails(
   childIpId: string,
@@ -223,6 +224,10 @@ export function createServer() {
   app.post("/api/generate-image", generateImage);
   app.post("/api/generate", generateImage);
   app.post("/api/edit", upload.single("image"), editImage);
+
+  // Demo mode endpoints (realistic dummy images)
+  app.post("/api/demo-generate", demoGenerateImage);
+  app.post("/api/demo-edit", upload.single("image"), demoEditImage);
 
   // Debug endpoint to fetch parent IP details for a given IP ID
   app.get("/api/_debug/parent-details/:ipId", async (req, res) => {

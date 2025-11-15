@@ -212,7 +212,7 @@ const IpImagineCreationResult = () => {
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence mode="wait">
-          {isLoading ? (
+          {isLoading && !demoMode ? (
             <motion.div
               key="loading"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -354,7 +354,7 @@ const IpImagineCreationResult = () => {
                 );
               })()}
             </motion.div>
-          ) : context.creations.length === 0 ? (
+          ) : context.creations.length === 0 && !(isLoading && demoMode) ? (
             <motion.div
               key="no-data"
               initial={{ opacity: 0 }}
@@ -372,9 +372,47 @@ const IpImagineCreationResult = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
+              className="flex flex-wrap gap-4 pb-2"
             >
               <AnimatePresence mode="popLayout">
+                {isLoading && demoMode && (
+                  <motion.div
+                    key="loading-spinner"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-40 h-40 rounded-lg bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex flex-col items-center justify-center p-6 flex-shrink-0"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="mb-4"
+                    >
+                      <svg
+                        className="h-10 w-10 text-[#FF4DA6]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    </motion.div>
+
+                    <p className="text-xs font-semibold text-slate-200 text-center leading-tight">
+                      {loadingMessage || "Crafting..."}
+                    </p>
+                  </motion.div>
+                )}
                 {context.creations.length > 0 ? (
                   context.creations.map((creation) => (
                     <motion.div
