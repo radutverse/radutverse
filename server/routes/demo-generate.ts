@@ -111,6 +111,9 @@ export const demoGenerateImage: RequestHandler = async (req, res) => {
     const prompt = req.body.prompt?.trim();
     if (!prompt) return res.status(400).json({ error: "Missing prompt text" });
 
+    // Simulate 3-second crafting delay
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     // Generate SVG
     const svgString = generateDemoSvgImage(prompt);
 
