@@ -25,7 +25,6 @@ const useGeminiGenerator = () => {
     demoMode,
   } = context;
 
-
   const watermarkImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2F7585065ca91c47d49c4941a9d86c1824%2F2e193049610d4654908bb1a59b6187a7?format=webp&width=800";
 

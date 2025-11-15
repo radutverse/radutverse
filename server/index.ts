@@ -133,7 +133,8 @@ export function createServer() {
   app.use(cors(corsOptions));
 
   // Set security headers
-  app.use((_req, res, next) => { // PERBAIKAN: 'req' diubah menjadi '_req' (Baris ~136)
+  app.use((_req, res, next) => {
+    // PERBAIKAN: 'req' diubah menjadi '_req' (Baris ~136)
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
     res.setHeader("X-XSS-Protection", "1; mode=block");
@@ -145,7 +146,8 @@ export function createServer() {
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Example API routes
-  app.get("/api/ping", (_req, res) => { // Variabel 'req' sudah diubah menjadi '_req'
+  app.get("/api/ping", (_req, res) => {
+    // Variabel 'req' sudah diubah menjadi '_req'
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });
   });
@@ -295,8 +297,12 @@ export function createServer() {
   });
 
   // Debug endpoint to check OpenAI env presence
-  app.get("/api/_debug_openai", (_req, res) => // PERBAIKAN: 'req' diubah menjadi '_req' (Baris ~297)
-    res.json({ ok: true, hasKey: !!process.env.OPENAI_API_KEY }),
+  app.get(
+    "/api/_debug_openai",
+    (
+      _req,
+      res, // PERBAIKAN: 'req' diubah menjadi '_req' (Baris ~297)
+    ) => res.json({ ok: true, hasKey: !!process.env.OPENAI_API_KEY }),
   );
 
   return app;

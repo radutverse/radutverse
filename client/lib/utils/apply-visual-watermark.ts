@@ -81,7 +81,9 @@ export async function applyVisualWatermark(
 
     baseImage.onerror = (error) => {
       console.error("❌ Failed to load base image:", imageUrl, error);
-      console.warn("⚠️ Base image failed, returning original URL without watermark");
+      console.warn(
+        "⚠️ Base image failed, returning original URL without watermark",
+      );
       // Return original image URL if we can't load it
       resolve(imageUrl);
     };
