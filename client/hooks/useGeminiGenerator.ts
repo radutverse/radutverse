@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
-import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
