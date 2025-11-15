@@ -13,6 +13,7 @@ export interface Creation {
   url: string;
   type: ResultType;
   timestamp: number;
+  prompt: string;
 }
 
 interface CreationContextType {
