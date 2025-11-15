@@ -84,18 +84,11 @@ async function fetchFullAssetDetailsFromApi(ipId: string): Promise<any> {
   }
 }
 
+// --- FUNGSI UTAMA ---
+
 /**
  * Add hash to remix whitelist
  * POST /api/add-remix-hash
- * Body: {
- * hash: string (SHA256 of pure image),
- * ipId?: string,
- * [all fields from client - from expanded view]
- * }
- *
- * The backend automatically fetches the complete Details information
- * (simulating a click on the Details button) to capture everything
- * shown in the IP Asset Details modal without user interaction.
  */
 export const handleAddRemixHash: RequestHandler = async (
   req: any,
@@ -131,7 +124,6 @@ export const handleAddRemixHash: RequestHandler = async (
     };
 
     // In background, fetch complete asset details (simulate Details button click)
-    // This gets: full licenses, owner info, media type, description, parent IPs, etc.
     console.log(
       "[Whitelist] 🔄 Fetching full Details modal data from Story API...",
     );
@@ -151,7 +143,6 @@ export const handleAddRemixHash: RequestHandler = async (
     }
 
     // Merge full details with client data
-    // Full details fill gaps, client data takes precedence for what's already there
     if (fullAssetDetails) {
       console.log(
         "[Whitelist] 🔀 Merging complete asset details into metadata",
@@ -201,25 +192,11 @@ export const handleAddRemixHash: RequestHandler = async (
           Object.entries(fullAssetDetails).filter(
             ([key]) =>
               ![
-                "ipId",
-                "title",
-                "owner",
-                "ownerAddress",
-                "mediaType",
-                "parentsCount",
-                "isDerivative",
-                "licenses",
-                "licenseTermsIds",
-                "licenseTemplates",
-                "licenseVisibility",
-                "royaltyContext",
-                "maxMintingFee",
-                "maxRts",
-                "maxRevenueShare",
-                "parentIpIds",
-                "parentIpDetails",
-                "description",
-                "ipaMetadataUri",
+                "ipId", "title", "owner", "ownerAddress", "mediaType", "parentsCount", 
+                "isDerivative", "licenses", "licenseTermsIds", "licenseTemplates", 
+                "licenseVisibility", "royaltyContext", "maxMintingFee", "maxRts", 
+                "maxRevenueShare", "parentIpIds", "parentIpDetails", "description", 
+                "ipaMetadataUri"
               ].includes(key),
           ),
         ),
@@ -244,7 +221,7 @@ export const handleAddRemixHash: RequestHandler = async (
       }
     });
 
-    // Debug log showing all captured fields (both from client and fetched Details)
+    // Debug log showing all captured fields
     const nonEmptyFields = Object.entries(metadata).filter(
       ([_, value]) => value !== undefined && value !== null && value !== "",
     );
@@ -292,9 +269,10 @@ export const handleAddRemixHash: RequestHandler = async (
   }
 };
 
+// --- FUNGSI PENDUKUNG PHASH ---
+
 /**
  * Calculate hamming distance between two pHashes
- * Used for perceptual hash similarity comparison
  */
 function hammingDistance(hash1: string, hash2: string): number {
   if (hash1.length !== hash2.length) {
@@ -317,7 +295,6 @@ function hammingDistance(hash1: string, hash2: string): number {
 /**
  * Check if hash exists in remix whitelist
  * POST /api/check-remix-hash
- * Body: { hash: string, pHash?: string }
  */
 export const handleCheckRemixHash: RequestHandler = async (
   req: any,
@@ -342,14 +319,12 @@ export const handleCheckRemixHash: RequestHandler = async (
       console.log(
         `[Remix Hash] EXACT MATCH: ${entry.metadata?.title || entry.title}`,
       );
-      // Get derivatives allowed status from licenses
+      // Determine derivativesAllowed status based on fetched licenses
       const licenses = entry.metadata?.licenses || [];
-      // If licenses exist, check derivativesAllowed
-      // If no licenses (legacy data), assume allow remix
       const derivativesAllowed =
         licenses.length > 0
           ? licenses[0].terms?.derivativesAllowed === true
-          : true; // Legacy entries without license info assume remix allowed
+          : true; 
 
       return res.json({
         found: true,
@@ -366,7 +341,6 @@ export const handleCheckRemixHash: RequestHandler = async (
       );
       const allEntries = await getAllWhitelistEntries();
 
-      // Find most similar entry
       let mostSimilar = null;
       let maxSimilarity = 0;
 
@@ -408,12 +382,14 @@ export const handleCheckRemixHash: RequestHandler = async (
   }
 };
 
+// --- FUNGSI ADMIN (MENGGUNAKAN _req) ---
+
 /**
  * Get all remix hashes (admin only)
  * GET /api/_admin/remix-hashes
  */
 export const handleGetRemixHashes: RequestHandler = async (
-  _req: any, // Mengubah req menjadi _req untuk menghilangkan eror TS6133
+  _req: any, // FIXED: req diubah menjadi _req
   res: any,
 ): Promise<void> => {
   try {
@@ -430,7 +406,7 @@ export const handleGetRemixHashes: RequestHandler = async (
  * GET /api/_admin/remix-hashes-full
  */
 export const handleGetRemixHashesFull: RequestHandler = async (
-  _req: any, // Mengubah req menjadi _req untuk menghilangkan eror TS6133
+  _req: any, // FIXED: req diubah menjadi _req
   res: any,
 ): Promise<void> => {
   try {
@@ -445,7 +421,6 @@ export const handleGetRemixHashesFull: RequestHandler = async (
 /**
  * Delete hash from whitelist (admin only)
  * POST /api/_admin/delete-remix-hash
- * Body: { hash: string }
  */
 export const handleDeleteRemixHash: RequestHandler = async (
   req: any,
@@ -471,7 +446,7 @@ export const handleDeleteRemixHash: RequestHandler = async (
  * POST /api/_admin/clear-remix-hashes
  */
 export const handleClearRemixHashes: RequestHandler = async (
-  _req: any, // Mengubah req menjadi _req untuk menghilangkan eror TS6133
+  _req: any, // FIXED: req diubah menjadi _req
   res: any,
 ): Promise<void> => {
   try {
