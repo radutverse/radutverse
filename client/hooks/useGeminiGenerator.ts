@@ -54,7 +54,7 @@ const useGeminiGenerator = () => {
       setResultType("image");
 
       setResultUrl(generatedUrl);
-      addCreation(generatedUrl, type);
+      addCreation(generatedUrl, type, options.prompt);
     } catch (e: any) {
       console.error(e);
       let errorMessage =
