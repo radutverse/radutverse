@@ -325,7 +325,8 @@ const IpImagineCreationResult = () => {
                 );
               })()}
             </motion.div>
-          ) : context.creations.filter(c => c.isDemo === demoMode).length === 0 && !isLoading ? (
+          ) : context.creations.filter((c) => c.isDemo === demoMode).length ===
+              0 && !isLoading ? (
             <motion.div
               key="no-data"
               initial={{ opacity: 0 }}
@@ -384,76 +385,79 @@ const IpImagineCreationResult = () => {
                     </p>
                   </motion.div>
                 )}
-                {context.creations.filter(c => c.isDemo === demoMode).length > 0 ? (
-                  context.creations.filter(c => c.isDemo === demoMode).map((creation) => (
-                    <motion.div
-                      key={creation.id}
-                      initial={{ opacity: 0, scale: 0.8, x: -20 }}
-                      animate={{ opacity: 1, scale: 1, x: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex-shrink-0"
-                    >
-                      <CompactResultCard
-                        imageUrl={
-                          upscalingCreationId === creation.id && upscaledUrl
-                            ? upscaledUrl
-                            : creation.url
-                        }
-                        type={creation.type}
-                        isLoading={false}
-                        onDownload={() => {
-                          const link = document.createElement("a");
-                          const downloadUrl =
+                {context.creations.filter((c) => c.isDemo === demoMode).length >
+                0 ? (
+                  context.creations
+                    .filter((c) => c.isDemo === demoMode)
+                    .map((creation) => (
+                      <motion.div
+                        key={creation.id}
+                        initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex-shrink-0"
+                      >
+                        <CompactResultCard
+                          imageUrl={
                             upscalingCreationId === creation.id && upscaledUrl
                               ? upscaledUrl
-                              : creation.url;
-                          link.href = downloadUrl;
-                          link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        }}
-                        onShare={async () => {
-                          try {
-                            if (navigator.share) {
-                              await navigator.share({
-                                title: "IP Imagine Creation",
-                                text: "Check out my AI-generated creation from IP Imagine!",
-                                url: window.location.href,
-                              });
-                            } else {
-                              navigator.clipboard.writeText(
-                                window.location.href,
-                              );
-                              alert("Link copied to clipboard!");
-                            }
-                          } catch (error) {
-                            console.error("Share error:", error);
+                              : creation.url
                           }
-                        }}
-                        onUpscale={
-                          creation.type === "image"
-                            ? () => {
-                                setResultUrl(creation.url);
-                                setResultType(creation.type);
-                                setUpscalingCreationId(creation.id);
-                                setShowUpscaler(true);
+                          type={creation.type}
+                          isLoading={false}
+                          onDownload={() => {
+                            const link = document.createElement("a");
+                            const downloadUrl =
+                              upscalingCreationId === creation.id && upscaledUrl
+                                ? upscaledUrl
+                                : creation.url;
+                            link.href = downloadUrl;
+                            link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          onShare={async () => {
+                            try {
+                              if (navigator.share) {
+                                await navigator.share({
+                                  title: "IP Imagine Creation",
+                                  text: "Check out my AI-generated creation from IP Imagine!",
+                                  url: window.location.href,
+                                });
+                              } else {
+                                navigator.clipboard.writeText(
+                                  window.location.href,
+                                );
+                                alert("Link copied to clipboard!");
                               }
-                            : undefined
-                        }
-                        onCreateAnother={() => {}}
-                        isExpanded={expandedCreationId === creation.id}
-                        setIsExpanded={(expanded) => {
-                          if (expanded) {
-                            handleCardExpand(creation.id);
-                          } else {
-                            setExpandedCreationId(null);
+                            } catch (error) {
+                              console.error("Share error:", error);
+                            }
+                          }}
+                          onUpscale={
+                            creation.type === "image"
+                              ? () => {
+                                  setResultUrl(creation.url);
+                                  setResultType(creation.type);
+                                  setUpscalingCreationId(creation.id);
+                                  setShowUpscaler(true);
+                                }
+                              : undefined
                           }
-                        }}
-                      />
-                    </motion.div>
-                  ))
+                          onCreateAnother={() => {}}
+                          isExpanded={expandedCreationId === creation.id}
+                          setIsExpanded={(expanded) => {
+                            if (expanded) {
+                              handleCardExpand(creation.id);
+                            } else {
+                              setExpandedCreationId(null);
+                            }
+                          }}
+                        />
+                      </motion.div>
+                    ))
                 ) : (
                   <div className="text-slate-400">No creations yet</div>
                 )}
