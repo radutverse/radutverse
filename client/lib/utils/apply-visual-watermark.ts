@@ -77,7 +77,44 @@ export async function applyVisualWatermark(
 
     baseImage.onerror = (error) => {
       console.error("❌ Failed to load base image:", imageUrl, error);
-      reject(new Error("Failed to load base image"));
+      // Instead of rejecting, try to continue with current canvas state
+      // If image can't load, proceed with watermark on blank canvas
+      console.warn("⚠️ Continuing with watermark on empty canvas");
+
+      const watermarkImage = new Image();
+      watermarkImage.crossOrigin = "anonymous";
+
+      watermarkImage.onload = () => {
+        console.log("✅ Watermark image loaded");
+
+        // Set minimum canvas size if base image didn't load
+        if (canvas.width === 0 || canvas.height === 0) {
+          canvas.width = watermarkImage.width;
+          canvas.height = watermarkImage.height;
+        }
+
+        ctx.globalAlpha = watermarkOpacity;
+        ctx.drawImage(watermarkImage, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const watermarkedUrl = URL.createObjectURL(blob);
+            console.log("✅ Watermark applied successfully");
+            resolve(watermarkedUrl);
+          } else {
+            console.error("❌ Failed to create blob from canvas");
+            reject(new Error("Failed to create blob from canvas"));
+          }
+        }, "image/png");
+      };
+
+      watermarkImage.onerror = () => {
+        console.error("❌ Failed to load both images");
+        reject(new Error("Failed to load both base and watermark images"));
+      };
+
+      watermarkImage.src = watermarkUrl;
     };
 
     baseImage.src = imageUrl;
