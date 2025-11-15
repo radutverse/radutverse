@@ -13,6 +13,10 @@ import type { PopularItem, SearchResult } from "../../remix-mode/types";
 
 interface PopularIPGridProps {
   onBack: () => void;
+  onRemixSelected?: (
+    asset: SearchResult,
+    remixType: "paid" | "free",
+  ) => Promise<void>;
 }
 
 const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
@@ -159,7 +163,7 @@ const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
   ],
 };
 
-export const PopularIPGrid = ({ onBack }: PopularIPGridProps) => {
+export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<
     "ip" | "image" | "video" | "music"
   >("ip");
