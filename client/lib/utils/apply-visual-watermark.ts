@@ -36,18 +36,10 @@ export async function applyVisualWatermark(
 
       watermarkImage.onload = () => {
         console.log("✅ Watermark image loaded");
-        const watermarkSize = Math.min(canvas.width, canvas.height) * 0.25;
-        const padding = 15;
 
-        // Draw watermark in bottom-right corner
+        // Draw watermark to fill entire image area
         ctx.globalAlpha = watermarkOpacity;
-        ctx.drawImage(
-          watermarkImage,
-          canvas.width - watermarkSize - padding,
-          canvas.height - watermarkSize - padding,
-          watermarkSize,
-          watermarkSize,
-        );
+        ctx.drawImage(watermarkImage, 0, 0, canvas.width, canvas.height);
         ctx.globalAlpha = 1.0;
 
         canvas.toBlob((blob) => {

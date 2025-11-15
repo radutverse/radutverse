@@ -9,6 +9,7 @@ export interface GenerationOptions {
   };
   resolution?: string;
   aspectRatio?: string;
+  remixType?: "paid" | "free" | null;
 }
 
 export interface Generation {

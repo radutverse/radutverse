@@ -15,7 +15,6 @@ import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
-import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
 
 const IpImagine = () => {
   const {
@@ -233,6 +232,7 @@ const IpImagine = () => {
     asset: any,
     remixType: "paid" | "free",
   ) => {
+    console.log("🎯 handleRemixSelected called with remixType:", remixType);
     setRemixLoading(true);
     try {
       const imageUrl = asset.mediaUrl || asset.thumbnailUrl;
@@ -262,6 +262,7 @@ const IpImagine = () => {
         additionalImage: null,
       });
 
+      console.log("📌 Setting currentRemixType to:", remixType);
       setCurrentRemixType(remixType);
 
       setStatusText(
@@ -283,85 +284,8 @@ const IpImagine = () => {
     }
   };
 
-  const watermarkImageUrl =
-    "https://cdn.builder.io/api/v1/image/assets%2Fbf1ea5b4cb754c429d69eca494dc283d%2Fdbfcde32396741be8c5f0d10238790a6?format=webp&width=800";
-
-  // Watermarked image for paid remix in demo mode
-  const paidRemixWatermarkedImageUrl =
-    "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
-
-  const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
-
-  // Apply watermark when generation completes and currentRemixType is "paid"
-  useEffect(() => {
-    const applyWatermarkIfNeeded = async () => {
-      console.log("🔍 Watermark check:", {
-        currentRemixType,
-        resultUrl: resultUrl ? resultUrl.substring(0, 50) : null,
-        isApplyingWatermark,
-        isLoading,
-        demoMode,
-      });
-
-      if (
-        currentRemixType === "paid" &&
-        resultUrl &&
-        !isApplyingWatermark &&
-        !isLoading
-      ) {
-        console.log("✅ Triggering watermark application...");
-        setIsApplyingWatermark(true);
-        try {
-          let watermarkedUrl: string;
-
-          if (demoMode) {
-            // For demo mode paid remix, use the provided watermarked image directly
-            console.log(
-              "📸 Using pre-made watermarked image for demo paid remix",
-            );
-            setStatusText("✨ Watermark applied!");
-            watermarkedUrl = paidRemixWatermarkedImageUrl;
-          } else {
-            // Use visual watermark with image for production
-            setStatusText("🎨 Adding watermark...");
-            watermarkedUrl = await applyVisualWatermark(
-              resultUrl,
-              watermarkImageUrl,
-              0.8,
-            );
-          }
-
-          console.log(
-            "🎨 Setting watermarked URL:",
-            watermarkedUrl.substring(0, 50),
-          );
-          setResultUrl(watermarkedUrl);
-          if (!demoMode) {
-            setStatusText("✨ Watermark applied!");
-          }
-          setCurrentRemixType(null);
-        } catch (error) {
-          console.error("❌ Failed to apply watermark:", error);
-          setStatusText(
-            "⚠️ Image generated but watermark failed. Using original image.",
-          );
-        } finally {
-          setIsApplyingWatermark(false);
-        }
-      }
-    };
-
-    applyWatermarkIfNeeded();
-  }, [
-    resultUrl,
-    currentRemixType,
-    isLoading,
-    isApplyingWatermark,
-    demoMode,
-    setResultUrl,
-    watermarkImageUrl,
-    paidRemixWatermarkedImageUrl,
-  ]);
+  // Note: Watermark is now applied in useGeminiGenerator hook during generation
+  // This ensures watermark is applied before image is stored in creation history
 
   const headerActions = (
     <ChatHeaderActions
@@ -461,6 +385,7 @@ const IpImagine = () => {
               {
                 prompt: input,
                 image: imageData,
+                remixType: currentRemixType,
               },
               demoMode,
             );
