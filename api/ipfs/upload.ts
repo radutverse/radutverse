@@ -1,10 +1,7 @@
 import { setCorsHeaders, handleOptions } from "../utils/middleware";
 import { handleIpfsUpload } from "../../server/routes/ipfs.js";
 
-export default async function handler(
-  req: any,
-  res: any,
-) {
+export default async function handler(req: any, res: any) {
   setCorsHeaders(req, res);
 
   if (req.method === "OPTIONS") {
@@ -15,7 +12,7 @@ export default async function handler(
     const handlers = Array.isArray(handleIpfsUpload)
       ? handleIpfsUpload
       : [handleIpfsUpload];
-    
+
     if (handlers.length === 0) {
       return await handleIpfsUpload(req as any, res as any);
     }

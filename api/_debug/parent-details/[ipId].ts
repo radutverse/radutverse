@@ -51,10 +51,7 @@ async function fetchParentIpDetails(
   }
 }
 
-export default async function handler(
-  req: any,
-  res: any,
-) {
+export default async function handler(req: any, res: any) {
   setCorsHeaders(req, res);
 
   if (req.method === "OPTIONS") {
