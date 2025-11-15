@@ -343,26 +343,76 @@ const IpImagineCreationResult = () => {
             </motion.div>
           ) : (
             <motion.div
-              key="result"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
             >
-              <CompactResultCard
-                imageUrl={upscaledUrl || displayUrl}
-                type={displayType}
-                isLoading={isLoading}
-                onDownload={handleDownload}
-                onShare={handleShare}
-                onUpscale={
-                  displayType === "image"
-                    ? () => setShowUpscaler(true)
-                    : undefined
-                }
-                onCreateAnother={() => {}}
-                isExpanded={isCardExpanded}
-                setIsExpanded={setIsCardExpanded}
-              />
+              <AnimatePresence mode="popLayout">
+                {context.creations.length > 0 ? (
+                  context.creations.map((creation) => (
+                    <motion.div
+                      key={creation.id}
+                      initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex-shrink-0"
+                    >
+                      <CompactResultCard
+                        imageUrl={creation.url}
+                        type={creation.type}
+                        isLoading={false}
+                        onDownload={() => {
+                          const link = document.createElement("a");
+                          link.href = creation.url;
+                          link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                        onShare={async () => {
+                          try {
+                            if (navigator.share) {
+                              await navigator.share({
+                                title: "IP Imagine Creation",
+                                text: "Check out my AI-generated creation from IP Imagine!",
+                                url: window.location.href,
+                              });
+                            } else {
+                              navigator.clipboard.writeText(window.location.href);
+                              alert("Link copied to clipboard!");
+                            }
+                          } catch (error) {
+                            console.error("Share error:", error);
+                          }
+                        }}
+                        onUpscale={
+                          creation.type === "image"
+                            ? () => {
+                                setResultUrl(creation.url);
+                                setResultType(creation.type);
+                                setShowUpscaler(true);
+                              }
+                            : undefined
+                        }
+                        onCreateAnother={() => {}}
+                        isExpanded={expandedCreationId === creation.id}
+                        setIsExpanded={(expanded) => {
+                          if (expanded) {
+                            handleCardExpand(creation.id);
+                          } else {
+                            setExpandedCreationId(null);
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="text-slate-400">No creations yet</div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
