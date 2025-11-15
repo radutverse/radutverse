@@ -7,10 +7,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const handleGetSuggestions: RequestHandler = async (req: any, res: any) => { // Tambahkan :any untuk req/res untuk menghindari konflik tipe Express
+export const handleGetSuggestions: RequestHandler = async (req: any, res: any) => { 
   try {
-    // req dan res dari RequestHandler tidak selalu dikenali tanpa tipe generik
-    const { input, context } = req.body;
+    // PERBAIKAN: Mengubah 'context' menjadi '_context'
+    const { input, context: _context } = req.body;
 
     if (!input || typeof input !== "string") {
       return res.status(400).json({
@@ -19,20 +19,6 @@ export const handleGetSuggestions: RequestHandler = async (req: any, res: any) =
         suggestions: [],
       });
     }
-
-    // PERBAIKAN: Kode contextStr (baris 21) dihapus atau diganti menjadi _contextStr 
-    // karena variabel ini dideklarasikan tetapi tidak pernah digunakan di suggestionPrompt.
-    
-    // Variabel contextStr seharusnya ada di sini:
-    // const contextStr =
-    //   context
-    //     ?.slice(-3)
-    //     ?.map(
-    //       (msg: any) =>
-    //         `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
-    //     )
-    //     .join("\n") || "";
-    // Karena ia tidak digunakan dalam prompt, kita hapus agar tidak ada eror TS6133
 
     // Check if "ip" or "asset" is in the input
     const hasIpKeyword = /\b(ip|asset|nft|search|find|cari)\b/i.test(input);
