@@ -5,7 +5,7 @@ import sharp from "sharp";
 import {
   addHashToWhitelist,
   checkHashInWhitelist,
-} from "../utils/remix-hash-whitelist.js";
+} from "../utils/remix-hash-whitelist";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 

@@ -9,7 +9,7 @@ import {
   getAllWhitelistEntries,
   clearWhitelist,
   deleteHashFromWhitelist,
-} from "../utils/remix-hash-whitelist.js";
+} from "../utils/remix-hash-whitelist";
 
 /**
  * Fetch full asset details from Story API (simulate clicking Details button)
