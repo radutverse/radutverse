@@ -5,4 +5,4 @@ export {
   RemixImage,
   type PreviewImage,
   type PreviewImagesState,
-} from "@/components/remix-mode";
+} from "@/components/ip/remix";

@@ -4,18 +4,18 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
-import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
-import ChatInput from "@/components/ip-assistant/ChatInput";
-import { IpAssistantSearch } from "@/components/search-feature";
-import { WhitelistDetailsModal } from "@/components/ip-assistant/WhitelistDetailsModal";
-import { WhitelistMonitor } from "@/components/ip-assistant/WhitelistMonitor";
-import { WelcomeScreen } from "@/components/ip-assistant/WelcomeScreen";
+import ChatHeaderActions from "@/components/ip/assistant/ChatHeaderActions";
+import SidebarExtras from "@/components/ip/assistant/SidebarExtras";
+import ChatInput from "@/components/ip/assistant/ChatInput";
+import { IpAssistantSearch } from "@/components/ip/search";
+import { WhitelistDetailsModal } from "@/components/ip/assistant/WhitelistDetailsModal";
+import { WhitelistMonitor } from "@/components/ip/assistant/WhitelistMonitor";
+import { WelcomeScreen } from "@/components/ip/assistant/WelcomeScreen";
 import {
   PopularIPGrid,
   AddRemixImageModal,
   type PreviewImagesState,
-} from "@/components/remix-mode";
+} from "@/components/ip/remix";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   getLicenseSettingsByGroup,
