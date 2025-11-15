@@ -89,28 +89,38 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // Save creations to localStorage whenever they change
+  // Save creations to localStorage whenever they change (only non-demo)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(creations));
+    const nonDemoCreations = creations.filter((c) => !c.isDemo);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nonDemoCreations));
   }, [creations]);
 
-  // Save current result URL to localStorage
+  // Save current result URL to localStorage (only non-demo)
   useEffect(() => {
-    if (resultUrl) {
-      localStorage.setItem(RESULT_URL_KEY, resultUrl);
-    } else {
-      localStorage.removeItem(RESULT_URL_KEY);
+    const lastNonDemoResult = creations.find((c) => !c.isDemo);
+    if (lastNonDemoResult?.url) {
+      localStorage.setItem(RESULT_URL_KEY, lastNonDemoResult.url);
+    } else if (!resultUrl?.includes("data:")) {
+      // Only persist non-data URLs to localStorage
+      if (resultUrl) {
+        localStorage.setItem(RESULT_URL_KEY, resultUrl);
+      } else {
+        localStorage.removeItem(RESULT_URL_KEY);
+      }
     }
-  }, [resultUrl]);
+  }, [resultUrl, creations]);
 
-  // Save current result type to localStorage
+  // Save current result type to localStorage (only for non-demo)
   useEffect(() => {
-    if (resultType) {
+    const lastNonDemoResult = creations.find((c) => !c.isDemo);
+    if (lastNonDemoResult?.type) {
+      localStorage.setItem(RESULT_TYPE_KEY, lastNonDemoResult.type);
+    } else if (resultType) {
       localStorage.setItem(RESULT_TYPE_KEY, resultType);
     } else {
       localStorage.removeItem(RESULT_TYPE_KEY);
     }
-  }, [resultType]);
+  }, [resultType, creations]);
 
   // Save original prompt to localStorage
   useEffect(() => {
