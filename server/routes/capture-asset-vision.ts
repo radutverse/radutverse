@@ -60,7 +60,7 @@ async function calculatePerceptualHash(imageBuffer: Buffer): Promise<string> {
 }
 
 /**
- * Get image vision description from OpenAI
+ * Get image vision description from OpenAI - with timeout
  */
 async function getImageVisionDescription(
   imageBuffer: Buffer,
@@ -72,7 +72,6 @@ async function getImageVisionDescription(
       return undefined;
     }
 
-    // Convert buffer to base64
     const base64 = imageBuffer.toString("base64");
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -95,13 +94,14 @@ async function getImageVisionDescription(
               },
               {
                 type: "text",
-                text: "Describe this image in detail. Focus on: main subjects, objects, characters, colors, style, distinctive features. Be concise but specific. Output only the description without any preamble.",
+                text: "Describe this image in 1-2 sentences. Focus on: main subjects, distinctive features, colors, style. Output only the description.",
               },
             ],
           },
         ],
-        max_tokens: 300,
+        max_tokens: 150,
       }),
+      signal: AbortSignal.timeout(5000),
     });
 
     if (!response.ok) {
