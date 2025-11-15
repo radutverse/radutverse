@@ -60,16 +60,24 @@ export async function applyVisualWatermark(
           watermarkUrl,
           error,
         );
-        // Fallback: return base image without watermark
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            console.warn("⚠️ Watermark failed, returning base image");
-            resolve(url);
-          } else {
-            reject(new Error("Failed to create blob from canvas"));
-          }
-        }, "image/png");
+        console.warn("⚠️ Attempting to load watermark with CORS proxy...");
+
+        // Try with CORS proxy as fallback
+        const proxyUrl = `https://cors-anywhere.herokuapp.com/${watermarkUrl}`;
+        watermarkImage.src = proxyUrl;
+
+        // If that also fails, return base image without watermark
+        watermarkImage.onerror = () => {
+          console.warn("⚠️ Watermark failed, returning base image");
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              resolve(url);
+            } else {
+              reject(new Error("Failed to create blob from canvas"));
+            }
+          }, "image/png");
+        };
       };
 
       watermarkImage.src = watermarkUrl;
