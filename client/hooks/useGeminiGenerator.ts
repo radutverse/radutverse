@@ -70,7 +70,7 @@ const useGeminiGenerator = () => {
 
       // Apply watermark for paid remix
       let finalUrl = generatedUrl;
-      const { remixType } = options;
+      const { remixType, assetData } = options;
 
       if (remixType === "paid") {
         try {
@@ -80,10 +80,12 @@ const useGeminiGenerator = () => {
             finalUrl = paidRemixWatermarkedImageUrl;
           } else {
             // For production paid remix, apply visual watermark
+            const watermarkUrl = assetData?.mediaUrl || watermarkImageUrl;
             console.log("🎨 Applying visual watermark for paid remix");
+            console.log("Using watermark URL:", watermarkUrl);
             finalUrl = await applyVisualWatermark(
               generatedUrl,
-              watermarkImageUrl,
+              watermarkUrl,
               0.8,
             );
           }
