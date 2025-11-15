@@ -285,32 +285,41 @@ const IpImagine = () => {
 
   const watermarkImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2Fbf1ea5b4cb754c429d69eca494dc283d%2Fdbfcde32396741be8c5f0d10238790a6?format=webp&width=800";
+  const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
 
-  const generateWithWatermark = async (
-    mode: "image" | "video",
-    options: { prompt: string; image?: { imageBytes: string; mimeType: string } },
-    demo: boolean,
-  ) => {
-    await generate(mode, options, demo);
-
-    if (currentRemixType === "paid" && resultUrl) {
-      try {
-        setStatusText("🎨 Adding watermark...");
-        const watermarkedUrl = await applyVisualWatermark(
-          resultUrl,
-          watermarkImageUrl,
-          0.8,
-        );
-        setResultUrl(watermarkedUrl);
-        setStatusText("✨ Watermark applied!");
-      } catch (error) {
-        console.error("Failed to apply watermark:", error);
-        setStatusText(
-          "⚠️ Image generated but watermark failed. Using original image.",
-        );
+  // Apply watermark when generation completes and currentRemixType is "paid"
+  useEffect(() => {
+    const applyWatermarkIfNeeded = async () => {
+      if (
+        currentRemixType === "paid" &&
+        resultUrl &&
+        !isApplyingWatermark &&
+        !isLoading
+      ) {
+        setIsApplyingWatermark(true);
+        try {
+          setStatusText("🎨 Adding watermark...");
+          const watermarkedUrl = await applyVisualWatermark(
+            resultUrl,
+            watermarkImageUrl,
+            0.8,
+          );
+          setResultUrl(watermarkedUrl);
+          setStatusText("✨ Watermark applied!");
+          setCurrentRemixType(null);
+        } catch (error) {
+          console.error("Failed to apply watermark:", error);
+          setStatusText(
+            "⚠️ Image generated but watermark failed. Using original image.",
+          );
+        } finally {
+          setIsApplyingWatermark(false);
+        }
       }
-    }
-  };
+    };
+
+    applyWatermarkIfNeeded();
+  }, [resultUrl, currentRemixType, isLoading, isApplyingWatermark]);
 
   const headerActions = (
     <ChatHeaderActions
