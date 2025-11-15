@@ -133,7 +133,7 @@ export function createServer() {
   app.use(cors(corsOptions));
 
   // Set security headers
-  app.use((req, res, next) => {
+  app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
     res.setHeader("X-XSS-Protection", "1; mode=block");
@@ -294,7 +294,7 @@ export function createServer() {
   });
 
   // Debug endpoint to check OpenAI env presence
-  app.get("/api/_debug_openai", (req, res) =>
+  app.get("/api/_debug_openai", (_req, res) =>
     res.json({ ok: true, hasKey: !!process.env.OPENAI_API_KEY }),
   );
 
