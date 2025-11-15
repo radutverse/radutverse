@@ -116,13 +116,23 @@ const IpImagineCreationResult = () => {
 
     try {
       setLoadingMessage("Upscaling image...");
-      const [header, base64Data] = resultUrl.split(",");
-      const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledImageUrl = await openaiService.upscaleImage({
-        imageBytes: base64Data,
-        mimeType,
-      });
+      let upscaledImageUrl: string;
+
+      if (demoMode) {
+        // Demo mode: simulate upscaling delay and generate another dummy image
+        await new Promise((resolve) => setTimeout(resolve, 3500));
+        upscaledImageUrl = generateDemoImage();
+      } else {
+        const [header, base64Data] = resultUrl.split(",");
+        const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
+
+        upscaledImageUrl = await openaiService.upscaleImage({
+          imageBytes: base64Data,
+          mimeType,
+        });
+      }
+
       setResultUrl(upscaledImageUrl);
       setUpscaledUrl(upscaledImageUrl);
       setResultType("image");
