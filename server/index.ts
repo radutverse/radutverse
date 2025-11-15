@@ -98,7 +98,7 @@ export function createServer() {
         return;
       }
 
-      // Allow development and preview environments
+      // Build list of allowed origins, filtering out empty strings
       const allowedOrigins = [
         "localhost",
         "127.0.0.1",
@@ -107,17 +107,21 @@ export function createServer() {
       ].concat(process.env.APP_ORIGIN ? [process.env.APP_ORIGIN] : []);
 
       const isAllowed = allowedOrigins.some(
-        (allowedOrigin) => allowedOrigin && origin.includes(allowedOrigin),
+        (allowedOrigin) => origin.includes(allowedOrigin),
       );
 
       if (isAllowed) {
         callback(null, true);
       } else {
-        // Log suspicious origins in production
+        // In production, reject unauthorized origins; in dev, allow with warning
         if (process.env.NODE_ENV === "production") {
           console.warn(`CORS request from unauthorized origin: ${origin}`);
+          callback(new Error("Not allowed by CORS"));
+        } else {
+          // Development mode: allow but warn
+          console.warn(`[CORS] Request from ${origin} (allowed in dev mode)`);
+          callback(null, true);
         }
-        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
