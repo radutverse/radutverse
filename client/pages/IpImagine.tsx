@@ -313,14 +313,20 @@ const IpImagine = () => {
         console.log("✅ Triggering watermark application...");
         setIsApplyingWatermark(true);
         try {
-          setStatusText("🎨 Adding watermark...");
-
           let watermarkedUrl: string;
+
           if (demoMode) {
-            // Use simple text watermark for demo mode
-            watermarkedUrl = await applyDemoWatermark(resultUrl);
+            // For demo mode paid remix, use the provided watermarked image directly
+            console.log("📸 Using pre-made watermarked image for demo paid remix");
+            setStatusText("✨ Watermark applied!");
+
+            // Fetch the watermarked image and convert to blob URL for consistency
+            const response = await fetch(paidRemixWatermarkedImageUrl);
+            const blob = await response.blob();
+            watermarkedUrl = URL.createObjectURL(blob);
           } else {
             // Use visual watermark with image for production
+            setStatusText("🎨 Adding watermark...");
             watermarkedUrl = await applyVisualWatermark(
               resultUrl,
               watermarkImageUrl,
@@ -329,7 +335,9 @@ const IpImagine = () => {
           }
 
           setResultUrl(watermarkedUrl);
-          setStatusText("✨ Watermark applied!");
+          if (!demoMode) {
+            setStatusText("✨ Watermark applied!");
+          }
           setCurrentRemixType(null);
         } catch (error) {
           console.error("❌ Failed to apply watermark:", error);
@@ -351,6 +359,7 @@ const IpImagine = () => {
     demoMode,
     setResultUrl,
     watermarkImageUrl,
+    paidRemixWatermarkedImageUrl,
   ]);
 
   const headerActions = (
