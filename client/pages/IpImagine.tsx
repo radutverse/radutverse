@@ -236,57 +236,31 @@ const IpImagine = () => {
         throw new Error("No image URL available for this asset");
       }
 
-      let blob: Blob;
-      try {
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
-          throw new Error("Failed to fetch image");
-        }
-        blob = await response.blob();
-      } catch (error) {
-        console.warn("Failed to fetch image, attempting alternative approach:", error);
-        // For demo mode or external URLs with CORS issues, create a blob from canvas or use data URL
-        const img = new Image();
-        img.crossOrigin = "anonymous";
+      const response = await fetch(imageUrl, {
+        mode: "cors",
+        credentials: "omit",
+      });
 
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext("2d");
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              canvas.toBlob((b) => {
-                if (b) {
-                  blob = b;
-                  resolve();
-                } else {
-                  reject(new Error("Failed to create blob from canvas"));
-                }
-              });
-            } else {
-              reject(new Error("Failed to get canvas context"));
-            }
-          };
-          img.onerror = () => reject(new Error("Failed to load image"));
-          img.src = imageUrl;
-        });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
       }
 
-      const url = URL.createObjectURL(blob!);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
       const fileName = asset.title || "remix-image";
 
       setPreviewImages({
         remixImage: {
-          blob: blob!,
+          blob,
           name: fileName,
           url,
         },
         additionalImage: null,
       });
 
-      setStatusText(`✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`);
+      setStatusText(
+        `✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`,
+      );
 
       // Scroll input into view
       setTimeout(() => {
