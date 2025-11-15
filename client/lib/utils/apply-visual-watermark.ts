@@ -63,7 +63,11 @@ export async function applyVisualWatermark(
       };
 
       watermarkImage.onerror = (error) => {
-        console.error("❌ Failed to load watermark image:", watermarkUrl, error);
+        console.error(
+          "❌ Failed to load watermark image:",
+          watermarkUrl,
+          error,
+        );
         // Fallback: return base image without watermark
         canvas.toBlob((blob) => {
           if (blob) {

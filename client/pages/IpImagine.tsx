@@ -316,7 +316,9 @@ const IpImagine = () => {
 
           if (demoMode) {
             // For demo mode paid remix, use the provided watermarked image directly
-            console.log("📸 Using pre-made watermarked image for demo paid remix");
+            console.log(
+              "📸 Using pre-made watermarked image for demo paid remix",
+            );
             setStatusText("✨ Watermark applied!");
             watermarkedUrl = paidRemixWatermarkedImageUrl;
           } else {
@@ -329,7 +331,10 @@ const IpImagine = () => {
             );
           }
 
-          console.log("🎨 Setting watermarked URL:", watermarkedUrl.substring(0, 50));
+          console.log(
+            "🎨 Setting watermarked URL:",
+            watermarkedUrl.substring(0, 50),
+          );
           setResultUrl(watermarkedUrl);
           if (!demoMode) {
             setStatusText("✨ Watermark applied!");
