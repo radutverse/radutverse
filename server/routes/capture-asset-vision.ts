@@ -15,26 +15,24 @@ function calculateBufferHash(buffer: Buffer): string {
 }
 
 /**
- * Calculate perceptual hash (pHash) using sharp
+ * Calculate perceptual hash (pHash) using sharp - optimized single pipeline
  * Returns 16-char hex hash (64-bit)
  */
 async function calculatePerceptualHash(imageBuffer: Buffer): Promise<string> {
   try {
-    // Reduce to 32x32 grayscale for pHash calculation
     const resized = await sharp(imageBuffer)
       .grayscale()
       .resize(32, 32, { fit: "fill" })
       .raw()
       .toBuffer();
 
-    // Calculate average pixel value
+    const pixelCount = resized.length;
     let sum = 0;
-    for (let i = 0; i < resized.length; i++) {
+    for (let i = 0; i < pixelCount; i++) {
       sum += resized[i];
     }
-    const avg = sum / resized.length;
+    const avg = sum / pixelCount;
 
-    // Generate 64-bit hash
     let hash = "";
     for (let i = 0; i < 64; i++) {
       const regionStart = (i >> 3) * 4 * 32 + (i & 7) * 4;
@@ -42,16 +40,14 @@ async function calculatePerceptualHash(imageBuffer: Buffer): Promise<string> {
       for (let y = 0; y < 4; y++) {
         for (let x = 0; x < 4; x++) {
           const pos = regionStart + y * 32 + x;
-          if (pos < resized.length) {
+          if (pos < pixelCount) {
             regionSum += resized[pos];
           }
         }
       }
-      const regionAvg = regionSum / 16;
-      hash += regionAvg > avg ? "1" : "0";
+      hash += regionSum > avg * 16 ? "1" : "0";
     }
 
-    // Convert binary to hex
     const hashHex =
       parseInt(hash.substring(0, 32), 2).toString(16).padStart(8, "0") +
       parseInt(hash.substring(32, 64), 2).toString(16).padStart(8, "0");
