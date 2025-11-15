@@ -1,10 +1,13 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import CompactResultCard from "@/components/ip-imagine/results/CompactResultCard";
 import ResultUpscaleModal from "@/components/ip-imagine/results/ResultUpscaleModal";
+import IpImagineInput from "@/components/ip-imagine/Input";
+import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
+import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 
@@ -54,6 +57,16 @@ const IpImagineCreationResult = () => {
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
+  const [showInput, setShowInput] = useState(false);
+  const [input, setInput] = useState("");
+  const [waiting, setWaiting] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [statusText, setStatusText] = useState<string | null>(null);
+  const [attachmentLoading, setAttachmentLoading] = useState(false);
+  const [previewImages, setPreviewImages] = useState({ remixImage: null, additionalImage: null });
+  const uploadRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
   const handleDownload = () => {
     if (!displayUrl) return;
@@ -117,8 +130,48 @@ const IpImagineCreationResult = () => {
   const displayUrl = resultUrl;
   const displayType = resultType;
 
+  const handleImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Placeholder for image handling - can integrate with IpImagine logic
+    setAttachmentLoading(false);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && event.ctrlKey) {
+      // Submit logic
+    }
+  };
+
+  const handleSubmit = async () => {
+    // Navigate back to IP Imagine with input
+    navigate("/ip-imagine");
+  };
+
+  const headerActions = (
+    <ChatHeaderActions
+      guestMode={false}
+      onToggleGuest={() => {}}
+      walletButtonText="Connect"
+      walletButtonDisabled={true}
+      onWalletClick={() => {}}
+    />
+  );
+
+  const sidebarExtras = (opts: { closeSidebar: () => void }) => (
+    <SidebarExtras
+      messages={[]}
+      sessions={[]}
+      onNewChat={() => {
+        opts.closeSidebar();
+      }}
+      onLoadSession={(_id: string) => {}}
+      onDeleteSession={(_id: string) => {}}
+      closeSidebar={opts.closeSidebar}
+      onOpenWhitelistMonitor={() => {}}
+    />
+  );
+
   return (
-    <DashboardLayout title="Creation Result">
+    <DashboardLayout title="Creation Result" avatarSrc={null} actions={headerActions} sidebarExtras={sidebarExtras}>
       <div className="flex-1 overflow-y-auto bg-transparent">
         <div className="px-4 sm:px-6 md:px-12 py-8 pb-24">
           <AnimatePresence mode="wait">
@@ -287,19 +340,65 @@ const IpImagineCreationResult = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
               >
-                <CompactResultCard
-                  imageUrl={upscaledUrl || displayUrl}
-                  type={displayType}
-                  isLoading={isLoading}
-                  onDownload={handleDownload}
-                  onShare={handleShare}
-                  onUpscale={
-                    displayType === "image"
-                      ? () => setShowUpscaler(true)
-                      : undefined
-                  }
-                  onCreateAnother={() => navigate("/ip-imagine")}
-                />
+                {!showInput ? (
+                  <CompactResultCard
+                    imageUrl={upscaledUrl || displayUrl}
+                    type={displayType}
+                    isLoading={isLoading}
+                    onDownload={handleDownload}
+                    onShare={handleShare}
+                    onUpscale={
+                      displayType === "image"
+                        ? () => setShowUpscaler(true)
+                        : undefined
+                    }
+                    onCreateAnother={() => setShowInput(true)}
+                  />
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="w-full"
+                  >
+                    <button
+                      onClick={() => setShowInput(false)}
+                      className="mb-4 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center gap-2"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                      Back to Result
+                    </button>
+                    <IpImagineInput
+                      input={input}
+                      setInput={setInput}
+                      waiting={waiting}
+                      previewImages={previewImages}
+                      setPreviewImages={setPreviewImages}
+                      uploadRef={uploadRef}
+                      handleImage={handleImage}
+                      onSubmit={handleSubmit}
+                      inputRef={inputRef}
+                      handleKeyDown={handleKeyDown}
+                      toolsOpen={toolsOpen}
+                      setToolsOpen={setToolsOpen}
+                      suggestions={suggestions}
+                      setSuggestions={setSuggestions}
+                      attachmentLoading={attachmentLoading}
+                    />
+                  </motion.div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
