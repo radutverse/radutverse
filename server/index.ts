@@ -225,6 +225,10 @@ export function createServer() {
   app.post("/api/generate", generateImage);
   app.post("/api/edit", upload.single("image"), editImage);
 
+  // Demo mode endpoints (realistic dummy images)
+  app.post("/api/demo-generate", demoGenerateImage);
+  app.post("/api/demo-edit", upload.single("image"), demoEditImage);
+
   // Debug endpoint to fetch parent IP details for a given IP ID
   app.get("/api/_debug/parent-details/:ipId", async (req, res) => {
     try {
