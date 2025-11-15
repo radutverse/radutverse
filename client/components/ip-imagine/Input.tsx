@@ -156,7 +156,7 @@ const IpImagineInput = ({
               ))}
 
               {/* Loading box - shows on top */}
-              {waiting && !resultUrl && (
+              {waiting && (
                 <motion.div
                   key="loading-box"
                   className="absolute inset-0 rounded-lg overflow-hidden bg-[#FF4DA6]/20 border border-[#FF4DA6]/30 hover:border-[#FF4DA6]/50 flex items-center justify-center pointer-events-none"

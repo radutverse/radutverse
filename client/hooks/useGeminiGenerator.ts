@@ -35,12 +35,8 @@ const useGeminiGenerator = () => {
 
     setIsLoading(true);
     setError(null);
-    // For demo mode, keep the previous image visible while loading
-    // For real mode, clear it immediately
-    if (!demoMode) {
-      setResultUrl(null);
-      setResultType(null);
-    }
+    // Keep the previous image visible while loading (both demo and real)
+    // This creates a stacking carousel effect where users see all generations
     setOriginalPrompt(options.prompt);
 
     try {
