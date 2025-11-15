@@ -56,6 +56,7 @@ const IpImagineCreationResult = () => {
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
+  const [upscalingCreationId, setUpscalingCreationId] = useState<string | null>(null);
   const [input, setInput] = useState(originalPrompt);
   const [waiting, setWaiting] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
