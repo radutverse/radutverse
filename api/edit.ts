@@ -1,4 +1,3 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import multer from "multer";
 import { setCorsHeaders, handleOptions } from "./utils/middleware";
 import { editImage } from "../server/routes/generate-image.js";
@@ -11,8 +10,8 @@ const upload = multer({
 const uploadMiddleware = upload.single("image");
 
 export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse,
+  req: any,
+  res: any,
 ) {
   setCorsHeaders(req, res);
 
