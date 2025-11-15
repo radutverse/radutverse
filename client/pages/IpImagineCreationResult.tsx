@@ -164,6 +164,11 @@ const IpImagineCreationResult = () => {
     navigate("/ip-imagine");
   };
 
+  const handleTryDemo = () => {
+    const newDemoMode = !demoMode;
+    setDemoMode(newDemoMode);
+  };
+
   const handleCardExpand = (creationId: string) => {
     setExpandedCreationId(creationId);
     const creation = context.creations.find((c) => c.id === creationId);
