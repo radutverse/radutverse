@@ -43,12 +43,9 @@ export const CreationContext = createContext<CreationContextType | undefined>(
 );
 
 const STORAGE_KEY = "creation_history";
-const DEMO_STORAGE_KEY = "demo_creation_history";
 const RESULT_URL_KEY = "current_result_url";
 const RESULT_TYPE_KEY = "current_result_type";
 const ORIGINAL_PROMPT_KEY = "original_prompt";
-const DEMO_RESULT_URL_KEY = "demo_result_url";
-const DEMO_RESULT_TYPE_KEY = "demo_result_type";
 
 export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   children,
