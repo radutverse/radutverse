@@ -386,7 +386,6 @@ const IpImagine = () => {
                 prompt: input,
                 image: imageData,
                 remixType: currentRemixType,
-                assetData: previewImages.remixImage?.asset,
               },
               demoMode,
             );
@@ -574,7 +573,7 @@ const IpImagine = () => {
               const url = asset.preview || asset.url || "";
               setPreviewImages({
                 remixImage: blob
-                  ? { blob, name: asset.name || "selected", url, asset }
+                  ? { blob, name: asset.name || "selected", url }
                   : null,
                 additionalImage: null,
               } as any);

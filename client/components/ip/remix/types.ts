@@ -2,7 +2,6 @@ export interface PreviewImage {
   blob: Blob;
   name: string;
   url: string;
-  asset?: SearchResult;
 }
 
 export interface PreviewImagesState {
