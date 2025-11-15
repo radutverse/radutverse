@@ -20,6 +20,7 @@ const useGeminiGenerator = () => {
     setResultType,
     resultUrl,
     addCreation,
+    setOriginalPrompt,
   } = context;
 
   const generate = async (mode: ToggleMode, options: GenerationOptions) => {
