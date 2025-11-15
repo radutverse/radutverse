@@ -476,6 +476,7 @@ const IpImagine = () => {
               {
                 prompt: input,
                 image: imageData,
+                remixType: currentRemixType,
               },
               demoMode,
             );
