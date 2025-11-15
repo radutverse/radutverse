@@ -33,6 +33,8 @@ interface CreationContextType {
   clearCreations: () => void;
   originalPrompt: string;
   setOriginalPrompt: (prompt: string) => void;
+  demoMode: boolean;
+  setDemoMode: (demo: boolean) => void;
 }
 
 export const CreationContext = createContext<CreationContextType | undefined>(
