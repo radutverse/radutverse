@@ -384,8 +384,8 @@ const IpImagineCreationResult = () => {
                     </p>
                   </motion.div>
                 )}
-                {context.creations.length > 0 ? (
-                  context.creations.map((creation) => (
+                {context.creations.filter(c => c.isDemo === demoMode).length > 0 ? (
+                  context.creations.filter(c => c.isDemo === demoMode).map((creation) => (
                     <motion.div
                       key={creation.id}
                       initial={{ opacity: 0, scale: 0.8, x: -20 }}
