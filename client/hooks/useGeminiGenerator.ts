@@ -42,8 +42,8 @@ const useGeminiGenerator = () => {
 
       if (demoMode) {
         // Demo mode: simulate loading delay and generate dummy image
-        setLoadingMessage("Creating demo image...");
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        setLoadingMessage("Crafting your image...");
+        await new Promise((resolve) => setTimeout(resolve, 3500));
         generatedUrl = generateDemoImage();
       } else {
         setLoadingMessage("Crafting your image...");
