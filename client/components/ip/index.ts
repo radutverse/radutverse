@@ -33,4 +33,3 @@ export {
 export { IpAssistantSearch } from "./search";
 export { SearchResultsGrid } from "./search";
 export { ExpandedAssetModal } from "./search";
-export type { SearchResult } from "./search";
