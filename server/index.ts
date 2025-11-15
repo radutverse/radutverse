@@ -104,11 +104,10 @@ export function createServer() {
         "127.0.0.1",
         ".vercel.app",
         ".netlify.app",
-        process.env.APP_ORIGIN || "",
-      ];
+      ].concat(process.env.APP_ORIGIN ? [process.env.APP_ORIGIN] : []);
 
-      const isAllowed = allowedOrigins.some((allowedOrigin) =>
-        origin.includes(allowedOrigin),
+      const isAllowed = allowedOrigins.some(
+        (allowedOrigin) => allowedOrigin && origin.includes(allowedOrigin),
       );
 
       if (isAllowed) {
@@ -118,7 +117,7 @@ export function createServer() {
         if (process.env.NODE_ENV === "production") {
           console.warn(`CORS request from unauthorized origin: ${origin}`);
         }
-        callback(null, true); // Still allow to prevent breaking clients, but log it
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
