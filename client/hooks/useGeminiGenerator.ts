@@ -35,8 +35,12 @@ const useGeminiGenerator = () => {
 
     setIsLoading(true);
     setError(null);
-    setResultUrl(null);
-    setResultType(null);
+    // For demo mode, keep the previous image visible while loading
+    // For real mode, clear it immediately
+    if (!demoMode) {
+      setResultUrl(null);
+      setResultType(null);
+    }
     setOriginalPrompt(options.prompt);
 
     try {
