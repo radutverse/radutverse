@@ -2,16 +2,16 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
-import { handleUpload } from "./routes/upload.js";
-import { handleIpfsUpload, handleIpfsUploadJson } from "./routes/ipfs.js";
-import { handleDescribe } from "./routes/describe.js";
-import { handleCheckIpAssets } from "./routes/check-ip-assets.js";
-import { handleSearchIpAssets } from "./routes/search-ip-assets.js";
-import { handleSearchByOwner } from "./routes/search-by-owner.js";
-import { handleParseSearchIntent } from "./routes/parse-search-intent.js";
-import { handleGetSuggestions } from "./routes/get-suggestions.js";
-import { handleResolveIpName } from "./routes/resolve-ip-name.js";
-import { handleResolveOwnerDomain } from "./routes/resolve-owner-domain.js";
+import { handleUpload } from "./routes/upload";
+import { handleIpfsUpload, handleIpfsUploadJson } from "./routes/ipfs";
+import { handleDescribe } from "./routes/describe";
+import { handleCheckIpAssets } from "./routes/check-ip-assets";
+import { handleSearchIpAssets } from "./routes/search-ip-assets";
+import { handleSearchByOwner } from "./routes/search-by-owner";
+import { handleParseSearchIntent } from "./routes/parse-search-intent";
+import { handleGetSuggestions } from "./routes/get-suggestions";
+import { handleResolveIpName } from "./routes/resolve-ip-name";
+import { handleResolveOwnerDomain } from "./routes/resolve-owner-domain";
 import {
   handleAddRemixHash,
   handleCheckRemixHash,
@@ -19,14 +19,14 @@ import {
   handleClearRemixHashes,
   handleGetRemixHashesFull,
   handleDeleteRemixHash,
-} from "./routes/remix-hash-whitelist.js";
-import { handleCheckImageSimilarity } from "./routes/check-image-similarity.js";
-import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
-import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
-import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
-import { generateImage, editImage } from "./routes/generate-image.js";
-import { generateImageWithWatermark } from "./routes/generate-image-watermark.js";
-import { demoGenerateImage, demoEditImage } from "./routes/demo-generate.js";
+} from "./routes/remix-hash-whitelist";
+import { handleCheckImageSimilarity } from "./routes/check-image-similarity";
+import { handleVisionImageDetection } from "./routes/vision-image-detection";
+import { handleAnalyzeImageVision } from "./routes/analyze-image-vision";
+import { handleCaptureAssetVision } from "./routes/capture-asset-vision";
+import { generateImage, editImage } from "./routes/generate-image";
+import { generateImageWithWatermark } from "./routes/generate-image-watermark";
+import { demoGenerateImage, demoEditImage } from "./routes/demo-generate";
 
 async function fetchParentIpDetails(
   childIpId: string,
