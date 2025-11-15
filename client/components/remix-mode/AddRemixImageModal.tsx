@@ -54,7 +54,10 @@ export const AddRemixImageModal = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ownerAddress: owner }),
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+          })
           .then((data) => {
             return {
               address: owner,

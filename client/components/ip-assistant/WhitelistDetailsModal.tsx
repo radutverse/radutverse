@@ -56,6 +56,7 @@ export const WhitelistDetailsModal: React.FC<WhitelistDetailsModalProps> = ({
     })
       .then((res) => {
         console.log("[WhitelistDetailsModal] Response status:", res.status);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data) => {
