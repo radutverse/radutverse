@@ -45,6 +45,8 @@ const useGeminiGenerator = () => {
       let type: "image" | "video";
 
       setLoadingMessage("Crafting your image...");
+      const { remixType } = options;
+
       if (options.image) {
         generatedUrl = await openaiService.editImage(
           options.prompt,
@@ -52,7 +54,6 @@ const useGeminiGenerator = () => {
           demoModeParam,
         );
       } else {
-        const { remixType } = options;
         if (remixType === "paid") {
           // For paid remix (both demo and production), use server-side watermark endpoint
           console.log("🎨 Generating image with server-side watermark");
