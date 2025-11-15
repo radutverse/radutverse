@@ -1,9 +1,9 @@
-import { defineConfig, Plugin } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   server: {
     host: "::",
     port: 8080,
@@ -11,17 +11,37 @@ export default defineConfig(({ mode }) => ({
       allow: ["./", "./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
+    middlewareMode: false,
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        rewrite: (path) => path,
+      },
+    },
   },
   build: {
     outDir: "dist/spa",
     rollupOptions: {
       external: [
-        // Exclude server-side dependencies from client build
         "sharp",
         "express",
         "cors",
         "multer",
         "serverless-http",
+        "fs",
+        "path",
+        "url",
+        "http",
+        "https",
+        "os",
+        "crypto",
+        "stream",
+        "util",
+        "events",
+        "buffer",
+        "querystring",
+        "child_process",
       ],
       output: {
         manualChunks: {
@@ -44,30 +64,11 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: [react(), mode === "develop" ? expressPlugin() : null].filter(Boolean),
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
-}));
-
-function expressPlugin(): Plugin {
-  return {
-    name: "express-plugin",
-    apply: "serve", // Only apply during development (serve mode)
-    async configureServer(server) {
-      try {
-        // Lazy load server only when needed during development
-        const { createServer } = await import("./server/index.ts");
-        const app = createServer();
-
-        // Add Express app as middleware to Vite dev server
-        server.middlewares.use(app);
-      } catch (error) {
-        console.warn("Failed to load express middleware in dev mode:", error);
-      }
-    },
-  };
-}
+});
