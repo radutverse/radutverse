@@ -1,5 +1,3 @@
-import { RequestHandler } from "express";
-
 const PINATA_GATEWAY = process.env.PINATA_GATEWAY;
 
 async function fetchParentIpDetails(
