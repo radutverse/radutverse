@@ -1,29 +1,32 @@
 // server/routes/check-ip-assets.ts
 
-// PERBAIKAN: Import * (semua) dari express sebagai 'E' (alias)
-import * as E from "express";
+// PERBAIKAN: Kembali ke destructuring import, pastikan tidak ada konflik
+import { Request, Response, RequestHandler } from "express"; 
 
 // Definisikan tipe untuk body request agar TypeScript mengenali properti 'address'
 interface CheckIpAssetsRequestBody {
   address?: string;
 }
 
+// ... (Deklarasi IDP_CHECK dipindahkan ke atas untuk konsistensi)
 const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
 
-// Gunakan E.RequestHandler, E.Request, dan E.Response
-export const handleCheckIpAssets: E.RequestHandler = async (
-  req: E.Request<any, any, CheckIpAssetsRequestBody>, // Tipe Request dari alias E
-  res: E.Response, // Tipe Response dari alias E
+
+// Anotasi tipe yang lebih sederhana dan lebih eksplisit
+export const handleCheckIpAssets: RequestHandler = async (
+  req: Request, // Gunakan Request generik
+  res: Response, // Gunakan Response generik
 ) => {
   try {
-    // Properti 'get' sekarang akan dikenali karena berasal dari tipe E.Request
+    // Properti 'get' sekarang akan dikenali jika impor express berhasil.
+    // Jika tidak berhasil, coba tambahkan 'as any' di lingkungan lokal Anda untuk tes cepat,
+    // tetapi secara teori, Request dari "express" harus memiliki '.get()'.
     const idempotencyKey = (req.get("Idempotency-Key") ||
       req.get("Idempotency-Key")) as string | undefined;
       
     if (idempotencyKey && IDP_CHECK.has(idempotencyKey)) {
       const cached = IDP_CHECK.get(idempotencyKey)!;
       if (Date.now() - cached.ts < 60_000) {
-        // Properti 'status' dan 'json' dikenali
         res.status(cached.status).json({ ok: true, ...cached.body });
         return;
       } else {
@@ -31,8 +34,10 @@ export const handleCheckIpAssets: E.RequestHandler = async (
       }
     }
 
-    // Properti 'body' sekarang dikenali
-    const { address } = req.body;
+    // Karena req.body tidak dikenali, kita paksakan anotasi tipe di sini
+    const requestBody = req.body as CheckIpAssetsRequestBody;
+    const { address } = requestBody;
+
 
     if (!address || typeof address !== "string") {
       return res.status(400).json({
