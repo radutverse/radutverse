@@ -79,14 +79,12 @@ const useGeminiGenerator = () => {
             console.log("📸 Applying watermark for demo mode paid remix");
             finalUrl = paidRemixWatermarkedImageUrl;
           } else {
-            // For production paid remix, apply visual watermark
-            const watermarkUrl = assetData?.mediaUrl || watermarkImageUrl;
+            // For production paid remix, apply visual watermark (use transparent PNG)
             console.log("🎨 Applying visual watermark for paid remix");
-            console.log("Using watermark URL:", watermarkUrl);
             finalUrl = await applyVisualWatermark(
               generatedUrl,
-              watermarkUrl,
-              0.2,
+              watermarkImageUrl,
+              0.4,
             );
           }
         } catch (watermarkError) {
