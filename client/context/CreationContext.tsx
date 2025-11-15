@@ -41,6 +41,7 @@ export const CreationContext = createContext<CreationContextType | undefined>(
 const STORAGE_KEY = "creation_history";
 const RESULT_URL_KEY = "current_result_url";
 const RESULT_TYPE_KEY = "current_result_type";
+const ORIGINAL_PROMPT_KEY = "original_prompt";
 
 export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -51,6 +52,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
+  const [originalPrompt, setOriginalPrompt] = useState<string>("");
 
   // Load creations and current result from localStorage on mount
   useEffect(() => {
