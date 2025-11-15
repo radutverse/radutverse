@@ -204,19 +204,10 @@ const IpImagine = () => {
     [compressAndEnsureSize, setPreviewImages, creationMode],
   );
 
-  const handleTryDemo = async () => {
-    const demoPrompt = "A futuristic digital city with neon lights";
-    setInput(demoPrompt);
-    setDemoMode(true);
-
-    try {
-      await generate("image", {
-        prompt: demoPrompt,
-      }, true);
-    } catch (error) {
-      console.error("Demo generation error:", error);
-    } finally {
-      setDemoMode(false);
+  const handleTryDemo = () => {
+    setDemoMode(!demoMode);
+    if (!demoMode) {
+      setInput("A futuristic digital city with neon lights");
     }
   };
 
