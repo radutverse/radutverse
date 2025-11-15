@@ -17,20 +17,12 @@ export async function applyVisualWatermark(
       return;
     }
 
+    // First, load base image
     const baseImage = new Image();
-    // Allow data URLs (from demo mode) to be used directly
-    if (!imageUrl.startsWith("data:")) {
-      baseImage.crossOrigin = "anonymous";
-    }
+    baseImage.crossOrigin = "anonymous";
 
-    baseImage.onload = () => {
-      console.log("✅ Base image loaded", imageUrl.substring(0, 50));
-      canvas.width = baseImage.width;
-      canvas.height = baseImage.height;
-
-      // Draw base image
-      ctx.drawImage(baseImage, 0, 0);
-
+    const applyWatermarkToCanvas = () => {
+      // Now load watermark
       const watermarkImage = new Image();
       watermarkImage.crossOrigin = "anonymous";
 
@@ -75,9 +67,25 @@ export async function applyVisualWatermark(
       watermarkImage.src = watermarkUrl;
     };
 
+    baseImage.onload = () => {
+      console.log("✅ Base image loaded", imageUrl.substring(0, 50));
+      canvas.width = baseImage.width;
+      canvas.height = baseImage.height;
+
+      // Draw base image first
+      ctx.drawImage(baseImage, 0, 0);
+
+      // Then apply watermark
+      applyWatermarkToCanvas();
+    };
+
     baseImage.onerror = (error) => {
       console.error("❌ Failed to load base image:", imageUrl, error);
-      reject(new Error("Failed to load base image"));
+      console.warn(
+        "⚠️ Base image failed, returning original URL without watermark",
+      );
+      // Return original image URL if we can't load it
+      resolve(imageUrl);
     };
 
     baseImage.src = imageUrl;
