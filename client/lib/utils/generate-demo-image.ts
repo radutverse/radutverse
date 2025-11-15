@@ -21,7 +21,8 @@ export const generateDemoImage = (): string => {
   ctx.fillRect(0, 0, width, height);
 
   // Add "DEMO" text
-  ctx.font = "bold 120px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.font =
+    "bold 120px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";

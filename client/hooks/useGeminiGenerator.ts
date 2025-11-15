@@ -24,7 +24,11 @@ const useGeminiGenerator = () => {
     setOriginalPrompt,
   } = context;
 
-  const generate = async (mode: ToggleMode, options: GenerationOptions, demoMode: boolean = false) => {
+  const generate = async (
+    mode: ToggleMode,
+    options: GenerationOptions,
+    demoMode: boolean = false,
+  ) => {
     if (mode === "video") {
       setError("Video generation is coming soon!");
       return;
