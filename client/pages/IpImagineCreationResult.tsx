@@ -36,23 +36,6 @@ const IpImagineCreationResult = () => {
           </motion.div>
           <div />
         </div>
-        <IpImagineInput
-          input=""
-          setInput={() => {}}
-          waiting={false}
-          previewImages={{ remixImage: null, additionalImage: null }}
-          setPreviewImages={() => {}}
-          uploadRef={{ current: null }}
-          handleImage={() => {}}
-          onSubmit={() => navigate("/ip-imagine")}
-          inputRef={{ current: null }}
-          handleKeyDown={() => {}}
-          toolsOpen={false}
-          setToolsOpen={() => {}}
-          suggestions={[]}
-          setSuggestions={() => {}}
-          attachmentLoading={false}
-        />
       </DashboardLayout>
     );
   }
@@ -68,11 +51,15 @@ const IpImagineCreationResult = () => {
     isLoading,
     loadingMessage,
     error,
+    originalPrompt,
   } = context;
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
-  const [input, setInput] = useState("");
+  const [upscalingCreationId, setUpscalingCreationId] = useState<string | null>(
+    null,
+  );
+  const [input, setInput] = useState(originalPrompt);
   const [waiting, setWaiting] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [toolsOpen, setToolsOpen] = useState(false);
@@ -81,6 +68,9 @@ const IpImagineCreationResult = () => {
     remixImage: null,
     additionalImage: null,
   });
+  const [expandedCreationId, setExpandedCreationId] = useState<string | null>(
+    null,
+  );
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
@@ -126,11 +116,12 @@ const IpImagineCreationResult = () => {
       const [header, base64Data] = resultUrl.split(",");
       const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledUrl = await openaiService.upscaleImage({
+      const upscaledImageUrl = await openaiService.upscaleImage({
         imageBytes: base64Data,
         mimeType,
       });
-      setResultUrl(upscaledUrl);
+      setResultUrl(upscaledImageUrl);
+      setUpscaledUrl(upscaledImageUrl);
       setResultType("image");
     } catch (e: any) {
       console.error(e);
@@ -158,6 +149,14 @@ const IpImagineCreationResult = () => {
 
   const handleSubmit = async () => {
     navigate("/ip-imagine");
+  };
+
+  const handleCardExpand = (creationId: string) => {
+    setExpandedCreationId(creationId);
+    const creation = context.creations.find((c) => c.id === creationId);
+    if (creation) {
+      setInput(creation.prompt);
+    }
   };
 
   const headerActions = (
@@ -335,7 +334,7 @@ const IpImagineCreationResult = () => {
                 );
               })()}
             </motion.div>
-          ) : !displayUrl || !displayType ? (
+          ) : context.creations.length === 0 ? (
             <motion.div
               key="no-data"
               initial={{ opacity: 0 }}
@@ -349,24 +348,87 @@ const IpImagineCreationResult = () => {
             </motion.div>
           ) : (
             <motion.div
-              key="result"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
             >
-              <CompactResultCard
-                imageUrl={upscaledUrl || displayUrl}
-                type={displayType}
-                isLoading={isLoading}
-                onDownload={handleDownload}
-                onShare={handleShare}
-                onUpscale={
-                  displayType === "image"
-                    ? () => setShowUpscaler(true)
-                    : undefined
-                }
-                onCreateAnother={() => {}}
-              />
+              <AnimatePresence mode="popLayout">
+                {context.creations.length > 0 ? (
+                  context.creations.map((creation) => (
+                    <motion.div
+                      key={creation.id}
+                      initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex-shrink-0"
+                    >
+                      <CompactResultCard
+                        imageUrl={
+                          upscalingCreationId === creation.id && upscaledUrl
+                            ? upscaledUrl
+                            : creation.url
+                        }
+                        type={creation.type}
+                        isLoading={false}
+                        onDownload={() => {
+                          const link = document.createElement("a");
+                          const downloadUrl =
+                            upscalingCreationId === creation.id && upscaledUrl
+                              ? upscaledUrl
+                              : creation.url;
+                          link.href = downloadUrl;
+                          link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                        onShare={async () => {
+                          try {
+                            if (navigator.share) {
+                              await navigator.share({
+                                title: "IP Imagine Creation",
+                                text: "Check out my AI-generated creation from IP Imagine!",
+                                url: window.location.href,
+                              });
+                            } else {
+                              navigator.clipboard.writeText(
+                                window.location.href,
+                              );
+                              alert("Link copied to clipboard!");
+                            }
+                          } catch (error) {
+                            console.error("Share error:", error);
+                          }
+                        }}
+                        onUpscale={
+                          creation.type === "image"
+                            ? () => {
+                                setResultUrl(creation.url);
+                                setResultType(creation.type);
+                                setUpscalingCreationId(creation.id);
+                                setShowUpscaler(true);
+                              }
+                            : undefined
+                        }
+                        onCreateAnother={() => {}}
+                        isExpanded={expandedCreationId === creation.id}
+                        setIsExpanded={(expanded) => {
+                          if (expanded) {
+                            handleCardExpand(creation.id);
+                          } else {
+                            setExpandedCreationId(null);
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="text-slate-400">No creations yet</div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -405,23 +467,25 @@ const IpImagineCreationResult = () => {
         <div />
       </div>
 
-      <IpImagineInput
-        input={input}
-        setInput={setInput}
-        waiting={waiting}
-        previewImages={previewImages}
-        setPreviewImages={setPreviewImages}
-        uploadRef={uploadRef}
-        handleImage={handleImage}
-        onSubmit={handleSubmit}
-        inputRef={inputRef}
-        handleKeyDown={handleKeyDown}
-        toolsOpen={toolsOpen}
-        setToolsOpen={setToolsOpen}
-        suggestions={suggestions}
-        setSuggestions={setSuggestions}
-        attachmentLoading={attachmentLoading}
-      />
+      {expandedCreationId && (
+        <IpImagineInput
+          input={input}
+          setInput={setInput}
+          waiting={waiting}
+          previewImages={previewImages}
+          setPreviewImages={setPreviewImages}
+          uploadRef={uploadRef}
+          handleImage={handleImage}
+          onSubmit={handleSubmit}
+          inputRef={inputRef}
+          handleKeyDown={handleKeyDown}
+          toolsOpen={toolsOpen}
+          setToolsOpen={setToolsOpen}
+          suggestions={suggestions}
+          setSuggestions={setSuggestions}
+          attachmentLoading={attachmentLoading}
+        />
+      )}
 
       <AnimatePresence>
         {showUpscaler && displayUrl && (

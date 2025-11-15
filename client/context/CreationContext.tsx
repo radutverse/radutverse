@@ -13,6 +13,7 @@ export interface Creation {
   url: string;
   type: ResultType;
   timestamp: number;
+  prompt: string;
 }
 
 interface CreationContextType {
@@ -27,9 +28,11 @@ interface CreationContextType {
   error: string | null;
   setError: (error: string | null) => void;
   creations: Creation[];
-  addCreation: (url: string, type: ResultType) => void;
+  addCreation: (url: string, type: ResultType, prompt: string) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
+  originalPrompt: string;
+  setOriginalPrompt: (prompt: string) => void;
 }
 
 export const CreationContext = createContext<CreationContextType | undefined>(
@@ -39,6 +42,7 @@ export const CreationContext = createContext<CreationContextType | undefined>(
 const STORAGE_KEY = "creation_history";
 const RESULT_URL_KEY = "current_result_url";
 const RESULT_TYPE_KEY = "current_result_type";
+const ORIGINAL_PROMPT_KEY = "original_prompt";
 
 export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -49,6 +53,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
+  const [originalPrompt, setOriginalPrompt] = useState<string>("");
 
   // Load creations and current result from localStorage on mount
   useEffect(() => {
@@ -63,11 +68,15 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
 
     const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
     const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
+    const storedPrompt = localStorage.getItem(ORIGINAL_PROMPT_KEY);
     if (storedResultUrl) {
       setResultUrl(storedResultUrl);
     }
     if (storedResultType) {
       setResultType(storedResultType as ResultType);
+    }
+    if (storedPrompt) {
+      setOriginalPrompt(storedPrompt);
     }
   }, []);
 
@@ -94,6 +103,15 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [resultType]);
 
+  // Save original prompt to localStorage
+  useEffect(() => {
+    if (originalPrompt) {
+      localStorage.setItem(ORIGINAL_PROMPT_KEY, originalPrompt);
+    } else {
+      localStorage.removeItem(ORIGINAL_PROMPT_KEY);
+    }
+  }, [originalPrompt]);
+
   useEffect(() => {
     return () => {
       if (resultUrl && resultUrl.startsWith("blob:")) {
@@ -102,15 +120,19 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, [resultUrl]);
 
-  const addCreation = useCallback((url: string, type: ResultType) => {
-    const newCreation: Creation = {
-      id: `creation_${Date.now()}`,
-      url,
-      type,
-      timestamp: Date.now(),
-    };
-    setCreations((prev) => [newCreation, ...prev]);
-  }, []);
+  const addCreation = useCallback(
+    (url: string, type: ResultType, prompt: string) => {
+      const newCreation: Creation = {
+        id: `creation_${Date.now()}`,
+        url,
+        type,
+        timestamp: Date.now(),
+        prompt,
+      };
+      setCreations((prev) => [newCreation, ...prev]);
+    },
+    [],
+  );
 
   const removeCreation = useCallback((id: string) => {
     setCreations((prev) => prev.filter((c) => c.id !== id));
@@ -136,6 +158,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       addCreation,
       removeCreation,
       clearCreations,
+      originalPrompt,
+      setOriginalPrompt,
     }),
     [
       resultUrl,
@@ -147,6 +171,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       addCreation,
       removeCreation,
       clearCreations,
+      originalPrompt,
     ],
   ) as CreationContextType;
 
