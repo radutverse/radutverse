@@ -30,6 +30,8 @@ interface CreationContextType {
   addCreation: (url: string, type: ResultType) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
+  originalPrompt: string;
+  setOriginalPrompt: (prompt: string) => void;
 }
 
 export const CreationContext = createContext<CreationContextType | undefined>(
