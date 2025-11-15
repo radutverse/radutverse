@@ -67,7 +67,9 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     const storedCreations = localStorage.getItem(STORAGE_KEY);
     if (storedCreations) {
       try {
-        setCreations(JSON.parse(storedCreations));
+        const allCreations = JSON.parse(storedCreations);
+        // Only load non-demo creations from localStorage
+        setCreations(allCreations.filter((c: Creation) => !c.isDemo));
       } catch (err) {
         console.error("Failed to load creation history:", err);
       }
