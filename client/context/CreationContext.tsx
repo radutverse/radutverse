@@ -15,6 +15,7 @@ export interface Creation {
   timestamp: number;
   prompt: string;
   isDemo?: boolean;
+  remixType?: "paid" | "free" | null;
 }
 
 interface CreationContextType {
