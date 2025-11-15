@@ -318,11 +318,7 @@ const IpImagine = () => {
             // For demo mode paid remix, use the provided watermarked image directly
             console.log("📸 Using pre-made watermarked image for demo paid remix");
             setStatusText("✨ Watermark applied!");
-
-            // Fetch the watermarked image and convert to blob URL for consistency
-            const response = await fetch(paidRemixWatermarkedImageUrl);
-            const blob = await response.blob();
-            watermarkedUrl = URL.createObjectURL(blob);
+            watermarkedUrl = paidRemixWatermarkedImageUrl;
           } else {
             // Use visual watermark with image for production
             setStatusText("🎨 Adding watermark...");
@@ -333,6 +329,7 @@ const IpImagine = () => {
             );
           }
 
+          console.log("🎨 Setting watermarked URL:", watermarkedUrl.substring(0, 50));
           setResultUrl(watermarkedUrl);
           if (!demoMode) {
             setStatusText("✨ Watermark applied!");
