@@ -315,7 +315,7 @@ const IpImagine = () => {
         (demoMode || currentRemixType === "paid");
 
       if (shouldApplyWatermark) {
-        console.log("✅ Triggering watermark application...");
+        console.log("✅ Triggering watermark application with currentRemixType:", currentRemixType, "demoMode:", demoMode);
         setIsApplyingWatermark(true);
         try {
           let watermarkedUrl: string;
@@ -329,6 +329,7 @@ const IpImagine = () => {
             watermarkedUrl = paidRemixWatermarkedImageUrl;
           } else {
             // Use visual watermark with image for production
+            console.log("🎨 Applying visual watermark for paid remix");
             setStatusText("🎨 Adding watermark...");
             watermarkedUrl = await applyVisualWatermark(
               resultUrl,
@@ -354,6 +355,14 @@ const IpImagine = () => {
         } finally {
           setIsApplyingWatermark(false);
         }
+      } else if (resultUrl) {
+        console.log("⊘ Watermark conditions not met:", {
+          hasResultUrl: !!resultUrl,
+          isApplyingWatermark,
+          isLoading,
+          isDemoMode: demoMode,
+          isPaidRemix: currentRemixType === "paid",
+        });
       }
     };
 
