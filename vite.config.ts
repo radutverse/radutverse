@@ -26,7 +26,6 @@ export default defineConfig(({ mode }) => ({
             "@radix-ui/react-hover-card",
             "@radix-ui/react-popover",
             "@radix-ui/react-select",
-            "@radix-ui/react-sheet",
             "@radix-ui/react-tabs",
             "@radix-ui/react-toast",
           ],
