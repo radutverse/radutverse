@@ -1,11 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:client",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "env": {
-    "PNPM_IGNORE_SCRIPTS": "false",
-    "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
-  },
   "routes": [
     {
       "handle": "filesystem"
