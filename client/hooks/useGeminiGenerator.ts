@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
-import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -24,12 +23,6 @@ const useGeminiGenerator = () => {
     setOriginalPrompt,
     demoMode,
   } = context;
-
-  const watermarkImageUrl =
-    "https://cdn.builder.io/api/v1/image/assets%2F7585065ca91c47d49c4941a9d86c1824%2F2e193049610d4654908bb1a59b6187a7?format=webp&width=800";
-
-  const paidRemixWatermarkedImageUrl =
-    "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
 
   const generate = async (
     mode: ToggleMode,
@@ -60,8 +53,8 @@ const useGeminiGenerator = () => {
         );
       } else {
         const { remixType } = options;
-        if (remixType === "paid" && !demoModeParam) {
-          // For production paid remix, use server-side watermark endpoint
+        if (remixType === "paid") {
+          // For paid remix (both demo and production), use server-side watermark endpoint
           console.log("🎨 Generating image with server-side watermark");
           generatedUrl = await openaiService.generateImageFromTextWithWatermark(
             options.prompt,
@@ -79,25 +72,7 @@ const useGeminiGenerator = () => {
       type = "image";
       setResultType("image");
 
-      // Handle demo mode paid remix watermark
-      let finalUrl = generatedUrl;
-      const { remixType } = options;
-
-      if (remixType === "paid" && demoModeParam) {
-        try {
-          // For demo mode paid remix, use the provided watermarked image
-          console.log("📸 Using demo mode watermarked image");
-          finalUrl = paidRemixWatermarkedImageUrl;
-        } catch (watermarkError) {
-          console.error("❌ Failed to set demo watermark:", watermarkError);
-          // Continue with unwatermarked image if watermark fails
-          finalUrl = generatedUrl;
-        }
-      } else {
-        finalUrl = generatedUrl;
-      }
-
-      setResultUrl(finalUrl);
+      setResultUrl(generatedUrl);
       addCreation(finalUrl, type, options.prompt, demoModeParam, remixType);
     } catch (e: any) {
       console.error(e);
