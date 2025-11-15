@@ -163,7 +163,10 @@ const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
   ],
 };
 
-export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) => {
+export const PopularIPGrid = ({
+  onBack,
+  onRemixSelected,
+}: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<
     "ip" | "image" | "video" | "music"
   >("ip");
@@ -235,7 +238,6 @@ export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) =
 
         const resolveData = await resolveResponse.json();
         const resolvedAddress = resolveData.address;
-
 
         setLastResolvedAddress(resolvedAddress);
         setLastQueryType("owner");
@@ -970,7 +972,6 @@ export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) =
           </motion.div>
         )}
       </AnimatePresence>
-
     </motion.div>
   );
 };

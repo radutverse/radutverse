@@ -264,7 +264,10 @@ const IpImagine = () => {
 
       // Scroll input into view
       setTimeout(() => {
-        inputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        inputRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
       }, 300);
     } catch (error) {
       console.error("Error loading remix image:", error);
