@@ -190,6 +190,7 @@ const IpImagineCreationResult = () => {
       onWalletClick={() => {}}
       onTryDemo={handleTryDemo}
       demoMode={demoMode}
+      showGuest={false}
     />
   );
 

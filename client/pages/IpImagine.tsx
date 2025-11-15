@@ -15,10 +15,18 @@ import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
+import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
 
 const IpImagine = () => {
-  const { generate, isLoading, resultUrl, demoMode, setDemoMode } =
-    useGeminiGenerator();
+  const {
+    generate,
+    isLoading,
+    resultUrl,
+    demoMode,
+    setDemoMode,
+    setResultUrl,
+    setResultType,
+  } = useGeminiGenerator();
 
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
@@ -38,6 +46,10 @@ const IpImagine = () => {
     loading: boolean;
   }>({ domain: null, loading: false });
   const [creationMode, setCreationMode] = useState<"image" | "video">("image");
+  const [remixLoading, setRemixLoading] = useState(false);
+  const [currentRemixType, setCurrentRemixType] = useState<
+    "paid" | "free" | null
+  >(null);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -217,6 +229,105 @@ const IpImagine = () => {
     setResultType(null);
   };
 
+  const handleRemixSelected = async (
+    asset: any,
+    remixType: "paid" | "free",
+  ) => {
+    setRemixLoading(true);
+    try {
+      const imageUrl = asset.mediaUrl || asset.thumbnailUrl;
+      if (!imageUrl) {
+        throw new Error("No image URL available for this asset");
+      }
+
+      const response = await fetch(imageUrl, {
+        mode: "cors",
+        credentials: "omit",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const fileName = asset.title || "remix-image";
+
+      setPreviewImages({
+        remixImage: {
+          blob,
+          name: fileName,
+          url,
+        },
+        additionalImage: null,
+      });
+
+      setCurrentRemixType(remixType);
+
+      setStatusText(
+        `✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`,
+      );
+
+      // Scroll input into view
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }, 300);
+    } catch (error) {
+      console.error("Error loading remix image:", error);
+      setStatusText("❌ Failed to load remix image. Please try again.");
+    } finally {
+      setRemixLoading(false);
+    }
+  };
+
+  const watermarkImageUrl =
+    "https://cdn.builder.io/api/v1/image/assets%2Fbf1ea5b4cb754c429d69eca494dc283d%2Fdbfcde32396741be8c5f0d10238790a6?format=webp&width=800";
+  const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
+
+  // Apply watermark when generation completes and currentRemixType is "paid"
+  useEffect(() => {
+    const applyWatermarkIfNeeded = async () => {
+      if (
+        currentRemixType === "paid" &&
+        resultUrl &&
+        !isApplyingWatermark &&
+        !isLoading
+      ) {
+        setIsApplyingWatermark(true);
+        try {
+          setStatusText("🎨 Adding watermark...");
+          const watermarkedUrl = await applyVisualWatermark(
+            resultUrl,
+            watermarkImageUrl,
+            0.8,
+          );
+          setResultUrl(watermarkedUrl);
+          setStatusText("✨ Watermark applied!");
+          setCurrentRemixType(null);
+        } catch (error) {
+          console.error("Failed to apply watermark:", error);
+          setStatusText(
+            "⚠️ Image generated but watermark failed. Using original image.",
+          );
+        } finally {
+          setIsApplyingWatermark(false);
+        }
+      }
+    };
+
+    applyWatermarkIfNeeded();
+  }, [
+    resultUrl,
+    currentRemixType,
+    isLoading,
+    isApplyingWatermark,
+    setResultUrl,
+    watermarkImageUrl,
+  ]);
+
   const headerActions = (
     <ChatHeaderActions
       guestMode={false}
@@ -226,6 +337,7 @@ const IpImagine = () => {
       onWalletClick={() => {}}
       onTryDemo={handleTryDemo}
       demoMode={demoMode}
+      showGuest={false}
     />
   );
 
@@ -257,6 +369,7 @@ const IpImagine = () => {
             onBack={() => {
               /* no-op for standalone imagine */
             }}
+            onRemixSelected={handleRemixSelected}
           />
         </AnimatePresence>
 
@@ -287,7 +400,7 @@ const IpImagine = () => {
           }
 
           setWaiting(true);
-          setStatusText("✨ Starting generation...");
+          setStatusText("��� Starting generation...");
 
           try {
             const imageToSend =

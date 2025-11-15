@@ -10,6 +10,7 @@ interface ExpandedAssetModalProps {
   onShowDetails?: () => void;
   onRemix?: () => void;
   onRemixMenu?: () => void;
+  onRemixSelected?: (remixType: "paid" | "free") => Promise<void>;
 }
 
 export const ExpandedAssetModal = ({
@@ -19,6 +20,7 @@ export const ExpandedAssetModal = ({
   onShowDetails,
   onRemix,
   onRemixMenu,
+  onRemixSelected,
 }: ExpandedAssetModalProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mediaContainerRef = useRef<HTMLDivElement>(null);
@@ -253,7 +255,18 @@ export const ExpandedAssetModal = ({
               <button
                 key={`remix-${remixConfig.type}-${idx}`}
                 type="button"
-                onClick={() => onRemixMenu?.()}
+                onClick={async () => {
+                  if (onRemixSelected) {
+                    try {
+                      await onRemixSelected(remixConfig.type);
+                      onClose();
+                    } catch (error) {
+                      console.error("Error handling remix selection:", error);
+                    }
+                  } else {
+                    onRemixMenu?.();
+                  }
+                }}
                 className="text-sm px-4 py-2.5 rounded-lg bg-[#FF4DA6] text-white font-semibold transition-all hover:shadow-lg hover:shadow-[#FF4DA6]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/50"
               >
                 {remixConfig.type === "paid"

@@ -9,6 +9,7 @@ type ChatHeaderActionsProps = {
   connectedAddressLabel?: string | null;
   onTryDemo?: () => void;
   demoMode?: boolean;
+  showGuest?: boolean;
 };
 
 const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
@@ -20,6 +21,7 @@ const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
   connectedAddressLabel,
   onTryDemo,
   demoMode,
+  showGuest = true,
 }) => (
   <>
     {connectedAddressLabel ? (
@@ -47,19 +49,21 @@ const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
           </span>
         </button>
       )}
-      <button
-        type="button"
-        aria-pressed={guestMode}
-        onClick={onToggleGuest}
-        className={
-          "inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/40 " +
-          (guestMode
-            ? "bg-[#FF4DA6] text-white hover:bg-[#ff77c2]"
-            : "text-[#FF4DA6] hover:bg-[#FF4DA6]/15")
-        }
-      >
-        Guest
-      </button>
+      {showGuest && (
+        <button
+          type="button"
+          aria-pressed={guestMode}
+          onClick={onToggleGuest}
+          className={
+            "inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/40 " +
+            (guestMode
+              ? "bg-[#FF4DA6] text-white hover:bg-[#ff77c2]"
+              : "text-[#FF4DA6] hover:bg-[#FF4DA6]/15")
+          }
+        >
+          Demo
+        </button>
+      )}
       <button
         type="button"
         onClick={onWalletClick}
