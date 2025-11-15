@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
+import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
