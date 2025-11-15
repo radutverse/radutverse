@@ -30,7 +30,7 @@ const FlyingImageAnimation = ({
 
     const animationElement = startRef.current;
     if (animationElement) {
-      animationElement.animate(
+      const animation = animationElement.animate(
         [
           {
             transform: `translate(0, 0) scale(1)`,
@@ -52,7 +52,10 @@ const FlyingImageAnimation = ({
         onComplete?.();
       }, 800);
 
-      return () => clearTimeout(timer);
+      return () => {
+        animation.cancel();
+        clearTimeout(timer);
+      };
     }
   }, [isActive, targetRef, onComplete]);
 
