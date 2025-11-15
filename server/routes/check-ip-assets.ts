@@ -1,5 +1,3 @@
-import { RequestHandler } from "express";
-
 const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
 
 export const handleCheckIpAssets: any = async (req: any, res: any) => {
