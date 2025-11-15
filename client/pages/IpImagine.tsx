@@ -208,15 +208,8 @@ const IpImagine = () => {
     const newDemoMode = !demoMode;
     setDemoMode(newDemoMode);
 
-    // Clear input and preview images when toggling demo mode to avoid mixing states
-    if (newDemoMode) {
-      // Entering demo mode: optionally clear input for fresh start
-      setInput("");
-    } else {
-      // Exiting demo mode: clear preview images to avoid mixing
-      setPreviewImages({ remixImage: null, additionalImage: null });
-      setInput("");
-    }
+    // Clear preview images when toggling demo mode to avoid mixing states
+    setPreviewImages({ remixImage: null, additionalImage: null });
   };
 
   const headerActions = (
