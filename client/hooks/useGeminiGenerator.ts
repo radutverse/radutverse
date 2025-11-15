@@ -73,7 +73,7 @@ const useGeminiGenerator = () => {
       setResultType("image");
 
       setResultUrl(generatedUrl);
-      addCreation(finalUrl, type, options.prompt, demoModeParam, remixType);
+      addCreation(generatedUrl, type, options.prompt, demoModeParam, remixType);
     } catch (e: any) {
       console.error(e);
       let errorMessage =
