@@ -1,4 +1,4 @@
-import { checkHashInWhitelist } from "../utils/remix-hash-whitelist.js";
+import { checkHashInWhitelist } from "../utils/remix-hash-whitelist";
 import fs from "fs/promises";
 import path from "path";
 
