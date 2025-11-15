@@ -204,6 +204,22 @@ const IpImagine = () => {
     [compressAndEnsureSize, setPreviewImages, creationMode],
   );
 
+  const handleTryDemo = async () => {
+    const demoPrompt = "A futuristic digital city with neon lights";
+    setInput(demoPrompt);
+    setDemoMode(true);
+
+    try {
+      await generate("image", {
+        prompt: demoPrompt,
+      }, true);
+    } catch (error) {
+      console.error("Demo generation error:", error);
+    } finally {
+      setDemoMode(false);
+    }
+  };
+
   const headerActions = (
     <ChatHeaderActions
       guestMode={false}
@@ -211,6 +227,7 @@ const IpImagine = () => {
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
+      onTryDemo={handleTryDemo}
     />
   );
 
@@ -325,7 +342,7 @@ const IpImagine = () => {
         onRemixRegisterWarning={() => {
           setWaiting(false);
           setStatusText(
-            "⚠ Remix images cannot be registered. Please remove the image to register.",
+            "��� Remix images cannot be registered. Please remove the image to register.",
           );
         }}
         onAddRemixImage={() => setShowAddRemixImageModal(true)}
