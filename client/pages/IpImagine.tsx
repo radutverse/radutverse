@@ -296,6 +296,7 @@ const IpImagine = () => {
         resultUrl: resultUrl ? resultUrl.substring(0, 50) : null,
         isApplyingWatermark,
         isLoading,
+        demoMode,
       });
 
       if (
@@ -308,11 +309,20 @@ const IpImagine = () => {
         setIsApplyingWatermark(true);
         try {
           setStatusText("🎨 Adding watermark...");
-          const watermarkedUrl = await applyVisualWatermark(
-            resultUrl,
-            watermarkImageUrl,
-            0.8,
-          );
+
+          let watermarkedUrl: string;
+          if (demoMode) {
+            // Use simple text watermark for demo mode
+            watermarkedUrl = await applyDemoWatermark(resultUrl);
+          } else {
+            // Use visual watermark with image for production
+            watermarkedUrl = await applyVisualWatermark(
+              resultUrl,
+              watermarkImageUrl,
+              0.8,
+            );
+          }
+
           setResultUrl(watermarkedUrl);
           setStatusText("✨ Watermark applied!");
           setCurrentRemixType(null);
@@ -333,6 +343,7 @@ const IpImagine = () => {
     currentRemixType,
     isLoading,
     isApplyingWatermark,
+    demoMode,
     setResultUrl,
     watermarkImageUrl,
   ]);
