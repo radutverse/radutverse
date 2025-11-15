@@ -313,7 +313,7 @@ const IpImagine = () => {
             await generate(creationMode, {
               prompt: input,
               image: imageData,
-            });
+            }, demoMode);
 
             setInput("");
             setPreviewImages({ remixImage: null, additionalImage: null });
@@ -342,7 +342,7 @@ const IpImagine = () => {
         onRemixRegisterWarning={() => {
           setWaiting(false);
           setStatusText(
-            "��� Remix images cannot be registered. Please remove the image to register.",
+            "⚠ Remix images cannot be registered. Please remove the image to register.",
           );
         }}
         onAddRemixImage={() => setShowAddRemixImageModal(true)}
