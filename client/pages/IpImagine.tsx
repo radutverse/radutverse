@@ -319,7 +319,14 @@ const IpImagine = () => {
     };
 
     applyWatermarkIfNeeded();
-  }, [resultUrl, currentRemixType, isLoading, isApplyingWatermark]);
+  }, [
+    resultUrl,
+    currentRemixType,
+    isLoading,
+    isApplyingWatermark,
+    setResultUrl,
+    watermarkImageUrl,
+  ]);
 
   const headerActions = (
     <ChatHeaderActions
