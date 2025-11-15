@@ -91,15 +91,18 @@ export const editImage = async (
   }
 };
 
-export const upscaleImage = async (image: {
-  imageBytes: string;
-  mimeType: string;
-}): Promise<string> => {
+export const upscaleImage = async (
+  image: {
+    imageBytes: string;
+    mimeType: string;
+  },
+  demoMode: boolean = false,
+): Promise<string> => {
   const prompt =
     "Create a high-resolution upscaled version of this image with enhanced details and improved clarity without changing the composition.";
 
   try {
-    return await editImage(prompt, image);
+    return await editImage(prompt, image, demoMode);
   } catch (error) {
     throw error;
   }
