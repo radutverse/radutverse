@@ -233,6 +233,7 @@ const IpImagine = () => {
     asset: any,
     remixType: "paid" | "free",
   ) => {
+    console.log("🎯 handleRemixSelected called with remixType:", remixType);
     setRemixLoading(true);
     try {
       const imageUrl = asset.mediaUrl || asset.thumbnailUrl;
@@ -262,6 +263,7 @@ const IpImagine = () => {
         additionalImage: null,
       });
 
+      console.log("📌 Setting currentRemixType to:", remixType);
       setCurrentRemixType(remixType);
 
       setStatusText(
