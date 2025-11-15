@@ -30,9 +30,19 @@ const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
         <button
           type="button"
           onClick={onTryDemo}
-          className="inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-semibold text-[#FF4DA6] transition-colors duration-200 hover:bg-[#FF4DA6]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/40"
+          className="inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/40"
+          title={guestMode ? "Exit Demo Mode" : "Try Demo Mode"}
         >
-          Try Demo
+          <span
+            className={`inline-flex items-center gap-2 ${
+              guestMode ? "text-white" : "text-[#FF4DA6]"
+            } ${guestMode ? "hover:bg-[#FF4DA6]/20" : "hover:bg-[#FF4DA6]/15"}`}
+          >
+            {guestMode && (
+              <span className="flex h-2 w-2 rounded-full bg-white animate-pulse" />
+            )}
+            <span>Demo</span>
+          </span>
         </button>
       )}
       <button
