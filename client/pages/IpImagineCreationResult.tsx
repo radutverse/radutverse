@@ -167,6 +167,10 @@ const IpImagineCreationResult = () => {
   const handleTryDemo = () => {
     const newDemoMode = !demoMode;
     setDemoMode(newDemoMode);
+
+    // Clear result URL to properly isolate demo and real modes
+    setResultUrl(null);
+    setResultType(null);
   };
 
   const handleCardExpand = (creationId: string) => {
