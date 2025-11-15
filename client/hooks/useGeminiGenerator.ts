@@ -33,6 +33,7 @@ const useGeminiGenerator = () => {
     setError(null);
     setResultUrl(null);
     setResultType(null);
+    setOriginalPrompt(options.prompt);
 
     try {
       let generatedUrl: string;
