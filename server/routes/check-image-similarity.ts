@@ -2,22 +2,21 @@ import type { Request, Response } from "express";
 import sharp from "sharp";
 import { checkHashInWhitelist } from "../utils/remix-hash-whitelist.js";
 
+let whitelistCache: any = null;
+let whitelistCacheTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000;
+
 /**
- * Calculate Hamming distance between two perceptual hashes
+ * Calculate Hamming distance between two perceptual hashes (optimized)
  */
 function hammingDistance(hash1: string, hash2: string): number {
-  if (hash1.length !== hash2.length) {
-    return 64;
-  }
+  if (hash1.length !== hash2.length) return 64;
 
   let distance = 0;
   for (let i = 0; i < hash1.length; i++) {
     const xor = parseInt(hash1[i], 16) ^ parseInt(hash2[i], 16);
-    for (let j = 0; j < 4; j++) {
-      distance += (xor >> j) & 1;
-    }
+    distance += (xor & 0x1) + ((xor >> 1) & 0x1) + ((xor >> 2) & 0x1) + ((xor >> 3) & 0x1);
   }
-
   return distance;
 }
 
@@ -30,13 +29,12 @@ function calculateSimilarityPercent(distance: number): number {
 }
 
 /**
- * Calculate perceptual hash from image buffer
+ * Calculate perceptual hash from image buffer (optimized with single pipeline)
  */
 async function calculateImagePerceptualHash(
   imageBuffer: Buffer,
 ): Promise<string | null> {
   try {
-    // Reduce image to 32x32 for pHash calculation
     const size = 32;
     const resized = await sharp(imageBuffer)
       .resize(size, size, { fit: "fill" })
@@ -45,31 +43,29 @@ async function calculateImagePerceptualHash(
       .toBuffer({ resolveWithObject: true });
 
     const data = resized.data;
+    const pixelCount = data.length;
 
-    // Calculate average pixel value
     let sum = 0;
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < pixelCount; i++) {
       sum += data[i];
     }
-    const avg = sum / data.length;
+    const avg = sum / pixelCount;
 
-    // Generate 64-bit hash
     let hash = "";
     for (let i = 0; i < 64; i++) {
       const regionStart = (i >> 3) * 4 * size + (i & 7) * 4;
       let regionSum = 0;
       for (let y = 0; y < 4; y++) {
         for (let x = 0; x < 4; x++) {
-          if (regionStart + y * size + x < data.length) {
-            regionSum += data[regionStart + y * size + x];
+          const pos = regionStart + y * size + x;
+          if (pos < pixelCount) {
+            regionSum += data[pos];
           }
         }
       }
-      const regionAvg = regionSum / 16;
-      hash += regionAvg > avg ? "1" : "0";
+      hash += regionSum > avg * 16 ? "1" : "0";
     }
 
-    // Convert binary hash to hex
     const hashHex =
       parseInt(hash.substring(0, 32), 2).toString(16).padStart(8, "0") +
       parseInt(hash.substring(32, 64), 2).toString(16).padStart(8, "0");
@@ -78,6 +74,29 @@ async function calculateImagePerceptualHash(
   } catch (error) {
     console.error("Error calculating perceptual hash:", error);
     return null;
+  }
+}
+
+/**
+ * Load whitelist with caching
+ */
+async function loadWhitelistCached() {
+  const now = Date.now();
+  if (whitelistCache && now - whitelistCacheTime < CACHE_DURATION) {
+    return whitelistCache;
+  }
+
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const whitelistPath = path.join(process.cwd(), "server", "data", "remix-hashes.json");
+    const content = await fs.readFile(whitelistPath, "utf-8");
+    whitelistCache = JSON.parse(content);
+    whitelistCacheTime = now;
+    return whitelistCache;
+  } catch (error) {
+    console.warn("Could not load whitelist:", error);
+    return { entries: [] };
   }
 }
 
