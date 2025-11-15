@@ -67,15 +67,14 @@ export const editImage = async (
     });
 
     if (!response.ok) {
+      let errorMessage = `Image editing failed with status ${response.status}`;
       try {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Image editing failed");
-      } catch (parseError) {
-        const text = await response.text();
-        throw new Error(
-          text || `Image editing failed with status ${response.status}`,
-        );
+        errorMessage = errorData.error || errorMessage;
+      } catch {
+        // If JSON parsing fails, that's okay - we already have a fallback message
       }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
