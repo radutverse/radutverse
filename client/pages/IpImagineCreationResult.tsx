@@ -451,7 +451,7 @@ const IpImagineCreationResult = () => {
         <div />
       </div>
 
-      {isCardExpanded && (
+      {expandedCreationId && (
         <IpImagineInput
           input={input}
           setInput={setInput}
