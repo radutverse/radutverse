@@ -658,9 +658,6 @@ export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) =
             onShowDetails={() => {
               setShowDetailsModal(true);
             }}
-            onRemixMenu={() => {
-              setRemixMenuOpen(true);
-            }}
             onRemixSelected={async (remixType) => {
               if (onRemixSelected) {
                 try {
@@ -857,7 +854,7 @@ export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) =
                                           </span>
                                           <p className="text-slate-200 font-semibold">
                                             {license.terms.derivativesAllowed
-                                              ? "��� Allowed"
+                                              ? "✓ Allowed"
                                               : "�� Not Allowed"}
                                           </p>
                                         </div>
