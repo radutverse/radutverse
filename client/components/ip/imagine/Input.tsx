@@ -16,12 +16,12 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import FlyingImageAnimation from "@/components/ip-imagine/FlyingImageAnimation";
+import FlyingImageAnimation from "@/components/ip/imagine/FlyingImageAnimation";
 import {
   RemixImage,
   type PreviewImage,
   type PreviewImagesState,
-} from "@/components/remix-mode";
+} from "@/components/ip/remix";
 
 type IpImagineInputProps = {
   input: string;

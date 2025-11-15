@@ -6,10 +6,10 @@ import {
   ExpandedAssetModal,
   useDomainFetch,
   useUniqueOwners,
-} from "@/components/search-feature";
+} from "@/components/ip/search";
 import { CategoryBrowser } from "./CategoryBrowser";
 import { FeaturedCatalog } from "./FeaturedCatalog";
-import type { PopularItem, SearchResult } from "../../remix-mode/types";
+import type { PopularItem, SearchResult } from "@/components/ip/remix/types";
 
 interface PopularIPGridProps {
   onBack: () => void;
