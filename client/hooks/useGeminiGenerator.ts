@@ -86,7 +86,7 @@ const useGeminiGenerator = () => {
             finalUrl = await applyVisualWatermark(
               generatedUrl,
               watermarkUrl,
-              0.8,
+              0.2,
             );
           }
         } catch (watermarkError) {
