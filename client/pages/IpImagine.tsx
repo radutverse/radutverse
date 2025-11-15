@@ -405,7 +405,7 @@ const IpImagine = () => {
               };
             }
 
-            await generate(
+            await generateWithWatermark(
               creationMode,
               {
                 prompt: input,
@@ -416,6 +416,7 @@ const IpImagine = () => {
 
             setInput("");
             setPreviewImages({ remixImage: null, additionalImage: null });
+            setCurrentRemixType(null);
           } catch (error) {
             console.error("Generation error:", error);
             setStatusText("❌ Generation failed. Please try again.");
