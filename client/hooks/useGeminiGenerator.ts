@@ -26,7 +26,7 @@ const useGeminiGenerator = () => {
   } = context;
 
   const watermarkImageUrl =
-    "https://cdn.builder.io/api/v1/image/assets%2F7585065ca91c47d49c4941a9d86c1824%2F2e193049610d4654908bb1a59b6187a7?format=webp&width=800";
+    "https://drive.google.com/uc?export=download&id=1-Xtbeb74oX034vvg5Xj4s73dlgTNHRUh";
 
   const paidRemixWatermarkedImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
