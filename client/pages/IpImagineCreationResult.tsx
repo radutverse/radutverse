@@ -77,7 +77,10 @@ const IpImagineCreationResult = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [attachmentLoading, setAttachmentLoading] = useState(false);
-  const [previewImages, setPreviewImages] = useState({ remixImage: null, additionalImage: null });
+  const [previewImages, setPreviewImages] = useState({
+    remixImage: null,
+    additionalImage: null,
+  });
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
@@ -182,7 +185,12 @@ const IpImagineCreationResult = () => {
   );
 
   return (
-    <DashboardLayout title="IP Imagine" avatarSrc={null} actions={headerActions} sidebarExtras={sidebarExtras}>
+    <DashboardLayout
+      title="IP Imagine"
+      avatarSrc={null}
+      actions={headerActions}
+      sidebarExtras={sidebarExtras}
+    >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence mode="wait">
           {isLoading ? (
@@ -273,9 +281,9 @@ const IpImagineCreationResult = () => {
                               Generation Limit Reached
                             </p>
                             <p className="text-sm text-amber-200/80 leading-relaxed">
-                              You've reached your daily generation limit.
-                              Please try again later or contact support for
-                              more information.
+                              You've reached your daily generation limit. Please
+                              try again later or contact support for more
+                              information.
                             </p>
                           </div>
                         </div>
@@ -292,8 +300,8 @@ const IpImagineCreationResult = () => {
                             </p>
                             <p className="text-sm text-orange-200/80 leading-relaxed">
                               There's an issue with the generation service.
-                              Please refresh the page and try again, or
-                              contact support if the problem persists.
+                              Please refresh the page and try again, or contact
+                              support if the problem persists.
                             </p>
                           </div>
                         </div>
