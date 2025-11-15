@@ -261,6 +261,8 @@ const IpImagine = () => {
         additionalImage: null,
       });
 
+      setCurrentRemixType(remixType);
+
       setStatusText(
         `✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`,
       );
