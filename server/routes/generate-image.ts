@@ -56,27 +56,25 @@ export const editImage: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing image or prompt" });
     }
 
-    // 🔹 Resize & re-encode untuk aman (must be under 16384 bytes for OpenAI)
+    // Resize & compress in single pipeline (must be under 16384 bytes for OpenAI)
     let buffer = await sharp(file.buffer)
       .resize({ width: 256, height: 256, fit: "inside" })
-      .jpeg({ quality: 70 })
+      .jpeg({ quality: 60, progressive: true })
       .toBuffer();
 
-    console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
+    console.log("📸 Image resized & compressed, bytes:", buffer.length);
 
-    // 🔹 Further compress if still too large
+    // Further compress if needed
     if (buffer.length > 16384) {
-      buffer = await sharp(file.buffer)
-        .resize({ width: 256, height: 256, fit: "inside" })
-        .jpeg({ quality: 50 })
+      buffer = await sharp(buffer)
+        .jpeg({ quality: 40, progressive: true })
         .toBuffer();
-      console.log("📸 Re-compressed image, bytes:", buffer.length);
+      console.log("📸 Re-compressed, bytes:", buffer.length);
     }
 
     if (buffer.length > 16384) {
       return res.status(400).json({
-        error:
-          "Image too large. Please use a smaller or lower resolution image.",
+        error: "Image too large. Please use a smaller or lower resolution image.",
         currentSize: buffer.length,
         maxSize: 16384,
       });
