@@ -206,9 +206,6 @@ const IpImagine = () => {
 
   const handleTryDemo = () => {
     setDemoMode(!demoMode);
-    if (!demoMode) {
-      setInput("A futuristic digital city with neon lights");
-    }
   };
 
   const headerActions = (
