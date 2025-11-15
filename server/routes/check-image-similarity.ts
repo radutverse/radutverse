@@ -15,7 +15,11 @@ function hammingDistance(hash1: string, hash2: string): number {
   let distance = 0;
   for (let i = 0; i < hash1.length; i++) {
     const xor = parseInt(hash1[i], 16) ^ parseInt(hash2[i], 16);
-    distance += (xor & 0x1) + ((xor >> 1) & 0x1) + ((xor >> 2) & 0x1) + ((xor >> 3) & 0x1);
+    distance +=
+      (xor & 0x1) +
+      ((xor >> 1) & 0x1) +
+      ((xor >> 2) & 0x1) +
+      ((xor >> 3) & 0x1);
   }
   return distance;
 }
@@ -89,7 +93,12 @@ async function loadWhitelistCached() {
   try {
     const fs = await import("fs/promises");
     const path = await import("path");
-    const whitelistPath = path.join(process.cwd(), "server", "data", "remix-hashes.json");
+    const whitelistPath = path.join(
+      process.cwd(),
+      "server",
+      "data",
+      "remix-hashes.json",
+    );
     const content = await fs.readFile(whitelistPath, "utf-8");
     whitelistCache = JSON.parse(content);
     whitelistCacheTime = now;
@@ -163,7 +172,12 @@ export const handleCheckImageSimilarity: any = async (
         }
 
         if (similarity > 50) {
-          results.push({ ipId: entry.ipId, title: entry.title, similarity, distance });
+          results.push({
+            ipId: entry.ipId,
+            title: entry.title,
+            similarity,
+            distance,
+          });
         }
       }
     }
