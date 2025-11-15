@@ -66,6 +66,7 @@ const IpImagineCreationResult = () => {
     remixImage: null,
     additionalImage: null,
   });
+  const [expandedCreationId, setExpandedCreationId] = useState<string | null>(null);
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
