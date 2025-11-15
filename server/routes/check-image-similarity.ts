@@ -1,6 +1,12 @@
-import type { Request, Response } from "express";
+// server/routes/check-image-similarity.ts
+
+// PERBAIKAN: Hapus impor Request dan Response yang tidak digunakan (TS6192)
+// Gunakan RequestHandler untuk anotasi fungsi.
+import type { RequestHandler } from "express";
 import sharp from "sharp";
-import { checkHashInWhitelist } from "../utils/remix-hash-whitelist.js";
+
+// PERBAIKAN: Hapus impor checkHashInWhitelist yang tidak digunakan (TS6133)
+// import { checkHashInWhitelist } from "../utils/remix-hash-whitelist.js";
 
 /**
  * Calculate Hamming distance between two perceptual hashes
@@ -86,19 +92,25 @@ async function calculateImagePerceptualHash(
  * POST /api/check-image-similarity
  * Body: { image: File or base64 string }
  */
-export const handleCheckImageSimilarity: any = async (
+// PERBAIKAN: Menggunakan RequestHandler untuk anotasi fungsi
+export const handleCheckImageSimilarity: RequestHandler = async (
   req: any,
   res: any,
 ): Promise<void> => {
   try {
     let imageBuffer: Buffer | null = null;
 
+    // PERBAIKAN: req.body mungkin string base64 atau Buffer tergantung middleware
     if (req.file) {
       imageBuffer = req.file.buffer;
     } else if (req.body && Buffer.isBuffer(req.body)) {
       imageBuffer = req.body;
     } else if (typeof req.body === "string") {
+      // Asumsikan body adalah string base64
       imageBuffer = Buffer.from(req.body, "base64");
+    } else if (req.body?.image && typeof req.body.image === "string") {
+      // Asumsikan body adalah JSON dengan field 'image' yang berisi base64
+      imageBuffer = Buffer.from(req.body.image, "base64");
     }
 
     if (!imageBuffer || imageBuffer.length === 0) {
@@ -132,6 +144,7 @@ export const handleCheckImageSimilarity: any = async (
     }> = [];
 
     // Get all whitelist entries (we'll need to read from file)
+    // Gunakan impor dinamis yang sudah ada
     const fs = await import("fs/promises");
     const path = await import("path");
 
