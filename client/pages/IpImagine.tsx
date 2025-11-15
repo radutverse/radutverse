@@ -226,6 +226,7 @@ const IpImagine = () => {
       onWalletClick={() => {}}
       onTryDemo={handleTryDemo}
       demoMode={demoMode}
+      showGuest={false}
     />
   );
 
