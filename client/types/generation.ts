@@ -10,6 +10,12 @@ export interface GenerationOptions {
   resolution?: string;
   aspectRatio?: string;
   remixType?: "paid" | "free" | null;
+  assetData?: {
+    ipId?: string;
+    title?: string;
+    mediaUrl?: string;
+    [key: string]: any;
+  };
 }
 
 export interface Generation {
