@@ -47,9 +47,9 @@ const IpImagine = () => {
   }>({ domain: null, loading: false });
   const [creationMode, setCreationMode] = useState<"image" | "video">("image");
   const [remixLoading, setRemixLoading] = useState(false);
-  const [currentRemixType, setCurrentRemixType] = useState<"paid" | "free" | null>(
-    null,
-  );
+  const [currentRemixType, setCurrentRemixType] = useState<
+    "paid" | "free" | null
+  >(null);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
