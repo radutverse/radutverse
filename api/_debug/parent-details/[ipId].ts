@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import { setCorsHeaders, handleOptions } from "../../utils/middleware";
 
 async function fetchParentIpDetails(
@@ -53,8 +52,8 @@ async function fetchParentIpDetails(
 }
 
 export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse,
+  req: any,
+  res: any,
 ) {
   setCorsHeaders(req, res);
 
