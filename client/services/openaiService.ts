@@ -40,6 +40,43 @@ export const generateImageFromText = async (
   }
 };
 
+export const generateImageFromTextWithWatermark = async (
+  prompt: string,
+  demoMode: boolean = false,
+): Promise<string> => {
+  if (!prompt) throw new Error("Prompt is required.");
+
+  try {
+    const endpoint = demoMode ? "/api/demo-generate" : "/api/generate-with-watermark";
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+      }),
+    });
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Image generation failed");
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(
+          text || `Image generation failed with status ${response.status}`,
+        );
+      }
+    }
+
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const editImage = async (
   prompt: string,
   image: { imageBytes: string; mimeType: string },
