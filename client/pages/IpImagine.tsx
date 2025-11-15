@@ -211,6 +211,10 @@ const IpImagine = () => {
 
     // Clear preview images when toggling demo mode to avoid mixing states
     setPreviewImages({ remixImage: null, additionalImage: null });
+
+    // Clear result URL to properly isolate demo and real modes
+    setResultUrl(null);
+    setResultType(null);
   };
 
   const headerActions = (
