@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
-import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
-import IpImagineInput from "@/components/ip-imagine/Input";
+import ChatHeaderActions from "@/components/ip/assistant/ChatHeaderActions";
+import SidebarExtras from "@/components/ip/assistant/SidebarExtras";
+import IpImagineInput from "@/components/ip/imagine/Input";
 import {
   PopularIPGrid,
   AddRemixImageModal,
   type PreviewImagesState,
-} from "@/components/remix-mode";
+} from "@/components/ip/remix";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
 import { getCurrentTimestamp } from "@/lib/ip-assistant/utils";
 import { calculateBlobHash } from "@/lib/utils/hash";
