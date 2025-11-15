@@ -17,52 +17,29 @@ export default defineConfig(({ mode }) => ({
     outDir: "dist/spa",
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes("node_modules")) {
-            if (
-              id.includes("@radix-ui/react-accordion") ||
-              id.includes("@radix-ui/react-alert-dialog") ||
-              id.includes("@radix-ui/react-dialog") ||
-              id.includes("@radix-ui/react-dropdown-menu") ||
-              id.includes("@radix-ui/react-hover-card") ||
-              id.includes("@radix-ui/react-popover") ||
-              id.includes("@radix-ui/react-select") ||
-              id.includes("@radix-ui/react-sheet") ||
-              id.includes("@radix-ui/react-tabs") ||
-              id.includes("@radix-ui/react-toast")
-            ) {
-              return "vendor-ui";
-            }
-            if (id.includes("framer-motion")) return "vendor-animation";
-            if (id.includes("recharts")) return "vendor-charts";
-            if (
-              id.includes("date-fns") ||
-              id.includes("lucide-react") ||
-              id.includes("clsx") ||
-              id.includes("tailwind-merge")
-            ) {
-              return "vendor-utils";
-            }
-            if (
-              id.includes("react-hook-form") ||
-              id.includes("@hookform/resolvers") ||
-              id.includes("zod")
-            ) {
-              return "vendor-forms";
-            }
-            if (id.includes("@privy-io/react-auth")) return "vendor-auth";
-            if (id.includes("viem") || id.includes("@story-protocol/core-sdk")) {
-              return "vendor-web3";
-            }
-          }
+        manualChunks: {
+          "vendor-ui": [
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-alert-dialog",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-hover-card",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-select",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-toast",
+          ],
+          "vendor-animation": ["framer-motion"],
+          "vendor-charts": ["recharts"],
+          "vendor-utils": ["date-fns", "lucide-react", "clsx"],
+          "vendor-forms": ["react-hook-form", "@hookform/resolvers", "zod"],
         },
       },
     },
-    target: "esnext",
     minify: "terser",
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: process.env.NODE_ENV === "production",
       },
     },
   },
