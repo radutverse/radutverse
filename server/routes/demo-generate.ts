@@ -145,6 +145,9 @@ export const demoEditImage: RequestHandler = async (req, res) => {
 
     console.log("📸 Processing demo image edit");
 
+    // Simulate 3-second crafting delay
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     // For demo mode, just generate a new SVG-based image like generate
     // (in real scenario, this would modify the uploaded image)
     const svgString = generateDemoSvgImage(prompt);
