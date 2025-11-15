@@ -68,9 +68,7 @@ const useGeminiGenerator = () => {
       type = "image";
       setResultType("image");
 
-      setResultUrl(generatedUrl);
-
-      // Apply watermark for paid remix before storing creation
+      // Apply watermark for paid remix
       let finalUrl = generatedUrl;
       const { remixType } = options;
 
@@ -96,6 +94,7 @@ const useGeminiGenerator = () => {
         }
       }
 
+      setResultUrl(finalUrl);
       addCreation(finalUrl, type, options.prompt, demoModeParam, remixType);
     } catch (e: any) {
       console.error(e);
