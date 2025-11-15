@@ -29,16 +29,13 @@ export async function applyVisualWatermark(
       watermarkImage.crossOrigin = "anonymous";
 
       watermarkImage.onload = () => {
-        const watermarkSize = Math.min(canvas.width, canvas.height) * 0.2;
-        const padding = 20;
-
         ctx.globalAlpha = watermarkOpacity;
         ctx.drawImage(
           watermarkImage,
-          canvas.width - watermarkSize - padding,
-          canvas.height - watermarkSize - padding,
-          watermarkSize,
-          watermarkSize,
+          0,
+          0,
+          canvas.width,
+          canvas.height,
         );
         ctx.globalAlpha = 1.0;
 
