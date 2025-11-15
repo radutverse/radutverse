@@ -29,7 +29,7 @@ interface CreationContextType {
   error: string | null;
   setError: (error: string | null) => void;
   creations: Creation[];
-  addCreation: (url: string, type: ResultType, prompt: string) => void;
+  addCreation: (url: string, type: ResultType, prompt: string, isDemo?: boolean) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
   originalPrompt: string;
