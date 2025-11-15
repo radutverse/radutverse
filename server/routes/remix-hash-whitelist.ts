@@ -1,4 +1,7 @@
-import type { Request, Response, RequestHandler } from "express";
+// server/routes/remix-hash-whitelist.ts
+
+// Hanya mengimpor RequestHandler yang digunakan untuk anotasi fungsi
+import type { RequestHandler } from "express";
 import {
   addHashToWhitelist,
   checkHashInWhitelist,
@@ -85,16 +88,16 @@ async function fetchFullAssetDetailsFromApi(ipId: string): Promise<any> {
  * Add hash to remix whitelist
  * POST /api/add-remix-hash
  * Body: {
- *   hash: string (SHA256 of pure image),
- *   ipId?: string,
- *   [all fields from client - from expanded view]
+ * hash: string (SHA256 of pure image),
+ * ipId?: string,
+ * [all fields from client - from expanded view]
  * }
  *
  * The backend automatically fetches the complete Details information
  * (simulating a click on the Details button) to capture everything
  * shown in the IP Asset Details modal without user interaction.
  */
-export const handleAddRemixHash: any = async (
+export const handleAddRemixHash: RequestHandler = async (
   req: any,
   res: any,
 ): Promise<void> => {
@@ -121,7 +124,7 @@ export const handleAddRemixHash: any = async (
     }
 
     // Start with client-provided data
-    let metadata = {
+    let metadata: any = { 
       timestamp: Date.now(),
       ipId,
       ...clientData,
@@ -144,7 +147,7 @@ export const handleAddRemixHash: any = async (
         !!fullAssetDetails,
       );
     } else {
-      console.log("[Whitelist] ��️ No ipId provided, skipping API fetch");
+      console.log("[Whitelist] 🗺️ No ipId provided, skipping API fetch");
     }
 
     // Merge full details with client data
@@ -316,7 +319,7 @@ function hammingDistance(hash1: string, hash2: string): number {
  * POST /api/check-remix-hash
  * Body: { hash: string, pHash?: string }
  */
-export const handleCheckRemixHash: any = async (
+export const handleCheckRemixHash: RequestHandler = async (
   req: any,
   res: any,
 ): Promise<void> => {
@@ -409,8 +412,8 @@ export const handleCheckRemixHash: any = async (
  * Get all remix hashes (admin only)
  * GET /api/_admin/remix-hashes
  */
-export const handleGetRemixHashes: any = async (
-  req: any,
+export const handleGetRemixHashes: RequestHandler = async (
+  _req: any, // Mengubah req menjadi _req untuk menghilangkan eror TS6133
   res: any,
 ): Promise<void> => {
   try {
@@ -426,8 +429,8 @@ export const handleGetRemixHashes: any = async (
  * Get all remix hashes with full metadata (admin only)
  * GET /api/_admin/remix-hashes-full
  */
-export const handleGetRemixHashesFull: any = async (
-  req: any,
+export const handleGetRemixHashesFull: RequestHandler = async (
+  _req: any, // Mengubah req menjadi _req untuk menghilangkan eror TS6133
   res: any,
 ): Promise<void> => {
   try {
@@ -444,7 +447,7 @@ export const handleGetRemixHashesFull: any = async (
  * POST /api/_admin/delete-remix-hash
  * Body: { hash: string }
  */
-export const handleDeleteRemixHash: any = async (
+export const handleDeleteRemixHash: RequestHandler = async (
   req: any,
   res: any,
 ): Promise<void> => {
@@ -467,8 +470,8 @@ export const handleDeleteRemixHash: any = async (
  * Clear all hashes from whitelist (admin only)
  * POST /api/_admin/clear-remix-hashes
  */
-export const handleClearRemixHashes: any = async (
-  req: any,
+export const handleClearRemixHashes: RequestHandler = async (
+  _req: any, // Mengubah req menjadi _req untuk menghilangkan eror TS6133
   res: any,
 ): Promise<void> => {
   try {
