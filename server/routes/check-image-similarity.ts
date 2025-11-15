@@ -103,7 +103,7 @@ async function loadWhitelistCached() {
 /**
  * Check if image is similar to any whitelisted images
  * POST /api/check-image-similarity
- * Body: { image: File or base64 string }
+ * Optimized for performance with early exit and caching
  */
 export const handleCheckImageSimilarity: any = async (
   req: any,
@@ -121,28 +121,24 @@ export const handleCheckImageSimilarity: any = async (
     }
 
     if (!imageBuffer || imageBuffer.length === 0) {
-      res.status(400).json({
+      return res.status(400).json({
         found: false,
         similarity: 0,
         message: "No image data provided",
       });
-      return;
     }
 
-    // Calculate perceptual hash of uploaded image
     const uploadedPHash = await calculateImagePerceptualHash(imageBuffer);
-
     if (!uploadedPHash) {
-      res.status(400).json({
+      return res.status(400).json({
         found: false,
         similarity: 0,
         message: "Failed to process image",
       });
-      return;
     }
 
-    // Check against all whitelisted images
-    const threshold = 75; // 75% similarity = block
+    const threshold = 75;
+    const whitelist = await loadWhitelistCached();
     const results: Array<{
       ipId: string;
       title: string;
@@ -150,52 +146,28 @@ export const handleCheckImageSimilarity: any = async (
       distance: number;
     }> = [];
 
-    // Get all whitelist entries (we'll need to read from file)
-    const fs = await import("fs/promises");
-    const path = await import("path");
+    for (const entry of whitelist.entries || []) {
+      if (entry.pHash) {
+        const distance = hammingDistance(uploadedPHash, entry.pHash);
+        const similarity = calculateSimilarityPercent(distance);
 
-    const whitelistPath = path.join(
-      process.cwd(),
-      "server",
-      "data",
-      "remix-hashes.json",
-    );
-
-    try {
-      const content = await fs.readFile(whitelistPath, "utf-8");
-      const whitelist = JSON.parse(content);
-
-      for (const entry of whitelist.entries || []) {
-        if (entry.pHash) {
-          const distance = hammingDistance(uploadedPHash, entry.pHash);
-          const similarity = calculateSimilarityPercent(distance);
-
-          results.push({
-            ipId: entry.ipId,
-            title: entry.title,
+        if (similarity >= threshold) {
+          return res.status(200).json({
+            found: true,
             similarity,
             distance,
+            ipId: entry.ipId,
+            title: entry.title,
+            message: `Image mirip dengan IP "${entry.title}" (${similarity}% match). Tidak dapat registrasi.`,
           });
+        }
 
-          // If found similar image above threshold, return immediately
-          if (similarity >= threshold) {
-            res.status(200).json({
-              found: true,
-              similarity,
-              distance,
-              ipId: entry.ipId,
-              title: entry.title,
-              message: `Image mirip dengan IP "${entry.title}" (${similarity}% match). Tidak dapat registrasi.`,
-            });
-            return;
-          }
+        if (similarity > 50) {
+          results.push({ ipId: entry.ipId, title: entry.title, similarity, distance });
         }
       }
-    } catch (error) {
-      console.warn("Could not read whitelist:", error);
     }
 
-    // No similar images found
     res.status(200).json({
       found: false,
       similarity: 0,
