@@ -30,13 +30,7 @@ export async function applyVisualWatermark(
 
       watermarkImage.onload = () => {
         ctx.globalAlpha = watermarkOpacity;
-        ctx.drawImage(
-          watermarkImage,
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        );
+        ctx.drawImage(watermarkImage, 0, 0, canvas.width, canvas.height);
         ctx.globalAlpha = 1.0;
 
         canvas.toBlob((blob) => {
