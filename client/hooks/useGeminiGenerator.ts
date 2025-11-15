@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
-import { embedWatermark, type WatermarkData } from "@/lib/utils/watermark";
+import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -25,6 +25,9 @@ const useGeminiGenerator = () => {
     demoMode,
   } = context;
 
+
+  const watermarkImageUrl =
+    "https://drive.google.com/uc?export=download&id=1-Xtbeb74oX034vvg5Xj4s73dlgTNHRUh";
 
   const paidRemixWatermarkedImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
@@ -70,10 +73,27 @@ const useGeminiGenerator = () => {
       let finalUrl = generatedUrl;
       const { remixType, assetData } = options;
 
-      // Watermark disabled - investigating black image issue
-      // if (remixType === "paid") {
-      //   // Watermark logic to be fixed
-      // }
+      if (remixType === "paid") {
+        try {
+          if (demoModeParam) {
+            // For demo mode paid remix, use the provided watermarked image
+            console.log("📸 Using demo mode watermarked image");
+            finalUrl = paidRemixWatermarkedImageUrl;
+          } else {
+            // For production paid remix, apply visual watermark overlay
+            console.log("🎨 Applying visual watermark overlay");
+            finalUrl = await applyVisualWatermark(
+              generatedUrl,
+              watermarkImageUrl,
+              0.35,
+            );
+          }
+        } catch (watermarkError) {
+          console.error("❌ Failed to apply watermark:", watermarkError);
+          // Continue with unwatermarked image if watermark fails
+          finalUrl = generatedUrl;
+        }
+      }
 
       setResultUrl(finalUrl);
       addCreation(finalUrl, type, options.prompt, demoModeParam, remixType);
