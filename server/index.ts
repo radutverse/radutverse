@@ -25,6 +25,7 @@ import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
 import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
 import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
 import { generateImage, editImage } from "./routes/generate-image.js";
+import { demoGenerateImage, demoEditImage } from "./routes/demo-generate.js";
 
 async function fetchParentIpDetails(
   childIpId: string,
