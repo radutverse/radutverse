@@ -7,6 +7,7 @@ type ChatHeaderActionsProps = {
   walletButtonDisabled: boolean;
   onWalletClick: () => void;
   connectedAddressLabel?: string | null;
+  onTryDemo?: () => void;
 };
 
 const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
