@@ -146,6 +146,14 @@ const IpImagineCreationResult = () => {
     navigate("/ip-imagine");
   };
 
+  const handleCardExpand = (creationId: string) => {
+    setExpandedCreationId(creationId);
+    const creation = context.creations.find((c) => c.id === creationId);
+    if (creation) {
+      setInput(creation.prompt);
+    }
+  };
+
   const headerActions = (
     <ChatHeaderActions
       guestMode={false}
