@@ -220,6 +220,7 @@ const IpImagine = () => {
       walletButtonDisabled={true}
       onWalletClick={() => {}}
       onTryDemo={handleTryDemo}
+      demoMode={demoMode}
     />
   );
 
