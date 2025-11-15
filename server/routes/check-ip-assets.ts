@@ -1,18 +1,24 @@
-import { Request, Response, RequestHandler } from "express"; // PERBAIKAN: Import Request dan Response
+import { Request, Response, RequestHandler } from "express";
 
-const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
+// Definisikan tipe untuk body request agar TypeScript mengenali properti 'address'
+interface CheckIpAssetsRequestBody {
+  address?: string;
+}
 
-// PERBAIKAN: Mengganti :any dan req:any, res:any dengan anotasi RequestHandler dan tipe generik yang spesifik
+// Gunakan tipe generik Request dan Response dengan tipe Body yang spesifik
 export const handleCheckIpAssets: RequestHandler = async (
-  req: Request,
-  res: Response,
+  req: Request<any, any, CheckIpAssetsRequestBody>, // Tipe Request dengan Body yang spesifik
+  res: Response, // Tipe Response Express
 ) => {
   try {
+    // Properti 'get' sekarang dikenali
     const idempotencyKey = (req.get("Idempotency-Key") ||
       req.get("Idempotency-Key")) as string | undefined;
+      
     if (idempotencyKey && IDP_CHECK.has(idempotencyKey)) {
       const cached = IDP_CHECK.get(idempotencyKey)!;
       if (Date.now() - cached.ts < 60_000) {
+        // Properti 'status' dan 'json' dikenali
         res.status(cached.status).json({ ok: true, ...cached.body });
         return;
       } else {
@@ -20,8 +26,8 @@ export const handleCheckIpAssets: RequestHandler = async (
       }
     }
 
-    // Mengasumsikan req.body memiliki properti 'address'
-    const { address } = req.body as { address?: string }; // PERBAIKAN: Menambahkan anotasi tipe pada req.body
+    // Properti 'body' sekarang dikenali dan memiliki tipe yang benar
+    const { address } = req.body;
 
     if (!address || typeof address !== "string") {
       return res.status(400).json({
@@ -237,3 +243,5 @@ export const handleCheckIpAssets: RequestHandler = async (
     });
   }
 };
+
+const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
