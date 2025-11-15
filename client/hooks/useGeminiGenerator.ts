@@ -34,7 +34,7 @@ const useGeminiGenerator = () => {
   const generate = async (
     mode: ToggleMode,
     options: GenerationOptions,
-    demoMode: boolean = false,
+    demoModeParam: boolean = false,
   ) => {
     if (mode === "video") {
       setError("Video generation is coming soon!");
@@ -56,12 +56,12 @@ const useGeminiGenerator = () => {
         generatedUrl = await openaiService.editImage(
           options.prompt,
           options.image,
-          demoMode,
+          demoModeParam,
         );
       } else {
         generatedUrl = await openaiService.generateImageFromText(
           options.prompt,
-          demoMode,
+          demoModeParam,
         );
       }
 
@@ -69,7 +69,34 @@ const useGeminiGenerator = () => {
       setResultType("image");
 
       setResultUrl(generatedUrl);
-      addCreation(generatedUrl, type, options.prompt, demoMode);
+
+      // Apply watermark for paid remix before storing creation
+      let finalUrl = generatedUrl;
+      const { remixType } = options;
+
+      if (remixType === "paid") {
+        try {
+          if (demoModeParam) {
+            // For demo mode paid remix, use the provided watermarked image
+            console.log("📸 Applying watermark for demo mode paid remix");
+            finalUrl = paidRemixWatermarkedImageUrl;
+          } else {
+            // For production paid remix, apply visual watermark
+            console.log("🎨 Applying visual watermark for paid remix");
+            finalUrl = await applyVisualWatermark(
+              generatedUrl,
+              watermarkImageUrl,
+              0.8,
+            );
+          }
+        } catch (watermarkError) {
+          console.error("❌ Failed to apply watermark:", watermarkError);
+          // Continue with unwatermarked image if watermark fails
+          finalUrl = generatedUrl;
+        }
+      }
+
+      addCreation(finalUrl, type, options.prompt, demoModeParam, remixType);
     } catch (e: any) {
       console.error(e);
       let errorMessage =
