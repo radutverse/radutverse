@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
-import { applyVisualWatermark } from "@/lib/utils/apply-visual-watermark";
+import { embedWatermark, type WatermarkData } from "@/lib/utils/watermark";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -25,8 +25,6 @@ const useGeminiGenerator = () => {
     demoMode,
   } = context;
 
-  const watermarkImageUrl =
-    "https://drive.google.com/uc?export=download&id=1-Xtbeb74oX034vvg5Xj4s73dlgTNHRUh";
 
   const paidRemixWatermarkedImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
@@ -76,16 +74,35 @@ const useGeminiGenerator = () => {
         try {
           if (demoModeParam) {
             // For demo mode paid remix, use the provided watermarked image
-            console.log("📸 Applying watermark for demo mode paid remix");
+            console.log("📸 Using demo mode watermarked image");
             finalUrl = paidRemixWatermarkedImageUrl;
           } else {
-            // For production paid remix, apply visual watermark
-            console.log("🎨 Applying visual watermark for paid remix");
-            finalUrl = await applyVisualWatermark(
-              generatedUrl,
-              watermarkImageUrl,
-              0.6,
-            );
+            // For production paid remix, apply invisible watermark embedding
+            console.log("🔐 Applying invisible watermark to image");
+
+            // Convert image URL to blob
+            const imageResponse = await fetch(generatedUrl);
+            const imageBlob = await imageResponse.blob();
+
+            // Create watermark data
+            const watermarkData: WatermarkData = {
+              ipId: `remix-${Date.now()}`,
+              licenseTerms: "paid-remix",
+              copyrightInfo: "Protected IP - Remix",
+              metadata: {
+                protected: true,
+                remixType: "paid",
+                createdAt: new Date().toISOString(),
+              },
+              timestamp: Date.now(),
+            };
+
+            // Embed watermark into image pixels
+            const watermarkedBlob = await embedWatermark(imageBlob, watermarkData);
+
+            // Convert back to URL
+            finalUrl = URL.createObjectURL(watermarkedBlob);
+            console.log("✅ Invisible watermark applied successfully");
           }
         } catch (watermarkError) {
           console.error("❌ Failed to apply watermark:", watermarkError);
