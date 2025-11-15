@@ -47,7 +47,9 @@ export const generateImageFromTextWithWatermark = async (
   if (!prompt) throw new Error("Prompt is required.");
 
   try {
-    const endpoint = demoMode ? "/api/demo-generate" : "/api/generate-with-watermark";
+    const endpoint = demoMode
+      ? "/api/demo-generate"
+      : "/api/generate-with-watermark";
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
