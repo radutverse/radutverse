@@ -112,11 +112,12 @@ const IpImagineCreationResult = () => {
       const [header, base64Data] = resultUrl.split(",");
       const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledUrl = await openaiService.upscaleImage({
+      const upscaledImageUrl = await openaiService.upscaleImage({
         imageBytes: base64Data,
         mimeType,
       });
-      setResultUrl(upscaledUrl);
+      setResultUrl(upscaledImageUrl);
+      setUpscaledUrl(upscaledImageUrl);
       setResultType("image");
     } catch (e: any) {
       console.error(e);
