@@ -71,7 +71,7 @@ const useGeminiGenerator = () => {
 
       // Apply watermark for paid remix
       let finalUrl = generatedUrl;
-      const { remixType, assetData } = options;
+      const { remixType } = options;
 
       if (remixType === "paid") {
         try {
