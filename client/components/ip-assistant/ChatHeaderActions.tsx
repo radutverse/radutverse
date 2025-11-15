@@ -19,6 +19,7 @@ const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
   onWalletClick,
   connectedAddressLabel,
   onTryDemo,
+  demoMode,
 }) => (
   <>
     {connectedAddressLabel ? (
