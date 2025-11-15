@@ -14,7 +14,6 @@ import * as openaiService from "@/services/openaiService";
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
   const context = useContext(CreationContext);
-  const [isCardExpanded, setIsCardExpanded] = useState(false);
 
   if (!context) {
     return (
