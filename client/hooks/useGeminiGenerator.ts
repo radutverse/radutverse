@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
+import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -23,7 +24,11 @@ const useGeminiGenerator = () => {
     setOriginalPrompt,
   } = context;
 
-  const generate = async (mode: ToggleMode, options: GenerationOptions) => {
+  const generate = async (
+    mode: ToggleMode,
+    options: GenerationOptions,
+    demoMode: boolean = false,
+  ) => {
     if (mode === "video") {
       setError("Video generation is coming soon!");
       return;
@@ -39,22 +44,30 @@ const useGeminiGenerator = () => {
       let generatedUrl: string;
       let type: "image" | "video";
 
-      setLoadingMessage("Crafting your image...");
-      if (options.image) {
-        generatedUrl = await openaiService.editImage(
-          options.prompt,
-          options.image,
-        );
+      if (demoMode) {
+        // Demo mode: simulate loading delay and generate dummy image
+        setLoadingMessage("Crafting your image...");
+        await new Promise((resolve) => setTimeout(resolve, 3500));
+        generatedUrl = generateDemoImage();
       } else {
-        generatedUrl = await openaiService.generateImageFromText(
-          options.prompt,
-        );
+        setLoadingMessage("Crafting your image...");
+        if (options.image) {
+          generatedUrl = await openaiService.editImage(
+            options.prompt,
+            options.image,
+          );
+        } else {
+          generatedUrl = await openaiService.generateImageFromText(
+            options.prompt,
+          );
+        }
       }
+
       type = "image";
       setResultType("image");
 
       setResultUrl(generatedUrl);
-      addCreation(generatedUrl, type, options.prompt);
+      addCreation(generatedUrl, type, options.prompt, demoMode);
     } catch (e: any) {
       console.error(e);
       let errorMessage =

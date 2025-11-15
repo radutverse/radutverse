@@ -14,6 +14,7 @@ export interface Creation {
   type: ResultType;
   timestamp: number;
   prompt: string;
+  isDemo?: boolean;
 }
 
 interface CreationContextType {
@@ -28,11 +29,18 @@ interface CreationContextType {
   error: string | null;
   setError: (error: string | null) => void;
   creations: Creation[];
-  addCreation: (url: string, type: ResultType, prompt: string) => void;
+  addCreation: (
+    url: string,
+    type: ResultType,
+    prompt: string,
+    isDemo?: boolean,
+  ) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
   originalPrompt: string;
   setOriginalPrompt: (prompt: string) => void;
+  demoMode: boolean;
+  setDemoMode: (demo: boolean) => void;
 }
 
 export const CreationContext = createContext<CreationContextType | undefined>(
@@ -54,13 +62,16 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
   const [originalPrompt, setOriginalPrompt] = useState<string>("");
+  const [demoMode, setDemoMode] = useState<boolean>(false);
 
   // Load creations and current result from localStorage on mount
   useEffect(() => {
     const storedCreations = localStorage.getItem(STORAGE_KEY);
     if (storedCreations) {
       try {
-        setCreations(JSON.parse(storedCreations));
+        const allCreations = JSON.parse(storedCreations);
+        // Only load non-demo creations from localStorage
+        setCreations(allCreations.filter((c: Creation) => !c.isDemo));
       } catch (err) {
         console.error("Failed to load creation history:", err);
       }
@@ -80,28 +91,38 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // Save creations to localStorage whenever they change
+  // Save creations to localStorage whenever they change (only non-demo)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(creations));
+    const nonDemoCreations = creations.filter((c) => !c.isDemo);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nonDemoCreations));
   }, [creations]);
 
-  // Save current result URL to localStorage
+  // Save current result URL to localStorage (only non-demo)
   useEffect(() => {
-    if (resultUrl) {
-      localStorage.setItem(RESULT_URL_KEY, resultUrl);
-    } else {
-      localStorage.removeItem(RESULT_URL_KEY);
+    const lastNonDemoResult = creations.find((c) => !c.isDemo);
+    if (lastNonDemoResult?.url) {
+      localStorage.setItem(RESULT_URL_KEY, lastNonDemoResult.url);
+    } else if (!resultUrl?.includes("data:")) {
+      // Only persist non-data URLs to localStorage
+      if (resultUrl) {
+        localStorage.setItem(RESULT_URL_KEY, resultUrl);
+      } else {
+        localStorage.removeItem(RESULT_URL_KEY);
+      }
     }
-  }, [resultUrl]);
+  }, [resultUrl, creations]);
 
-  // Save current result type to localStorage
+  // Save current result type to localStorage (only for non-demo)
   useEffect(() => {
-    if (resultType) {
+    const lastNonDemoResult = creations.find((c) => !c.isDemo);
+    if (lastNonDemoResult?.type) {
+      localStorage.setItem(RESULT_TYPE_KEY, lastNonDemoResult.type);
+    } else if (resultType) {
       localStorage.setItem(RESULT_TYPE_KEY, resultType);
     } else {
       localStorage.removeItem(RESULT_TYPE_KEY);
     }
-  }, [resultType]);
+  }, [resultType, creations]);
 
   // Save original prompt to localStorage
   useEffect(() => {
@@ -121,15 +142,30 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   }, [resultUrl]);
 
   const addCreation = useCallback(
-    (url: string, type: ResultType, prompt: string) => {
+    (
+      url: string,
+      type: ResultType,
+      prompt: string,
+      isDemo: boolean = false,
+    ) => {
       const newCreation: Creation = {
         id: `creation_${Date.now()}`,
         url,
         type,
         timestamp: Date.now(),
         prompt,
+        isDemo,
       };
       setCreations((prev) => [newCreation, ...prev]);
+
+      // Auto-remove demo creations after 6 minutes (360000ms)
+      if (isDemo) {
+        const timeoutId = setTimeout(() => {
+          setCreations((prev) => prev.filter((c) => c.id !== newCreation.id));
+        }, 360000);
+
+        return () => clearTimeout(timeoutId);
+      }
     },
     [],
   );
@@ -160,6 +196,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       clearCreations,
       originalPrompt,
       setOriginalPrompt,
+      demoMode,
+      setDemoMode,
     }),
     [
       resultUrl,
@@ -172,6 +210,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       removeCreation,
       clearCreations,
       originalPrompt,
+      demoMode,
     ],
   ) as CreationContextType;
 

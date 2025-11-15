@@ -10,6 +10,7 @@ import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
+import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
@@ -52,6 +53,8 @@ const IpImagineCreationResult = () => {
     loadingMessage,
     error,
     originalPrompt,
+    demoMode,
+    setDemoMode,
   } = context;
 
   const [showUpscaler, setShowUpscaler] = useState(false);
@@ -113,13 +116,23 @@ const IpImagineCreationResult = () => {
 
     try {
       setLoadingMessage("Upscaling image...");
-      const [header, base64Data] = resultUrl.split(",");
-      const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
 
-      const upscaledImageUrl = await openaiService.upscaleImage({
-        imageBytes: base64Data,
-        mimeType,
-      });
+      let upscaledImageUrl: string;
+
+      if (demoMode) {
+        // Demo mode: simulate upscaling delay and generate another dummy image
+        await new Promise((resolve) => setTimeout(resolve, 3500));
+        upscaledImageUrl = generateDemoImage();
+      } else {
+        const [header, base64Data] = resultUrl.split(",");
+        const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
+
+        upscaledImageUrl = await openaiService.upscaleImage({
+          imageBytes: base64Data,
+          mimeType,
+        });
+      }
+
       setResultUrl(upscaledImageUrl);
       setUpscaledUrl(upscaledImageUrl);
       setResultType("image");
@@ -151,6 +164,11 @@ const IpImagineCreationResult = () => {
     navigate("/ip-imagine");
   };
 
+  const handleTryDemo = () => {
+    const newDemoMode = !demoMode;
+    setDemoMode(newDemoMode);
+  };
+
   const handleCardExpand = (creationId: string) => {
     setExpandedCreationId(creationId);
     const creation = context.creations.find((c) => c.id === creationId);
@@ -166,6 +184,8 @@ const IpImagineCreationResult = () => {
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
+      onTryDemo={handleTryDemo}
+      demoMode={demoMode}
     />
   );
 
