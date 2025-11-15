@@ -14,6 +14,7 @@ export interface Creation {
   type: ResultType;
   timestamp: number;
   prompt: string;
+  isDemo?: boolean;
 }
 
 interface CreationContextType {
