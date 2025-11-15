@@ -1,10 +1,12 @@
 export const generateImageFromText = async (
   prompt: string,
+  demoMode: boolean = false,
 ): Promise<string> => {
   if (!prompt) throw new Error("Prompt is required.");
 
   try {
-    const response = await fetch("/api/generate", {
+    const endpoint = demoMode ? "/api/demo-generate" : "/api/generate";
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
