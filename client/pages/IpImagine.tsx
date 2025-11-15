@@ -285,30 +285,63 @@ const IpImagine = () => {
 
   const watermarkImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2Fbf1ea5b4cb754c429d69eca494dc283d%2Fdbfcde32396741be8c5f0d10238790a6?format=webp&width=800";
+
+  // Watermarked image for paid remix in demo mode
+  const paidRemixWatermarkedImageUrl =
+    "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
+
   const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
 
   // Apply watermark when generation completes and currentRemixType is "paid"
   useEffect(() => {
     const applyWatermarkIfNeeded = async () => {
+      console.log("🔍 Watermark check:", {
+        currentRemixType,
+        resultUrl: resultUrl ? resultUrl.substring(0, 50) : null,
+        isApplyingWatermark,
+        isLoading,
+        demoMode,
+      });
+
       if (
         currentRemixType === "paid" &&
         resultUrl &&
         !isApplyingWatermark &&
         !isLoading
       ) {
+        console.log("✅ Triggering watermark application...");
         setIsApplyingWatermark(true);
         try {
-          setStatusText("🎨 Adding watermark...");
-          const watermarkedUrl = await applyVisualWatermark(
-            resultUrl,
-            watermarkImageUrl,
-            0.8,
+          let watermarkedUrl: string;
+
+          if (demoMode) {
+            // For demo mode paid remix, use the provided watermarked image directly
+            console.log(
+              "📸 Using pre-made watermarked image for demo paid remix",
+            );
+            setStatusText("✨ Watermark applied!");
+            watermarkedUrl = paidRemixWatermarkedImageUrl;
+          } else {
+            // Use visual watermark with image for production
+            setStatusText("🎨 Adding watermark...");
+            watermarkedUrl = await applyVisualWatermark(
+              resultUrl,
+              watermarkImageUrl,
+              0.8,
+            );
+          }
+
+          console.log(
+            "🎨 Setting watermarked URL:",
+            watermarkedUrl.substring(0, 50),
           );
           setResultUrl(watermarkedUrl);
-          setStatusText("✨ Watermark applied!");
+          if (!demoMode) {
+            setStatusText("✨ Watermark applied!");
+          }
           setCurrentRemixType(null);
         } catch (error) {
-          console.error("Failed to apply watermark:", error);
+          console.error("❌ Failed to apply watermark:", error);
           setStatusText(
             "⚠️ Image generated but watermark failed. Using original image.",
           );
@@ -324,8 +357,10 @@ const IpImagine = () => {
     currentRemixType,
     isLoading,
     isApplyingWatermark,
+    demoMode,
     setResultUrl,
     watermarkImageUrl,
+    paidRemixWatermarkedImageUrl,
   ]);
 
   const headerActions = (
