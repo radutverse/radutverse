@@ -386,7 +386,11 @@ const IpImagineCreationResult = () => {
                   >
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                       className="mb-4"
                     >
                       <svg

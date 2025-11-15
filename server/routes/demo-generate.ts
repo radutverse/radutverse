@@ -5,10 +5,10 @@ import sharp from "sharp";
 function getColorFromPrompt(text: string): string {
   let hash = 0;
   for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i);
+    hash = (hash << 5) - hash + text.charCodeAt(i);
     hash = hash & hash;
   }
-  const hue = (hash % 360 + 360) % 360;
+  const hue = ((hash % 360) + 360) % 360;
   return `hsl(${hue}, 70%, 50%)`;
 }
 
@@ -40,7 +40,7 @@ function generateDemoSvgImage(prompt: string): string {
         DEMO MODE
       </text>
       <text x="512" y="550" font-size="24" text-anchor="middle" fill="${contrastColor}" opacity="0.6" font-style="italic">
-        ${escapeXml(prompt.substring(0, 50))}${prompt.length > 50 ? '...' : ''}
+        ${escapeXml(prompt.substring(0, 50))}${prompt.length > 50 ? "..." : ""}
       </text>
     </svg>
   `;
