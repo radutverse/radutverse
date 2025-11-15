@@ -17,7 +17,7 @@ import { getImageVisionDescription } from "@/lib/utils/vision-api";
 import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
 
 const IpImagine = () => {
-  const { generate, isLoading, resultUrl } = useGeminiGenerator();
+  const { generate, isLoading, resultUrl, demoMode, setDemoMode } = useGeminiGenerator();
 
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
