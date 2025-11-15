@@ -102,6 +102,15 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [resultType]);
 
+  // Save original prompt to localStorage
+  useEffect(() => {
+    if (originalPrompt) {
+      localStorage.setItem(ORIGINAL_PROMPT_KEY, originalPrompt);
+    } else {
+      localStorage.removeItem(ORIGINAL_PROMPT_KEY);
+    }
+  }, [originalPrompt]);
+
   useEffect(() => {
     return () => {
       if (resultUrl && resultUrl.startsWith("blob:")) {
