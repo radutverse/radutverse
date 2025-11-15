@@ -391,23 +391,25 @@ const IpImagineCreationResult = () => {
         <div />
       </div>
 
-      <IpImagineInput
-        input={input}
-        setInput={setInput}
-        waiting={waiting}
-        previewImages={previewImages}
-        setPreviewImages={setPreviewImages}
-        uploadRef={uploadRef}
-        handleImage={handleImage}
-        onSubmit={handleSubmit}
-        inputRef={inputRef}
-        handleKeyDown={handleKeyDown}
-        toolsOpen={toolsOpen}
-        setToolsOpen={setToolsOpen}
-        suggestions={suggestions}
-        setSuggestions={setSuggestions}
-        attachmentLoading={attachmentLoading}
-      />
+      {isCardExpanded && (
+        <IpImagineInput
+          input={input}
+          setInput={setInput}
+          waiting={waiting}
+          previewImages={previewImages}
+          setPreviewImages={setPreviewImages}
+          uploadRef={uploadRef}
+          handleImage={handleImage}
+          onSubmit={handleSubmit}
+          inputRef={inputRef}
+          handleKeyDown={handleKeyDown}
+          toolsOpen={toolsOpen}
+          setToolsOpen={setToolsOpen}
+          suggestions={suggestions}
+          setSuggestions={setSuggestions}
+          attachmentLoading={attachmentLoading}
+        />
+      )}
 
       <AnimatePresence>
         {showUpscaler && displayUrl && (
