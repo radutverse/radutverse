@@ -354,7 +354,7 @@ const IpImagineCreationResult = () => {
                 );
               })()}
             </motion.div>
-          ) : context.creations.length === 0 && !(isLoading && demoMode) ? (
+          ) : context.creations.length === 0 && !isLoading ? (
             <motion.div
               key="no-data"
               initial={{ opacity: 0 }}
