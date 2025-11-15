@@ -662,6 +662,15 @@ export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) =
             onRemixMenu={() => {
               setRemixMenuOpen(true);
             }}
+            onRemixSelected={async (remixType) => {
+              if (onRemixSelected) {
+                try {
+                  await onRemixSelected(expandedAsset, remixType);
+                } catch (error) {
+                  console.error("Error handling remix selection:", error);
+                }
+              }
+            }}
           />
         )}
       </AnimatePresence>
