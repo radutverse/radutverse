@@ -1,10 +1,9 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import { setCorsHeaders, handleOptions } from "./utils/middleware";
 import { handleAnalyzeImageVision } from "../server/routes/analyze-image-vision.js";
 
 export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse,
+  req: any,
+  res: any,
 ) {
   setCorsHeaders(req, res);
 
