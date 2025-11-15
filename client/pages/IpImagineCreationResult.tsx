@@ -361,12 +361,13 @@ const IpImagineCreationResult = () => {
                       className="flex-shrink-0"
                     >
                       <CompactResultCard
-                        imageUrl={creation.url}
+                        imageUrl={upscalingCreationId === creation.id && upscaledUrl ? upscaledUrl : creation.url}
                         type={creation.type}
                         isLoading={false}
                         onDownload={() => {
                           const link = document.createElement("a");
-                          link.href = creation.url;
+                          const downloadUrl = upscalingCreationId === creation.id && upscaledUrl ? upscaledUrl : creation.url;
+                          link.href = downloadUrl;
                           link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
                           document.body.appendChild(link);
                           link.click();
@@ -393,6 +394,7 @@ const IpImagineCreationResult = () => {
                             ? () => {
                                 setResultUrl(creation.url);
                                 setResultType(creation.type);
+                                setUpscalingCreationId(creation.id);
                                 setShowUpscaler(true);
                               }
                             : undefined
