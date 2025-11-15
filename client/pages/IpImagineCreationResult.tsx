@@ -184,6 +184,8 @@ const IpImagineCreationResult = () => {
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
+      onTryDemo={handleTryDemo}
+      demoMode={demoMode}
     />
   );
 
