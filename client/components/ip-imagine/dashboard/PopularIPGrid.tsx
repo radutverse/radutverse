@@ -1020,12 +1020,22 @@ export const PopularIPGrid = ({ onBack, onRemixSelected }: PopularIPGridProps) =
                   {getRemixTypes(expandedAsset).map((remixConfig) => (
                     <button
                       key={remixConfig.type}
-                      onClick={() => {
-                        console.log(
-                          `Starting ${remixConfig.type} remix for asset:`,
-                          expandedAsset.title,
-                        );
-                        setRemixMenuOpen(false);
+                      onClick={async () => {
+                        if (onRemixSelected) {
+                          try {
+                            await onRemixSelected(expandedAsset, remixConfig.type);
+                            setRemixMenuOpen(false);
+                            setExpandedAsset(null);
+                          } catch (error) {
+                            console.error("Error handling remix selection:", error);
+                          }
+                        } else {
+                          console.log(
+                            `Starting ${remixConfig.type} remix for asset:`,
+                            expandedAsset.title,
+                          );
+                          setRemixMenuOpen(false);
+                        }
                       }}
                       className="w-full p-4 rounded-lg bg-gradient-to-r from-slate-800 to-slate-700 border border-slate-600/50 hover:border-[#FF4DA6]/50 hover:bg-gradient-to-r hover:from-[#FF4DA6]/20 hover:to-slate-700 transition-all text-left"
                     >
