@@ -147,22 +147,10 @@ const IpImagineCreationResult = () => {
   };
 
   const handleCardExpand = (creationId: string) => {
-    // Close previous expanded card if any
-    if (expandedCreationId !== null && expandedCreationId !== creationId) {
-      setExpandedCreationId(null);
-      setTimeout(() => {
-        setExpandedCreationId(creationId);
-        const creation = context.creations.find((c) => c.id === creationId);
-        if (creation) {
-          setInput(creation.prompt);
-        }
-      }, 100);
-    } else {
-      setExpandedCreationId(creationId);
-      const creation = context.creations.find((c) => c.id === creationId);
-      if (creation) {
-        setInput(creation.prompt);
-      }
+    setExpandedCreationId(creationId);
+    const creation = context.creations.find((c) => c.id === creationId);
+    if (creation) {
+      setInput(creation.prompt);
     }
   };
 
