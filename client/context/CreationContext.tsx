@@ -56,6 +56,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
   const [originalPrompt, setOriginalPrompt] = useState<string>("");
+  const [demoMode, setDemoMode] = useState<boolean>(false);
 
   // Load creations and current result from localStorage on mount
   useEffect(() => {
