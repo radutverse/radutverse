@@ -1,10 +1,9 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import { setCorsHeaders, handleOptions } from "./utils/middleware";
 import { handleSearchByOwner } from "../server/routes/search-by-owner.js";
 
 export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse,
+  req: any,
+  res: any,
 ) {
   setCorsHeaders(req, res);
 
