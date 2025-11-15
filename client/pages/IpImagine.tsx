@@ -43,8 +43,13 @@ const IpImagine = () => {
 
   // Track new results for stacking effect
   useEffect(() => {
-    if (resultUrl && !resultUrls.includes(resultUrl)) {
-      setResultUrls((prev) => [resultUrl, ...prev].slice(0, 5));
+    if (resultUrl) {
+      setResultUrls((prev) => {
+        if (!prev.includes(resultUrl)) {
+          return [resultUrl, ...prev].slice(0, 5);
+        }
+        return prev;
+      });
     }
   }, [resultUrl]);
 
