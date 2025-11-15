@@ -1,10 +1,14 @@
-import { put, list, del } from "@vercel/blob";
+// server/utils/remix-hash-whitelist.ts
+
+// PERBAIKAN: Menghapus 'del' dari imports karena tidak digunakan (TS6133).
+// 'put' dan 'list' tetap ada karena digunakan.
+import { put, list } from "@vercel/blob";
 
 /**
  * Whitelist storage using Vercel Blob:
  * - Stores all entries in a single JSON file: "remix-hashes.json"
  * - File is publicly accessible for reading
- * - Uses Vercel Blob API: put, list, del
+ * - Uses Vercel Blob API: put, list
  */
 
 interface RemixImageMetadata {
