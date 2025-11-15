@@ -1,4 +1,4 @@
-export { PopularIPGrid } from "../ip-imagine/dashboard/PopularIPGrid";
+export { PopularIPGrid } from "../imagine/dashboard/PopularIPGrid";
 export { AddRemixImageModal } from "./AddRemixImageModal";
 export { RemixImage } from "./RemixImage";
 export type {
