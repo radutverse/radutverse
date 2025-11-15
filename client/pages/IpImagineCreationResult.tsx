@@ -10,6 +10,7 @@ import ChatHeaderActions from "@/components/ip-assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip-assistant/SidebarExtras";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
+import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
