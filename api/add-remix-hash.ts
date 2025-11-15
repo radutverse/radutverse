@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { setCorsHeaders, handleOptions } from "../utils/middleware";
-import { handleAddRemixHash } from "../../server/routes/remix-hash-whitelist.js";
+import { setCorsHeaders, handleOptions } from "./utils/middleware";
+import { handleAddRemixHash } from "../server/routes/remix-hash-whitelist.js";
 
 export default async function handler(
   req: VercelRequest,
