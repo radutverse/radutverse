@@ -73,25 +73,9 @@ const useGeminiGenerator = () => {
       const { remixType, assetData } = options;
 
       if (remixType === "paid") {
-        try {
-          if (demoModeParam) {
-            // For demo mode paid remix, use the provided watermarked image
-            console.log("📸 Applying watermark for demo mode paid remix");
-            finalUrl = paidRemixWatermarkedImageUrl;
-          } else {
-            // For production paid remix, apply visual watermark (use transparent PNG)
-            console.log("🎨 Applying visual watermark for paid remix");
-            finalUrl = await applyVisualWatermark(
-              generatedUrl,
-              watermarkImageUrl,
-              0.15,
-            );
-          }
-        } catch (watermarkError) {
-          console.error("❌ Failed to apply watermark:", watermarkError);
-          // Continue with unwatermarked image if watermark fails
-          finalUrl = generatedUrl;
-        }
+        // Temporarily disabled watermark for testing
+        console.log("📸 Paid remix - watermark disabled for testing");
+        finalUrl = generatedUrl;
       }
 
       setResultUrl(finalUrl);
