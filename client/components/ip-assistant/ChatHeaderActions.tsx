@@ -8,6 +8,7 @@ type ChatHeaderActionsProps = {
   onWalletClick: () => void;
   connectedAddressLabel?: string | null;
   onTryDemo?: () => void;
+  demoMode?: boolean;
 };
 
 const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
