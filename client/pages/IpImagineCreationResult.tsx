@@ -52,6 +52,8 @@ const IpImagineCreationResult = () => {
     loadingMessage,
     error,
     originalPrompt,
+    demoMode,
+    setDemoMode,
   } = context;
 
   const [showUpscaler, setShowUpscaler] = useState(false);
