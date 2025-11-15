@@ -59,39 +59,42 @@ const useGeminiGenerator = () => {
           demoModeParam,
         );
       } else {
-        generatedUrl = await openaiService.generateImageFromText(
-          options.prompt,
-          demoModeParam,
-        );
+        const { remixType } = options;
+        if (remixType === "paid" && !demoModeParam) {
+          // For production paid remix, use server-side watermark endpoint
+          console.log("🎨 Generating image with server-side watermark");
+          generatedUrl = await openaiService.generateImageFromTextWithWatermark(
+            options.prompt,
+            demoModeParam,
+          );
+        } else {
+          // Standard generation without watermark
+          generatedUrl = await openaiService.generateImageFromText(
+            options.prompt,
+            demoModeParam,
+          );
+        }
       }
 
       type = "image";
       setResultType("image");
 
-      // Apply watermark for paid remix
+      // Handle demo mode paid remix watermark
       let finalUrl = generatedUrl;
       const { remixType } = options;
 
-      if (remixType === "paid") {
+      if (remixType === "paid" && demoModeParam) {
         try {
-          if (demoModeParam) {
-            // For demo mode paid remix, use the provided watermarked image
-            console.log("📸 Using demo mode watermarked image");
-            finalUrl = paidRemixWatermarkedImageUrl;
-          } else {
-            // For production paid remix, apply visual watermark overlay
-            console.log("🎨 Applying visual watermark overlay");
-            finalUrl = await applyVisualWatermark(
-              generatedUrl,
-              watermarkImageUrl,
-              0.35,
-            );
-          }
+          // For demo mode paid remix, use the provided watermarked image
+          console.log("📸 Using demo mode watermarked image");
+          finalUrl = paidRemixWatermarkedImageUrl;
         } catch (watermarkError) {
-          console.error("❌ Failed to apply watermark:", watermarkError);
+          console.error("❌ Failed to set demo watermark:", watermarkError);
           // Continue with unwatermarked image if watermark fails
           finalUrl = generatedUrl;
         }
+      } else {
+        finalUrl = generatedUrl;
       }
 
       setResultUrl(finalUrl);
