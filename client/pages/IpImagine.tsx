@@ -573,7 +573,7 @@ const IpImagine = () => {
               const url = asset.preview || asset.url || "";
               setPreviewImages({
                 remixImage: blob
-                  ? { blob, name: asset.name || "selected", url }
+                  ? { blob, name: asset.name || "selected", url, asset }
                   : null,
                 additionalImage: null,
               } as any);
