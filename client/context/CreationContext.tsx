@@ -153,6 +153,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       addCreation,
       removeCreation,
       clearCreations,
+      originalPrompt,
+      setOriginalPrompt,
     }),
     [
       resultUrl,
@@ -164,6 +166,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       addCreation,
       removeCreation,
       clearCreations,
+      originalPrompt,
     ],
   ) as CreationContextType;
 
