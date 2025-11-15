@@ -14,6 +14,7 @@ import * as openaiService from "@/services/openaiService";
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
   const context = useContext(CreationContext);
+  const [isCardExpanded, setIsCardExpanded] = useState(false);
 
   if (!context) {
     return (
@@ -36,23 +37,6 @@ const IpImagineCreationResult = () => {
           </motion.div>
           <div />
         </div>
-        <IpImagineInput
-          input=""
-          setInput={() => {}}
-          waiting={false}
-          previewImages={{ remixImage: null, additionalImage: null }}
-          setPreviewImages={() => {}}
-          uploadRef={{ current: null }}
-          handleImage={() => {}}
-          onSubmit={() => navigate("/ip-imagine")}
-          inputRef={{ current: null }}
-          handleKeyDown={() => {}}
-          toolsOpen={false}
-          setToolsOpen={() => {}}
-          suggestions={[]}
-          setSuggestions={() => {}}
-          attachmentLoading={false}
-        />
       </DashboardLayout>
     );
   }
