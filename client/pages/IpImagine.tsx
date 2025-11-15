@@ -302,6 +302,7 @@ const IpImagine = () => {
             onBack={() => {
               /* no-op for standalone imagine */
             }}
+            onRemixSelected={handleRemixSelected}
           />
         </AnimatePresence>
 
