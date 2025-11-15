@@ -286,6 +286,11 @@ const IpImagine = () => {
 
   const watermarkImageUrl =
     "https://cdn.builder.io/api/v1/image/assets%2Fbf1ea5b4cb754c429d69eca494dc283d%2Fdbfcde32396741be8c5f0d10238790a6?format=webp&width=800";
+
+  // Watermarked image for paid remix in demo mode
+  const paidRemixWatermarkedImageUrl =
+    "https://cdn.builder.io/api/v1/image/assets%2Fb58d02d806854ce7935f858301fe2d0e%2F4d2e3210864a407990fca21794f79921?format=webp&width=800";
+
   const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
 
   // Apply watermark when generation completes and currentRemixType is "paid"
