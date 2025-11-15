@@ -67,11 +67,15 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
 
     const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
     const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
+    const storedPrompt = localStorage.getItem(ORIGINAL_PROMPT_KEY);
     if (storedResultUrl) {
       setResultUrl(storedResultUrl);
     }
     if (storedResultType) {
       setResultType(storedResultType as ResultType);
+    }
+    if (storedPrompt) {
+      setOriginalPrompt(storedPrompt);
     }
   }, []);
 
