@@ -56,7 +56,9 @@ const IpImagineCreationResult = () => {
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
-  const [upscalingCreationId, setUpscalingCreationId] = useState<string | null>(null);
+  const [upscalingCreationId, setUpscalingCreationId] = useState<string | null>(
+    null,
+  );
   const [input, setInput] = useState(originalPrompt);
   const [waiting, setWaiting] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -66,7 +68,9 @@ const IpImagineCreationResult = () => {
     remixImage: null,
     additionalImage: null,
   });
-  const [expandedCreationId, setExpandedCreationId] = useState<string | null>(null);
+  const [expandedCreationId, setExpandedCreationId] = useState<string | null>(
+    null,
+  );
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
@@ -362,12 +366,19 @@ const IpImagineCreationResult = () => {
                       className="flex-shrink-0"
                     >
                       <CompactResultCard
-                        imageUrl={upscalingCreationId === creation.id && upscaledUrl ? upscaledUrl : creation.url}
+                        imageUrl={
+                          upscalingCreationId === creation.id && upscaledUrl
+                            ? upscaledUrl
+                            : creation.url
+                        }
                         type={creation.type}
                         isLoading={false}
                         onDownload={() => {
                           const link = document.createElement("a");
-                          const downloadUrl = upscalingCreationId === creation.id && upscaledUrl ? upscaledUrl : creation.url;
+                          const downloadUrl =
+                            upscalingCreationId === creation.id && upscaledUrl
+                              ? upscaledUrl
+                              : creation.url;
                           link.href = downloadUrl;
                           link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
                           document.body.appendChild(link);
@@ -383,7 +394,9 @@ const IpImagineCreationResult = () => {
                                 url: window.location.href,
                               });
                             } else {
-                              navigator.clipboard.writeText(window.location.href);
+                              navigator.clipboard.writeText(
+                                window.location.href,
+                              );
                               alert("Link copied to clipboard!");
                             }
                           } catch (error) {

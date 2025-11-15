@@ -120,16 +120,19 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, [resultUrl]);
 
-  const addCreation = useCallback((url: string, type: ResultType, prompt: string) => {
-    const newCreation: Creation = {
-      id: `creation_${Date.now()}`,
-      url,
-      type,
-      timestamp: Date.now(),
-      prompt,
-    };
-    setCreations((prev) => [newCreation, ...prev]);
-  }, []);
+  const addCreation = useCallback(
+    (url: string, type: ResultType, prompt: string) => {
+      const newCreation: Creation = {
+        id: `creation_${Date.now()}`,
+        url,
+        type,
+        timestamp: Date.now(),
+        prompt,
+      };
+      setCreations((prev) => [newCreation, ...prev]);
+    },
+    [],
+  );
 
   const removeCreation = useCallback((id: string) => {
     setCreations((prev) => prev.filter((c) => c.id !== id));

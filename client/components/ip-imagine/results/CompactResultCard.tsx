@@ -25,7 +25,9 @@ const CompactResultCard = ({
   setIsExpanded: externalSetIsExpanded,
 }: CompactResultCardProps) => {
   const [localIsExpanded, setLocalIsExpanded] = useState(false);
-  const isExpanded = externalSetIsExpanded ? externalIsExpanded : localIsExpanded;
+  const isExpanded = externalSetIsExpanded
+    ? externalIsExpanded
+    : localIsExpanded;
   const setIsExpanded = externalSetIsExpanded || setLocalIsExpanded;
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
