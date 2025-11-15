@@ -292,7 +292,7 @@ const IpImagine = () => {
 
   const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
 
-  // Apply watermark when generation completes and currentRemixType is "paid"
+  // Apply watermark when generation completes
   useEffect(() => {
     const applyWatermarkIfNeeded = async () => {
       console.log("🔍 Watermark check:", {
@@ -303,21 +303,25 @@ const IpImagine = () => {
         demoMode,
       });
 
-      if (
-        currentRemixType === "paid" &&
+      // Apply watermark in two scenarios:
+      // 1. Demo mode: Always apply watermark when result is ready
+      // 2. Production: Only apply when currentRemixType is "paid"
+      const shouldApplyWatermark =
         resultUrl &&
         !isApplyingWatermark &&
-        !isLoading
-      ) {
+        !isLoading &&
+        (demoMode || currentRemixType === "paid");
+
+      if (shouldApplyWatermark) {
         console.log("✅ Triggering watermark application...");
         setIsApplyingWatermark(true);
         try {
           let watermarkedUrl: string;
 
           if (demoMode) {
-            // For demo mode paid remix, use the provided watermarked image directly
+            // For demo mode, use the provided watermarked image directly
             console.log(
-              "📸 Using pre-made watermarked image for demo paid remix",
+              "📸 Using pre-made watermarked image for demo mode",
             );
             setStatusText("✨ Watermark applied!");
             watermarkedUrl = paidRemixWatermarkedImageUrl;
