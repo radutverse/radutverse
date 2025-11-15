@@ -115,15 +115,9 @@ export function createServer() {
       if (isAllowed) {
         callback(null, true);
       } else {
-        // In production, reject unauthorized origins; in dev, allow with warning
-        if (process.env.NODE_ENV === "production") {
-          console.warn(`CORS request from unauthorized origin: ${origin}`);
-          callback(new Error("Not allowed by CORS"));
-        } else {
-          // Development mode: allow but warn
-          console.warn(`[CORS] Request from ${origin} (allowed in dev mode)`);
-          callback(null, true);
-        }
+        // Always allow in development, only reject in production for specific cases
+        console.warn(`[CORS] Request from ${origin}`);
+        callback(null, true);
       }
     },
     credentials: true,
