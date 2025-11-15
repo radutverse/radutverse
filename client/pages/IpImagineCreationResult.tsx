@@ -339,66 +339,46 @@ const IpImagineCreationResult = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                className="w-full space-y-6"
               >
-                {!showInput ? (
-                  <CompactResultCard
-                    imageUrl={upscaledUrl || displayUrl}
-                    type={displayType}
-                    isLoading={isLoading}
-                    onDownload={handleDownload}
-                    onShare={handleShare}
-                    onUpscale={
-                      displayType === "image"
-                        ? () => setShowUpscaler(true)
-                        : undefined
-                    }
-                    onCreateAnother={() => setShowInput(true)}
+                <CompactResultCard
+                  imageUrl={upscaledUrl || displayUrl}
+                  type={displayType}
+                  isLoading={isLoading}
+                  onDownload={handleDownload}
+                  onShare={handleShare}
+                  onUpscale={
+                    displayType === "image"
+                      ? () => setShowUpscaler(true)
+                      : undefined
+                  }
+                  onCreateAnother={() => {}}
+                />
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="w-full"
+                >
+                  <IpImagineInput
+                    input={input}
+                    setInput={setInput}
+                    waiting={waiting}
+                    previewImages={previewImages}
+                    setPreviewImages={setPreviewImages}
+                    uploadRef={uploadRef}
+                    handleImage={handleImage}
+                    onSubmit={handleSubmit}
+                    inputRef={inputRef}
+                    handleKeyDown={handleKeyDown}
+                    toolsOpen={toolsOpen}
+                    setToolsOpen={setToolsOpen}
+                    suggestions={suggestions}
+                    setSuggestions={setSuggestions}
+                    attachmentLoading={attachmentLoading}
                   />
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    className="w-full"
-                  >
-                    <button
-                      onClick={() => setShowInput(false)}
-                      className="mb-4 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center gap-2"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
-                      </svg>
-                      Back to Result
-                    </button>
-                    <IpImagineInput
-                      input={input}
-                      setInput={setInput}
-                      waiting={waiting}
-                      previewImages={previewImages}
-                      setPreviewImages={setPreviewImages}
-                      uploadRef={uploadRef}
-                      handleImage={handleImage}
-                      onSubmit={handleSubmit}
-                      inputRef={inputRef}
-                      handleKeyDown={handleKeyDown}
-                      toolsOpen={toolsOpen}
-                      setToolsOpen={setToolsOpen}
-                      suggestions={suggestions}
-                      setSuggestions={setSuggestions}
-                      attachmentLoading={attachmentLoading}
-                    />
-                  </motion.div>
-                )}
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
