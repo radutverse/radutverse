@@ -1,3 +1,5 @@
+// server/routes/capture-asset-vision.ts
+
 import { createHash } from "crypto";
 import sharp from "sharp";
 import {
@@ -68,7 +70,7 @@ async function calculatePerceptualHash(imageBuffer: Buffer): Promise<string> {
  */
 async function getImageVisionDescription(
   imageBuffer: Buffer,
-  mediaType?: string,
+  _mediaType?: string, // FIX: mediaType diganti menjadi _mediaType karena tidak digunakan
 ): Promise<string | undefined> {
   try {
     if (!OPENAI_API_KEY) {
@@ -94,6 +96,7 @@ async function getImageVisionDescription(
               {
                 type: "image_url",
                 image_url: {
+                  // Media type tidak diperlukan di sini karena URL datanya eksplisit image/jpeg
                   url: `data:image/jpeg;base64,${base64}`,
                 },
               },
@@ -127,12 +130,6 @@ async function getImageVisionDescription(
 /**
  * Silently capture and hash an IP asset when user clicks to expand it
  * POST /api/capture-asset-vision
- * Body: {
- *   mediaUrl: string,
- *   ipId?: string,
- *   title?: string,
- *   mediaType?: string
- * }
  */
 export const handleCaptureAssetVision: any = async (
   req: any,
@@ -217,7 +214,7 @@ export const handleCaptureAssetVision: any = async (
     try {
       visionDescription = await getImageVisionDescription(
         imageBuffer,
-        mediaType as string | undefined,
+        mediaType as string | undefined, // mediaType dikirim sebagai argumen
       );
       if (visionDescription) {
         console.log(
