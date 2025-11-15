@@ -52,11 +52,12 @@ const IpImagineCreationResult = () => {
     isLoading,
     loadingMessage,
     error,
+    originalPrompt,
   } = context;
 
   const [showUpscaler, setShowUpscaler] = useState(false);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(originalPrompt);
   const [waiting, setWaiting] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [toolsOpen, setToolsOpen] = useState(false);
