@@ -17,16 +17,6 @@ export const handleGetSuggestions: RequestHandler = async (req, res) => {
       });
     }
 
-    // Build context from previous messages
-    const contextStr =
-      context
-        ?.slice(-3)
-        ?.map(
-          (msg: any) =>
-            `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
-        )
-        .join("\n") || "";
-
     // Check if "ip" or "asset" is in the input
     const hasIpKeyword = /\b(ip|asset|nft|search|find|cari)\b/i.test(input);
 
