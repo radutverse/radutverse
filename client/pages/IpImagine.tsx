@@ -290,12 +290,20 @@ const IpImagine = () => {
   // Apply watermark when generation completes and currentRemixType is "paid"
   useEffect(() => {
     const applyWatermarkIfNeeded = async () => {
+      console.log("🔍 Watermark check:", {
+        currentRemixType,
+        resultUrl: resultUrl ? resultUrl.substring(0, 50) : null,
+        isApplyingWatermark,
+        isLoading,
+      });
+
       if (
         currentRemixType === "paid" &&
         resultUrl &&
         !isApplyingWatermark &&
         !isLoading
       ) {
+        console.log("✅ Triggering watermark application...");
         setIsApplyingWatermark(true);
         try {
           setStatusText("🎨 Adding watermark...");
@@ -308,7 +316,7 @@ const IpImagine = () => {
           setStatusText("✨ Watermark applied!");
           setCurrentRemixType(null);
         } catch (error) {
-          console.error("Failed to apply watermark:", error);
+          console.error("❌ Failed to apply watermark:", error);
           setStatusText(
             "⚠️ Image generated but watermark failed. Using original image.",
           );
