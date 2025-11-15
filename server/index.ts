@@ -25,6 +25,7 @@ import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
 import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
 import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
 import { generateImage, editImage } from "./routes/generate-image.js";
+import { generateImageWithWatermark } from "./routes/generate-image-watermark.js";
 import { demoGenerateImage, demoEditImage } from "./routes/demo-generate.js";
 
 async function fetchParentIpDetails(
@@ -226,6 +227,7 @@ export function createServer() {
   app.post("/api/generate-image", generateImage);
   app.post("/api/generate", generateImage);
   app.post("/api/edit", upload.single("image"), editImage);
+  app.post("/api/generate-with-watermark", generateImageWithWatermark);
 
   // Demo mode endpoints (realistic dummy images)
   app.post("/api/demo-generate", demoGenerateImage);
