@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export const handleGetSuggestions: RequestHandler = async (req, res) => {
   try {
-    const { input, context } = req.body;
+    const { input } = req.body;
 
     if (!input || typeof input !== "string") {
       return res.status(400).json({
@@ -45,7 +45,7 @@ User is typing: "${input}"
 Provide 3 helpful suggestions to complete or improve their IP asset search message.
 Suggestions could be:
 - Completing their search (e.g., "search ip dragon" → "search ip dragon artwork")
-- Adding media type filters (e.g., "search dragon" → "search ip dragon video", "search ip dragon image")
+- Adding media type filters (e.g., "search dragon" �� "search ip dragon video", "search ip dragon image")
 - Related searches (e.g., "dragon" → "dragon NFT", "dragon animation")
 
 Rules:
