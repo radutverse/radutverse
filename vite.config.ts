@@ -15,6 +15,14 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
     rollupOptions: {
+      external: [
+        // Exclude server-side dependencies from client build
+        "sharp",
+        "express",
+        "cors",
+        "multer",
+        "serverless-http",
+      ],
       output: {
         manualChunks: {
           "vendor-ui": [
