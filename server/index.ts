@@ -106,8 +106,8 @@ export function createServer() {
         ".netlify.app",
       ].concat(process.env.APP_ORIGIN ? [process.env.APP_ORIGIN] : []);
 
-      const isAllowed = allowedOrigins.some(
-        (allowedOrigin) => origin.includes(allowedOrigin),
+      const isAllowed = allowedOrigins.some((allowedOrigin) =>
+        origin.includes(allowedOrigin),
       );
 
       if (isAllowed) {
