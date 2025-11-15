@@ -372,7 +372,7 @@ const IpImagineCreationResult = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
+              className="flex flex-wrap gap-4 pb-2"
             >
               <AnimatePresence mode="popLayout">
                 {isLoading && demoMode && (
