@@ -2,11 +2,12 @@ import serverless from "serverless-http";
 
 import { createServer } from "../../server/index.js";
 
-let handler: any;
+let serverlessHandler: any = null;
 
-(async () => {
-  const app = await createServer();
-  handler = serverless(app);
-})();
-
-export { handler };
+export const handler = async (event: any, context: any) => {
+  if (!serverlessHandler) {
+    const app = await createServer();
+    serverlessHandler = serverless(app);
+  }
+  return serverlessHandler(event, context);
+};
