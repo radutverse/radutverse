@@ -141,6 +141,25 @@ export const editImage = async (
   }
 };
 
+export const editImageWithWatermark = async (
+  prompt: string,
+  image: { imageBytes: string; mimeType: string },
+  demoMode: boolean = false,
+): Promise<string> => {
+  const editedUrl = await editImage(prompt, image, demoMode);
+
+  try {
+    const { addCanvasWatermark } = await import(
+      "@/lib/utils/add-watermark"
+    );
+    const watermarkedUrl = await addCanvasWatermark(editedUrl, "protected:");
+    return watermarkedUrl;
+  } catch (error) {
+    console.error("Failed to add watermark:", error);
+    return editedUrl;
+  }
+};
+
 export const upscaleImage = async (
   image: {
     imageBytes: string;
