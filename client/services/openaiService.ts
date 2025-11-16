@@ -79,9 +79,7 @@ export const generateImageFromTextWithWatermark = async (
       throw new Error("Image generation failed: No image URL received.");
     }
 
-    const { addCanvasWatermark } = await import(
-      "@/lib/utils/add-watermark"
-    );
+    const { addCanvasWatermark } = await import("@/lib/utils/add-watermark");
     const watermarkedUrl = await addCanvasWatermark(imageUrl, "protected:");
 
     return watermarkedUrl;
@@ -149,9 +147,7 @@ export const editImageWithWatermark = async (
   const editedUrl = await editImage(prompt, image, demoMode);
 
   try {
-    const { addCanvasWatermark } = await import(
-      "@/lib/utils/add-watermark"
-    );
+    const { addCanvasWatermark } = await import("@/lib/utils/add-watermark");
     const watermarkedUrl = await addCanvasWatermark(editedUrl, "protected:");
     return watermarkedUrl;
   } catch (error) {
