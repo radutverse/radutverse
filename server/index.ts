@@ -20,13 +20,7 @@ import {
   handleGetRemixHashesFull,
   handleDeleteRemixHash,
 } from "./routes/remix-hash-whitelist.js";
-import { handleCheckImageSimilarity } from "./routes/check-image-similarity.js";
-import { handleVisionImageDetection } from "./routes/vision-image-detection.js";
-import { handleAnalyzeImageVision } from "./routes/analyze-image-vision.js";
-import { handleCaptureAssetVision } from "./routes/capture-asset-vision.js";
-import { generateImage, editImage } from "./routes/generate-image.js";
-import { generateImageWithWatermark } from "./routes/generate-image-watermark.js";
-import { demoGenerateImage, demoEditImage } from "./routes/demo-generate.js";
+// Sharp-dependent routes are lazy-loaded to avoid loading sharp during build
 
 async function fetchParentIpDetails(
   childIpId: string,
@@ -78,8 +72,17 @@ async function fetchParentIpDetails(
   }
 }
 
-export function createServer() {
+export async function createServer() {
   const app = express();
+
+  // Lazy-load sharp-dependent routes (only at runtime, not during build)
+  const { handleCheckImageSimilarity } = await import("./routes/check-image-similarity.js");
+  const { handleVisionImageDetection } = await import("./routes/vision-image-detection.js");
+  const { handleAnalyzeImageVision } = await import("./routes/analyze-image-vision.js");
+  const { handleCaptureAssetVision } = await import("./routes/capture-asset-vision.js");
+  const { generateImage, editImage } = await import("./routes/generate-image.js");
+  const { generateImageWithWatermark } = await import("./routes/generate-image-watermark.js");
+  const { demoGenerateImage, demoEditImage } = await import("./routes/demo-generate.js");
 
   // Setup multer for image upload handling in watermark verification
   const upload = multer({
