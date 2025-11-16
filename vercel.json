@@ -2,14 +2,10 @@
   "version": 2,
   "buildCommand": "pnpm run build",
   "outputDirectory": "dist/spa",
-  "public": true,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "zeroConfig": true
-      }
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
   ],
   "routes": [
