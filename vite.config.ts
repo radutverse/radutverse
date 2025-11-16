@@ -2,6 +2,9 @@ import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
+// Only define expressPlugin during development to avoid loading server code during build
+const isDev = process.env.NODE_ENV === "development" || process.argv.includes("--");
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
