@@ -1,11 +1,8 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
+  "outputDirectory": "dist/spa",
   "builds": [
-    {
-      "src": "dist/spa",
-      "use": "@vercel/static"
-    },
     {
       "src": "api/index.ts",
       "use": "@vercel/node"
@@ -15,9 +12,6 @@
     {
       "src": "/api/(.*)",
       "dest": "/api"
-    },
-    {
-      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
