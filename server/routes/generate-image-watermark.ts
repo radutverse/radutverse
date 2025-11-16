@@ -3,19 +3,6 @@ import OpenAI from "openai";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
-async function fetchImageUrl(url: string): Promise<string> {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status}`);
-    }
-    return url;
-  } catch (error) {
-    console.error("❌ Error fetching image:", error);
-    throw error;
-  }
-}
-
 export const generateImageWithWatermark: RequestHandler = async (req, res) => {
   try {
     const prompt = req.body.prompt?.trim();
