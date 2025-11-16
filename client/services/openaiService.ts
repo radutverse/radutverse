@@ -72,8 +72,19 @@ export const generateImageFromTextWithWatermark = async (
       }
     }
 
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
+    const data = await response.json();
+    let imageUrl = data.url;
+
+    if (!imageUrl) {
+      throw new Error("Image generation failed: No image URL received.");
+    }
+
+    const { addCanvasWatermark } = await import(
+      "@/lib/utils/add-watermark"
+    );
+    const watermarkedUrl = await addCanvasWatermark(imageUrl, "protected:");
+
+    return watermarkedUrl;
   } catch (error) {
     throw error;
   }
