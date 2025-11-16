@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: [react(), expressPlugin()],
+  plugins: mode === "serve" ? [react(), expressPlugin()] : [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
