@@ -75,7 +75,8 @@ async function fetchParentIpDetails(
 const sharpUnavailableHandler = (_req: any, res: any) => {
   res.status(503).json({
     ok: false,
-    error: "Image processing feature unavailable - sharp native bindings not installed",
+    error:
+      "Image processing feature unavailable - sharp native bindings not installed",
   });
 };
 
