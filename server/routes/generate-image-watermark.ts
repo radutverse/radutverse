@@ -62,8 +62,6 @@ export const generateImageWithWatermark: RequestHandler = async (req, res) => {
       throw new Error("Unable to determine image dimensions");
     }
 
-    const { width: imgWidth, height: imgHeight } = metadata;
-
     const watermarkedBuffer = await generatedImage
       .composite([
         {
