@@ -36,7 +36,10 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: mode === "serve" ? [react(), expressPlugin()] : [react()],
+  plugins:
+    process.env.NODE_ENV === "development" || mode === "serve"
+      ? [react(), expressPlugin()]
+      : [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
