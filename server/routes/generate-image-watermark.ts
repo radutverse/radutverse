@@ -1,19 +1,15 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
-import sharp from "sharp";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
-const WATERMARK_URL =
-  "https://cdn.builder.io/api/v1/image/assets%2F7585065ca91c47d49c4941a9d86c1824%2F2e193049610d4654908bb1a59b6187a7?format=webp&width=800";
-
-async function fetchImageBuffer(url: string): Promise<Buffer> {
+async function fetchImageUrl(url: string): Promise<string> {
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.status}`);
     }
-    return Buffer.from(await response.arrayBuffer());
+    return url;
   } catch (error) {
     console.error("❌ Error fetching image:", error);
     throw error;
@@ -36,14 +32,14 @@ export const generateImageWithWatermark: RequestHandler = async (req, res) => {
       return res.status(500).json({ error: "No image data received" });
     }
 
-    let generatedImageBuffer: Buffer;
+    let imageUrl: string;
 
     if (result.data[0].url) {
-      console.log("📥 Downloading generated image from URL");
-      generatedImageBuffer = await fetchImageBuffer(result.data[0].url);
+      console.log("✅ Generated image URL received");
+      imageUrl = result.data[0].url;
     } else if (result.data[0].b64_json) {
-      console.log("📥 Using base64 image data");
-      generatedImageBuffer = Buffer.from(result.data[0].b64_json, "base64");
+      console.log("✅ Using base64 image data");
+      imageUrl = `data:image/png;base64,${result.data[0].b64_json}`;
     } else {
       console.error("❌ Unexpected OpenAI response format:", result.data[0]);
       return res
@@ -51,37 +47,12 @@ export const generateImageWithWatermark: RequestHandler = async (req, res) => {
         .json({ error: "No URL or base64 found in response" });
     }
 
-    console.log("📥 Downloading watermark image");
-    const watermarkBuffer = await fetchImageBuffer(WATERMARK_URL);
-
-    console.log("🎨 Applying watermark using sharp");
-    const generatedImage = sharp(generatedImageBuffer);
-    const metadata = await generatedImage.metadata();
-
-    if (!metadata.width || !metadata.height) {
-      throw new Error("Unable to determine image dimensions");
-    }
-
-    const watermarkedBuffer = await generatedImage
-      .composite([
-        {
-          input: watermarkBuffer,
-          top: 0,
-          left: 0,
-          tile: true,
-        },
-      ])
-      .png()
-      .toBuffer();
-
-    console.log("✅ Watermark applied successfully");
-
-    res.set("Content-Type", "image/png");
-    res.send(watermarkedBuffer);
+    console.log("✅ Image generated successfully (watermark processing disabled)");
+    res.json({ url: imageUrl });
   } catch (err: any) {
-    console.error("❌ Error generating watermarked image:", err);
+    console.error("❌ Error generating image with watermark:", err);
     res.status(500).json({
-      error: "Failed to generate watermarked image",
+      error: "Failed to generate image",
       details: err.message || String(err),
     });
   }
