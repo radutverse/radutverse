@@ -39,10 +39,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins:
-    process.env.NODE_ENV === "development" || mode === "serve"
-      ? [react(), expressPlugin()]
-      : [react()],
+  plugins: [react()], // Temporarily disable expressPlugin to test build
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
