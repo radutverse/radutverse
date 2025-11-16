@@ -75,7 +75,6 @@ async function fetchParentIpDetails(
 export async function createServer() {
   const app = express();
 
-  // Lazy-load sharp-dependent routes (only at runtime, not during build)
   const { handleCheckImageSimilarity } = await import(
     "./routes/check-image-similarity.js"
   );

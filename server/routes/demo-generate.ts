@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import sharp from "sharp";
 
 // Generate a hash-based color from the prompt
 function getColorFromPrompt(text: string): string {
@@ -117,10 +116,8 @@ export const demoGenerateImage: RequestHandler = async (req, res) => {
     // Generate SVG
     const svgString = generateDemoSvgImage(prompt);
 
-    // Convert SVG to PNG using sharp
-    const buffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-    const base64 = buffer.toString("base64");
-    const imageUrl = `data:image/png;base64,${base64}`;
+    const base64 = Buffer.from(svgString).toString("base64");
+    const imageUrl = `data:image/svg+xml;base64,${base64}`;
 
     console.log("✅ Demo image generated successfully");
     res.json({ url: imageUrl });
@@ -151,9 +148,8 @@ export const demoEditImage: RequestHandler = async (req, res) => {
     // For demo mode, just generate a new SVG-based image like generate
     // (in real scenario, this would modify the uploaded image)
     const svgString = generateDemoSvgImage(prompt);
-    const buffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-    const base64 = buffer.toString("base64");
-    const imageUrl = `data:image/png;base64,${base64}`;
+    const base64 = Buffer.from(svgString).toString("base64");
+    const imageUrl = `data:image/svg+xml;base64,${base64}`;
 
     console.log("✅ Demo image edited successfully");
     res.json({ url: imageUrl });

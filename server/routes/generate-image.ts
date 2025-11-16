@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
-import sharp from "sharp";
 import { FormData, Blob } from "formdata-node";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
@@ -56,29 +55,14 @@ export const editImage: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing image or prompt" });
     }
 
-    // 🔹 Resize & re-encode untuk aman (must be under 16384 bytes for OpenAI)
-    let buffer = await sharp(file.buffer)
-      .resize({ width: 256, height: 256, fit: "inside" })
-      .jpeg({ quality: 70 })
-      .toBuffer();
+    const buffer = file.buffer;
+    console.log("📸 Image received, bytes:", buffer.length);
 
-    console.log("📸 Image resized & re-encoded, bytes:", buffer.length);
-
-    // 🔹 Further compress if still too large
-    if (buffer.length > 16384) {
-      buffer = await sharp(file.buffer)
-        .resize({ width: 256, height: 256, fit: "inside" })
-        .jpeg({ quality: 50 })
-        .toBuffer();
-      console.log("📸 Re-compressed image, bytes:", buffer.length);
-    }
-
-    if (buffer.length > 16384) {
+    if (buffer.length > 20 * 1024 * 1024) {
       return res.status(400).json({
-        error:
-          "Image too large. Please use a smaller or lower resolution image.",
+        error: "Image too large. Please use a smaller image.",
         currentSize: buffer.length,
-        maxSize: 16384,
+        maxSize: 20971520,
       });
     }
 
