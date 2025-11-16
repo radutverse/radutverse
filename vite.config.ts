@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: [react()], // Temporarily disable expressPlugin to test build
+  plugins: [expressPlugin(), react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
