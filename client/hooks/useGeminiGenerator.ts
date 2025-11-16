@@ -48,11 +48,19 @@ const useGeminiGenerator = () => {
       const { remixType } = options;
 
       if (options.image) {
-        generatedUrl = await openaiService.editImage(
-          options.prompt,
-          options.image,
-          demoModeParam,
-        );
+        if (options.remixType === "paid") {
+          generatedUrl = await openaiService.editImageWithWatermark(
+            options.prompt,
+            options.image,
+            demoModeParam,
+          );
+        } else {
+          generatedUrl = await openaiService.editImage(
+            options.prompt,
+            options.image,
+            demoModeParam,
+          );
+        }
       } else {
         if (remixType === "paid") {
           // For paid remix (both demo and production), use server-side watermark endpoint
