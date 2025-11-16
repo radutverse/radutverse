@@ -72,78 +72,30 @@ async function fetchParentIpDetails(
   }
 }
 
-const sharpUnavailableHandler = (_req: any, res: any) => {
-  res.status(503).json({
-    ok: false,
-    error:
-      "Image processing feature unavailable - sharp native bindings not installed",
-  });
-};
-
 export async function createServer() {
   const app = express();
 
-  let handleCheckImageSimilarity: any = sharpUnavailableHandler;
-  let handleVisionImageDetection: any = sharpUnavailableHandler;
-  let handleAnalyzeImageVision: any = sharpUnavailableHandler;
-  let handleCaptureAssetVision: any = sharpUnavailableHandler;
-  let generateImage: any = sharpUnavailableHandler;
-  let editImage: any = sharpUnavailableHandler;
-  let generateImageWithWatermark: any = sharpUnavailableHandler;
-  let demoGenerateImage: any = sharpUnavailableHandler;
-  let demoEditImage: any = sharpUnavailableHandler;
-
-  // Lazy-load sharp-dependent routes (only at runtime, not during build)
-  try {
-    const similarity = await import("./routes/check-image-similarity.js");
-    handleCheckImageSimilarity = similarity.handleCheckImageSimilarity;
-  } catch (err) {
-    console.warn("Failed to load check-image-similarity route:", err);
-  }
-
-  try {
-    const visionDetection = await import("./routes/vision-image-detection.js");
-    handleVisionImageDetection = visionDetection.handleVisionImageDetection;
-  } catch (err) {
-    console.warn("Failed to load vision-image-detection route:", err);
-  }
-
-  try {
-    const analyzeVision = await import("./routes/analyze-image-vision.js");
-    handleAnalyzeImageVision = analyzeVision.handleAnalyzeImageVision;
-  } catch (err) {
-    console.warn("Failed to load analyze-image-vision route:", err);
-  }
-
-  try {
-    const captureVision = await import("./routes/capture-asset-vision.js");
-    handleCaptureAssetVision = captureVision.handleCaptureAssetVision;
-  } catch (err) {
-    console.warn("Failed to load capture-asset-vision route:", err);
-  }
-
-  try {
-    const generate = await import("./routes/generate-image.js");
-    generateImage = generate.generateImage;
-    editImage = generate.editImage;
-  } catch (err) {
-    console.warn("Failed to load generate-image route:", err);
-  }
-
-  try {
-    const watermark = await import("./routes/generate-image-watermark.js");
-    generateImageWithWatermark = watermark.generateImageWithWatermark;
-  } catch (err) {
-    console.warn("Failed to load generate-image-watermark route:", err);
-  }
-
-  try {
-    const demo = await import("./routes/demo-generate.js");
-    demoGenerateImage = demo.demoGenerateImage;
-    demoEditImage = demo.demoEditImage;
-  } catch (err) {
-    console.warn("Failed to load demo-generate route:", err);
-  }
+  const { handleCheckImageSimilarity } = await import(
+    "./routes/check-image-similarity.js"
+  );
+  const { handleVisionImageDetection } = await import(
+    "./routes/vision-image-detection.js"
+  );
+  const { handleAnalyzeImageVision } = await import(
+    "./routes/analyze-image-vision.js"
+  );
+  const { handleCaptureAssetVision } = await import(
+    "./routes/capture-asset-vision.js"
+  );
+  const { generateImage, editImage } = await import(
+    "./routes/generate-image.js"
+  );
+  const { generateImageWithWatermark } = await import(
+    "./routes/generate-image-watermark.js"
+  );
+  const { demoGenerateImage, demoEditImage } = await import(
+    "./routes/demo-generate.js"
+  );
 
   // Setup multer for image upload handling in watermark verification
   const upload = multer({
