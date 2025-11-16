@@ -72,8 +72,17 @@ export const generateImageFromTextWithWatermark = async (
       }
     }
 
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
+    const data = await response.json();
+    let imageUrl = data.url;
+
+    if (!imageUrl) {
+      throw new Error("Image generation failed: No image URL received.");
+    }
+
+    const { addCanvasWatermark } = await import("@/lib/utils/add-watermark");
+    const watermarkedUrl = await addCanvasWatermark(imageUrl, "protected:");
+
+    return watermarkedUrl;
   } catch (error) {
     throw error;
   }
@@ -127,6 +136,23 @@ export const editImage = async (
     throw new Error("Image editing failed: No image URL received.");
   } catch (error) {
     throw error;
+  }
+};
+
+export const editImageWithWatermark = async (
+  prompt: string,
+  image: { imageBytes: string; mimeType: string },
+  demoMode: boolean = false,
+): Promise<string> => {
+  const editedUrl = await editImage(prompt, image, demoMode);
+
+  try {
+    const { addCanvasWatermark } = await import("@/lib/utils/add-watermark");
+    const watermarkedUrl = await addCanvasWatermark(editedUrl, "protected:");
+    return watermarkedUrl;
+  } catch (error) {
+    console.error("Failed to add watermark:", error);
+    return editedUrl;
   }
 };
 
