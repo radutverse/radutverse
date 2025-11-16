@@ -1,16 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "builds": [
-    {
-      "src": "dist/spa",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist/spa",
   "routes": [
     {
       "src": "/api/(.*)",
