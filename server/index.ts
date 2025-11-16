@@ -76,13 +76,27 @@ export async function createServer() {
   const app = express();
 
   // Lazy-load sharp-dependent routes (only at runtime, not during build)
-  const { handleCheckImageSimilarity } = await import("./routes/check-image-similarity.js");
-  const { handleVisionImageDetection } = await import("./routes/vision-image-detection.js");
-  const { handleAnalyzeImageVision } = await import("./routes/analyze-image-vision.js");
-  const { handleCaptureAssetVision } = await import("./routes/capture-asset-vision.js");
-  const { generateImage, editImage } = await import("./routes/generate-image.js");
-  const { generateImageWithWatermark } = await import("./routes/generate-image-watermark.js");
-  const { demoGenerateImage, demoEditImage } = await import("./routes/demo-generate.js");
+  const { handleCheckImageSimilarity } = await import(
+    "./routes/check-image-similarity.js"
+  );
+  const { handleVisionImageDetection } = await import(
+    "./routes/vision-image-detection.js"
+  );
+  const { handleAnalyzeImageVision } = await import(
+    "./routes/analyze-image-vision.js"
+  );
+  const { handleCaptureAssetVision } = await import(
+    "./routes/capture-asset-vision.js"
+  );
+  const { generateImage, editImage } = await import(
+    "./routes/generate-image.js"
+  );
+  const { generateImageWithWatermark } = await import(
+    "./routes/generate-image-watermark.js"
+  );
+  const { demoGenerateImage, demoEditImage } = await import(
+    "./routes/demo-generate.js"
+  );
 
   // Setup multer for image upload handling in watermark verification
   const upload = multer({
