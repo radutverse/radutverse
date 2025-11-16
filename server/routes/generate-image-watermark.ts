@@ -47,7 +47,9 @@ export const generateImageWithWatermark: RequestHandler = async (req, res) => {
         .json({ error: "No URL or base64 found in response" });
     }
 
-    console.log("✅ Image generated successfully (watermark processing disabled)");
+    console.log(
+      "✅ Image generated successfully (watermark processing disabled)",
+    );
     res.json({ url: imageUrl });
   } catch (err: any) {
     console.error("❌ Error generating image with watermark:", err);
