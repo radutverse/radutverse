@@ -182,7 +182,7 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: addr as any,
           transport: custom(ethProvider),
-          chainId: 514,
+          chainId: 1514,
         });
       } else {
         const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -194,7 +194,7 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: guestAccount as any,
           transport: http(rpcUrl),
-          chainId: 514,
+          chainId: 1514,
         });
       }
 
