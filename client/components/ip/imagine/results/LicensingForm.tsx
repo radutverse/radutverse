@@ -158,10 +158,10 @@ const LicensingForm = ({
   // Show success state
   if (registerSuccess) {
     return (
-      <div className="mt-6 rounded-lg bg-emerald-900/20 border border-emerald-800/50 p-4">
-        <div className="flex items-start gap-3">
+      <div className="mt-2 rounded-lg bg-emerald-900/20 border border-emerald-800/50 p-2">
+        <div className="flex items-start gap-2">
           <svg
-            className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0"
+            className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -173,19 +173,19 @@ const LicensingForm = ({
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <div className="flex-1">
-            <h4 className="text-sm font-semibold text-emerald-300 mb-1">
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xs font-semibold text-emerald-300 mb-0.5">
               Registration Successful!
             </h4>
-            <p className="text-xs text-emerald-200">{successMessage}</p>
+            <p className="text-xs text-emerald-200 truncate">{successMessage}</p>
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="text-emerald-400 hover:text-emerald-300 transition-colors"
+              className="text-emerald-400 hover:text-emerald-300 transition-colors flex-shrink-0"
               type="button"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
               </svg>
             </button>
@@ -196,7 +196,7 @@ const LicensingForm = ({
   }
 
   return (
-    <div className="mt-6 rounded-lg bg-slate-900/70 border border-slate-800/50 p-4 space-y-4">
+    <div className="mt-2 rounded-lg bg-slate-900/70 border border-slate-800/50 p-2.5 space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#FF4DA6]">
           Register IP License
