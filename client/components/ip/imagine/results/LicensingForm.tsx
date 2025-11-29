@@ -316,7 +316,7 @@ const LicensingForm = ({
       console.log("✅ Child IP registered:", childIpId);
 
       // ========================================
-      // STEP 3: REGISTER DERIVATIVE
+      // STEP 3: REGISTER DERIVATIVE (FIXED!)
       // ========================================
       console.log("🔗 Step 3: Registering derivative with license token...");
       setCurrentStep("registering-derivative");
@@ -328,12 +328,13 @@ const LicensingForm = ({
         });
       }
 
+      // FIX: Ganti dari licenseToken ke ipAsset
+      // FIX: Hapus parameter maxRts dan royaltyContext
+      // FIX: Convert licenseTokenId ke BigInt
       const derivativeTx =
-        await storyClient.licenseToken.registerDerivativeWithLicenseTokens({
+        await storyClient.ipAsset.registerDerivativeWithLicenseTokens({
           childIpId: childIpId as `0x${string}`,
-          licenseTokenIds: [licenseTokenId],
-          royaltyContext: "0x" as `0x${string}`,
-          maxRts: "0",
+          licenseTokenIds: [BigInt(licenseTokenId)],
         });
 
       console.log("🎉 Derivative registered:", derivativeTx);
