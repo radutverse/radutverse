@@ -68,7 +68,9 @@ const LicensingForm = ({
     : null;
 
   // Get parent's revenue share (read-only, must match parent)
-  const parentRevShare = parentLicense?.terms?.commercialRevShare ?? 0;
+  // Convert from scaled format (1000000 = 1%) to percentage (0-100)
+  const parentRevShareScaled = parentLicense?.terms?.commercialRevShare ?? 0;
+  const parentRevShare = Number(parentRevShareScaled) / 1000000;
 
   const handleConvertImageToFile = async (): Promise<File> => {
     if (!imageUrl) {
@@ -270,7 +272,7 @@ const LicensingForm = ({
           licenseTermsData: [
             {
               terms: PILFlavor.commercialRemix({
-                commercialRevShare: parentRevShare,
+                commercialRevShare: Math.min(100, Math.max(0, parentRevShare)),
                 defaultMintingFee: parseEther("0"),
                 currency: WIP_TOKEN_ADDRESS,
               }),
