@@ -326,31 +326,33 @@ const LicensingForm = ({
       {/* Register/Close Button */}
       {registerSuccess ? (
         <div className="flex gap-2">
-          <a
-            href={`https://explorer.story.foundation/ip/${registerState.ipId || "pending"}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 rounded bg-emerald-600/20 px-2 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-1"
-          >
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {registeredIpId && registeredIpId !== "pending" && (
+            <a
+              href={`https://explorer.story.foundation/ip/${registeredIpId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 rounded bg-emerald-600/20 px-2 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-1"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-            Explorer
-          </a>
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+              Explorer
+            </a>
+          )}
           {onClose && (
             <button
               onClick={onClose}
-              className="flex-1 rounded bg-slate-800/50 px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
+              className={`${registeredIpId && registeredIpId !== "pending" ? "flex-1" : "w-full"} rounded bg-slate-800/50 px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors`}
               type="button"
             >
               Done
