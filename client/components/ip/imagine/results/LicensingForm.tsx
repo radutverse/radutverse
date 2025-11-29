@@ -605,10 +605,21 @@ const LicensingForm = ({
 
         {/* Error Message */}
         {(registerError || registerState.error) && (
-          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400">
-            {registerError ||
-              registerState.error?.message ||
-              registerState.error}
+          <div className="rounded-lg px-4 py-3 bg-red-500/10 border border-red-500/30">
+            <div className="flex items-start gap-3">
+              <svg
+                className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+              </svg>
+              <div className="flex-1 text-sm text-red-400 whitespace-pre-wrap break-words">
+                {registerError ||
+                  registerState.error?.message ||
+                  registerState.error}
+              </div>
+            </div>
           </div>
         )}
 
