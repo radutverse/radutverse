@@ -13,6 +13,7 @@ interface CompactResultCardProps {
   isExpanded?: boolean;
   setIsExpanded?: Dispatch<SetStateAction<boolean>>;
   demoMode?: boolean;
+  parentAsset?: any;
 }
 
 const CompactResultCard = ({
@@ -26,6 +27,7 @@ const CompactResultCard = ({
   isExpanded: externalIsExpanded = false,
   setIsExpanded: externalSetIsExpanded,
   demoMode = false,
+  parentAsset,
 }: CompactResultCardProps) => {
   const [localIsExpanded, setLocalIsExpanded] = useState(false);
   const isExpanded = externalSetIsExpanded
@@ -281,6 +283,7 @@ const CompactResultCard = ({
                       type={type}
                       demoMode={demoMode}
                       isLoading={isLoading}
+                      parentAsset={parentAsset}
                       onClose={() => setShowLicensingForm(false)}
                       onRegisterStart={(state) => {
                         console.log("Registration started:", state);

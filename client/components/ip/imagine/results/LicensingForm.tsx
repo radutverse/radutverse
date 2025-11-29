@@ -1,6 +1,19 @@
 import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
+import {
+  StoryClient,
+  PILFlavor,
+  WIP_TOKEN_ADDRESS,
+} from "@story-protocol/core-sdk";
+import {
+  createWalletClient,
+  custom,
+  parseEther,
+  http,
+  publicActions,
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 
 interface LicensingFormProps {
   imageUrl: string;
@@ -9,6 +22,7 @@ interface LicensingFormProps {
   demoMode?: boolean;
   isLoading?: boolean;
   onClose?: () => void;
+  parentAsset?: any;
   onRegisterStart?: (state: {
     status: string;
     progress: number;
@@ -17,9 +31,6 @@ interface LicensingFormProps {
   onRegisterComplete?: (result: { ipId?: string; txHash?: string }) => void;
 }
 
-// AI Generated group 1 (DIRECT_REGISTER_FIXED_AI)
-const AI_GENERATED_GROUP = 1;
-
 const LicensingForm = ({
   imageUrl,
   imageName = "generated-image.png",
@@ -27,6 +38,7 @@ const LicensingForm = ({
   demoMode = false,
   isLoading = false,
   onClose,
+  parentAsset,
   onRegisterStart,
   onRegisterComplete,
 }: LicensingFormProps) => {
@@ -34,8 +46,6 @@ const LicensingForm = ({
   const { wallets } = useWallets();
   const { executeRegister, registerState } = useIPRegistrationAgent();
 
-  const [mintingFee, setMintingFee] = useState<number | "">("");
-  const [revShare, setRevShare] = useState<number | "">("");
   const [title, setTitle] = useState("AI Generated Image");
   const [description, setDescription] = useState(
     "Created using AI image generation technology",
@@ -45,9 +55,20 @@ const LicensingForm = ({
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<
+    "idle" | "buying-license" | "registering-child" | "success"
+  >("idle");
 
-  // AI Generated group 1 is FIXED_AI, so AI training is always disabled
-  const aiTrainingDisabled = true;
+  // Check if this is a paid remix with parent asset
+  const isPaidRemix = parentAsset && parentAsset.licenses?.length > 0;
+  const parentLicense = isPaidRemix
+    ? parentAsset.licenses.find((l: any) => l.terms?.commercialUse === true)
+    : null;
+
+  // Get parent's revenue share (read-only, must match parent)
+  const parentRevShare = parentLicense?.terms?.commercialRevShare ?? 0;
+  const parentMintingFee =
+    parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0";
 
   const handleConvertImageToFile = async (): Promise<File> => {
     if (!imageUrl) {
@@ -57,7 +78,6 @@ const LicensingForm = ({
     let blob: Blob;
 
     if (imageUrl.startsWith("data:")) {
-      // Base64 data URL
       const [header, data] = imageUrl.split(",");
       const mimeMatch = header.match(/:(.*?);/);
       const mimeType = mimeMatch ? mimeMatch[1] : "image/png";
@@ -69,11 +89,9 @@ const LicensingForm = ({
       }
       blob = new Blob([bytes], { type: mimeType });
     } else if (imageUrl.startsWith("blob:")) {
-      // Blob URL
       const response = await fetch(imageUrl);
       blob = await response.blob();
     } else {
-      // Regular HTTP URL
       const response = await fetch(imageUrl);
       blob = await response.blob();
     }
@@ -83,14 +101,111 @@ const LicensingForm = ({
     });
   };
 
+  const buyLicense = async (
+    storyClient: any,
+    parentIpId: string,
+    licenseTermsId: string,
+    receiver: string,
+  ) => {
+    try {
+      setCurrentStep("buying-license");
+      if (onRegisterStart) {
+        onRegisterStart({
+          status: "Buying license from parent IP...",
+          progress: 30,
+          error: null,
+        });
+      }
+
+      const mintResult = await storyClient.license.mintLicenseTokens({
+        licensorIpId: parentIpId as `0x${string}`,
+        licenseTermsId,
+        amount: 1,
+        receiver: receiver as `0x${string}`,
+        maxMintingFee:
+          parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0",
+        maxRevenueShare: parentAsset?.maxRevenueShare || 100,
+      });
+
+      console.log("✅ License purchased:", mintResult);
+      return mintResult;
+    } catch (error) {
+      console.error("❌ Failed to buy license:", error);
+      throw error;
+    }
+  };
+
+  const registerDerivative = async (
+    storyClient: any,
+    childIpId: string,
+    parentIpId: string,
+    licenseTermsId: string,
+    childRevShare: number,
+  ) => {
+    try {
+      setCurrentStep("registering-child");
+      if (onRegisterStart) {
+        onRegisterStart({
+          status: "Registering derivative IP...",
+          progress: 60,
+          error: null,
+        });
+      }
+
+      // Build license terms for child IP
+      const childLicenseTerms = [
+        {
+          terms: PILFlavor.commercialRemix({
+            commercialRevShare: childRevShare,
+            defaultMintingFee: parseEther("0"),
+            currency: WIP_TOKEN_ADDRESS,
+          }),
+        },
+      ];
+
+      const registerResult =
+        await storyClient.ipAsset.registerDerivativeIpAssetWithPilTerms({
+          childIpId: childIpId as `0x${string}`,
+          parentIpIds: [parentIpId as `0x${string}`],
+          licenseTermsIds: [licenseTermsId],
+          licenseTermsData: childLicenseTerms,
+          maxMintingFee:
+            parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0",
+          maxRts: parentAsset?.maxRts || "100000000",
+          maxRevenueShare: parentAsset?.maxRevenueShare || 100,
+        });
+
+      console.log("✅ Derivative registered:", registerResult);
+      return registerResult;
+    } catch (error) {
+      console.error("❌ Failed to register derivative:", error);
+      throw error;
+    }
+  };
+
   const handleRegister = async () => {
     if (!imageUrl) {
       setRegisterError("No image to register");
       return;
     }
 
+    if (!isPaidRemix) {
+      setRegisterError("Parent asset data required for licensing");
+      return;
+    }
+
+    if (!parentLicense) {
+      setRegisterError("No commercial license found on parent IP");
+      return;
+    }
+
+    if (parentRevShare === undefined || parentRevShare === null) {
+      setRegisterError("Parent IP revenue share not available");
+      return;
+    }
+
     if (!demoMode && !authenticated) {
-      setRegisterError("Please connect wallet or enable demo mode to register");
+      setRegisterError("Please connect wallet or enable demo mode");
       return;
     }
 
@@ -99,18 +214,18 @@ const LicensingForm = ({
     setRegisterSuccess(false);
 
     try {
-      // Convert image to File
+      // Step 1: Register child IP first
       const file = await handleConvertImageToFile();
 
       if (onRegisterStart) {
         onRegisterStart({
-          status: "preparing",
-          progress: 0,
+          status: "Preparing child IP registration...",
+          progress: 10,
           error: null,
         });
       }
 
-      // Get ethereum provider for wallet mode
+      // Get ethereum provider
       let ethProvider: any = undefined;
       if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
         try {
@@ -120,36 +235,117 @@ const LicensingForm = ({
         }
       }
 
-      // Convert empty strings to undefined
-      const mf = mintingFee === "" ? undefined : Number(mintingFee);
-      const rs = revShare === "" ? undefined : Number(revShare);
+      // Get wallet address
+      let addr: string | undefined;
+      if (ethProvider) {
+        try {
+          const walletClient = createWalletClient({
+            transport: custom(ethProvider),
+          });
+          const [a] = await walletClient.getAddresses();
+          if (a) addr = String(a);
+        } catch {}
+      }
 
-      // Execute registration
-      const result = await executeRegister(
-        AI_GENERATED_GROUP,
-        file,
-        mf,
-        rs,
-        false, // aiTrainingManual - always false for group 1 (FIXED_AI)
-        { title, prompt: description },
-        ethProvider,
-      );
+      if (!addr) {
+        try {
+          const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+          if (guestPk) {
+            const normalized = String(guestPk).startsWith("0x")
+              ? String(guestPk)
+              : `0x${String(guestPk)}`;
+            const guestAccount = privateKeyToAccount(
+              normalized as `0x${string}`,
+            );
+            addr = guestAccount.address;
+          }
+        } catch {}
+      }
 
-      const ipId = result?.ipId || "pending";
+      if (!addr) {
+        throw new Error("Could not determine wallet address");
+      }
 
-      if (onRegisterComplete) {
-        onRegisterComplete({
-          ipId: ipId,
-          txHash: result?.txHash,
+      // Register child IP using the registration agent
+      // Use parent's revenue share (child must match parent)
+      const childResult = await new Promise((resolve, reject) => {
+        executeRegister(
+          1, // AI_GENERATED_GROUP
+          file,
+          undefined, // mintingFee
+          parentRevShare, // Use parent's revShare (read-only)
+          false, // aiTrainingManual
+          { title, prompt: description },
+          ethProvider,
+        )
+          .then(resolve)
+          .catch(reject);
+      });
+
+      if (!childResult?.ipId) {
+        throw new Error("Failed to register child IP");
+      }
+
+      const childIpId = childResult.ipId;
+
+      // Step 2: Setup Story Client for Buy License + Register Derivative
+      const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
+      if (!rpcUrl) throw new Error("RPC URL not set");
+
+      let storyClient: any;
+      if (ethProvider) {
+        storyClient = StoryClient.newClient({
+          account: addr as any,
+          transport: custom(ethProvider),
+          chainId: "aeneid",
+        });
+      } else {
+        const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+        if (!guestPk) throw new Error("Guest key not configured");
+        const normalized = String(guestPk).startsWith("0x")
+          ? String(guestPk)
+          : `0x${String(guestPk)}`;
+        const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+        storyClient = StoryClient.newClient({
+          account: guestAccount as any,
+          transport: http(rpcUrl),
+          chainId: "aeneid",
         });
       }
 
-      setRegisteredIpId(ipId);
+      // Step 3: Buy license from parent IP
+      const licenseTermsId = parentLicense.licenseTermsId;
+      const mintLicenseResult = await buyLicense(
+        storyClient,
+        parentAsset.ipId,
+        licenseTermsId,
+        addr,
+      );
+
+      // Step 4: Register derivative with parent
+      // Use parent's revenue share for child (must match parent)
+      const registerDerivativeResult = await registerDerivative(
+        storyClient,
+        childIpId,
+        parentAsset.ipId,
+        licenseTermsId,
+        parentRevShare,
+      );
+
+      if (onRegisterComplete) {
+        onRegisterComplete({
+          ipId: childIpId,
+          txHash: registerDerivativeResult?.txHash,
+        });
+      }
+
+      setCurrentStep("success");
+      setRegisteredIpId(childIpId);
       setRegisterSuccess(true);
       setSuccessMessage(
         demoMode
-          ? "Demo registration successful!"
-          : `IP registered successfully! ID: ${ipId}`,
+          ? `Demo registration successful! Child IP registered as derivative with ${parentRevShare}% revenue share (matching parent IP).`
+          : `✅ Derivative registered with ${parentRevShare}% revenue share from parent IP. ID: ${childIpId}`,
       );
     } catch (error: any) {
       setRegisterError(error.message || "Registration failed");
@@ -207,7 +403,9 @@ const LicensingForm = ({
 
       <div className="flex items-center justify-between border-b border-slate-800/50 pb-4">
         <h3 className="text-xl font-semibold text-[#FF4DA6]">
-          {registerSuccess ? "Registration Details" : "Licensing your creation"}
+          {registerSuccess
+            ? "Derivative Registered"
+            : "License & Register Derivative"}
         </h3>
         {onClose && (
           <button
@@ -222,18 +420,64 @@ const LicensingForm = ({
         )}
       </div>
 
-      {/* Form Content - Scrollable with padding for focus ring */}
+      {/* Parent Asset Info */}
+      {isPaidRemix && (
+        <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/30">
+          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">
+            Parent IP
+          </p>
+          <p className="text-sm text-slate-200 font-semibold mb-1">
+            {parentAsset.title || "Untitled"}
+          </p>
+          <p className="text-xs text-slate-400 font-mono break-all">
+            {parentAsset.ipId}
+          </p>
+          {parentLicense && (
+            <div className="mt-3 pt-3 border-t border-slate-700/30 space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-400">License Terms ID:</span>
+                <span className="text-slate-300 font-mono">
+                  {parentLicense.licenseTermsId}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-400">Revenue Share:</span>
+                <span className="text-slate-300 font-semibold">
+                  {parentRevShare}%
+                </span>
+              </div>
+              {parentAsset.licenses?.[0]?.licensingConfig?.mintingFee && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">Minting Fee:</span>
+                  <span className="text-slate-300">
+                    {(
+                      Number(
+                        parentAsset.licenses[0].licensingConfig.mintingFee,
+                      ) / 1e18
+                    ).toFixed(4)}{" "}
+                    tokens
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Form Content */}
       <div className="space-y-4 flex-1 overflow-y-auto pr-1 px-0.5 py-2">
         {/* Title Input */}
         <div className="space-y-2">
-          <label className="text-sm text-slate-400 font-medium">Title</label>
+          <label className="text-sm text-slate-400 font-medium">
+            Child IP Title
+          </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isRegistering || registerSuccess}
             className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40"
-            placeholder="Enter title"
+            placeholder="Enter child IP title"
           />
         </div>
 
@@ -248,60 +492,42 @@ const LicensingForm = ({
             disabled={isRegistering || registerSuccess}
             className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 resize-none disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40 leading-relaxed"
             rows={2}
-            placeholder="Enter description"
+            placeholder="Describe your derivative work"
           />
         </div>
 
-        {/* License Settings */}
-        <div className="grid grid-cols-2 gap-4 pt-2">
+        {/* Revenue Share - Read-only, follows parent */}
+        {isPaidRemix && (
           <div className="space-y-2">
             <label className="text-sm text-slate-400 font-medium">
-              Minting Fee
+              Revenue Share % (from parent IP)
             </label>
-            <input
-              type="number"
-              min={0}
-              value={mintingFee === "" ? "" : mintingFee}
-              onChange={(e) => {
-                const v = e.target.value;
-                setMintingFee(v === "" ? "" : Number(v));
-              }}
-              disabled={isRegistering || registerSuccess}
-              className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40"
-              placeholder="0"
-            />
+            <div className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm flex items-center justify-between">
+              <span className="font-semibold">{parentRevShare}%</span>
+              <span className="text-xs text-slate-400">
+                Inherited from parent
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Child IP revenue share must match parent IP's revenue share
+            </p>
           </div>
-
-          <div className="space-y-2">
-            <label className="text-sm text-slate-400 font-medium">
-              RevShare %
-            </label>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={revShare === "" ? "" : revShare}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v === "") return setRevShare("");
-                const n = Number(v);
-                setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
-              }}
-              disabled={isRegistering || registerSuccess}
-              className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20"
-              placeholder="0"
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Status Messages */}
       <div className="space-y-2 pt-3 border-t border-slate-800/50">
         {/* Registration Status */}
-        {registerState.status !== "idle" && (
+        {(registerState.status !== "idle" || currentStep !== "idle") && (
           <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
             <span className="inline-block animate-spin">⚙️</span>
-            <span className="capitalize">{registerState.status}</span>
+            <span className="capitalize">
+              {currentStep === "buying-license"
+                ? "Buying license from parent IP..."
+                : currentStep === "registering-child"
+                  ? "Registering derivative IP..."
+                  : registerState.status}
+            </span>
             {registerState.progress > 0 && (
               <span className="ml-auto text-xs">
                 {Math.round(registerState.progress)}%
@@ -375,21 +601,34 @@ const LicensingForm = ({
             onClick={handleRegister}
             disabled={
               isRegistering ||
-              registerState.status !== "idle" ||
+              currentStep !== "idle" ||
               (!demoMode && !authenticated) ||
               isLoading ||
-              !imageUrl
+              !imageUrl ||
+              !isPaidRemix
             }
             className="w-full rounded-lg bg-[#FF4DA6]/20 px-4 py-2.5 text-sm font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-[#FF4DA6]/30"
             type="button"
+            title={
+              isPaidRemix
+                ? `Register with ${parentRevShare}% revenue share from parent`
+                : "Select a paid remix first"
+            }
           >
-            {isRegistering || registerState.status !== "idle" ? (
+            {isRegistering || currentStep !== "idle" ? (
               <>
                 <span className="inline-block animate-spin mr-2">⚙️</span>
-                Registering
+                Processing...
               </>
             ) : (
-              "Register IP"
+              <>
+                Buy License & Register
+                {isPaidRemix && (
+                  <span className="block text-xs opacity-80">
+                    ({parentRevShare}% revenue share from parent)
+                  </span>
+                )}
+              </>
             )}
           </button>
         )}

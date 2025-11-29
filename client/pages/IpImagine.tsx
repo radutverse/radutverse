@@ -49,6 +49,7 @@ const IpImagine = () => {
   const [currentRemixType, setCurrentRemixType] = useState<
     "paid" | "free" | null
   >(null);
+  const [currentParentAsset, setCurrentParentAsset] = useState<any>(null);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -262,6 +263,7 @@ const IpImagine = () => {
 
       // Set all state synchronously to avoid race conditions
       setCurrentRemixType(remixType);
+      setCurrentParentAsset(remixType === "paid" ? asset : null);
       setPreviewImages({
         remixImage: {
           blob,
@@ -271,7 +273,12 @@ const IpImagine = () => {
         additionalImage: null,
       });
 
-      console.log("📌 Set currentRemixType to:", remixType, "Blob type:", blob.type);
+      console.log(
+        "📌 Set currentRemixType to:",
+        remixType,
+        "Blob type:",
+        blob.type,
+      );
 
       setStatusText(
         `✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`,
@@ -383,8 +390,14 @@ const IpImagine = () => {
               let binaryString = "";
               const chunkSize = 8192;
               for (let i = 0; i < bytes.length; i += chunkSize) {
-                const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
-                binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+                const chunk = bytes.subarray(
+                  i,
+                  Math.min(i + chunkSize, bytes.length),
+                );
+                binaryString += String.fromCharCode.apply(
+                  null,
+                  Array.from(chunk),
+                );
               }
 
               imageData = {
@@ -399,12 +412,15 @@ const IpImagine = () => {
                 prompt: input,
                 image: imageData,
                 remixType: currentRemixType,
+                parentAsset: currentParentAsset,
               },
               demoMode,
             );
 
             setInput("");
             setPreviewImages({ remixImage: null, additionalImage: null });
+            setCurrentRemixType(null);
+            setCurrentParentAsset(null);
           } catch (error) {
             console.error("Generation error:", error);
             setStatusText("❌ Generation failed. Please try again.");
