@@ -273,7 +273,12 @@ const IpImagine = () => {
         additionalImage: null,
       });
 
-      console.log("📌 Set currentRemixType to:", remixType, "Blob type:", blob.type);
+      console.log(
+        "📌 Set currentRemixType to:",
+        remixType,
+        "Blob type:",
+        blob.type,
+      );
 
       setStatusText(
         `✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`,
@@ -385,8 +390,14 @@ const IpImagine = () => {
               let binaryString = "";
               const chunkSize = 8192;
               for (let i = 0; i < bytes.length; i += chunkSize) {
-                const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
-                binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+                const chunk = bytes.subarray(
+                  i,
+                  Math.min(i + chunkSize, bytes.length),
+                );
+                binaryString += String.fromCharCode.apply(
+                  null,
+                  Array.from(chunk),
+                );
               }
 
               imageData = {
