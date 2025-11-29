@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import { StoryClient } from "@story-protocol/core-sdk";
-import {
-  createWalletClient,
-  custom,
-  http,
-  publicActions,
-} from "viem";
+import { createWalletClient, custom, http, publicActions } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 interface LicensingFormProps {
@@ -62,10 +57,13 @@ const LicensingForm = ({
 
   // Get parent's revenue share (read-only, must match parent)
   // commercialRevShare comes in wei-like format (scaled by 1000000), so divide by 1000000 to get percentage
-  const parentRevShareRaw = Number(parentLicense?.terms?.commercialRevShare ?? 0);
-  const parentRevShare = parentRevShareRaw > 0
-    ? Number((parentRevShareRaw / 1000000).toFixed(2))
-    : 0;
+  const parentRevShareRaw = Number(
+    parentLicense?.terms?.commercialRevShare ?? 0,
+  );
+  const parentRevShare =
+    parentRevShareRaw > 0
+      ? Number((parentRevShareRaw / 1000000).toFixed(2))
+      : 0;
   const parentRevShareDisplay = parentRevShare.toFixed(2);
   const parentMintingFee =
     parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0";
@@ -111,7 +109,7 @@ const LicensingForm = ({
       // Validate parentIpId is a valid Ethereum address format (0x followed by 40 hex chars)
       if (!parentIpId || !/^0x[a-fA-F0-9]{40}$/.test(parentIpId)) {
         throw new Error(
-          `Invalid parent IP ID format: ${parentIpId}. Expected a valid Ethereum address (0x...)`
+          `Invalid parent IP ID format: ${parentIpId}. Expected a valid Ethereum address (0x...)`,
         );
       }
 
@@ -142,12 +140,18 @@ const LicensingForm = ({
       return mintResult;
     } catch (error: any) {
       console.error("❌ Failed to buy license:", error);
-      console.error(`❌ Parent IP ID used: ${parentIpId}`, `from parentAsset.ipId: ${parentAsset?.ipId}`);
+      console.error(
+        `❌ Parent IP ID used: ${parentIpId}`,
+        `from parentAsset.ipId: ${parentAsset?.ipId}`,
+      );
 
       // If it's a "not registered" error, provide helpful message
-      if (error.message?.includes("not registered") || error.message?.includes("licensor IP")) {
+      if (
+        error.message?.includes("not registered") ||
+        error.message?.includes("licensor IP")
+      ) {
         throw new Error(
-          `The parent IP (${parentIpId}) is not registered on Story Protocol. Please verify you selected a valid paid remix parent IP asset.`
+          `The parent IP (${parentIpId}) is not registered on Story Protocol. Please verify you selected a valid paid remix parent IP asset.`,
         );
       }
 
@@ -177,9 +181,13 @@ const LicensingForm = ({
       console.log(`  - Child IP ID: ${childIpId}`);
       console.log(`  - Parent IP ID: ${parentIpId}`);
       console.log(`  - License Terms ID: ${licenseTermsId}`);
-      console.log(`  - Max Minting Fee: ${parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0"}`);
+      console.log(
+        `  - Max Minting Fee: ${parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0"}`,
+      );
       console.log(`  - Max RTS: ${parentAsset?.maxRts || "100000000"}`);
-      console.log(`  - Max Revenue Share: ${parentAsset?.maxRevenueShare || 100}`);
+      console.log(
+        `  - Max Revenue Share: ${parentAsset?.maxRevenueShare || 100}`,
+      );
 
       const registerResult = await storyClient.ipAsset.registerDerivative({
         childIpId: childIpId as `0x${string}`,
@@ -224,7 +232,7 @@ const LicensingForm = ({
     // Validate parent asset has a valid IP ID
     if (!parentAsset?.ipId) {
       setRegisterError(
-        "Parent asset IP ID is missing. Please select a valid parent IP."
+        "Parent asset IP ID is missing. Please select a valid parent IP.",
       );
       return;
     }
@@ -232,7 +240,7 @@ const LicensingForm = ({
     // Validate parent IP ID is a valid Ethereum address format
     if (!/^0x[a-fA-F0-9]{40}$/.test(parentAsset.ipId)) {
       setRegisterError(
-        `Invalid parent IP ID format: ${parentAsset.ipId}. Expected a valid Ethereum address.`
+        `Invalid parent IP ID format: ${parentAsset.ipId}. Expected a valid Ethereum address.`,
       );
       return;
     }
@@ -243,7 +251,9 @@ const LicensingForm = ({
     }
 
     if (!parentLicense.licenseTermsId) {
-      setRegisterError("Parent IP license terms ID is missing. License terms must be attached to the parent IP.");
+      setRegisterError(
+        "Parent IP license terms ID is missing. License terms must be attached to the parent IP.",
+      );
       return;
     }
 
@@ -255,7 +265,7 @@ const LicensingForm = ({
     // Verify parent asset has necessary licensing configuration
     if (!parentAsset?.licenses?.length) {
       setRegisterError(
-        "Parent IP has no commercial licenses. Select a parent IP with active commercial licensing."
+        "Parent IP has no commercial licenses. Select a parent IP with active commercial licensing.",
       );
       return;
     }
@@ -263,7 +273,9 @@ const LicensingForm = ({
     // Validate parent asset is properly configured
     const firstLicense = parentAsset.licenses[0];
     if (!firstLicense.terms) {
-      setRegisterError("Parent IP license terms are malformed. Please select a different parent IP.");
+      setRegisterError(
+        "Parent IP license terms are malformed. Please select a different parent IP.",
+      );
       return;
     }
 
@@ -382,7 +394,7 @@ const LicensingForm = ({
       // Double-check parent asset IP ID before attempting purchase
       if (!parentAsset?.ipId || !/^0x[a-fA-F0-9]{40}$/.test(parentAsset.ipId)) {
         throw new Error(
-          `Invalid parent IP ID detected before license purchase: ${parentAsset?.ipId}. This should be the paid remix IP asset's address.`
+          `Invalid parent IP ID detected before license purchase: ${parentAsset?.ipId}. This should be the paid remix IP asset's address.`,
         );
       }
 
@@ -422,9 +434,15 @@ const LicensingForm = ({
       let errorMessage = error.message || "Registration failed";
 
       // Provide more helpful error message for license purchase failures
-      if (error.message?.includes("not registered") || error.message?.includes("licensor IP")) {
+      if (
+        error.message?.includes("not registered") ||
+        error.message?.includes("licensor IP")
+      ) {
         errorMessage = `❌ Parent IP Data Error: The parent IP (${parentAsset?.ipId}) appears to be missing or not properly synced on Story Protocol. This can happen if:\n• The parent IP was recently deleted\n• The search results are outdated\n• There's a data sync issue\n\nTry:\n1. Refreshing the page to get updated parent IP data\n2. Selecting a different parent IP from the "Popular IPs" or search results\n3. Verifying the parent IP has "Commercial" licensing enabled`;
-      } else if (error.message?.includes("buy license") || error.message?.includes("mintLicenseTokens")) {
+      } else if (
+        error.message?.includes("buy license") ||
+        error.message?.includes("mintLicenseTokens")
+      ) {
         errorMessage = `License purchase failed: ${error.message}. Verify the parent IP (${parentAsset?.ipId}) has available commercial licenses and try again.`;
       }
 
