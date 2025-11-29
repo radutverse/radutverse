@@ -291,40 +291,43 @@ const LicensingForm = ({
         </div>
       </div>
 
-      {/* Registration Status */}
-      {registerState.status !== "idle" && (
-        <div className="rounded px-2 py-1 bg-blue-900/20 border border-blue-800/50 text-xs text-blue-300">
-          <div className="flex items-center gap-1">
-            <span className="inline-block animate-spin">⚙️</span>
-            <span className="capitalize text-xs">{registerState.status}</span>
-            {registerState.progress > 0 && (
-              <span className="ml-auto text-xs">
-                {Math.round(registerState.progress)}%
-              </span>
-            )}
+      {/* Status Messages */}
+      <div className="space-y-2 pt-2 border-t border-slate-800">
+        {/* Registration Status */}
+        {registerState.status !== "idle" && (
+          <div className="rounded px-3 py-2 bg-blue-900/30 border border-blue-800 text-sm text-blue-300">
+            <div className="flex items-center gap-2">
+              <span className="inline-block animate-spin text-lg">⚙️</span>
+              <span className="capitalize">{registerState.status}</span>
+              {registerState.progress > 0 && (
+                <span className="ml-auto text-sm">
+                  {Math.round(registerState.progress)}%
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Error Message */}
-      {(registerError || registerState.error) && (
-        <div className="rounded px-2 py-1 bg-red-900/20 border border-red-800/50 text-xs text-red-300 line-clamp-2">
-          {registerError || registerState.error?.message || registerState.error}
-        </div>
-      )}
+        {/* Error Message */}
+        {(registerError || registerState.error) && (
+          <div className="rounded px-3 py-2 bg-red-900/30 border border-red-800 text-sm text-red-300">
+            {registerError || registerState.error?.message || registerState.error}
+          </div>
+        )}
 
-      {/* Auth Status */}
-      {!demoMode && !authenticated && (
-        <div className="rounded px-2 py-1 bg-amber-900/20 border border-amber-800/50 text-xs text-amber-300">
-          ⚠️ Connect wallet
-        </div>
-      )}
+        {/* Auth Status */}
+        {!demoMode && !authenticated && (
+          <div className="rounded px-3 py-2 bg-amber-900/30 border border-amber-800 text-sm text-amber-300">
+            ⚠️ Connect wallet to register
+          </div>
+        )}
 
-      {demoMode && (
-        <div className="rounded px-2 py-1 bg-blue-900/20 border border-blue-800/50 text-xs text-blue-300">
-          🎭 Demo mode
-        </div>
-      )}
+        {demoMode && (
+          <div className="rounded px-3 py-2 bg-blue-900/30 border border-blue-800 text-sm text-blue-300">
+            🎭 Demo mode enabled
+          </div>
+        )}
+      </div>
 
       {/* Register/Close Button */}
       {registerSuccess ? (
