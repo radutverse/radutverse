@@ -363,10 +363,23 @@ export function useIPRegistrationAgent() {
           ipMetadataUrl: toHttps(ipMetaCid),
         } as const;
       } catch (error: any) {
-        setRegisterState({ status: "error", progress: 0, error });
+        const errorDescription = getRegistrationErrorDescription(error);
+        console.error("IP Registration detailed error:", {
+          message: error?.message,
+          code: error?.code,
+          name: error?.name,
+          data: error?.data,
+          cause: error?.cause,
+          fullError: error,
+        });
+        setRegisterState({
+          status: "error",
+          progress: 0,
+          error: new Error(errorDescription),
+        });
         return {
           success: false,
-          error: error?.message || String(error),
+          error: errorDescription,
         } as const;
       }
     },
