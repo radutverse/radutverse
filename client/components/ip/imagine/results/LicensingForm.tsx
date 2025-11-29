@@ -207,14 +207,14 @@ const LicensingForm = ({
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[#FF4DA6]">
+      <div className="flex items-center justify-between border-b border-slate-800/50 pb-4">
+        <h3 className="text-xl font-semibold text-[#FF4DA6]">
           {registerSuccess ? "Registration Details" : "Licensing your creation"}
         </h3>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors flex-shrink-0 p-1"
+            className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0"
             type="button"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
