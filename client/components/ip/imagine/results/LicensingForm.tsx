@@ -155,7 +155,6 @@ const LicensingForm = ({
     childIpId: string,
     parentIpId: string,
     licenseTermsId: string,
-    childRevShare: number,
   ) => {
     try {
       setCurrentStep("registering-child");
@@ -167,33 +166,41 @@ const LicensingForm = ({
         });
       }
 
-      // Build license terms for child IP
-      const childLicenseTerms = [
-        {
-          terms: PILFlavor.commercialRemix({
-            commercialRevShare: childRevShare,
-            defaultMintingFee: parseEther("0"),
-            currency: WIP_TOKEN_ADDRESS,
-          }),
-        },
-      ];
+      // According to Story SDK docs, child inherits parent's license terms
+      // We don't create new license terms for the child, we reference parent's
+      console.log(`📝 Registering derivative with:`);
+      console.log(`  - Child IP ID: ${childIpId}`);
+      console.log(`  - Parent IP ID: ${parentIpId}`);
+      console.log(`  - License Terms ID: ${licenseTermsId}`);
+      console.log(`  - Max Minting Fee: ${parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0"}`);
+      console.log(`  - Max RTS: ${parentAsset?.maxRts || "100000000"}`);
+      console.log(`  - Max Revenue Share: ${parentAsset?.maxRevenueShare || 100}`);
 
-      const registerResult =
-        await storyClient.ipAsset.registerDerivativeIpAssetWithPilTerms({
-          childIpId: childIpId as `0x${string}`,
-          parentIpIds: [parentIpId as `0x${string}`],
-          licenseTermsIds: [licenseTermsId],
-          licenseTermsData: childLicenseTerms,
-          maxMintingFee:
-            parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0",
-          maxRts: parentAsset?.maxRts || "100000000",
-          maxRevenueShare: parentAsset?.maxRevenueShare || 100,
-        });
+      const registerResult = await storyClient.ipAsset.registerDerivative({
+        childIpId: childIpId as `0x${string}`,
+        parentIpIds: [parentIpId as `0x${string}`],
+        licenseTermsIds: [licenseTermsId],
+        maxMintingFee:
+          parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0",
+        maxRts: parentAsset?.maxRts || "100000000",
+        maxRevenueShare: parentAsset?.maxRevenueShare || 100,
+      });
 
-      console.log("✅ Derivative registered:", registerResult);
+      console.log("✅ Derivative registered successfully:", registerResult);
       return registerResult;
     } catch (error) {
       console.error("❌ Failed to register derivative:", error);
+      console.error("Derivative registration error details:", {
+        childIpId,
+        parentIpId,
+        licenseTermsId,
+        parentAsset: {
+          ipId: parentAsset?.ipId,
+          title: parentAsset?.title,
+          maxRts: parentAsset?.maxRts,
+          maxRevenueShare: parentAsset?.maxRevenueShare,
+        },
+      });
       throw error;
     }
   };
