@@ -402,6 +402,13 @@ const LicensingForm = ({
 
       // Step 3: Buy license from parent IP
       const licenseTermsId = parentLicense.licenseTermsId;
+      console.log("🛒 Buying license from parent IP:", {
+        parentIpId: parentAsset.ipId,
+        licenseTermsId,
+        receiver: addr,
+        parentRevShare,
+      });
+
       const mintLicenseResult = await buyLicense(
         storyClient,
         parentAsset.ipId,
@@ -409,8 +416,17 @@ const LicensingForm = ({
         addr,
       );
 
+      console.log("✅ License purchased successfully:", mintLicenseResult);
+
       // Step 4: Register derivative with parent
       // Use parent's revenue share for child (must match parent)
+      console.log("🔗 Registering derivative IP with parent:", {
+        childIpId,
+        parentIpId: parentAsset.ipId,
+        licenseTermsId,
+        childRevShare: parentRevShare,
+      });
+
       const registerDerivativeResult = await registerDerivative(
         storyClient,
         childIpId,
@@ -418,6 +434,8 @@ const LicensingForm = ({
         licenseTermsId,
         parentRevShare,
       );
+
+      console.log("✅ Derivative successfully registered:", registerDerivativeResult);
 
       if (onRegisterComplete) {
         onRegisterComplete({
