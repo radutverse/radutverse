@@ -375,13 +375,12 @@ const LicensingForm = ({
       );
 
       // Step 4: Register derivative with parent
-      // Use parent's revenue share for child (must match parent)
+      // Child IP inherits parent's license terms (including revenue share)
       const registerDerivativeResult = await registerDerivative(
         storyClient,
         childIpId,
         parentAsset.ipId,
         licenseTermsId,
-        parentRevShare,
       );
 
       if (onRegisterComplete) {
