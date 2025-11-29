@@ -10,7 +10,6 @@ import {
   custom,
   parseEther,
   http,
-  publicActions,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { keccakOfJson } from "@/lib/utils/crypto";
@@ -319,40 +318,317 @@ const LicensingForm = ({
       // STEP 3: REGISTER DERIVATIVE (FIXED!)
       // ========================================
       console.log("🔗 Step 3: Registering derivative with license token...");
-setCurrentStep("registering-derivative");
-if (onRegisterStart) {
-  onRegisterStart({
-    status: "Registering derivative IP asset...",
-    progress: 70,
-    error: null,
-  });
-}
+      setCurrentStep("registering-derivative");
+      if (onRegisterStart) {
+        onRegisterStart({
+          status: "Registering derivative IP asset...",
+          progress: 70,
+          error: null,
+        });
+      }
 
-// SOLUSI: Pakai registerDerivativeIp dengan derivData.licenseTokenIds
-// JANGAN pakai registerDerivativeWithLicenseTokens karena ada bug dengan parameter
-const derivativeTx = await storyClient.ipAsset.registerDerivativeIp({
-  childIpId: childIpId as `0x${string}`,
-  derivData: {
-    parentIpIds: [parentAsset.ipId as `0x${string}`],
-    licenseTokenIds: [BigInt(licenseTokenId)], // Convert ke BigInt
-  },
-  txOptions: { waitForTransaction: true }
-});
+      // FIX: Pakai registerDerivativeIp dengan derivData
+      const derivativeTx = await storyClient.ipAsset.registerDerivativeIp({
+        childIpId: childIpId as `0x${string}`,
+        derivData: {
+          parentIpIds: [parentAsset.ipId as `0x${string}`],
+          licenseTokenIds: [BigInt(licenseTokenId)],
+        },
+        txOptions: { waitForTransaction: true }
+      });
 
-console.log("🎉 Derivative registered:", derivativeTx);
+      console.log("🎉 Derivative registered:", derivativeTx);
 
-setCurrentStep("success");
-setRegisteredIpId(childIpId);
-setRegisterSuccess(true);
-setSuccessMessage(
-  demoMode
-    ? `✅ Derivative registered! Child IP: ${childIpId}`
-    : `✅ Derivative registered with ${parentRevShare}% revenue share. Child IP: ${childIpId}`,
-);
+      setCurrentStep("success");
+      setRegisteredIpId(childIpId);
+      setRegisterSuccess(true);
+      setSuccessMessage(
+        demoMode
+          ? `✅ Derivative registered! Child IP: ${childIpId}`
+          : `✅ Derivative registered with ${parentRevShare}% revenue share. Child IP: ${childIpId}`,
+      );
 
-if (onRegisterComplete) {
-  onRegisterComplete({
-    ipId: childIpId,
-    txHash: derivativeTx?.txHash || registerTxHash,
-  });
-}
+      if (onRegisterComplete) {
+        onRegisterComplete({
+          ipId: childIpId,
+          txHash: derivativeTx?.txHash || registerTxHash,
+        });
+      }
+    } catch (error: any) {
+      const errorMsg = error?.message || error?.data?.message || String(error);
+      setRegisterError(errorMsg);
+      console.error("❌ Full registration error:", {
+        message: errorMsg,
+        error,
+        stack: error?.stack,
+      });
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  return (
+    <div className="w-full h-full p-6 space-y-4 flex flex-col">
+      {/* Success Message */}
+      {registerSuccess && (
+        <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold text-emerald-400 mb-1">
+                Registration Successful!
+              </h4>
+              <p className="text-xs text-slate-400 mb-2">{successMessage}</p>
+              {registeredIpId && registeredIpId !== "pending" && (
+                <a
+                  href={`https://explorer.story.foundation/ipa/${registeredIpId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                >
+                  View on Explorer
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between border-b border-slate-800/50 pb-4">
+        <h3 className="text-xl font-semibold text-[#FF4DA6]">
+          {registerSuccess
+            ? "Derivative Registered"
+            : "License & Register Derivative"}
+        </h3>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0"
+            type="button"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Parent Asset Info */}
+      {isPaidRemix && (
+        <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/30">
+          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">
+            Parent IP
+          </p>
+          <p className="text-sm text-slate-200 font-semibold mb-1">
+            {parentAsset.title || "Untitled"}
+          </p>
+          <p className="text-xs text-slate-400 font-mono break-all">
+            {parentAsset.ipId}
+          </p>
+          {parentLicense && (
+            <div className="mt-3 pt-3 border-t border-slate-700/30 space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-400">License Terms ID:</span>
+                <span className="text-slate-300 font-mono">
+                  {parentLicense.licenseTermsId}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-400">Revenue Share:</span>
+                <span className="text-slate-300 font-semibold">
+                  {parentRevShare}%
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Form Content */}
+      <div className="space-y-4 flex-1 overflow-y-auto pr-1 px-0.5 py-2">
+        {/* Title Input */}
+        <div className="space-y-2">
+          <label className="text-sm text-slate-400 font-medium">
+            Child IP Title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isRegistering || registerSuccess}
+            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40"
+            placeholder="Enter child IP title"
+          />
+        </div>
+
+        {/* Description Input */}
+        <div className="space-y-2">
+          <label className="text-sm text-slate-400 font-medium">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={isRegistering || registerSuccess}
+            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 resize-none disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40 leading-relaxed"
+            rows={2}
+            placeholder="Describe your derivative work"
+          />
+        </div>
+
+        {/* Revenue Share - Read-only, follows parent */}
+        {isPaidRemix && (
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400 font-medium">
+              Revenue Share % (from parent IP)
+            </label>
+            <div className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm flex items-center justify-between">
+              <span className="font-semibold">{parentRevShare}%</span>
+              <span className="text-xs text-slate-400">
+                Inherited from parent
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Child IP revenue share must match parent IP's revenue share
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Status Messages */}
+      <div className="space-y-2 pt-3 border-t border-slate-800/50">
+        {/* Registration Status */}
+        {currentStep !== "idle" && (
+          <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
+            <span className="inline-block animate-spin">⚙️</span>
+            <span className="capitalize">
+              {currentStep === "minting-license"
+                ? "Minting license token from parent IP..."
+                : currentStep === "registering-child"
+                  ? "Registering child IP asset..."
+                  : currentStep === "registering-derivative"
+                    ? "Registering derivative IP..."
+                    : currentStep}
+            </span>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {registerError && (
+          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400 max-h-24 overflow-y-auto">
+            {registerError}
+          </div>
+        )}
+
+        {/* Auth Status */}
+        {!demoMode && !authenticated && (
+          <div className="rounded-lg px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 text-sm text-amber-400">
+            ⚠️ Connect wallet to register
+          </div>
+        )}
+
+        {demoMode && (
+          <div className="rounded-lg px-3 py-2.5 bg-slate-600/20 border border-slate-600/40 text-sm text-slate-400">
+            🎭 Demo mode enabled
+          </div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-3 border-t border-slate-800/50">
+        {registerSuccess ? (
+          <>
+            {registeredIpId && registeredIpId !== "pending" && (
+              <a
+                href={`https://explorer.story.foundation/ipa/${registeredIpId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 rounded-lg bg-emerald-600/20 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-2 border border-emerald-500/30"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+                Explorer
+              </a>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className={`${registeredIpId && registeredIpId !== "pending" ? "flex-1" : "w-full"} rounded-lg bg-slate-700/40 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700/60 transition-colors border border-slate-600/40`}
+                type="button"
+              >
+                Close
+              </button>
+            )}
+          </>
+        ) : (
+          <button
+            onClick={handleRegister}
+            disabled={
+              isRegistering ||
+              currentStep !== "idle" ||
+              (!demoMode && !authenticated) ||
+              isLoading ||
+              !imageUrl ||
+              !isPaidRemix
+            }
+            className="w-full rounded-lg bg-[#FF4DA6]/20 px-4 py-2.5 text-sm font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-[#FF4DA6]/30"
+            type="button"
+            title={
+              isPaidRemix
+                ? `Register with ${parentRevShare}% revenue share from parent`
+                : "Select a paid remix first"
+            }
+          >
+            {isRegistering || currentStep !== "idle" ? (
+              <>
+                <span className="inline-block animate-spin mr-2">⚙️</span>
+                Processing...
+              </>
+            ) : (
+              <>
+                Buy License & Register
+                {isPaidRemix && (
+                  <span className="block text-xs opacity-80">
+                    ({parentRevShare}% revenue share from parent)
+                  </span>
+                )}
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LicensingForm;
