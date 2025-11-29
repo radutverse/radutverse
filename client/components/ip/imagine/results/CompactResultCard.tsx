@@ -248,6 +248,33 @@ const CompactResultCard = ({
               )}
             </AnimatePresence>
           </div>
+
+          {/* Inline Licensing Form */}
+          <AnimatePresence>
+            {showLicensingForm && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="absolute bottom-24 sm:bottom-28 left-0 right-0 max-h-[40vh] overflow-y-auto mx-4 sm:mx-6"
+              >
+                <LicensingForm
+                  imageUrl={imageUrl}
+                  type={type}
+                  demoMode={demoMode}
+                  isLoading={isLoading}
+                  onClose={() => setShowLicensingForm(false)}
+                  onRegisterStart={(state) => {
+                    console.log("Registration started:", state);
+                  }}
+                  onRegisterComplete={(result) => {
+                    console.log("Registration completed:", result);
+                    setShowLicensingForm(false);
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
     );
