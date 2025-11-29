@@ -393,8 +393,21 @@ const LicensingForm = ({
           : `✅ Derivative registered with ${parentRevShare}% revenue share from parent IP. ID: ${childIpId}`,
       );
     } catch (error: any) {
-      setRegisterError(error.message || "Registration failed");
+      let errorMessage = error.message || "Registration failed";
+
+      // Provide more helpful error message for license purchase failures
+      if (error.message?.includes("buy license") || error.message?.includes("mintLicenseTokens")) {
+        errorMessage = `License purchase failed: ${error.message}. Please ensure the parent IP ID (${parentAsset?.ipId}) is correct and the parent IP has available commercial licenses.`;
+      }
+
+      setRegisterError(errorMessage);
       console.error("Registration error:", error);
+      console.error("Parent asset details:", {
+        ipId: parentAsset?.ipId,
+        title: parentAsset?.title,
+        licenseTermsIds: parentAsset?.licenseTermsIds,
+        hasLicenses: !!parentAsset?.licenses?.length,
+      });
     } finally {
       setIsRegistering(false);
     }
