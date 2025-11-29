@@ -160,7 +160,7 @@ const LicensingForm = ({
   };
 
   return (
-    <div className={`w-full h-full ${registerSuccess ? "bg-slate-950" : "bg-slate-950"} p-4 space-y-3 flex flex-col`}>
+    <div className="w-full h-full p-6 space-y-4 flex flex-col">
       {/* Success Message */}
       {registerSuccess && (
         <div className="rounded-lg bg-emerald-950/50 border border-emerald-800/80 p-4">
