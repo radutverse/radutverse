@@ -552,7 +552,7 @@ const LicensingForm = ({
               <div className="flex justify-between text-xs">
                 <span className="text-slate-400">Revenue Share:</span>
                 <span className="text-slate-300 font-semibold">
-                  {parentRevShare}%
+                  {parentRevShareDisplay}%
                 </span>
               </div>
               {parentAsset.licenses?.[0]?.licensingConfig?.mintingFee && (
