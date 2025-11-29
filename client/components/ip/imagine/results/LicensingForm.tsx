@@ -113,6 +113,28 @@ const LicensingForm = ({
       setCurrentStep("buying-license");
       if (onRegisterStart) {
         onRegisterStart({
+          status: "Verifying parent IP exists on blockchain...",
+          progress: 25,
+          error: null,
+        });
+      }
+
+      // Verify parent IP is registered on Story Protocol before attempting to mint license
+      console.log(`🔍 Verifying parent IP is registered: ${parentIpId}`);
+      try {
+        const parentIpData = await storyClient.ipAsset.getMetadata(parentIpId as `0x${string}`);
+        if (!parentIpData) {
+          throw new Error(`Parent IP metadata not found`);
+        }
+        console.log(`✅ Parent IP verified on blockchain:`, parentIpData);
+      } catch (verifyError: any) {
+        throw new Error(
+          `Parent IP (${parentIpId}) is not registered on Story Protocol. Make sure you selected a valid parent IP asset. Error: ${verifyError.message}`
+        );
+      }
+
+      if (onRegisterStart) {
+        onRegisterStart({
           status: "Buying license from parent IP...",
           progress: 30,
           error: null,
@@ -135,12 +157,17 @@ const LicensingForm = ({
 
       console.log("✅ License purchased:", mintResult);
       return mintResult;
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Failed to buy license:", error);
-      console.error(
-        `❌ Parent IP ID used: ${parentIpId}`,
-        `from parentAsset.ipId: ${parentAsset?.ipId}`
-      );
+      console.error(`❌ Parent IP ID used: ${parentIpId}`, `from parentAsset.ipId: ${parentAsset?.ipId}`);
+
+      // If it's a "not registered" error, provide helpful message
+      if (error.message?.includes("not registered") || error.message?.includes("licensor IP")) {
+        throw new Error(
+          `The parent IP (${parentIpId}) is not registered on Story Protocol. Please verify you selected a valid paid remix parent IP asset.`
+        );
+      }
+
       throw error;
     }
   };
