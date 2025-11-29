@@ -215,28 +215,28 @@ const LicensingForm = ({
       </div>
 
       {/* Title Input */}
-      <div>
-        <label className="text-sm text-slate-300 block mb-2">Title</label>
+      <div className="space-y-0.5">
+        <label className="text-xs text-slate-300 block">Title</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={isRegistering}
-          className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm disabled:opacity-50"
-          placeholder="IP Asset Title"
+          className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
+          placeholder="Title"
         />
       </div>
 
       {/* Description Input */}
-      <div>
-        <label className="text-sm text-slate-300 block mb-2">Description</label>
+      <div className="space-y-0.5">
+        <label className="text-xs text-slate-300 block">Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           disabled={isRegistering}
-          className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm resize-none disabled:opacity-50"
-          rows={2}
-          placeholder="Describe your asset..."
+          className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs resize-none disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6] leading-tight"
+          rows={1}
+          placeholder="Description"
         />
       </div>
 
