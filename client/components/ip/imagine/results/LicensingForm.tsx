@@ -214,17 +214,37 @@ const LicensingForm = ({
       }
 
       const licenseTermsId = parentLicense.licenseTermsId;
-      const mintTx = await storyClient.license.mintLicenseTokens({
-        licensorIpId: parentAsset.ipId as `0x${string}`,
+      
+      console.log("🎟️ Minting license with:", {
+        licensorIpId: parentAsset.ipId,
         licenseTermsId,
         amount: 1,
-        receiver: addr as `0x${string}`,
-        maxMintingFee: "0",
-        maxRevenueShare: 100,
+        receiver: addr,
       });
 
-      const licenseTokenId = Number(mintTx.licenseTokenIds[0]);
-      console.log("✅ License token minted:", licenseTokenId, mintTx);
+      const mintTx = await storyClient.license.mintLicenseTokens({
+        licensorIpId: parentAsset.ipId as `0x${string}`,
+        licenseTermsId: String(licenseTermsId),
+        amount: 1,
+        receiver: addr as `0x${string}`,
+        txOptions: { waitForTransaction: true }
+      });
+
+      console.log("✅ Mint TX Response:", mintTx);
+
+      // Handle different response formats
+      let licenseTokenId: bigint;
+      if (mintTx.licenseTokenId) {
+        // SDK returns single licenseTokenId
+        licenseTokenId = BigInt(mintTx.licenseTokenId);
+      } else if (mintTx.licenseTokenIds && mintTx.licenseTokenIds[0]) {
+        // SDK returns array of licenseTokenIds
+        licenseTokenId = BigInt(mintTx.licenseTokenIds[0]);
+      } else {
+        throw new Error("No license token ID returned from minting");
+      }
+
+      console.log("✅ License token minted:", licenseTokenId.toString());
 
       // ========================================
       // STEP 2: CREATE CHILD NFT & REGISTER IP
@@ -328,11 +348,17 @@ const LicensingForm = ({
       }
 
       // FIX: Pakai registerDerivativeIp dengan derivData
+      console.log("🔗 Registering derivative with:", {
+        childIpId,
+        parentIpId: parentAsset.ipId,
+        licenseTokenId: licenseTokenId.toString(),
+      });
+
       const derivativeTx = await storyClient.ipAsset.registerDerivativeIp({
         childIpId: childIpId as `0x${string}`,
         derivData: {
           parentIpIds: [parentAsset.ipId as `0x${string}`],
-          licenseTokenIds: [BigInt(licenseTokenId)],
+          licenseTokenIds: [licenseTokenId], // Already BigInt
         },
         txOptions: { waitForTransaction: true }
       });
