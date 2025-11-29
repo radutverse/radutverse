@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 
 interface LicensingFormProps {
   imageUrl: string;
@@ -16,6 +17,9 @@ interface LicensingFormProps {
   onRegisterComplete?: (result: { ipId?: string; txHash?: string }) => void;
 }
 
+// AI Generated group 1 (DIRECT_REGISTER_FIXED_AI)
+const AI_GENERATED_GROUP = 1;
+
 const LicensingForm = ({
   imageUrl,
   imageName = "generated-image.png",
@@ -28,6 +32,7 @@ const LicensingForm = ({
 }: LicensingFormProps) => {
   const { authenticated, user } = usePrivy();
   const { wallets } = useWallets();
+  const { executeRegister, registerState } = useIPRegistrationAgent();
 
   const [mintingFee, setMintingFee] = useState<number | "">("");
   const [revShare, setRevShare] = useState<number | "">("");
@@ -37,6 +42,8 @@ const LicensingForm = ({
   );
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // AI Generated group 1 is FIXED_AI, so AI training is always disabled
   const aiTrainingDisabled = true;
@@ -88,13 +95,12 @@ const LicensingForm = ({
 
     setIsRegistering(true);
     setRegisterError(null);
+    setRegisterSuccess(false);
 
     try {
       // Convert image to File
       const file = await handleConvertImageToFile();
 
-      // For now, just show success message
-      // The actual registration would be handled by useIPRegistrationAgent
       if (onRegisterStart) {
         onRegisterStart({
           status: "preparing",
@@ -103,17 +109,44 @@ const LicensingForm = ({
         });
       }
 
-      // Simulate registration process
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Get ethereum provider for wallet mode
+      let ethProvider: any = undefined;
+      if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
+        try {
+          ethProvider = await wallets[0].getEthereumProvider();
+        } catch (err) {
+          console.warn("Failed to get ethereum provider:", err);
+        }
+      }
+
+      // Convert empty strings to undefined
+      const mf = mintingFee === "" ? undefined : Number(mintingFee);
+      const rs = revShare === "" ? undefined : Number(revShare);
+
+      // Execute registration
+      const result = await executeRegister(
+        AI_GENERATED_GROUP,
+        file,
+        mf,
+        rs,
+        false, // aiTrainingManual - always false for group 1 (FIXED_AI)
+        { title, prompt: description },
+        ethProvider,
+      );
 
       if (onRegisterComplete) {
         onRegisterComplete({
-          ipId: `ip-${Date.now()}`,
-          txHash: `0x${Math.random().toString(16).substr(2)}`,
+          ipId: result?.ipId,
+          txHash: result?.txHash,
         });
       }
 
-      setRegisterError(null);
+      setRegisterSuccess(true);
+      setSuccessMessage(
+        demoMode
+          ? "Demo registration successful!"
+          : `IP registered successfully! ID: ${result?.ipId || "pending"}`
+      );
     } catch (error: any) {
       setRegisterError(error.message || "Registration failed");
       console.error("Registration error:", error);
