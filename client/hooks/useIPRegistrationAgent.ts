@@ -22,6 +22,41 @@ import {
 } from "@/lib/groupLicense";
 import { privateKeyToAccount } from "viem/accounts";
 
+// Helper function to provide clear error descriptions for registration
+function getRegistrationErrorDescription(error: any): string {
+  const message = error?.message || String(error) || "Unknown error";
+
+  if (message.includes("gas") || message.includes("balance")) {
+    return `Insufficient balance for gas fees. Ensure your wallet has enough tokens.`;
+  }
+
+  if (
+    message.includes("SPG") ||
+    message.includes("contract") ||
+    message.includes("deployed")
+  ) {
+    return `SPG contract not properly configured. Check VITE_PUBLIC_SPG_COLLECTION environment variable.`;
+  }
+
+  if (message.includes("IPFS") || message.includes("upload")) {
+    return `Failed to upload file to IPFS. Check network connection and try again.`;
+  }
+
+  if (message.includes("metadata")) {
+    return `Failed to create or upload metadata. Ensure all metadata fields are valid.`;
+  }
+
+  if (message.includes("mint")) {
+    return `Failed to mint NFT. The SPG contract may not be funded or the network may be congested.`;
+  }
+
+  if (message.includes("register")) {
+    return `Failed to register IP. Ensure the NFT was successfully minted before registration.`;
+  }
+
+  return message;
+}
+
 export type RegisterState = {
   status:
     | "idle"
