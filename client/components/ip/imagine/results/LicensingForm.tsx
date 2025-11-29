@@ -225,7 +225,7 @@ const LicensingForm = ({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          disabled={isRegistering}
+          disabled={isRegistering || registerSuccess}
           className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
           placeholder="Title"
         />
@@ -237,7 +237,7 @@ const LicensingForm = ({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          disabled={isRegistering}
+          disabled={isRegistering || registerSuccess}
           className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs resize-none disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6] leading-tight"
           rows={1}
           placeholder="Description"
@@ -256,7 +256,7 @@ const LicensingForm = ({
               const v = e.target.value;
               setMintingFee(v === "" ? "" : Number(v));
             }}
-            disabled={isRegistering}
+            disabled={isRegistering || registerSuccess}
             className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
             placeholder="0"
           />
@@ -275,7 +275,7 @@ const LicensingForm = ({
               const n = Number(v);
               setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
             }}
-            disabled={isRegistering}
+            disabled={isRegistering || registerSuccess}
             className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
             placeholder="0"
           />
