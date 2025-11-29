@@ -46,7 +46,6 @@ const LicensingForm = ({
   const { wallets } = useWallets();
   const { executeRegister, registerState } = useIPRegistrationAgent();
 
-  const [revShare, setRevShare] = useState<number | "">("");
   const [title, setTitle] = useState("AI Generated Image");
   const [description, setDescription] = useState(
     "Created using AI image generation technology",
@@ -65,6 +64,11 @@ const LicensingForm = ({
   const parentLicense = isPaidRemix
     ? parentAsset.licenses.find((l: any) => l.terms?.commercialUse === true)
     : null;
+
+  // Get parent's revenue share (read-only, must match parent)
+  const parentRevShare = parentLicense?.terms?.commercialRevShare ?? 0;
+  const parentMintingFee =
+    parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0";
 
   const handleConvertImageToFile = async (): Promise<File> => {
     if (!imageUrl) {
@@ -195,6 +199,11 @@ const LicensingForm = ({
       return;
     }
 
+    if (parentRevShare === undefined || parentRevShare === null) {
+      setRegisterError("Parent IP revenue share not available");
+      return;
+    }
+
     if (!demoMode && !authenticated) {
       setRegisterError("Please connect wallet or enable demo mode");
       return;
@@ -258,12 +267,13 @@ const LicensingForm = ({
       }
 
       // Register child IP using the registration agent
+      // Use parent's revenue share (child must match parent)
       const childResult = await new Promise((resolve, reject) => {
         executeRegister(
           1, // AI_GENERATED_GROUP
           file,
           undefined, // mintingFee
-          Number(revShare) || 0,
+          parentRevShare, // Use parent's revShare (read-only)
           false, // aiTrainingManual
           { title, prompt: description },
           ethProvider,
@@ -313,12 +323,13 @@ const LicensingForm = ({
       );
 
       // Step 4: Register derivative with parent
+      // Use parent's revenue share for child (must match parent)
       const registerDerivativeResult = await registerDerivative(
         storyClient,
         childIpId,
         parentAsset.ipId,
         licenseTermsId,
-        Number(revShare) || 0,
+        parentRevShare,
       );
 
       if (onRegisterComplete) {
@@ -479,30 +490,23 @@ const LicensingForm = ({
           />
         </div>
 
-        {/* Revenue Share */}
-        <div className="space-y-2">
-          <label className="text-sm text-slate-400 font-medium">
-            Revenue Share % (for your child IP)
-          </label>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={revShare === "" ? "" : revShare}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setRevShare("");
-              const n = Number(v);
-              setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
-            }}
-            disabled={isRegistering || registerSuccess}
-            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20"
-            placeholder="0-100"
-          />
-          <p className="text-xs text-slate-500">
-            Revenue share from derivatives of your child IP
-          </p>
-        </div>
+        {/* Revenue Share - Read-only, follows parent */}
+        {isPaidRemix && (
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400 font-medium">
+              Revenue Share % (from parent IP)
+            </label>
+            <div className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm flex items-center justify-between">
+              <span className="font-semibold">{parentRevShare}%</span>
+              <span className="text-xs text-slate-400">
+                Inherited from parent
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Child IP revenue share must match parent IP's revenue share
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Status Messages */}
