@@ -13,6 +13,7 @@ import {
   publicActions,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { keccakOfJson } from "@/lib/utils/crypto";
 
 interface LicensingFormProps {
   imageUrl: string;
@@ -68,7 +69,9 @@ const LicensingForm = ({
     : null;
 
   // Get parent's revenue share (read-only, must match parent)
-  const parentRevShare = parentLicense?.terms?.commercialRevShare ?? 0;
+  // Convert from scaled format (1000000 = 1%) to percentage (0-100)
+  const parentRevShareScaled = parentLicense?.terms?.commercialRevShare ?? 0;
+  const parentRevShare = Number(parentRevShareScaled) / 1000000;
 
   const handleConvertImageToFile = async (): Promise<File> => {
     if (!imageUrl) {
@@ -182,7 +185,7 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: addr as any,
           transport: custom(ethProvider),
-          chainId: 514,
+          chainId: 1514,
         });
       } else {
         const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -194,7 +197,7 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: guestAccount as any,
           transport: http(rpcUrl),
-          chainId: 514,
+          chainId: 1514,
         });
       }
 
@@ -242,7 +245,7 @@ const LicensingForm = ({
       // Upload image to IPFS
       const formData = new FormData();
       formData.append("file", file);
-      const uploadRes = await fetch("/api/upload-file", {
+      const uploadRes = await fetch("/api/ipfs/upload", {
         method: "POST",
         body: formData,
       });
@@ -251,11 +254,42 @@ const LicensingForm = ({
         throw new Error("Failed to upload image to IPFS");
       }
 
-      const { url: imageUri, cid } = await uploadRes.json();
+      const { url: imageUri } = await uploadRes.json();
 
       // Mint NFT and register IP
       const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
       if (!spg) throw new Error("SPG collection not configured");
+
+      // Create metadata objects for IP and NFT
+      const ipMetadataObj = {
+        title: title || "AI Generated Image",
+        description:
+          description || "Created using AI image generation technology",
+        ipType: "Image",
+        createdAt: new Date().toISOString(),
+        mediaUrl: imageUri,
+      };
+
+      const nftMetadataObj = {
+        title: title || "AI Generated Image",
+        description:
+          description || "Created using AI image generation technology",
+        image: imageUri,
+        attributes: [
+          {
+            trait_type: "Type",
+            value: "AI Generated Derivative",
+          },
+          {
+            trait_type: "Parent IP",
+            value: parentAsset?.ipId || "Unknown",
+          },
+        ],
+      };
+
+      // Calculate hashes for metadata
+      const ipMetadataHash = keccakOfJson(ipMetadataObj);
+      const nftMetadataHash = keccakOfJson(nftMetadataObj);
 
       const { ipId: childIpId, txHash: registerTxHash } =
         await storyClient.ipAsset.mintAndRegisterIpAssetWithPilTerms({
@@ -263,14 +297,14 @@ const LicensingForm = ({
           recipient: addr as `0x${string}`,
           ipMetadata: {
             ipMetadataURI: imageUri,
-            ipMetadataHash: "0x" as any,
+            ipMetadataHash: ipMetadataHash as `0x${string}`,
             nftMetadataURI: imageUri,
-            nftMetadataHash: "0x" as any,
+            nftMetadataHash: nftMetadataHash as `0x${string}`,
           },
           licenseTermsData: [
             {
               terms: PILFlavor.commercialRemix({
-                commercialRevShare: parentRevShare,
+                commercialRevShare: Math.min(100, Math.max(0, parentRevShare)),
                 defaultMintingFee: parseEther("0"),
                 currency: WIP_TOKEN_ADDRESS,
               }),
