@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   StoryClient,
   PILFlavor,
@@ -44,7 +43,6 @@ const LicensingForm = ({
 }: LicensingFormProps) => {
   const { authenticated, user } = usePrivy();
   const { wallets } = useWallets();
-  const { executeRegister, registerState } = useIPRegistrationAgent();
 
   const [title, setTitle] = useState("AI Generated Image");
   const [description, setDescription] = useState(
@@ -56,7 +54,11 @@ const LicensingForm = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
-    "idle" | "buying-license" | "registering-child" | "success"
+    | "idle"
+    | "minting-license"
+    | "registering-child"
+    | "registering-derivative"
+    | "success"
   >("idle");
 
   // Check if this is a paid remix with parent asset
@@ -67,8 +69,6 @@ const LicensingForm = ({
 
   // Get parent's revenue share (read-only, must match parent)
   const parentRevShare = parentLicense?.terms?.commercialRevShare ?? 0;
-  const parentMintingFee =
-    parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0";
 
   const handleConvertImageToFile = async (): Promise<File> => {
     if (!imageUrl) {
@@ -99,88 +99,6 @@ const LicensingForm = ({
     return new File([blob], imageName, {
       type: blob.type || "image/png",
     });
-  };
-
-  const buyLicense = async (
-    storyClient: any,
-    parentIpId: string,
-    licenseTermsId: string,
-    receiver: string,
-  ) => {
-    try {
-      setCurrentStep("buying-license");
-      if (onRegisterStart) {
-        onRegisterStart({
-          status: "Buying license from parent IP...",
-          progress: 30,
-          error: null,
-        });
-      }
-
-      const mintResult = await storyClient.license.mintLicenseTokens({
-        licensorIpId: parentIpId as `0x${string}`,
-        licenseTermsId,
-        amount: 1,
-        receiver: receiver as `0x${string}`,
-        maxMintingFee:
-          parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0",
-        maxRevenueShare: parentAsset?.maxRevenueShare || 100,
-      });
-
-      console.log("✅ License purchased:", mintResult);
-      return mintResult;
-    } catch (error) {
-      console.error("❌ Failed to buy license:", error);
-      throw error;
-    }
-  };
-
-  const registerDerivative = async (
-    storyClient: any,
-    childIpId: string,
-    parentIpId: string,
-    licenseTermsId: string,
-    childRevShare: number,
-  ) => {
-    try {
-      setCurrentStep("registering-child");
-      if (onRegisterStart) {
-        onRegisterStart({
-          status: "Registering derivative IP...",
-          progress: 60,
-          error: null,
-        });
-      }
-
-      // Build license terms for child IP
-      const childLicenseTerms = [
-        {
-          terms: PILFlavor.commercialRemix({
-            commercialRevShare: childRevShare,
-            defaultMintingFee: parseEther("0"),
-            currency: WIP_TOKEN_ADDRESS,
-          }),
-        },
-      ];
-
-      const registerResult =
-        await storyClient.ipAsset.registerDerivativeIpAssetWithPilTerms({
-          childIpId: childIpId as `0x${string}`,
-          parentIpIds: [parentIpId as `0x${string}`],
-          licenseTermsIds: [licenseTermsId],
-          licenseTermsData: childLicenseTerms,
-          maxMintingFee:
-            parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0",
-          maxRts: parentAsset?.maxRts || "100000000",
-          maxRevenueShare: parentAsset?.maxRevenueShare || 100,
-        });
-
-      console.log("✅ Derivative registered:", registerResult);
-      return registerResult;
-    } catch (error) {
-      console.error("❌ Failed to register derivative:", error);
-      throw error;
-    }
   };
 
   const handleRegister = async () => {
@@ -214,17 +132,6 @@ const LicensingForm = ({
     setRegisterSuccess(false);
 
     try {
-      // Step 1: Register child IP first
-      const file = await handleConvertImageToFile();
-
-      if (onRegisterStart) {
-        onRegisterStart({
-          status: "Preparing child IP registration...",
-          progress: 10,
-          error: null,
-        });
-      }
-
       // Get ethereum provider
       let ethProvider: any = undefined;
       if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
@@ -266,38 +173,16 @@ const LicensingForm = ({
         throw new Error("Could not determine wallet address");
       }
 
-      // Register child IP using the registration agent
-      // Use parent's revenue share (child must match parent)
-      const childResult = await new Promise((resolve, reject) => {
-        executeRegister(
-          1, // AI_GENERATED_GROUP
-          file,
-          undefined, // mintingFee
-          parentRevShare, // Use parent's revShare (read-only)
-          false, // aiTrainingManual
-          { title, prompt: description },
-          ethProvider,
-        )
-          .then(resolve)
-          .catch(reject);
-      });
-
-      if (!childResult?.ipId) {
-        throw new Error("Failed to register child IP");
-      }
-
-      const childIpId = childResult.ipId;
-
-      // Step 2: Setup Story Client for Buy License + Register Derivative
       const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
       if (!rpcUrl) throw new Error("RPC URL not set");
 
+      // Setup Story Client
       let storyClient: any;
       if (ethProvider) {
         storyClient = StoryClient.newClient({
           account: addr as any,
           transport: custom(ethProvider),
-          chainId: "aeneid",
+          chainId: 514,
         });
       } else {
         const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -309,47 +194,139 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: guestAccount as any,
           transport: http(rpcUrl),
-          chainId: "aeneid",
+          chainId: 514,
         });
       }
 
-      // Step 3: Buy license from parent IP
+      // ========================================
+      // STEP 1: MINT LICENSE TOKEN FROM PARENT
+      // ========================================
+      console.log("🎟️ Step 1: Minting license token from parent IP...");
+      setCurrentStep("minting-license");
+      if (onRegisterStart) {
+        onRegisterStart({
+          status: "Minting license token from parent IP...",
+          progress: 20,
+          error: null,
+        });
+      }
+
       const licenseTermsId = parentLicense.licenseTermsId;
-      const mintLicenseResult = await buyLicense(
-        storyClient,
-        parentAsset.ipId,
+      const mintTx = await storyClient.license.mintLicenseTokens({
+        licensorIpId: parentAsset.ipId as `0x${string}`,
         licenseTermsId,
-        addr,
-      );
+        amount: 1,
+        receiver: addr as `0x${string}`,
+        maxMintingFee: "0",
+        maxRevenueShare: 100,
+      });
 
-      // Step 4: Register derivative with parent
-      // Use parent's revenue share for child (must match parent)
-      const registerDerivativeResult = await registerDerivative(
-        storyClient,
-        childIpId,
-        parentAsset.ipId,
-        licenseTermsId,
-        parentRevShare,
-      );
+      const licenseTokenId = Number(mintTx.licenseTokenIds[0]);
+      console.log("✅ License token minted:", licenseTokenId, mintTx);
 
-      if (onRegisterComplete) {
-        onRegisterComplete({
-          ipId: childIpId,
-          txHash: registerDerivativeResult?.txHash,
+      // ========================================
+      // STEP 2: CREATE CHILD NFT & REGISTER IP
+      // ========================================
+      console.log("📸 Step 2: Creating child NFT and registering IP...");
+      setCurrentStep("registering-child");
+      if (onRegisterStart) {
+        onRegisterStart({
+          status: "Creating child NFT and registering IP asset...",
+          progress: 40,
+          error: null,
         });
       }
+
+      const file = await handleConvertImageToFile();
+
+      // Upload image to IPFS
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadRes = await fetch("/api/upload-file", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload image to IPFS");
+      }
+
+      const { url: imageUri, cid } = await uploadRes.json();
+
+      // Mint NFT and register IP
+      const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
+      if (!spg) throw new Error("SPG collection not configured");
+
+      const { ipId: childIpId, txHash: registerTxHash } =
+        await storyClient.ipAsset.mintAndRegisterIpAssetWithPilTerms({
+          spgNftContract: spg as `0x${string}`,
+          recipient: addr as `0x${string}`,
+          ipMetadata: {
+            ipMetadataURI: imageUri,
+            ipMetadataHash: "0x" as any,
+            nftMetadataURI: imageUri,
+            nftMetadataHash: "0x" as any,
+          },
+          licenseTermsData: [
+            {
+              terms: PILFlavor.commercialRemix({
+                commercialRevShare: parentRevShare,
+                defaultMintingFee: parseEther("0"),
+                currency: WIP_TOKEN_ADDRESS,
+              }),
+            },
+          ],
+          allowDuplicates: true,
+        });
+
+      console.log("✅ Child IP registered:", childIpId);
+
+      // ========================================
+      // STEP 3: REGISTER DERIVATIVE
+      // ========================================
+      console.log("🔗 Step 3: Registering derivative with license token...");
+      setCurrentStep("registering-derivative");
+      if (onRegisterStart) {
+        onRegisterStart({
+          status: "Registering derivative IP asset...",
+          progress: 70,
+          error: null,
+        });
+      }
+
+      const derivativeTx =
+        await storyClient.licenseToken.registerDerivativeWithLicenseTokens({
+          childIpId: childIpId as `0x${string}`,
+          licenseTokenIds: [licenseTokenId],
+          royaltyContext: "0x" as `0x${string}`,
+          maxRts: "0",
+        });
+
+      console.log("🎉 Derivative registered:", derivativeTx);
 
       setCurrentStep("success");
       setRegisteredIpId(childIpId);
       setRegisterSuccess(true);
       setSuccessMessage(
         demoMode
-          ? `Demo registration successful! Child IP registered as derivative with ${parentRevShare}% revenue share (matching parent IP).`
-          : `✅ Derivative registered with ${parentRevShare}% revenue share from parent IP. ID: ${childIpId}`,
+          ? `✅ Derivative registered! Child IP: ${childIpId}`
+          : `✅ Derivative registered with ${parentRevShare}% revenue share. Child IP: ${childIpId}`,
       );
+
+      if (onRegisterComplete) {
+        onRegisterComplete({
+          ipId: childIpId,
+          txHash: derivativeTx?.txHash || registerTxHash,
+        });
+      }
     } catch (error: any) {
-      setRegisterError(error.message || "Registration failed");
-      console.error("Registration error:", error);
+      const errorMsg = error?.message || error?.data?.message || String(error);
+      setRegisterError(errorMsg);
+      console.error("❌ Full registration error:", {
+        message: errorMsg,
+        error,
+        stack: error?.stack,
+      });
     } finally {
       setIsRegistering(false);
     }
@@ -375,7 +352,7 @@ const LicensingForm = ({
               <p className="text-xs text-slate-400 mb-2">{successMessage}</p>
               {registeredIpId && registeredIpId !== "pending" && (
                 <a
-                  href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
+                  href={`https://explorer.story.foundation/ipa/${registeredIpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
@@ -446,19 +423,6 @@ const LicensingForm = ({
                   {parentRevShare}%
                 </span>
               </div>
-              {parentAsset.licenses?.[0]?.licensingConfig?.mintingFee && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Minting Fee:</span>
-                  <span className="text-slate-300">
-                    {(
-                      Number(
-                        parentAsset.licenses[0].licensingConfig.mintingFee,
-                      ) / 1e18
-                    ).toFixed(4)}{" "}
-                    tokens
-                  </span>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -518,30 +482,25 @@ const LicensingForm = ({
       {/* Status Messages */}
       <div className="space-y-2 pt-3 border-t border-slate-800/50">
         {/* Registration Status */}
-        {(registerState.status !== "idle" || currentStep !== "idle") && (
+        {currentStep !== "idle" && (
           <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
             <span className="inline-block animate-spin">⚙️</span>
             <span className="capitalize">
-              {currentStep === "buying-license"
-                ? "Buying license from parent IP..."
+              {currentStep === "minting-license"
+                ? "Minting license token from parent IP..."
                 : currentStep === "registering-child"
-                  ? "Registering derivative IP..."
-                  : registerState.status}
+                  ? "Registering child IP asset..."
+                  : currentStep === "registering-derivative"
+                    ? "Registering derivative IP..."
+                    : currentStep}
             </span>
-            {registerState.progress > 0 && (
-              <span className="ml-auto text-xs">
-                {Math.round(registerState.progress)}%
-              </span>
-            )}
           </div>
         )}
 
         {/* Error Message */}
-        {(registerError || registerState.error) && (
-          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400">
-            {registerError ||
-              registerState.error?.message ||
-              registerState.error}
+        {registerError && (
+          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400 max-h-24 overflow-y-auto">
+            {registerError}
           </div>
         )}
 
@@ -565,7 +524,7 @@ const LicensingForm = ({
           <>
             {registeredIpId && registeredIpId !== "pending" && (
               <a
-                href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
+                href={`https://explorer.story.foundation/ipa/${registeredIpId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 rounded-lg bg-emerald-600/20 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-2 border border-emerald-500/30"

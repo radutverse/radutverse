@@ -303,11 +303,11 @@ export function useIPRegistrationAgent() {
             const chainIdHex: string = await provider.request({
               method: "eth_chainId",
             });
-            if (chainIdHex?.toLowerCase() !== "0x523") {
+            if (chainIdHex?.toLowerCase() !== "0x5ea") {
               try {
                 await provider.request({
                   method: "wallet_switchEthereumChain",
-                  params: [{ chainId: "0x523" }],
+                  params: [{ chainId: "0x5ea" }],
                 });
               } catch (e) {
                 const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
@@ -316,8 +316,8 @@ export function useIPRegistrationAgent() {
                     method: "wallet_addEthereumChain",
                     params: [
                       {
-                        chainId: "0x523",
-                        chainName: "Aeneid",
+                        chainId: "0x5ea",
+                        chainName: "Story",
                         nativeCurrency: {
                           name: "IP",
                           symbol: "IP",
@@ -325,7 +325,7 @@ export function useIPRegistrationAgent() {
                         },
                         rpcUrls: rpcUrl
                           ? [rpcUrl]
-                          : ["https://aeneid.storyrpc.io"],
+                          : ["https://mainnet.storyrpc.io"],
                       },
                     ],
                   });
@@ -333,7 +333,7 @@ export function useIPRegistrationAgent() {
                 try {
                   await provider.request({
                     method: "wallet_switchEthereumChain",
-                    params: [{ chainId: "0x523" }],
+                    params: [{ chainId: "0x5ea" }],
                   });
                 } catch {}
               }
@@ -348,7 +348,7 @@ export function useIPRegistrationAgent() {
           story = StoryClient.newClient({
             account: addr as any,
             transport: custom(provider),
-            chainId: "aeneid",
+            chainId: 514,
           });
         } else {
           const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -364,7 +364,7 @@ export function useIPRegistrationAgent() {
           story = StoryClient.newClient({
             account: guestAccount as any,
             transport: http(rpcUrl),
-            chainId: "aeneid",
+            chainId: 514,
           });
         }
 
@@ -397,10 +397,17 @@ export function useIPRegistrationAgent() {
           ipMetadataUrl: toHttps(ipMetaCid),
         } as const;
       } catch (error: any) {
-        setRegisterState({ status: "error", progress: 0, error });
+        const errorMsg =
+          error?.message || error?.data?.message || String(error);
+        console.error("❌ Registration failed:", {
+          message: errorMsg,
+          error,
+          stack: error?.stack,
+        });
+        setRegisterState({ status: "error", progress: 0, error: errorMsg });
         return {
           success: false,
-          error: error?.message || String(error),
+          error: errorMsg,
         } as const;
       }
     },
