@@ -292,38 +292,36 @@ const LicensingForm = ({
       </div>
 
       {/* Status Messages */}
-      <div className="space-y-2 pt-2 border-t border-slate-800">
+      <div className="space-y-2 pt-3 border-t border-slate-800/50">
         {/* Registration Status */}
         {registerState.status !== "idle" && (
-          <div className="rounded px-3 py-2 bg-blue-900/30 border border-blue-800 text-sm text-blue-300">
-            <div className="flex items-center gap-2">
-              <span className="inline-block animate-spin text-lg">⚙️</span>
-              <span className="capitalize">{registerState.status}</span>
-              {registerState.progress > 0 && (
-                <span className="ml-auto text-sm">
-                  {Math.round(registerState.progress)}%
-                </span>
-              )}
-            </div>
+          <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
+            <span className="inline-block animate-spin">⚙️</span>
+            <span className="capitalize">{registerState.status}</span>
+            {registerState.progress > 0 && (
+              <span className="ml-auto text-xs">
+                {Math.round(registerState.progress)}%
+              </span>
+            )}
           </div>
         )}
 
         {/* Error Message */}
         {(registerError || registerState.error) && (
-          <div className="rounded px-3 py-2 bg-red-900/30 border border-red-800 text-sm text-red-300">
+          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400">
             {registerError || registerState.error?.message || registerState.error}
           </div>
         )}
 
         {/* Auth Status */}
         {!demoMode && !authenticated && (
-          <div className="rounded px-3 py-2 bg-amber-900/30 border border-amber-800 text-sm text-amber-300">
+          <div className="rounded-lg px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 text-sm text-amber-400">
             ⚠️ Connect wallet to register
           </div>
         )}
 
         {demoMode && (
-          <div className="rounded px-3 py-2 bg-blue-900/30 border border-blue-800 text-sm text-blue-300">
+          <div className="rounded-lg px-3 py-2.5 bg-slate-600/20 border border-slate-600/40 text-sm text-slate-400">
             🎭 Demo mode enabled
           </div>
         )}
