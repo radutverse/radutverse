@@ -331,6 +331,15 @@ const LicensingForm = ({
 
       // Register child IP using the registration agent
       // Use parent's revenue share (child must match parent)
+      console.log("🎬 Starting child IP registration with:", {
+        group: 1,
+        title,
+        description,
+        parentRevShare,
+        demoMode,
+        useBackendWallet: !ethProvider && !!guestAccount,
+      });
+
       const childResult = await new Promise((resolve, reject) => {
         executeRegister(
           1, // AI_GENERATED_GROUP
@@ -345,11 +354,30 @@ const LicensingForm = ({
           .catch(reject);
       });
 
+      console.log("📝 Child IP registration result:", childResult);
+
+      if (!childResult?.success) {
+        console.error("❌ Child IP registration failed. Result:", {
+          success: childResult?.success,
+          error: childResult?.error,
+          reason: childResult?.reason,
+          ipId: childResult?.ipId,
+          fullResult: childResult,
+        });
+        throw new Error(
+          childResult?.error ||
+            `Child IP registration failed (${childResult?.reason || "unknown"})`
+        );
+      }
+
       if (!childResult?.ipId) {
-        throw new Error("Failed to register child IP");
+        throw new Error(
+          "Child IP registered but no ipId returned. This is a data issue."
+        );
       }
 
       const childIpId = childResult.ipId;
+      console.log("✅ Child IP successfully registered:", childIpId);
 
       // Step 2: Setup Story Client for Buy License + Register Derivative
       const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
