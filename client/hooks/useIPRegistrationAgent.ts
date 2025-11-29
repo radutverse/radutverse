@@ -303,11 +303,11 @@ export function useIPRegistrationAgent() {
             const chainIdHex: string = await provider.request({
               method: "eth_chainId",
             });
-            if (chainIdHex?.toLowerCase() !== "0x5ec") {
+            if (chainIdHex?.toLowerCase() !== "0x5ea") {
               try {
                 await provider.request({
                   method: "wallet_switchEthereumChain",
-                  params: [{ chainId: "0x5ec" }],
+                  params: [{ chainId: "0x5ea" }],
                 });
               } catch (e) {
                 const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
@@ -316,7 +316,7 @@ export function useIPRegistrationAgent() {
                     method: "wallet_addEthereumChain",
                     params: [
                       {
-                        chainId: "0x5ec",
+                        chainId: "0x5ea",
                         chainName: "Story",
                         nativeCurrency: {
                           name: "IP",
@@ -333,7 +333,7 @@ export function useIPRegistrationAgent() {
                 try {
                   await provider.request({
                     method: "wallet_switchEthereumChain",
-                    params: [{ chainId: "0x5ec" }],
+                    params: [{ chainId: "0x5ea" }],
                   });
                 } catch {}
               }
