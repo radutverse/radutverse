@@ -424,8 +424,10 @@ const LicensingForm = ({
       let errorMessage = error.message || "Registration failed";
 
       // Provide more helpful error message for license purchase failures
-      if (error.message?.includes("buy license") || error.message?.includes("mintLicenseTokens")) {
-        errorMessage = `License purchase failed: ${error.message}. Please ensure the parent IP ID (${parentAsset?.ipId}) is correct and the parent IP has available commercial licenses.`;
+      if (error.message?.includes("not registered")) {
+        errorMessage = `❌ Parent IP not registered: The parent IP (${parentAsset?.ipId}) is not registered on Story Protocol. Make sure you selected a valid, registered parent IP asset that has commercial licensing enabled.`;
+      } else if (error.message?.includes("buy license") || error.message?.includes("mintLicenseTokens") || error.message?.includes("licensor")) {
+        errorMessage = `License purchase failed: ${error.message}. Verify the parent IP (${parentAsset?.ipId}) exists on Story Protocol and has available commercial licenses.`;
       }
 
       setRegisterError(errorMessage);
@@ -435,6 +437,7 @@ const LicensingForm = ({
         title: parentAsset?.title,
         licenseTermsIds: parentAsset?.licenseTermsIds,
         hasLicenses: !!parentAsset?.licenses?.length,
+        licenses: parentAsset?.licenses,
       });
     } finally {
       setIsRegistering(false);
