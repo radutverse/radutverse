@@ -62,10 +62,11 @@ const LicensingForm = ({
 
   // Get parent's revenue share (read-only, must match parent)
   // commercialRevShare comes in wei-like format (scaled by 1000000), so divide by 1000000 to get percentage
-  const parentRevShareRaw = parentLicense?.terms?.commercialRevShare ?? 0;
-  const parentRevShare = Number(parentRevShareRaw) > 0
-    ? (Number(parentRevShareRaw) / 1000000).toFixed(2)
-    : "0.00";
+  const parentRevShareRaw = Number(parentLicense?.terms?.commercialRevShare ?? 0);
+  const parentRevShare = parentRevShareRaw > 0
+    ? Number((parentRevShareRaw / 1000000).toFixed(2))
+    : 0;
+  const parentRevShareDisplay = parentRevShare.toFixed(2);
   const parentMintingFee =
     parentAsset?.licenses?.[0]?.licensingConfig?.mintingFee || "0";
 
