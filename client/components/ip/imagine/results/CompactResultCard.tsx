@@ -218,7 +218,7 @@ const CompactResultCard = ({
                     <button
                       onClick={() => {
                         setShowSettingsMenu(false);
-                        window.location.hash = "#licensing";
+                        setShowLicensingForm(true);
                       }}
                       className="w-full px-2 py-1.5 text-left hover:bg-slate-900 last:rounded-b-md transition-colors flex items-center gap-1.5 group text-xs"
                     >
