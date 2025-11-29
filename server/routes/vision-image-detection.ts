@@ -1,9 +1,6 @@
 import type { RequestHandler } from "express";
 
-export const handleVisionImageDetection: RequestHandler = async (
-  req,
-  res
-) => {
+export const handleVisionImageDetection: RequestHandler = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({

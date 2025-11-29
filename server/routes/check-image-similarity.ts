@@ -1,9 +1,6 @@
 import type { RequestHandler } from "express";
 
-export const handleCheckImageSimilarity: RequestHandler = async (
-  req,
-  res
-) => {
+export const handleCheckImageSimilarity: RequestHandler = async (req, res) => {
   try {
     const { imageBase64_1, imageBase64_2 } = req.body;
 
