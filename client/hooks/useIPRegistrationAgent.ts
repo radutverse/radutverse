@@ -89,76 +89,7 @@ export function useIPRegistrationAgent() {
       ethereumProvider?: any,
     ) => {
       try {
-        // ============================================
-        // TIER 1: HASH/VISION DETECTION (BLOCKING)
-        // ============================================
-        // Check if image is a remix or similar to existing IPs
-        // If blocked here, stop immediately - do NOT proceed to Tier 2
-
-        // Vision-based image detection (most powerful)
-        try {
-          const formData = new FormData();
-          formData.append("image", file);
-          const visionResponse = await fetch("/api/vision-image-detection", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (visionResponse.ok) {
-            const visionCheck = await visionResponse.json();
-            if (visionCheck.blocked) {
-              setRegisterState({
-                status: "error",
-                progress: 0,
-                error:
-                  visionCheck.message ||
-                  "Image mirip dengan IP yang sudah terdaftar. Tidak dapat registrasi.",
-              });
-              return { success: false, reason: "vision_match_found" } as const;
-            }
-          }
-        } catch (visionError) {
-          console.warn(
-            "Vision-based detection failed, continuing:",
-            visionError,
-          );
-          // Don't block registration if vision check fails
-        }
-
-        // Check hash against remix whitelist
-        try {
-          const hash = await calculateFileHash(file);
-          const hashCheckResponse = await fetch("/api/check-remix-hash", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hash }),
-          });
-
-          if (hashCheckResponse.ok) {
-            const hashCheck = await hashCheckResponse.json();
-            if (hashCheck.found) {
-              // Hash found - offer remix instead of blocking
-              setRegisterState({
-                status: "idle",
-                progress: 0,
-                error: null,
-              });
-              return {
-                success: false,
-                reason: "hash_found_offer_remix",
-                matchedIpId: hashCheck.ipId,
-                matchedTitle: hashCheck.title,
-              } as const;
-            }
-          }
-        } catch (hashError) {
-          console.warn("Hash whitelist check failed, continuing:", hashError);
-          // Don't block registration if hash check fails
-        }
-
-        // ✅ TIER 1 DETECTION COMPLETE
-        // Hash/Vision checks passed - image is allowed to proceed
-        // Now continue to Tier 2: Brand/Character detection
+        // Vision detection and hash checks are skipped - proceeding directly to registration
 
         const licenseSettings = getLicenseSettingsByGroup(
           group,
