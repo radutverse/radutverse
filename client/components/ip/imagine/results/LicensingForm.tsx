@@ -242,7 +242,7 @@ const LicensingForm = ({
       // Upload image to IPFS
       const formData = new FormData();
       formData.append("file", file);
-      const uploadRes = await fetch("/api/upload-file", {
+      const uploadRes = await fetch("/api/ipfs/upload", {
         method: "POST",
         body: formData,
       });
@@ -251,7 +251,7 @@ const LicensingForm = ({
         throw new Error("Failed to upload image to IPFS");
       }
 
-      const { url: imageUri, cid } = await uploadRes.json();
+      const { url: imageUri } = await uploadRes.json();
 
       // Mint NFT and register IP
       const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
