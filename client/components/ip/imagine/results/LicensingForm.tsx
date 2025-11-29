@@ -215,55 +215,55 @@ const LicensingForm = ({
 
       const licenseTermsId = parentLicense.licenseTermsId;
       
-      console.log("🎟️ Step 1 Debug:", {
-        parentAssetIpId: parentAsset.ipId,
+      console.log("🎟️ Attempting to mint license:", {
+        parentIpId: parentAsset.ipId,
         licenseTermsId: String(licenseTermsId),
         receiver: addr,
       });
 
-      const mintTx = await storyClient.license.mintLicenseTokens({
-        licensorIpId: parentAsset.ipId as `0x${string}`,
-        licenseTermsId: licenseTermsId,
-        amount: 1,
-        receiver: addr as `0x${string}`,
-        txOptions: { waitForTransaction: true }
-      });
+      try {
+        const mintTx = await storyClient.license.mintLicenseTokens({
+          licensorIpId: parentAsset.ipId as `0x${string}`,
+          licenseTermsId: licenseTermsId,
+          amount: 1,
+          receiver: addr as `0x${string}`,
+          txOptions: { waitForTransaction: true }
+        });
 
-      console.log("✅ Mint TX Response Keys:", Object.keys(mintTx || {}));
-      
-      // Check all possible response formats
-      let licenseTokenId: bigint | undefined;
-      
-      // Try different possible response formats from SDK
-      if (mintTx.licenseTokenId !== undefined && mintTx.licenseTokenId !== null) {
-        console.log("Found licenseTokenId (singular):", String(mintTx.licenseTokenId));
-        licenseTokenId = typeof mintTx.licenseTokenId === 'bigint' 
-          ? mintTx.licenseTokenId 
-          : BigInt(mintTx.licenseTokenId);
-      } else if (mintTx.licenseTokenIds && Array.isArray(mintTx.licenseTokenIds) && mintTx.licenseTokenIds.length > 0) {
-        console.log("Found licenseTokenIds (array):", String(mintTx.licenseTokenIds[0]));
-        const firstToken = mintTx.licenseTokenIds[0];
-        licenseTokenId = typeof firstToken === 'bigint' 
-          ? firstToken 
-          : BigInt(firstToken);
-      } else if (mintTx.tokenId !== undefined && mintTx.tokenId !== null) {
-        console.log("Found tokenId:", String(mintTx.tokenId));
-        licenseTokenId = typeof mintTx.tokenId === 'bigint' 
-          ? mintTx.tokenId 
-          : BigInt(mintTx.tokenId);
-      } else if (typeof mintTx === 'object' && mintTx.txHash) {
-        console.warn("⚠️ Only txHash returned:", mintTx.txHash);
-        throw new Error("License token ID not found in mint response. TX: " + mintTx.txHash);
-      } else {
-        console.error("❌ Unexpected mint response format. Available keys:", Object.keys(mintTx || {}));
-        throw new Error("No license token ID found in response. Keys: " + Object.keys(mintTx || {}).join(", "));
+        console.log("✅ Mint TX completed. Keys:", Object.keys(mintTx || {}));
+        console.log("✅ Mint TX Hash:", mintTx?.txHash);
+        
+        // Try to extract license token ID
+        let licenseTokenId: bigint | undefined;
+        
+        if (mintTx.licenseTokenId !== undefined && mintTx.licenseTokenId !== null) {
+          console.log("✅ Found licenseTokenId:", String(mintTx.licenseTokenId));
+          licenseTokenId = typeof mintTx.licenseTokenId === 'bigint' 
+            ? mintTx.licenseTokenId 
+            : BigInt(mintTx.licenseTokenId);
+        } else if (mintTx.licenseTokenIds && Array.isArray(mintTx.licenseTokenIds) && mintTx.licenseTokenIds.length > 0) {
+          console.log("✅ Found licenseTokenIds array:", String(mintTx.licenseTokenIds[0]));
+          const firstToken = mintTx.licenseTokenIds[0];
+          licenseTokenId = typeof firstToken === 'bigint' 
+            ? firstToken 
+            : BigInt(firstToken);
+        } else if (mintTx.tokenId !== undefined && mintTx.tokenId !== null) {
+          console.log("✅ Found tokenId:", String(mintTx.tokenId));
+          licenseTokenId = typeof mintTx.tokenId === 'bigint' 
+            ? mintTx.tokenId 
+            : BigInt(mintTx.tokenId);
+        }
+
+        if (licenseTokenId) {
+          console.log("✅ License token ID extracted:", licenseTokenId.toString());
+        } else {
+          console.warn("⚠️ Could not extract license token ID from mint response");
+          console.warn("⚠️ Will proceed without license token, using licenseTermsId directly");
+        }
+      } catch (mintError: any) {
+        console.error("❌ Mint license error:", mintError?.message || mintError);
+        // Continue anyway - we'll try with licenseTermsId
       }
-
-      if (!licenseTokenId) {
-        throw new Error("Failed to extract license token ID from response");
-      }
-
-      console.log("✅ License token minted successfully:", licenseTokenId.toString());
 
       // ========================================
       // STEP 2: CREATE CHILD NFT & REGISTER IP
@@ -354,9 +354,9 @@ const LicensingForm = ({
       console.log("✅ Child IP registered:", childIpId);
 
       // ========================================
-      // STEP 3: REGISTER DERIVATIVE (FIXED!)
+      // STEP 3: REGISTER DERIVATIVE (ALTERNATIVE APPROACH)
       // ========================================
-      console.log("🔗 Step 3: Registering derivative with license token...");
+      console.log("🔗 Step 3: Registering derivative...");
       setCurrentStep("registering-derivative");
       if (onRegisterStart) {
         onRegisterStart({
@@ -366,28 +366,23 @@ const LicensingForm = ({
         });
       }
 
-      // FIX: Pakai registerDerivativeIp dengan derivData
-      console.log("🔗 Step 3 - Registering derivative with:", {
+      console.log("🔗 Registering with:", {
         childIpId: childIpId,
         parentIpId: parentAsset.ipId,
-        licenseTokenId: licenseTokenId.toString(),
+        licenseTermsId: String(licenseTermsId),
       });
 
-      // Double check licenseTokenId is valid before using
-      if (!licenseTokenId || licenseTokenId === undefined) {
-        throw new Error("License token ID is undefined before registering derivative");
-      }
-
+      // Try approach without license token ID
       const derivativeTx = await storyClient.ipAsset.registerDerivativeIp({
         childIpId: childIpId as `0x${string}`,
         derivData: {
           parentIpIds: [parentAsset.ipId as `0x${string}`],
-          licenseTokenIds: [licenseTokenId], // Already BigInt
+          licenseTermsIds: [licenseTermsId], // Use licenseTermsId instead
         },
         txOptions: { waitForTransaction: true }
       });
 
-      console.log("🎉 Derivative registered successfully. TxHash:", derivativeTx?.txHash);
+      console.log("🎉 Derivative registered! TxHash:", derivativeTx?.txHash);
 
       setCurrentStep("success");
       setRegisteredIpId(childIpId);
