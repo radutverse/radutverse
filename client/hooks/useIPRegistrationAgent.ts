@@ -397,10 +397,16 @@ export function useIPRegistrationAgent() {
           ipMetadataUrl: toHttps(ipMetaCid),
         } as const;
       } catch (error: any) {
-        setRegisterState({ status: "error", progress: 0, error });
+        const errorMsg = error?.message || error?.data?.message || String(error);
+        console.error("❌ Registration failed:", {
+          message: errorMsg,
+          error,
+          stack: error?.stack,
+        });
+        setRegisterState({ status: "error", progress: 0, error: errorMsg });
         return {
           success: false,
-          error: error?.message || String(error),
+          error: errorMsg,
         } as const;
       }
     },
