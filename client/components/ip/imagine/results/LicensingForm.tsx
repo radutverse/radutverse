@@ -155,6 +155,46 @@ const LicensingForm = ({
     }
   };
 
+  // Show success state
+  if (registerSuccess) {
+    return (
+      <div className="mt-6 rounded-lg bg-emerald-900/20 border border-emerald-800/50 p-4">
+        <div className="flex items-start gap-3">
+          <svg
+            className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div className="flex-1">
+            <h4 className="text-sm font-semibold text-emerald-300 mb-1">
+              Registration Successful!
+            </h4>
+            <p className="text-xs text-emerald-200">{successMessage}</p>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-emerald-400 hover:text-emerald-300 transition-colors"
+              type="button"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-6 rounded-lg bg-slate-900/70 border border-slate-800/50 p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -181,7 +221,8 @@ const LicensingForm = ({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm"
+          disabled={isRegistering}
+          className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm disabled:opacity-50"
           placeholder="IP Asset Title"
         />
       </div>
@@ -192,7 +233,8 @@ const LicensingForm = ({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm resize-none"
+          disabled={isRegistering}
+          className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm resize-none disabled:opacity-50"
           rows={2}
           placeholder="Describe your asset..."
         />
@@ -212,7 +254,8 @@ const LicensingForm = ({
               const v = e.target.value;
               setMintingFee(v === "" ? "" : Number(v));
             }}
-            className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm"
+            disabled={isRegistering}
+            className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm disabled:opacity-50"
             placeholder="0"
           />
         </div>
@@ -232,7 +275,8 @@ const LicensingForm = ({
               const n = Number(v);
               setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
             }}
-            className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm"
+            disabled={isRegistering}
+            className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm disabled:opacity-50"
             placeholder="0"
           />
         </div>
@@ -243,10 +287,25 @@ const LicensingForm = ({
         ℹ️ AI training is not available for this license group
       </div>
 
+      {/* Registration Status */}
+      {registerState.status !== "idle" && (
+        <div className="rounded-md bg-blue-900/20 border border-blue-800/50 p-3 text-sm text-blue-300">
+          <div className="flex items-center gap-2">
+            <span className="inline-block animate-spin text-base">⚙️</span>
+            <span className="capitalize">{registerState.status}...</span>
+            {registerState.progress > 0 && (
+              <span className="ml-auto text-xs">
+                {Math.round(registerState.progress)}%
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Error Message */}
-      {registerError && (
+      {(registerError || registerState.error) && (
         <div className="rounded-md bg-red-900/20 border border-red-800/50 p-3 text-sm text-red-300">
-          {registerError}
+          {registerError || registerState.error?.message || registerState.error}
         </div>
       )}
 
@@ -268,6 +327,7 @@ const LicensingForm = ({
         onClick={handleRegister}
         disabled={
           isRegistering ||
+          registerState.status !== "idle" ||
           (!demoMode && !authenticated) ||
           isLoading ||
           !imageUrl
@@ -275,7 +335,7 @@ const LicensingForm = ({
         className="w-full rounded-md bg-[#FF4DA6]/20 px-4 py-2 text-sm font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         type="button"
       >
-        {isRegistering ? (
+        {isRegistering || registerState.status !== "idle" ? (
           <>
             <span className="inline-block animate-spin mr-2">⚙️</span>
             Registering...
