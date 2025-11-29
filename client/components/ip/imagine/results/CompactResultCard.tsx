@@ -1,5 +1,6 @@
 import { useState, Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import LicensingForm from "./LicensingForm";
 
 interface CompactResultCardProps {
   imageUrl: string;
@@ -11,6 +12,7 @@ interface CompactResultCardProps {
   onCreateAnother: () => void;
   isExpanded?: boolean;
   setIsExpanded?: Dispatch<SetStateAction<boolean>>;
+  demoMode?: boolean;
 }
 
 const CompactResultCard = ({
@@ -23,6 +25,7 @@ const CompactResultCard = ({
   onCreateAnother,
   isExpanded: externalIsExpanded = false,
   setIsExpanded: externalSetIsExpanded,
+  demoMode = false,
 }: CompactResultCardProps) => {
   const [localIsExpanded, setLocalIsExpanded] = useState(false);
   const isExpanded = externalSetIsExpanded
@@ -30,6 +33,7 @@ const CompactResultCard = ({
     : localIsExpanded;
   const setIsExpanded = externalSetIsExpanded || setLocalIsExpanded;
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showLicensingForm, setShowLicensingForm] = useState(false);
 
   if (isExpanded) {
     return (
