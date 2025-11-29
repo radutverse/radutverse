@@ -241,10 +241,10 @@ const LicensingForm = ({
       </div>
 
       {/* License Settings */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-sm text-slate-300 block mb-2">
-            Minting Fee
+      <div className="grid grid-cols-2 gap-1">
+        <div className="space-y-0.5">
+          <label className="text-xs text-slate-300 block">
+            Fee
           </label>
           <input
             type="number"
@@ -255,14 +255,14 @@ const LicensingForm = ({
               setMintingFee(v === "" ? "" : Number(v));
             }}
             disabled={isRegistering}
-            className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm disabled:opacity-50"
+            className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
             placeholder="0"
           />
         </div>
 
-        <div>
-          <label className="text-sm text-slate-300 block mb-2">
-            Rev Share (%)
+        <div className="space-y-0.5">
+          <label className="text-xs text-slate-300 block">
+            RevShare %
           </label>
           <input
             type="number"
@@ -276,7 +276,7 @@ const LicensingForm = ({
               setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
             }}
             disabled={isRegistering}
-            className="w-full rounded-md bg-black/30 p-2 text-slate-100 text-sm disabled:opacity-50"
+            className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
             placeholder="0"
           />
         </div>
