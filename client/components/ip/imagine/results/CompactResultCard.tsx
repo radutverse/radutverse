@@ -275,7 +275,7 @@ const CompactResultCard = ({
                   exit={{ opacity: 0, scale: 0.9 }}
                   className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none"
                 >
-                  <div className="pointer-events-auto w-full max-w-2xl rounded-xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto">
+                  <div className="pointer-events-auto w-full max-w-2xl rounded-xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto ring-offset-2 ring-offset-transparent">
                     <LicensingForm
                       imageUrl={imageUrl}
                       type={type}
