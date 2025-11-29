@@ -224,8 +224,8 @@ const LicensingForm = ({
         )}
       </div>
 
-      {/* Form Content - Scrollable */}
-      <div className="space-y-4 flex-1 overflow-y-auto pr-1">
+      {/* Form Content - Scrollable with padding for focus ring */}
+      <div className="space-y-4 flex-1 overflow-y-auto pr-1 px-0.5 py-2">
         {/* Title Input */}
         <div className="space-y-2">
           <label className="text-sm text-slate-400 font-medium">Title</label>
