@@ -3,13 +3,11 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
 import {
   StoryClient,
-  PILFlavor,
   WIP_TOKEN_ADDRESS,
 } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
   custom,
-  parseEther,
   http,
   publicActions,
 } from "viem";
