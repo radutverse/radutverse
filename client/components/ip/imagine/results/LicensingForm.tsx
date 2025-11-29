@@ -176,9 +176,7 @@ const LicensingForm = ({
               <h4 className="text-sm font-semibold text-emerald-400 mb-1">
                 Registration Successful!
               </h4>
-              <p className="text-xs text-slate-400 mb-2">
-                {successMessage}
-              </p>
+              <p className="text-xs text-slate-400 mb-2">{successMessage}</p>
               {registeredIpId && registeredIpId !== "pending" && (
                 <a
                   href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
@@ -241,7 +239,9 @@ const LicensingForm = ({
 
         {/* Description Input */}
         <div className="space-y-2">
-          <label className="text-sm text-slate-400 font-medium">Description</label>
+          <label className="text-sm text-slate-400 font-medium">
+            Description
+          </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -255,7 +255,9 @@ const LicensingForm = ({
         {/* License Settings */}
         <div className="grid grid-cols-2 gap-4 pt-2">
           <div className="space-y-2">
-            <label className="text-sm text-slate-400 font-medium">Minting Fee</label>
+            <label className="text-sm text-slate-400 font-medium">
+              Minting Fee
+            </label>
             <input
               type="number"
               min={0}
@@ -271,7 +273,9 @@ const LicensingForm = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-slate-400 font-medium">RevShare %</label>
+            <label className="text-sm text-slate-400 font-medium">
+              RevShare %
+            </label>
             <input
               type="number"
               min={0}
@@ -309,7 +313,9 @@ const LicensingForm = ({
         {/* Error Message */}
         {(registerError || registerState.error) && (
           <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400">
-            {registerError || registerState.error?.message || registerState.error}
+            {registerError ||
+              registerState.error?.message ||
+              registerState.error}
           </div>
         )}
 
