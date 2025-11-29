@@ -440,6 +440,12 @@ const LicensingForm = ({
                   {parentLicense.licenseTermsId}
                 </span>
               </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-400">Revenue Share:</span>
+                <span className="text-slate-300 font-semibold">
+                  {parentRevShare}%
+                </span>
+              </div>
               {parentAsset.licenses?.[0]?.licensingConfig?.mintingFee && (
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-400">Minting Fee:</span>
