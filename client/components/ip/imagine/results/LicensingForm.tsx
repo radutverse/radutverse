@@ -612,7 +612,7 @@ const LicensingForm = ({
               Revenue Share % (from parent IP)
             </label>
             <div className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm flex items-center justify-between">
-              <span className="font-semibold">{parentRevShare}%</span>
+              <span className="font-semibold">{parentRevShareDisplay}%</span>
               <span className="text-xs text-slate-400">
                 Inherited from parent
               </span>
