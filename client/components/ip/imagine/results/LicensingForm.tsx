@@ -216,11 +216,8 @@ const LicensingForm = ({
       const licenseTermsId = parentLicense.licenseTermsId;
       
       console.log("🎟️ Step 1 Debug:", {
-        parentAsset: parentAsset,
-        parentLicense: parentLicense,
-        licensorIpId: parentAsset.ipId,
-        licenseTermsId: licenseTermsId,
-        licenseTermsIdType: typeof licenseTermsId,
+        parentAssetIpId: parentAsset.ipId,
+        licenseTermsId: String(licenseTermsId),
         receiver: addr,
       });
 
@@ -232,29 +229,34 @@ const LicensingForm = ({
         txOptions: { waitForTransaction: true }
       });
 
-      console.log("✅ Full Mint TX Response:", JSON.stringify(mintTx, null, 2));
-      console.log("Mint TX Keys:", Object.keys(mintTx));
+      console.log("✅ Mint TX Response Keys:", Object.keys(mintTx || {}));
       
       // Check all possible response formats
       let licenseTokenId: bigint | undefined;
       
       // Try different possible response formats from SDK
       if (mintTx.licenseTokenId !== undefined && mintTx.licenseTokenId !== null) {
-        console.log("Found licenseTokenId (singular):", mintTx.licenseTokenId);
-        licenseTokenId = BigInt(mintTx.licenseTokenId);
+        console.log("Found licenseTokenId (singular):", String(mintTx.licenseTokenId));
+        licenseTokenId = typeof mintTx.licenseTokenId === 'bigint' 
+          ? mintTx.licenseTokenId 
+          : BigInt(mintTx.licenseTokenId);
       } else if (mintTx.licenseTokenIds && Array.isArray(mintTx.licenseTokenIds) && mintTx.licenseTokenIds.length > 0) {
-        console.log("Found licenseTokenIds (array):", mintTx.licenseTokenIds);
-        licenseTokenId = BigInt(mintTx.licenseTokenIds[0]);
+        console.log("Found licenseTokenIds (array):", String(mintTx.licenseTokenIds[0]));
+        const firstToken = mintTx.licenseTokenIds[0];
+        licenseTokenId = typeof firstToken === 'bigint' 
+          ? firstToken 
+          : BigInt(firstToken);
       } else if (mintTx.tokenId !== undefined && mintTx.tokenId !== null) {
-        console.log("Found tokenId:", mintTx.tokenId);
-        licenseTokenId = BigInt(mintTx.tokenId);
+        console.log("Found tokenId:", String(mintTx.tokenId));
+        licenseTokenId = typeof mintTx.tokenId === 'bigint' 
+          ? mintTx.tokenId 
+          : BigInt(mintTx.tokenId);
       } else if (typeof mintTx === 'object' && mintTx.txHash) {
-        // If only txHash is returned, we need to query the license token ID
-        console.warn("⚠️ Only txHash returned, license token ID not found in response");
+        console.warn("⚠️ Only txHash returned:", mintTx.txHash);
         throw new Error("License token ID not found in mint response. TX: " + mintTx.txHash);
       } else {
-        console.error("❌ Unexpected mint response format:", mintTx);
-        throw new Error("No license token ID found in response. Keys: " + Object.keys(mintTx).join(", "));
+        console.error("❌ Unexpected mint response format. Available keys:", Object.keys(mintTx || {}));
+        throw new Error("No license token ID found in response. Keys: " + Object.keys(mintTx || {}).join(", "));
       }
 
       if (!licenseTokenId) {
@@ -365,14 +367,10 @@ const LicensingForm = ({
       }
 
       // FIX: Pakai registerDerivativeIp dengan derivData
-      console.log("🔗 Step 3 Debug - Registering derivative with:", {
+      console.log("🔗 Step 3 - Registering derivative with:", {
         childIpId: childIpId,
-        childIpIdType: typeof childIpId,
         parentIpId: parentAsset.ipId,
-        parentIpIdType: typeof parentAsset.ipId,
-        licenseTokenId: licenseTokenId,
-        licenseTokenIdType: typeof licenseTokenId,
-        licenseTokenIdString: licenseTokenId.toString(),
+        licenseTokenId: licenseTokenId.toString(),
       });
 
       // Double check licenseTokenId is valid before using
@@ -389,7 +387,7 @@ const LicensingForm = ({
         txOptions: { waitForTransaction: true }
       });
 
-      console.log("🎉 Derivative registered successfully:", derivativeTx);
+      console.log("🎉 Derivative registered successfully. TxHash:", derivativeTx?.txHash);
 
       setCurrentStep("success");
       setRegisteredIpId(childIpId);
