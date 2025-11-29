@@ -209,7 +209,7 @@ const LicensingForm = ({
 
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[#FF4DA6]">
-          {registerSuccess ? "Registration Details" : "Register IP"}
+          {registerSuccess ? "Registration Details" : "Licensing your creation"}
         </h3>
         {onClose && (
           <button
