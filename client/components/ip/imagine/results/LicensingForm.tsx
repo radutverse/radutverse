@@ -69,7 +69,10 @@ const getErrorDescription = (error: any): string => {
     return `❌ Child IP not found or not properly registered.\n\nThe child IP must be registered first before registering as derivative. Ensure the IP was successfully minted.`;
   }
 
-  if (message.includes("registerDerivative") || message.includes("derivative")) {
+  if (
+    message.includes("registerDerivative") ||
+    message.includes("derivative")
+  ) {
     return `❌ Failed to register child IP as derivative.\n\n${message}\n\nCheck that:\n• Child IP is registered with correct metadata\n• Parent IP allows derivatives\n• You have sufficient balance for gas fees`;
   }
 
@@ -184,7 +187,7 @@ const LicensingForm = ({
         fullError: error,
       });
       throw new Error(
-        `License purchase failed: ${error?.message || "Unknown error"}`
+        `License purchase failed: ${error?.message || "Unknown error"}`,
       );
     }
   };
@@ -241,7 +244,7 @@ const LicensingForm = ({
         fullError: error,
       });
       throw new Error(
-        `Derivative registration failed: ${error?.message || "Unknown error"}`
+        `Derivative registration failed: ${error?.message || "Unknown error"}`,
       );
     }
   };
@@ -366,13 +369,13 @@ const LicensingForm = ({
         });
         throw new Error(
           childResult?.error ||
-            `Child IP registration failed (${childResult?.reason || "unknown"})`
+            `Child IP registration failed (${childResult?.reason || "unknown"})`,
         );
       }
 
       if (!childResult?.ipId) {
         throw new Error(
-          "Child IP registered but no ipId returned. This is a data issue."
+          "Child IP registered but no ipId returned. This is a data issue.",
         );
       }
 
@@ -435,7 +438,10 @@ const LicensingForm = ({
         parentRevShare,
       );
 
-      console.log("✅ Derivative successfully registered:", registerDerivativeResult);
+      console.log(
+        "✅ Derivative successfully registered:",
+        registerDerivativeResult,
+      );
 
       if (onRegisterComplete) {
         onRegisterComplete({
