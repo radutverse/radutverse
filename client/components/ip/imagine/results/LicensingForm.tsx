@@ -282,17 +282,12 @@ const LicensingForm = ({
         </div>
       </div>
 
-      {/* AI Training (disabled for group 1) */}
-      <div className="text-xs text-slate-400">
-        ℹ️ AI training is not available for this license group
-      </div>
-
       {/* Registration Status */}
       {registerState.status !== "idle" && (
-        <div className="rounded-md bg-blue-900/20 border border-blue-800/50 p-3 text-sm text-blue-300">
-          <div className="flex items-center gap-2">
-            <span className="inline-block animate-spin text-base">⚙️</span>
-            <span className="capitalize">{registerState.status}...</span>
+        <div className="rounded px-2 py-1 bg-blue-900/20 border border-blue-800/50 text-xs text-blue-300">
+          <div className="flex items-center gap-1">
+            <span className="inline-block animate-spin">⚙️</span>
+            <span className="capitalize text-xs">{registerState.status}</span>
             {registerState.progress > 0 && (
               <span className="ml-auto text-xs">
                 {Math.round(registerState.progress)}%
@@ -304,21 +299,21 @@ const LicensingForm = ({
 
       {/* Error Message */}
       {(registerError || registerState.error) && (
-        <div className="rounded-md bg-red-900/20 border border-red-800/50 p-3 text-sm text-red-300">
+        <div className="rounded px-2 py-1 bg-red-900/20 border border-red-800/50 text-xs text-red-300 line-clamp-2">
           {registerError || registerState.error?.message || registerState.error}
         </div>
       )}
 
       {/* Auth Status */}
       {!demoMode && !authenticated && (
-        <div className="rounded-md bg-amber-900/20 border border-amber-800/50 p-3 text-sm text-amber-300">
-          ⚠️ Connect wallet to register, or enable Demo mode
+        <div className="rounded px-2 py-1 bg-amber-900/20 border border-amber-800/50 text-xs text-amber-300">
+          ⚠️ Connect wallet
         </div>
       )}
 
       {demoMode && (
-        <div className="rounded-md bg-blue-900/20 border border-blue-800/50 p-3 text-sm text-blue-300">
-          🎭 Demo mode: Registration preview only
+        <div className="rounded px-2 py-1 bg-blue-900/20 border border-blue-800/50 text-xs text-blue-300">
+          🎭 Demo mode
         </div>
       )}
 
