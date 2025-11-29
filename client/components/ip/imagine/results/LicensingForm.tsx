@@ -108,6 +108,13 @@ const LicensingForm = ({
     receiver: string,
   ) => {
     try {
+      // Validate parentIpId is a valid Ethereum address format (0x followed by 40 hex chars)
+      if (!parentIpId || !/^0x[a-fA-F0-9]{40}$/.test(parentIpId)) {
+        throw new Error(
+          `Invalid parent IP ID format: ${parentIpId}. Expected a valid Ethereum address (0x...)`
+        );
+      }
+
       setCurrentStep("buying-license");
       if (onRegisterStart) {
         onRegisterStart({
@@ -116,6 +123,10 @@ const LicensingForm = ({
           error: null,
         });
       }
+
+      console.log(`📝 Attempting to buy license from parent IP: ${parentIpId}`);
+      console.log(`📝 License Terms ID: ${licenseTermsId}`);
+      console.log(`📝 Receiver: ${receiver}`);
 
       const mintResult = await storyClient.license.mintLicenseTokens({
         licensorIpId: parentIpId as `0x${string}`,
@@ -131,6 +142,10 @@ const LicensingForm = ({
       return mintResult;
     } catch (error) {
       console.error("❌ Failed to buy license:", error);
+      console.error(
+        `❌ Parent IP ID used: ${parentIpId}`,
+        `from parentAsset.ipId: ${parentAsset?.ipId}`
+      );
       throw error;
     }
   };
