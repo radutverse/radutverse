@@ -344,8 +344,8 @@ const LicensingForm = ({
       setRegisterSuccess(true);
       setSuccessMessage(
         demoMode
-          ? "Demo registration successful! Child IP registered as derivative."
-          : `Derivative registered! ID: ${childIpId}`,
+          ? `Demo registration successful! Child IP registered as derivative with ${parentRevShare}% revenue share (matching parent IP).`
+          : `✅ Derivative registered with ${parentRevShare}% revenue share from parent IP. ID: ${childIpId}`,
       );
     } catch (error: any) {
       setRegisterError(error.message || "Registration failed");
