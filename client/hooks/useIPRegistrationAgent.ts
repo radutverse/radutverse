@@ -397,7 +397,8 @@ export function useIPRegistrationAgent() {
           ipMetadataUrl: toHttps(ipMetaCid),
         } as const;
       } catch (error: any) {
-        const errorMsg = error?.message || error?.data?.message || String(error);
+        const errorMsg =
+          error?.message || error?.data?.message || String(error);
         console.error("❌ Registration failed:", {
           message: errorMsg,
           error,

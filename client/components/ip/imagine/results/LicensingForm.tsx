@@ -54,7 +54,11 @@ const LicensingForm = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
-    "idle" | "minting-license" | "registering-child" | "registering-derivative" | "success"
+    | "idle"
+    | "minting-license"
+    | "registering-child"
+    | "registering-derivative"
+    | "success"
   >("idle");
 
   // Check if this is a paid remix with parent asset
@@ -478,7 +482,7 @@ const LicensingForm = ({
       {/* Status Messages */}
       <div className="space-y-2 pt-3 border-t border-slate-800/50">
         {/* Registration Status */}
-        {(currentStep !== "idle") && (
+        {currentStep !== "idle" && (
           <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
             <span className="inline-block animate-spin">⚙️</span>
             <span className="capitalize">
@@ -494,7 +498,7 @@ const LicensingForm = ({
         )}
 
         {/* Error Message */}
-        {(registerError) && (
+        {registerError && (
           <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400 max-h-24 overflow-y-auto">
             {registerError}
           </div>
