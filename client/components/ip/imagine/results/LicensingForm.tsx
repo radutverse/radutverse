@@ -260,12 +260,27 @@ const LicensingForm = ({
     }
 
     if (!parentLicense.licenseTermsId) {
-      setRegisterError("Parent IP license terms ID is missing");
+      setRegisterError("Parent IP license terms ID is missing. License terms must be attached to the parent IP.");
       return;
     }
 
     if (parentRevShare === undefined || parentRevShare === null) {
       setRegisterError("Parent IP revenue share not available");
+      return;
+    }
+
+    // Verify parent asset has necessary licensing configuration
+    if (!parentAsset?.licenses?.length) {
+      setRegisterError(
+        "Parent IP has no commercial licenses. Select a parent IP with active commercial licensing."
+      );
+      return;
+    }
+
+    // Validate parent asset is properly configured
+    const firstLicense = parentAsset.licenses[0];
+    if (!firstLicense.terms) {
+      setRegisterError("Parent IP license terms are malformed. Please select a different parent IP.");
       return;
     }
 
