@@ -275,7 +275,6 @@ const CompactResultCard = ({
                   }}
                   onRegisterComplete={(result) => {
                     console.log("Registration completed:", result);
-                    setShowLicensingForm(false);
                   }}
                 />
               </motion.div>
