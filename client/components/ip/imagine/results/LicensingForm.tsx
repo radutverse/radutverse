@@ -225,41 +225,41 @@ const LicensingForm = ({
         });
       }
 
-      // Get ethereum provider
+      // In demo mode, always use backend wallet. Otherwise, try to get connected wallet
       let ethProvider: any = undefined;
-      if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
+      let guestAccount: any = undefined;
+
+      // Get guest account from private key (used in demo mode or as fallback)
+      const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+      if (guestPk) {
         try {
-          ethProvider = await wallets[0].getEthereumProvider();
+          const normalized = String(guestPk).startsWith("0x")
+            ? String(guestPk)
+            : `0x${String(guestPk)}`;
+          guestAccount = privateKeyToAccount(normalized as `0x${string}`);
         } catch (err) {
-          console.warn("Failed to get ethereum provider:", err);
+          console.warn("Failed to initialize guest account:", err);
         }
       }
 
-      // Get wallet address
+      // If not demo mode, try to get connected wallet
       let addr: string | undefined;
-      if (ethProvider) {
+      if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
         try {
+          ethProvider = await wallets[0].getEthereumProvider();
           const walletClient = createWalletClient({
             transport: custom(ethProvider),
           });
           const [a] = await walletClient.getAddresses();
           if (a) addr = String(a);
-        } catch {}
+        } catch (err) {
+          console.warn("Failed to get ethereum provider from wallet:", err);
+        }
       }
 
-      if (!addr) {
-        try {
-          const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
-          if (guestPk) {
-            const normalized = String(guestPk).startsWith("0x")
-              ? String(guestPk)
-              : `0x${String(guestPk)}`;
-            const guestAccount = privateKeyToAccount(
-              normalized as `0x${string}`,
-            );
-            addr = guestAccount.address;
-          }
-        } catch {}
+      // Demo mode or no connected wallet: use backend wallet
+      if (!addr && guestAccount) {
+        addr = guestAccount.address;
       }
 
       if (!addr) {
