@@ -224,67 +224,70 @@ const LicensingForm = ({
         )}
       </div>
 
-      {/* Title Input */}
-      <div className="space-y-0.5">
-        <label className="text-xs text-slate-300 block">Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={isRegistering || registerSuccess}
-          className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
-          placeholder="Title"
-        />
-      </div>
-
-      {/* Description Input */}
-      <div className="space-y-0.5">
-        <label className="text-xs text-slate-300 block">Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={isRegistering || registerSuccess}
-          className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs resize-none disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6] leading-tight"
-          rows={1}
-          placeholder="Description"
-        />
-      </div>
-
-      {/* License Settings */}
-      <div className="grid grid-cols-2 gap-1">
-        <div className="space-y-0.5">
-          <label className="text-xs text-slate-300 block">Fee</label>
+      {/* Form Content - Scrollable */}
+      <div className="space-y-3 flex-1 overflow-y-auto">
+        {/* Title Input */}
+        <div className="space-y-1">
+          <label className="text-sm text-slate-300 block font-medium">Title</label>
           <input
-            type="number"
-            min={0}
-            value={mintingFee === "" ? "" : mintingFee}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMintingFee(v === "" ? "" : Number(v));
-            }}
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             disabled={isRegistering || registerSuccess}
-            className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
-            placeholder="0"
+            className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent"
+            placeholder="Title"
           />
         </div>
 
-        <div className="space-y-0.5">
-          <label className="text-xs text-slate-300 block">RevShare %</label>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={revShare === "" ? "" : revShare}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setRevShare("");
-              const n = Number(v);
-              setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
-            }}
+        {/* Description Input */}
+        <div className="space-y-1">
+          <label className="text-sm text-slate-300 block font-medium">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             disabled={isRegistering || registerSuccess}
-            className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
-            placeholder="0"
+            className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm resize-none disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent leading-tight"
+            rows={2}
+            placeholder="Description"
           />
+        </div>
+
+        {/* License Settings */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <label className="text-sm text-slate-300 block font-medium">Minting Fee</label>
+            <input
+              type="number"
+              min={0}
+              value={mintingFee === "" ? "" : mintingFee}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMintingFee(v === "" ? "" : Number(v));
+              }}
+              disabled={isRegistering || registerSuccess}
+              className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent"
+              placeholder="0"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm text-slate-300 block font-medium">RevShare %</label>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={revShare === "" ? "" : revShare}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") return setRevShare("");
+                const n = Number(v);
+                setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
+              }}
+              disabled={isRegistering || registerSuccess}
+              className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent"
+              placeholder="0"
+            />
+          </div>
         </div>
       </div>
 
