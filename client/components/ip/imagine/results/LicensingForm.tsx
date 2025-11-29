@@ -13,6 +13,7 @@ import {
   publicActions,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { keccakOfJson } from "@/lib/utils/crypto";
 
 interface LicensingFormProps {
   imageUrl: string;
@@ -259,15 +260,46 @@ const LicensingForm = ({
       const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
       if (!spg) throw new Error("SPG collection not configured");
 
+      // Create metadata objects for IP and NFT
+      const ipMetadataObj = {
+        title: title || "AI Generated Image",
+        description:
+          description || "Created using AI image generation technology",
+        ipType: "Image",
+        createdAt: new Date().toISOString(),
+        mediaUrl: imageUri,
+      };
+
+      const nftMetadataObj = {
+        title: title || "AI Generated Image",
+        description:
+          description || "Created using AI image generation technology",
+        image: imageUri,
+        attributes: [
+          {
+            trait_type: "Type",
+            value: "AI Generated Derivative",
+          },
+          {
+            trait_type: "Parent IP",
+            value: parentAsset?.ipId || "Unknown",
+          },
+        ],
+      };
+
+      // Calculate hashes for metadata
+      const ipMetadataHash = keccakOfJson(ipMetadataObj);
+      const nftMetadataHash = keccakOfJson(nftMetadataObj);
+
       const { ipId: childIpId, txHash: registerTxHash } =
         await storyClient.ipAsset.mintAndRegisterIpAssetWithPilTerms({
           spgNftContract: spg as `0x${string}`,
           recipient: addr as `0x${string}`,
           ipMetadata: {
             ipMetadataURI: imageUri,
-            ipMetadataHash: "0x" as any,
+            ipMetadataHash: ipMetadataHash as `0x${string}`,
             nftMetadataURI: imageUri,
-            nftMetadataHash: "0x" as any,
+            nftMetadataHash: nftMetadataHash as `0x${string}`,
           },
           licenseTermsData: [
             {
