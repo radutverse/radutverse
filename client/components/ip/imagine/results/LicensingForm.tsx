@@ -175,9 +175,17 @@ const LicensingForm = ({
 
       console.log("✅ License purchased:", mintResult);
       return mintResult;
-    } catch (error) {
-      console.error("❌ Failed to buy license:", error);
-      throw error;
+    } catch (error: any) {
+      console.error("❌ Failed to buy license:", {
+        message: error?.message,
+        code: error?.code,
+        parentIpId,
+        licenseTermsId,
+        fullError: error,
+      });
+      throw new Error(
+        `License purchase failed: ${error?.message || "Unknown error"}`
+      );
     }
   };
 
@@ -223,9 +231,18 @@ const LicensingForm = ({
 
       console.log("✅ Derivative registered:", registerResult);
       return registerResult;
-    } catch (error) {
-      console.error("❌ Failed to register derivative:", error);
-      throw error;
+    } catch (error: any) {
+      console.error("❌ Failed to register derivative:", {
+        message: error?.message,
+        code: error?.code,
+        childIpId,
+        parentIpId,
+        licenseTermsId,
+        fullError: error,
+      });
+      throw new Error(
+        `Derivative registration failed: ${error?.message || "Unknown error"}`
+      );
     }
   };
 
