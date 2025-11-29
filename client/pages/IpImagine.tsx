@@ -249,10 +249,19 @@ const IpImagine = () => {
         throw new Error(`Failed to fetch image: ${response.statusText}`);
       }
 
-      const blob = await response.blob();
+      let blob = await response.blob();
+
+      // Ensure blob has correct MIME type from Content-Type header
+      const contentType = response.headers.get("content-type");
+      if (contentType && !blob.type) {
+        blob = blob.slice(0, blob.size, contentType);
+      }
+
       const url = URL.createObjectURL(blob);
       const fileName = asset.title || "remix-image";
 
+      // Set all state synchronously to avoid race conditions
+      setCurrentRemixType(remixType);
       setPreviewImages({
         remixImage: {
           blob,
@@ -262,8 +271,7 @@ const IpImagine = () => {
         additionalImage: null,
       });
 
-      console.log("📌 Setting currentRemixType to:", remixType);
-      setCurrentRemixType(remixType);
+      console.log("📌 Set currentRemixType to:", remixType, "Blob type:", blob.type);
 
       setStatusText(
         `✓ ${remixType === "paid" ? "Paid" : "Free"} remix loaded: ${fileName}`,
@@ -370,10 +378,15 @@ const IpImagine = () => {
               const blob = imageToSend.blob;
               const arrayBuffer = await blob.arrayBuffer();
               const bytes = new Uint8Array(arrayBuffer);
-              const binaryString = String.fromCharCode.apply(
-                null,
-                Array.from(bytes),
-              );
+
+              // Convert Uint8Array to base64 safely without stack overflow issues
+              let binaryString = "";
+              const chunkSize = 8192;
+              for (let i = 0; i < bytes.length; i += chunkSize) {
+                const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+                binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+              }
+
               imageData = {
                 imageBytes: btoa(binaryString),
                 mimeType: blob.type || "image/jpeg",
