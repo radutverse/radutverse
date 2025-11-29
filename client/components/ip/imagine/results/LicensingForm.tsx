@@ -734,7 +734,7 @@ const LicensingForm = ({
                 Buy License & Register
                 {isPaidRemix && (
                   <span className="block text-xs opacity-80">
-                    ({parentRevShare}% revenue share from parent)
+                    ({parentRevShareDisplay}% revenue share from parent)
                   </span>
                 )}
               </>
