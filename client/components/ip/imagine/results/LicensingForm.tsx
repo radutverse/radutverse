@@ -31,6 +31,52 @@ interface LicensingFormProps {
   onRegisterComplete?: (result: { ipId?: string; txHash?: string }) => void;
 }
 
+// Helper function to provide clear error descriptions
+const getErrorDescription = (error: any): string => {
+  const message = error?.message || String(error) || "Unknown error";
+  const code = error?.code;
+
+  // Common blockchain errors
+  if (message.includes("insufficient balance") || message.includes("gas")) {
+    return `❌ Insufficient balance for transaction.\n\nEnsure your wallet has enough IP tokens to cover gas fees for minting and registration.`;
+  }
+
+  if (message.includes("invalid parent") || message.includes("parentIpId")) {
+    return `❌ Invalid parent IP ID.\n\nThe parent IP asset does not exist or is invalid on mainnet. Please verify the parent IP address.`;
+  }
+
+  if (message.includes("license") || message.includes("licenseTerms")) {
+    return `❌ License terms error.\n\nThe parent IP either has no commercial license, or the license terms are incompatible. Ensure parent IP has active commercial remix license.`;
+  }
+
+  if (
+    message.includes("unauthorized") ||
+    message.includes("permission") ||
+    message.includes("not authorized")
+  ) {
+    return `❌ Unauthorized operation.\n\nYou don't have permission to register this derivative. Ensure you own the child IP or have authorization from the owner.`;
+  }
+
+  if (message.includes("timeout") || message.includes("network")) {
+    return `❌ Network timeout or connection error.\n\nThe blockchain network is slow or unreachable. Please wait and try again.`;
+  }
+
+  if (message.includes("contract") || message.includes("call")) {
+    return `❌ Smart contract error.\n\n${message}\n\nThis usually means a validation failed on the blockchain. Check that all parameters are correct.`;
+  }
+
+  if (message.includes("childIpId")) {
+    return `❌ Child IP not found or not properly registered.\n\nThe child IP must be registered first before registering as derivative. Ensure the IP was successfully minted.`;
+  }
+
+  if (message.includes("registerDerivative") || message.includes("derivative")) {
+    return `❌ Failed to register child IP as derivative.\n\n${message}\n\nCheck that:\n• Child IP is registered with correct metadata\n• Parent IP allows derivatives\n• You have sufficient balance for gas fees`;
+  }
+
+  // Generic fallback
+  return `❌ Registration failed.\n\n${message}\n\nPlease check the browser console for more details.`;
+};
+
 const LicensingForm = ({
   imageUrl,
   imageName = "generated-image.png",
