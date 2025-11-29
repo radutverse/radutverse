@@ -49,6 +49,7 @@ const IpImagine = () => {
   const [currentRemixType, setCurrentRemixType] = useState<
     "paid" | "free" | null
   >(null);
+  const [currentParentAsset, setCurrentParentAsset] = useState<any>(null);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -262,6 +263,7 @@ const IpImagine = () => {
 
       // Set all state synchronously to avoid race conditions
       setCurrentRemixType(remixType);
+      setCurrentParentAsset(remixType === "paid" ? asset : null);
       setPreviewImages({
         remixImage: {
           blob,
@@ -399,12 +401,15 @@ const IpImagine = () => {
                 prompt: input,
                 image: imageData,
                 remixType: currentRemixType,
+                parentAsset: currentParentAsset,
               },
               demoMode,
             );
 
             setInput("");
             setPreviewImages({ remixImage: null, additionalImage: null });
+            setCurrentRemixType(null);
+            setCurrentParentAsset(null);
           } catch (error) {
             console.error("Generation error:", error);
             setStatusText("❌ Generation failed. Please try again.");
