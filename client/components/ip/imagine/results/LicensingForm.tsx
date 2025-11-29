@@ -422,10 +422,10 @@ const LicensingForm = ({
       let errorMessage = error.message || "Registration failed";
 
       // Provide more helpful error message for license purchase failures
-      if (error.message?.includes("not registered")) {
-        errorMessage = `❌ Parent IP not registered: The parent IP (${parentAsset?.ipId}) is not registered on Story Protocol. Make sure you selected a valid, registered parent IP asset that has commercial licensing enabled.`;
-      } else if (error.message?.includes("buy license") || error.message?.includes("mintLicenseTokens") || error.message?.includes("licensor")) {
-        errorMessage = `License purchase failed: ${error.message}. Verify the parent IP (${parentAsset?.ipId}) exists on Story Protocol and has available commercial licenses.`;
+      if (error.message?.includes("not registered") || error.message?.includes("licensor IP")) {
+        errorMessage = `❌ Parent IP Data Error: The parent IP (${parentAsset?.ipId}) appears to be missing or not properly synced on Story Protocol. This can happen if:\n• The parent IP was recently deleted\n• The search results are outdated\n• There's a data sync issue\n\nTry:\n1. Refreshing the page to get updated parent IP data\n2. Selecting a different parent IP from the "Popular IPs" or search results\n3. Verifying the parent IP has "Commercial" licensing enabled`;
+      } else if (error.message?.includes("buy license") || error.message?.includes("mintLicenseTokens")) {
+        errorMessage = `License purchase failed: ${error.message}. Verify the parent IP (${parentAsset?.ipId}) has available commercial licenses and try again.`;
       }
 
       setRegisterError(errorMessage);
@@ -436,6 +436,7 @@ const LicensingForm = ({
         licenseTermsIds: parentAsset?.licenseTermsIds,
         hasLicenses: !!parentAsset?.licenses?.length,
         licenses: parentAsset?.licenses,
+        rawLicenseData: JSON.stringify(parentAsset?.licenses),
       });
     } finally {
       setIsRegistering(false);
