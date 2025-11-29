@@ -438,7 +438,7 @@ const LicensingForm = ({
       setSuccessMessage(
         demoMode
           ? `Demo registration successful! Child IP registered as derivative and inherited parent's license terms.`
-          : `✅ Derivative IP registered successfully. Child inherited parent's license terms (${parentRevShare}% revenue share). ID: ${childIpId}`,
+          : `✅ Derivative IP registered successfully. Child inherited parent's license terms (${parentRevShareDisplay}% revenue share). ID: ${childIpId}`,
       );
     } catch (error: any) {
       let errorMessage = error.message || "Registration failed";
