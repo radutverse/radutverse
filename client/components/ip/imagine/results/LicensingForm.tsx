@@ -351,6 +351,15 @@ const LicensingForm = ({
 
       // Step 3: Buy license from parent IP
       const licenseTermsId = parentLicense.licenseTermsId;
+
+      // Double-check parent asset IP ID before attempting purchase
+      if (!parentAsset?.ipId || !/^0x[a-fA-F0-9]{40}$/.test(parentAsset.ipId)) {
+        throw new Error(
+          `Invalid parent IP ID detected before license purchase: ${parentAsset?.ipId}. This should be the paid remix IP asset's address.`
+        );
+      }
+
+      console.log(`🔐 Buying license from parent IP: ${parentAsset.ipId}`);
       const mintLicenseResult = await buyLicense(
         storyClient,
         parentAsset.ipId,
