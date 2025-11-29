@@ -38,15 +38,15 @@ const CompactResultCard = ({
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="w-full max-w-4xl mx-auto flex flex-col max-h-[calc(100vh-180px)] overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 gap-1"
+        className="w-screen h-screen fixed inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-6 z-50"
       >
-        {/* Large Image Container - 1:1 Square */}
+        {/* Large Image Container - Responsive */}
         <motion.div
-          className="relative rounded-lg overflow-hidden bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex items-center justify-center mx-auto w-full max-w-[calc(100vh-200px)] aspect-square"
+          className="relative rounded-lg overflow-hidden bg-black border-2 border-[#FF4DA6]/50 shadow-lg flex items-center justify-center w-full max-w-md sm:max-w-2xl h-full max-h-[70vh] sm:max-h-[80vh]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <div className="w-full h-full flex items-center justify-center p-1 sm:p-2">
+          <div className="w-full h-full flex items-center justify-center">
             {type === "image" ? (
               <img
                 src={imageUrl}
@@ -70,12 +70,12 @@ const CompactResultCard = ({
           {/* Close Button */}
           <button
             onClick={() => setIsExpanded(false)}
-            className="absolute top-3 left-3 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 transition-colors"
+            className="absolute top-4 left-4 p-2 rounded-full bg-black/70 hover:bg-black/90 transition-colors"
             type="button"
             aria-label="Close expanded view"
           >
             <svg
-              className="w-5 h-5 text-white"
+              className="w-6 h-6 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -90,20 +90,20 @@ const CompactResultCard = ({
           </button>
         </motion.div>
 
-        {/* Action Buttons - Ultra Compact Responsive Layout */}
+        {/* Action Buttons - Mobile Responsive Layout */}
         <motion.div
-          className="flex flex-wrap gap-1 sm:gap-1.5 justify-center flex-shrink-0 w-full"
+          className="absolute bottom-4 sm:bottom-6 left-0 right-0 flex flex-wrap gap-1.5 sm:gap-2 justify-center flex-shrink-0 px-4 sm:px-6"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
           <button
             onClick={onDownload}
-            className="flex-1 min-w-[60px] px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-sm bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-medium transition-colors flex items-center justify-center gap-0.5 text-xs sm:text-sm"
+            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
             title="Download"
           >
             <svg
-              className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+              className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -115,16 +115,16 @@ const CompactResultCard = ({
                 d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-            <span className="hidden sm:inline">Download</span>
+            <span>Download</span>
           </button>
 
           <button
             onClick={onShare}
-            className="flex-1 min-w-[60px] px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-sm bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-0.5 text-xs sm:text-sm"
+            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
             title="Share"
           >
             <svg
-              className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+              className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -136,17 +136,17 @@ const CompactResultCard = ({
                 d="M8.684 13.342C9.589 12.881 10.647 12.5 12 12.5c1.353 0 2.411.381 3.316.842M9 6a3 3 0 110-6 3 3 0 010 6zM9 6h.01M15 20c0 1.105-.895 2-2 2s-2-.895-2-2m0 0c0 1.105-.895 2-2 2s-2-.895-2-2m0 0c0-5.39 4.478-9.75 10-9.75s10 4.36 10 9.75"
               />
             </svg>
-            <span className="hidden sm:inline">Share</span>
+            <span>Share</span>
           </button>
 
           {onUpscale && type === "image" && (
             <button
               onClick={onUpscale}
-              className="flex-1 min-w-[60px] px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-sm bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-0.5 text-xs sm:text-sm"
+              className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
               title="Upscale"
             >
               <svg
-                className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+                className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -158,22 +158,22 @@ const CompactResultCard = ({
                   d="M7 16V4m0 0L3 8m4-4l4 4V20m6-4v4m0-12l4-4m-4 4l-4-4"
                 />
               </svg>
-              <span className="hidden sm:inline">Upscale</span>
+              <span>Upscale</span>
             </button>
           )}
 
-          <div className="relative flex-1 min-w-[60px]">
+          <div className="relative">
             <button
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
-              className="w-full px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-sm bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-0.5 text-xs sm:text-sm"
+              className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
               title="Options"
             >
-              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                 <circle cx="5" cy="12" r="2" />
                 <circle cx="12" cy="12" r="2" />
                 <circle cx="19" cy="12" r="2" />
               </svg>
-              <span className="hidden sm:inline">Options</span>
+              <span>Options</span>
             </button>
 
             {/* Settings Menu Popup */}
