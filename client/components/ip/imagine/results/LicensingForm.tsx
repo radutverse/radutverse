@@ -196,10 +196,10 @@ const LicensingForm = ({
   }
 
   return (
-    <div className="mt-2 rounded-lg bg-slate-900/70 border border-slate-800/50 p-2.5 space-y-2">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#FF4DA6]">
-          Register IP License
+    <div className="mt-2 rounded-lg bg-slate-900/70 border border-slate-800/50 p-2.5 space-y-1.5">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-xs font-semibold text-[#FF4DA6]">
+          Register IP
         </h3>
         {onClose && (
           <button
