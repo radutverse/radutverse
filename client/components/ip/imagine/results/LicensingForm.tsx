@@ -181,7 +181,7 @@ const LicensingForm = ({
               </p>
               {registeredIpId && registeredIpId !== "pending" && (
                 <a
-                  href={`https://aeneid.explorer.story.foundation/ip/${registeredIpId}`}
+                  href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
