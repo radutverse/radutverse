@@ -225,37 +225,37 @@ const LicensingForm = ({
       </div>
 
       {/* Form Content - Scrollable */}
-      <div className="space-y-3 flex-1 overflow-y-auto pr-2">
+      <div className="space-y-4 flex-1 overflow-y-auto pr-1">
         {/* Title Input */}
-        <div className="space-y-1">
-          <label className="text-sm text-slate-300 block font-medium">Title</label>
+        <div className="space-y-2">
+          <label className="text-sm text-slate-400 font-medium">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isRegistering || registerSuccess}
-            className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent"
-            placeholder="Title"
+            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20"
+            placeholder="Enter title"
           />
         </div>
 
         {/* Description Input */}
-        <div className="space-y-1">
-          <label className="text-sm text-slate-300 block font-medium">Description</label>
+        <div className="space-y-2">
+          <label className="text-sm text-slate-400 font-medium">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={isRegistering || registerSuccess}
-            className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm resize-none disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent leading-tight"
+            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 resize-none disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20 leading-relaxed"
             rows={2}
-            placeholder="Description"
+            placeholder="Enter description"
           />
         </div>
 
         {/* License Settings */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <label className="text-sm text-slate-300 block font-medium">Minting Fee</label>
+        <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400 font-medium">Minting Fee</label>
             <input
               type="number"
               min={0}
@@ -265,13 +265,13 @@ const LicensingForm = ({
                 setMintingFee(v === "" ? "" : Number(v));
               }}
               disabled={isRegistering || registerSuccess}
-              className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent"
+              className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20"
               placeholder="0"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm text-slate-300 block font-medium">RevShare %</label>
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400 font-medium">RevShare %</label>
             <input
               type="number"
               min={0}
@@ -284,7 +284,7 @@ const LicensingForm = ({
                 setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
               }}
               disabled={isRegistering || registerSuccess}
-              className="w-full rounded px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-100 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#FF4DA6] focus:border-transparent"
+              className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20"
               placeholder="0"
             />
           </div>
