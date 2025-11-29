@@ -297,7 +297,7 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: addr as any,
           transport: custom(ethProvider),
-          chainId: "aeneid",
+          chainId: "story",
         });
       } else {
         const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -309,7 +309,7 @@ const LicensingForm = ({
         storyClient = StoryClient.newClient({
           account: guestAccount as any,
           transport: http(rpcUrl),
-          chainId: "aeneid",
+          chainId: "story",
         });
       }
 
@@ -375,7 +375,7 @@ const LicensingForm = ({
               <p className="text-xs text-slate-400 mb-2">{successMessage}</p>
               {registeredIpId && registeredIpId !== "pending" && (
                 <a
-                  href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
+                  href={`https://explorer.story.foundation/ipa/${registeredIpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
