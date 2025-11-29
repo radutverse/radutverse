@@ -215,36 +215,53 @@ const LicensingForm = ({
 
       const licenseTermsId = parentLicense.licenseTermsId;
       
-      console.log("🎟️ Minting license with:", {
+      console.log("🎟️ Step 1 Debug:", {
+        parentAsset: parentAsset,
+        parentLicense: parentLicense,
         licensorIpId: parentAsset.ipId,
-        licenseTermsId,
-        amount: 1,
+        licenseTermsId: licenseTermsId,
+        licenseTermsIdType: typeof licenseTermsId,
         receiver: addr,
       });
 
       const mintTx = await storyClient.license.mintLicenseTokens({
         licensorIpId: parentAsset.ipId as `0x${string}`,
-        licenseTermsId: String(licenseTermsId),
+        licenseTermsId: licenseTermsId,
         amount: 1,
         receiver: addr as `0x${string}`,
         txOptions: { waitForTransaction: true }
       });
 
-      console.log("✅ Mint TX Response:", mintTx);
-
-      // Handle different response formats
-      let licenseTokenId: bigint;
-      if (mintTx.licenseTokenId) {
-        // SDK returns single licenseTokenId
+      console.log("✅ Full Mint TX Response:", JSON.stringify(mintTx, null, 2));
+      console.log("Mint TX Keys:", Object.keys(mintTx));
+      
+      // Check all possible response formats
+      let licenseTokenId: bigint | undefined;
+      
+      // Try different possible response formats from SDK
+      if (mintTx.licenseTokenId !== undefined && mintTx.licenseTokenId !== null) {
+        console.log("Found licenseTokenId (singular):", mintTx.licenseTokenId);
         licenseTokenId = BigInt(mintTx.licenseTokenId);
-      } else if (mintTx.licenseTokenIds && mintTx.licenseTokenIds[0]) {
-        // SDK returns array of licenseTokenIds
+      } else if (mintTx.licenseTokenIds && Array.isArray(mintTx.licenseTokenIds) && mintTx.licenseTokenIds.length > 0) {
+        console.log("Found licenseTokenIds (array):", mintTx.licenseTokenIds);
         licenseTokenId = BigInt(mintTx.licenseTokenIds[0]);
+      } else if (mintTx.tokenId !== undefined && mintTx.tokenId !== null) {
+        console.log("Found tokenId:", mintTx.tokenId);
+        licenseTokenId = BigInt(mintTx.tokenId);
+      } else if (typeof mintTx === 'object' && mintTx.txHash) {
+        // If only txHash is returned, we need to query the license token ID
+        console.warn("⚠️ Only txHash returned, license token ID not found in response");
+        throw new Error("License token ID not found in mint response. TX: " + mintTx.txHash);
       } else {
-        throw new Error("No license token ID returned from minting");
+        console.error("❌ Unexpected mint response format:", mintTx);
+        throw new Error("No license token ID found in response. Keys: " + Object.keys(mintTx).join(", "));
       }
 
-      console.log("✅ License token minted:", licenseTokenId.toString());
+      if (!licenseTokenId) {
+        throw new Error("Failed to extract license token ID from response");
+      }
+
+      console.log("✅ License token minted successfully:", licenseTokenId.toString());
 
       // ========================================
       // STEP 2: CREATE CHILD NFT & REGISTER IP
@@ -348,11 +365,20 @@ const LicensingForm = ({
       }
 
       // FIX: Pakai registerDerivativeIp dengan derivData
-      console.log("🔗 Registering derivative with:", {
-        childIpId,
+      console.log("🔗 Step 3 Debug - Registering derivative with:", {
+        childIpId: childIpId,
+        childIpIdType: typeof childIpId,
         parentIpId: parentAsset.ipId,
-        licenseTokenId: licenseTokenId.toString(),
+        parentIpIdType: typeof parentAsset.ipId,
+        licenseTokenId: licenseTokenId,
+        licenseTokenIdType: typeof licenseTokenId,
+        licenseTokenIdString: licenseTokenId.toString(),
       });
+
+      // Double check licenseTokenId is valid before using
+      if (!licenseTokenId || licenseTokenId === undefined) {
+        throw new Error("License token ID is undefined before registering derivative");
+      }
 
       const derivativeTx = await storyClient.ipAsset.registerDerivativeIp({
         childIpId: childIpId as `0x${string}`,
@@ -363,7 +389,7 @@ const LicensingForm = ({
         txOptions: { waitForTransaction: true }
       });
 
-      console.log("🎉 Derivative registered:", derivativeTx);
+      console.log("🎉 Derivative registered successfully:", derivativeTx);
 
       setCurrentStep("success");
       setRegisteredIpId(childIpId);
