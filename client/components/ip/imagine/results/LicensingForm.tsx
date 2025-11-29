@@ -118,28 +118,6 @@ const LicensingForm = ({
       setCurrentStep("buying-license");
       if (onRegisterStart) {
         onRegisterStart({
-          status: "Verifying parent IP exists on blockchain...",
-          progress: 25,
-          error: null,
-        });
-      }
-
-      // Verify parent IP is registered on Story Protocol before attempting to mint license
-      console.log(`🔍 Verifying parent IP is registered: ${parentIpId}`);
-      try {
-        const parentIpData = await storyClient.ipAsset.getMetadata(parentIpId as `0x${string}`);
-        if (!parentIpData) {
-          throw new Error(`Parent IP metadata not found`);
-        }
-        console.log(`✅ Parent IP verified on blockchain:`, parentIpData);
-      } catch (verifyError: any) {
-        throw new Error(
-          `Parent IP (${parentIpId}) is not registered on Story Protocol. Make sure you selected a valid parent IP asset. Error: ${verifyError.message}`
-        );
-      }
-
-      if (onRegisterStart) {
-        onRegisterStart({
           status: "Buying license from parent IP...",
           progress: 30,
           error: null,
