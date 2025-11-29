@@ -207,17 +207,17 @@ const LicensingForm = ({
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-xs font-semibold text-[#FF4DA6]">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-[#FF4DA6]">
           {registerSuccess ? "Registration Details" : "Register IP"}
         </h3>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors flex-shrink-0"
+            className="text-slate-400 hover:text-slate-200 transition-colors flex-shrink-0 p-1"
             type="button"
           >
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
             </svg>
           </button>
