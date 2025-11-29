@@ -328,7 +328,7 @@ const LicensingForm = ({
         <div className="flex gap-2">
           {registeredIpId && registeredIpId !== "pending" && (
             <a
-              href={`https://explorer.story.foundation/ip/${registeredIpId}`}
+              href={`https://aeneid.explorer.story.foundation/ip/${registeredIpId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 rounded bg-emerald-600/20 px-2 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-1"
