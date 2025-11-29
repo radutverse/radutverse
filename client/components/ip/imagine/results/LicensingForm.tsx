@@ -299,18 +299,14 @@ const LicensingForm = ({
           transport: custom(ethProvider),
           chainId: "mainnet",
         });
-      } else {
-        const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
-        if (!guestPk) throw new Error("Guest key not configured");
-        const normalized = String(guestPk).startsWith("0x")
-          ? String(guestPk)
-          : `0x${String(guestPk)}`;
-        const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+      } else if (guestAccount) {
         storyClient = StoryClient.newClient({
           account: guestAccount as any,
           transport: http(rpcUrl),
           chainId: "mainnet",
         });
+      } else {
+        throw new Error("Guest account not configured");
       }
 
       // Step 3: Buy license from parent IP
