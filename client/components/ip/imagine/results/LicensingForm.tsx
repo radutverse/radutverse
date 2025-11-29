@@ -135,18 +135,21 @@ const LicensingForm = ({
         ethProvider,
       );
 
+      const ipId = result?.ipId || "pending";
+
       if (onRegisterComplete) {
         onRegisterComplete({
-          ipId: result?.ipId,
+          ipId: ipId,
           txHash: result?.txHash,
         });
       }
 
+      setRegisteredIpId(ipId);
       setRegisterSuccess(true);
       setSuccessMessage(
         demoMode
           ? "Demo registration successful!"
-          : `IP registered successfully! ID: ${result?.ipId || "pending"}`,
+          : `IP registered successfully! ID: ${ipId}`,
       );
     } catch (error: any) {
       setRegisterError(error.message || "Registration failed");
