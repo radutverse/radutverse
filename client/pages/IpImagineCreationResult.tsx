@@ -408,6 +408,7 @@ const IpImagineCreationResult = () => {
                           type={creation.type}
                           isLoading={false}
                           demoMode={demoMode}
+                          parentAsset={creation.parentAsset}
                           onDownload={() => {
                             const link = document.createElement("a");
                             const downloadUrl =
