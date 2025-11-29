@@ -16,6 +16,7 @@ export interface Creation {
   prompt: string;
   isDemo?: boolean;
   remixType?: "paid" | "free" | null;
+  parentAsset?: any;
 }
 
 interface CreationContextType {
@@ -36,6 +37,7 @@ interface CreationContextType {
     prompt: string,
     isDemo?: boolean,
     remixType?: "paid" | "free" | null,
+    parentAsset?: any,
   ) => void;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
@@ -150,6 +152,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       prompt: string,
       isDemo: boolean = false,
       remixType?: "paid" | "free" | null,
+      parentAsset?: any,
     ) => {
       const newCreation: Creation = {
         id: `creation_${Date.now()}`,
@@ -159,6 +162,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
         prompt,
         isDemo,
         remixType,
+        parentAsset,
       };
       setCreations((prev) => [newCreation, ...prev]);
 
