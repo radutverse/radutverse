@@ -247,7 +247,7 @@ const LicensingForm = ({
         throw new Error("Failed to upload image to IPFS");
       }
 
-      const { url: imageUrl: imageUri, cid } = await uploadRes.json();
+      const { url: imageUri, cid } = await uploadRes.json();
 
       // Mint NFT and register IP
       const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
