@@ -44,6 +44,7 @@ const LicensingForm = ({
   const [registerError, setRegisterError] = useState<string | null>(null);
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
 
   // AI Generated group 1 is FIXED_AI, so AI training is always disabled
   const aiTrainingDisabled = true;
