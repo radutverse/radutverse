@@ -371,7 +371,7 @@ const LicensingForm = ({
               <p className="text-xs text-slate-400 mb-2">{successMessage}</p>
               {registeredIpId && registeredIpId !== "pending" && (
                 <a
-                  href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
+                  href={`https://mainnet.explorer.story.foundation/ipa/${registeredIpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
