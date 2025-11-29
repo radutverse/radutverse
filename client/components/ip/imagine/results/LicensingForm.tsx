@@ -390,8 +390,16 @@ const LicensingForm = ({
           : `✅ Derivative registered with ${parentRevShare}% revenue share from parent IP. ID: ${childIpId}`,
       );
     } catch (error: any) {
-      setRegisterError(error.message || "Registration failed");
-      console.error("Registration error:", error);
+      const errorDescription = getErrorDescription(error);
+      setRegisterError(errorDescription);
+      console.error("Registration error details:", {
+        message: error?.message,
+        code: error?.code,
+        name: error?.name,
+        data: error?.data,
+        cause: error?.cause,
+        fullError: error,
+      });
     } finally {
       setIsRegistering(false);
     }
