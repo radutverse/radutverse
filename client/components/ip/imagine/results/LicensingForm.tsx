@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useIPRegistrationAgent } from "@/hooks/useIPRegistrationAgent";
-import {
-  StoryClient,
-  WIP_TOKEN_ADDRESS,
-} from "@story-protocol/core-sdk";
+import { StoryClient } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
   custom,
