@@ -176,6 +176,32 @@ const LicensingForm = ({
         throw new Error("Could not determine wallet address");
       }
 
+      // Early exit for demo mode - return mock results without blockchain calls
+      if (demoMode) {
+        const mockChildIpId = `0x${Array(40)
+          .fill(0)
+          .map(() => Math.floor(Math.random() * 16).toString(16))
+          .join("")}`;
+        const mockTxHash = `0x${Array(64)
+          .fill(0)
+          .map(() => Math.floor(Math.random() * 16).toString(16))
+          .join("")}`;
+
+        setCurrentStep("complete");
+        setRegisterSuccess(true);
+        setRegisterError(null);
+
+        if (onRegisterComplete) {
+          onRegisterComplete({
+            ipId: mockChildIpId,
+            txHash: mockTxHash,
+          });
+        }
+
+        setIsRegistering(false);
+        return;
+      }
+
       const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
       if (!rpcUrl) throw new Error("RPC URL not set");
 
