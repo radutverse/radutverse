@@ -328,7 +328,7 @@ const LicensingForm = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 pt-2 border-t border-slate-800">
+      <div className="flex gap-3 pt-3 border-t border-slate-800/50">
         {registerSuccess ? (
           <>
             {registeredIpId && registeredIpId !== "pending" && (
@@ -336,7 +336,7 @@ const LicensingForm = ({
                 href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 rounded bg-emerald-600/30 px-3 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-600/40 transition-colors flex items-center justify-center gap-2 border border-emerald-800/50"
+                className="flex-1 rounded-lg bg-emerald-600/20 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-2 border border-emerald-500/30"
               >
                 <svg
                   className="w-4 h-4"
@@ -357,7 +357,7 @@ const LicensingForm = ({
             {onClose && (
               <button
                 onClick={onClose}
-                className={`${registeredIpId && registeredIpId !== "pending" ? "flex-1" : "w-full"} rounded bg-slate-800 px-3 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 transition-colors border border-slate-700`}
+                className={`${registeredIpId && registeredIpId !== "pending" ? "flex-1" : "w-full"} rounded-lg bg-slate-700/40 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700/60 transition-colors border border-slate-600/40`}
                 type="button"
               >
                 Close
@@ -374,7 +374,7 @@ const LicensingForm = ({
               isLoading ||
               !imageUrl
             }
-            className="w-full rounded bg-[#FF4DA6]/30 px-3 py-2.5 text-sm font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-[#FF4DA6]/50"
+            className="w-full rounded-lg bg-[#FF4DA6]/20 px-4 py-2.5 text-sm font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-[#FF4DA6]/30"
             type="button"
           >
             {isRegistering || registerState.status !== "idle" ? (
