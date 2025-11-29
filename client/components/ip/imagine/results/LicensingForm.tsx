@@ -209,8 +209,29 @@ const LicensingForm = ({
       return;
     }
 
+    // Validate parent asset has a valid IP ID
+    if (!parentAsset?.ipId) {
+      setRegisterError(
+        "Parent asset IP ID is missing. Please select a valid parent IP."
+      );
+      return;
+    }
+
+    // Validate parent IP ID is a valid Ethereum address format
+    if (!/^0x[a-fA-F0-9]{40}$/.test(parentAsset.ipId)) {
+      setRegisterError(
+        `Invalid parent IP ID format: ${parentAsset.ipId}. Expected a valid Ethereum address.`
+      );
+      return;
+    }
+
     if (!parentLicense) {
       setRegisterError("No commercial license found on parent IP");
+      return;
+    }
+
+    if (!parentLicense.licenseTermsId) {
+      setRegisterError("Parent IP license terms ID is missing");
       return;
     }
 
