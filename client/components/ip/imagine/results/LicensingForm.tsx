@@ -163,20 +163,20 @@ const LicensingForm = ({
     <div className={`w-full h-full ${registerSuccess ? "bg-slate-950" : "bg-slate-950"} p-4 space-y-3 flex flex-col`}>
       {/* Success Message */}
       {registerSuccess && (
-        <div className="rounded-lg bg-emerald-950/40 border border-emerald-800 p-3 mb-2">
-          <div className="flex items-start gap-2">
+        <div className="rounded-lg bg-emerald-950/50 border border-emerald-800/80 p-4">
+          <div className="flex items-start gap-3">
             <svg
-              className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0"
+              className="w-6 h-6 text-emerald-400 mt-0.5 flex-shrink-0"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="flex-1 min-w-0">
-              <h4 className="text-xs font-semibold text-emerald-300 mb-1">
+              <h4 className="text-sm font-semibold text-emerald-300 mb-2">
                 ✅ Registration Successful!
               </h4>
-              <p className="text-xs text-emerald-200 mb-2">
+              <p className="text-sm text-emerald-200 mb-3">
                 {successMessage}
               </p>
               {registeredIpId && registeredIpId !== "pending" && (
@@ -184,11 +184,11 @@ const LicensingForm = ({
                   href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
                 >
                   View on Explorer
                   <svg
-                    className="w-3 h-3"
+                    className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
