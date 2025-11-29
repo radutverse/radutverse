@@ -38,7 +38,7 @@ const LicensingForm = ({
   const [revShare, setRevShare] = useState<number | "">("");
   const [title, setTitle] = useState("AI Generated Image");
   const [description, setDescription] = useState(
-    "Created using AI image generation technology"
+    "Created using AI image generation technology",
   );
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
@@ -145,7 +145,7 @@ const LicensingForm = ({
       setSuccessMessage(
         demoMode
           ? "Demo registration successful!"
-          : `IP registered successfully! ID: ${result?.ipId || "pending"}`
+          : `IP registered successfully! ID: ${result?.ipId || "pending"}`,
       );
     } catch (error: any) {
       setRegisterError(error.message || "Registration failed");
@@ -177,7 +177,9 @@ const LicensingForm = ({
             <h4 className="text-xs font-semibold text-emerald-300 mb-0.5">
               Registration Successful!
             </h4>
-            <p className="text-xs text-emerald-200 truncate">{successMessage}</p>
+            <p className="text-xs text-emerald-200 truncate">
+              {successMessage}
+            </p>
           </div>
           {onClose && (
             <button
@@ -198,9 +200,7 @@ const LicensingForm = ({
   return (
     <div className="mt-2 rounded-lg bg-slate-900/70 border border-slate-800/50 p-2.5 space-y-1.5">
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-xs font-semibold text-[#FF4DA6]">
-          Register IP
-        </h3>
+        <h3 className="text-xs font-semibold text-[#FF4DA6]">Register IP</h3>
         {onClose && (
           <button
             onClick={onClose}
@@ -243,9 +243,7 @@ const LicensingForm = ({
       {/* License Settings */}
       <div className="grid grid-cols-2 gap-1">
         <div className="space-y-0.5">
-          <label className="text-xs text-slate-300 block">
-            Fee
-          </label>
+          <label className="text-xs text-slate-300 block">Fee</label>
           <input
             type="number"
             min={0}
@@ -261,9 +259,7 @@ const LicensingForm = ({
         </div>
 
         <div className="space-y-0.5">
-          <label className="text-xs text-slate-300 block">
-            RevShare %
-          </label>
+          <label className="text-xs text-slate-300 block">RevShare %</label>
           <input
             type="number"
             min={0}

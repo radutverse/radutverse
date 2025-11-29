@@ -172,7 +172,11 @@ const CompactResultCard = ({
               className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
               title="Options"
             >
-              <svg className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <circle cx="5" cy="12" r="2" />
                 <circle cx="12" cy="12" r="2" />
                 <circle cx="19" cy="12" r="2" />
@@ -235,7 +239,9 @@ const CompactResultCard = ({
                           d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span className="font-medium text-slate-100">Licensing</span>
+                      <span className="font-medium text-slate-100">
+                        Licensing
+                      </span>
                     </button>
                   </motion.div>
 
