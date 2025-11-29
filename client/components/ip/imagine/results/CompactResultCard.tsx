@@ -253,10 +253,10 @@ const CompactResultCard = ({
           <AnimatePresence>
             {showLicensingForm && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="absolute bottom-24 sm:bottom-28 left-0 right-0 max-h-[40vh] overflow-y-auto mx-4 sm:mx-6"
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute bottom-16 sm:bottom-20 left-2 right-2 sm:left-4 sm:right-4 max-h-[35vh] sm:max-h-[30vh] overflow-y-auto"
               >
                 <LicensingForm
                   imageUrl={imageUrl}
