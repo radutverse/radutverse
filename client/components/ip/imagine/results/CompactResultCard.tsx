@@ -255,30 +255,43 @@ const CompactResultCard = ({
             </AnimatePresence>
           </div>
 
-          {/* Inline Licensing Form */}
+          {/* Licensing Form Modal */}
           <AnimatePresence>
             {showLicensingForm && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute bottom-16 sm:bottom-20 left-2 right-2 sm:left-4 sm:right-4 max-h-[35vh] sm:max-h-[30vh] overflow-y-auto"
-              >
-                <LicensingForm
-                  imageUrl={imageUrl}
-                  type={type}
-                  demoMode={demoMode}
-                  isLoading={isLoading}
-                  onClose={() => setShowLicensingForm(false)}
-                  onRegisterStart={(state) => {
-                    console.log("Registration started:", state);
-                  }}
-                  onRegisterComplete={(result) => {
-                    console.log("Registration completed:", result);
-                    setShowLicensingForm(false);
-                  }}
+              <>
+                {/* Dark Overlay */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowLicensingForm(false)}
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
                 />
-              </motion.div>
+
+                {/* Licensing Modal */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none"
+                >
+                  <div className="pointer-events-auto w-full max-w-2xl rounded-xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto ring-offset-2 ring-offset-transparent">
+                    <LicensingForm
+                      imageUrl={imageUrl}
+                      type={type}
+                      demoMode={demoMode}
+                      isLoading={isLoading}
+                      onClose={() => setShowLicensingForm(false)}
+                      onRegisterStart={(state) => {
+                        console.log("Registration started:", state);
+                      }}
+                      onRegisterComplete={(result) => {
+                        console.log("Registration completed:", result);
+                      }}
+                    />
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </motion.div>

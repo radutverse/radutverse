@@ -44,6 +44,7 @@ const LicensingForm = ({
   const [registerError, setRegisterError] = useState<string | null>(null);
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
 
   // AI Generated group 1 is FIXED_AI, so AI training is always disabled
   const aiTrainingDisabled = true;
@@ -134,18 +135,21 @@ const LicensingForm = ({
         ethProvider,
       );
 
+      const ipId = result?.ipId || "pending";
+
       if (onRegisterComplete) {
         onRegisterComplete({
-          ipId: result?.ipId,
+          ipId: ipId,
           txHash: result?.txHash,
         });
       }
 
+      setRegisteredIpId(ipId);
       setRegisterSuccess(true);
       setSuccessMessage(
         demoMode
           ? "Demo registration successful!"
-          : `IP registered successfully! ID: ${result?.ipId || "pending"}`,
+          : `IP registered successfully! ID: ${ipId}`,
       );
     } catch (error: any) {
       setRegisterError(error.message || "Registration failed");
@@ -155,186 +159,241 @@ const LicensingForm = ({
     }
   };
 
-  // Show success state
-  if (registerSuccess) {
-    return (
-      <div className="mt-2 rounded-lg bg-emerald-900/20 border border-emerald-800/50 p-2">
-        <div className="flex items-start gap-2">
-          <svg
-            className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-xs font-semibold text-emerald-300 mb-0.5">
-              Registration Successful!
-            </h4>
-            <p className="text-xs text-emerald-200 truncate">
-              {successMessage}
-            </p>
-          </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-emerald-400 hover:text-emerald-300 transition-colors flex-shrink-0"
-              type="button"
-            >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="mt-2 rounded-lg bg-slate-900/70 border border-slate-800/50 p-2.5 space-y-1.5">
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-xs font-semibold text-[#FF4DA6]">Register IP</h3>
+    <div className="w-full h-full p-6 space-y-4 flex flex-col">
+      {/* Success Message */}
+      {registerSuccess && (
+        <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold text-emerald-400 mb-1">
+                Registration Successful!
+              </h4>
+              <p className="text-xs text-slate-400 mb-2">{successMessage}</p>
+              {registeredIpId && registeredIpId !== "pending" && (
+                <a
+                  href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                >
+                  View on Explorer
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between border-b border-slate-800/50 pb-4">
+        <h3 className="text-xl font-semibold text-[#FF4DA6]">
+          {registerSuccess ? "Registration Details" : "Licensing your creation"}
+        </h3>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors flex-shrink-0"
+            className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0"
             type="button"
           >
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
             </svg>
           </button>
         )}
       </div>
 
-      {/* Title Input */}
-      <div className="space-y-0.5">
-        <label className="text-xs text-slate-300 block">Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={isRegistering}
-          className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
-          placeholder="Title"
-        />
-      </div>
-
-      {/* Description Input */}
-      <div className="space-y-0.5">
-        <label className="text-xs text-slate-300 block">Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={isRegistering}
-          className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs resize-none disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6] leading-tight"
-          rows={1}
-          placeholder="Description"
-        />
-      </div>
-
-      {/* License Settings */}
-      <div className="grid grid-cols-2 gap-1">
-        <div className="space-y-0.5">
-          <label className="text-xs text-slate-300 block">Fee</label>
+      {/* Form Content - Scrollable with padding for focus ring */}
+      <div className="space-y-4 flex-1 overflow-y-auto pr-1 px-0.5 py-2">
+        {/* Title Input */}
+        <div className="space-y-2">
+          <label className="text-sm text-slate-400 font-medium">Title</label>
           <input
-            type="number"
-            min={0}
-            value={mintingFee === "" ? "" : mintingFee}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMintingFee(v === "" ? "" : Number(v));
-            }}
-            disabled={isRegistering}
-            className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
-            placeholder="0"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isRegistering || registerSuccess}
+            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40"
+            placeholder="Enter title"
           />
         </div>
 
-        <div className="space-y-0.5">
-          <label className="text-xs text-slate-300 block">RevShare %</label>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={revShare === "" ? "" : revShare}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setRevShare("");
-              const n = Number(v);
-              setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
-            }}
-            disabled={isRegistering}
-            className="w-full rounded px-1.5 py-0.5 bg-black/30 text-slate-100 text-xs disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#FF4DA6]"
-            placeholder="0"
+        {/* Description Input */}
+        <div className="space-y-2">
+          <label className="text-sm text-slate-400 font-medium">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={isRegistering || registerSuccess}
+            className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 resize-none disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40 leading-relaxed"
+            rows={2}
+            placeholder="Enter description"
           />
+        </div>
+
+        {/* License Settings */}
+        <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400 font-medium">
+              Minting Fee
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={mintingFee === "" ? "" : mintingFee}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMintingFee(v === "" ? "" : Number(v));
+              }}
+              disabled={isRegistering || registerSuccess}
+              className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-[#FF4DA6]/40"
+              placeholder="0"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400 font-medium">
+              RevShare %
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={revShare === "" ? "" : revShare}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") return setRevShare("");
+                const n = Number(v);
+                setRevShare(Math.min(100, Math.max(0, isNaN(n) ? 0 : n)));
+              }}
+              disabled={isRegistering || registerSuccess}
+              className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm placeholder-slate-500 disabled:opacity-50 transition-colors focus:outline-none focus:border-[#FF4DA6] focus:ring-2 focus:ring-[#FF4DA6]/20"
+              placeholder="0"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Registration Status */}
-      {registerState.status !== "idle" && (
-        <div className="rounded px-2 py-1 bg-blue-900/20 border border-blue-800/50 text-xs text-blue-300">
-          <div className="flex items-center gap-1">
+      {/* Status Messages */}
+      <div className="space-y-2 pt-3 border-t border-slate-800/50">
+        {/* Registration Status */}
+        {registerState.status !== "idle" && (
+          <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
             <span className="inline-block animate-spin">⚙️</span>
-            <span className="capitalize text-xs">{registerState.status}</span>
+            <span className="capitalize">{registerState.status}</span>
             {registerState.progress > 0 && (
               <span className="ml-auto text-xs">
                 {Math.round(registerState.progress)}%
               </span>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Error Message */}
-      {(registerError || registerState.error) && (
-        <div className="rounded px-2 py-1 bg-red-900/20 border border-red-800/50 text-xs text-red-300 line-clamp-2">
-          {registerError || registerState.error?.message || registerState.error}
-        </div>
-      )}
+        {/* Error Message */}
+        {(registerError || registerState.error) && (
+          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400">
+            {registerError ||
+              registerState.error?.message ||
+              registerState.error}
+          </div>
+        )}
 
-      {/* Auth Status */}
-      {!demoMode && !authenticated && (
-        <div className="rounded px-2 py-1 bg-amber-900/20 border border-amber-800/50 text-xs text-amber-300">
-          ⚠️ Connect wallet
-        </div>
-      )}
+        {/* Auth Status */}
+        {!demoMode && !authenticated && (
+          <div className="rounded-lg px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 text-sm text-amber-400">
+            ⚠️ Connect wallet to register
+          </div>
+        )}
 
-      {demoMode && (
-        <div className="rounded px-2 py-1 bg-blue-900/20 border border-blue-800/50 text-xs text-blue-300">
-          🎭 Demo mode
-        </div>
-      )}
+        {demoMode && (
+          <div className="rounded-lg px-3 py-2.5 bg-slate-600/20 border border-slate-600/40 text-sm text-slate-400">
+            🎭 Demo mode enabled
+          </div>
+        )}
+      </div>
 
-      {/* Register Button */}
-      <button
-        onClick={handleRegister}
-        disabled={
-          isRegistering ||
-          registerState.status !== "idle" ||
-          (!demoMode && !authenticated) ||
-          isLoading ||
-          !imageUrl
-        }
-        className="w-full rounded bg-[#FF4DA6]/20 px-2 py-1 text-xs font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        type="button"
-      >
-        {isRegistering || registerState.status !== "idle" ? (
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-3 border-t border-slate-800/50">
+        {registerSuccess ? (
           <>
-            <span className="inline-block animate-spin mr-1 text-sm">⚙️</span>
-            Registering
+            {registeredIpId && registeredIpId !== "pending" && (
+              <a
+                href={`https://aeneid.explorer.story.foundation/ipa/${registeredIpId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 rounded-lg bg-emerald-600/20 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-600/30 transition-colors flex items-center justify-center gap-2 border border-emerald-500/30"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+                Explorer
+              </a>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className={`${registeredIpId && registeredIpId !== "pending" ? "flex-1" : "w-full"} rounded-lg bg-slate-700/40 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700/60 transition-colors border border-slate-600/40`}
+                type="button"
+              >
+                Close
+              </button>
+            )}
           </>
         ) : (
-          "Register IP"
+          <button
+            onClick={handleRegister}
+            disabled={
+              isRegistering ||
+              registerState.status !== "idle" ||
+              (!demoMode && !authenticated) ||
+              isLoading ||
+              !imageUrl
+            }
+            className="w-full rounded-lg bg-[#FF4DA6]/20 px-4 py-2.5 text-sm font-semibold text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-[#FF4DA6]/30"
+            type="button"
+          >
+            {isRegistering || registerState.status !== "idle" ? (
+              <>
+                <span className="inline-block animate-spin mr-2">⚙️</span>
+                Registering
+              </>
+            ) : (
+              "Register IP"
+            )}
+          </button>
         )}
-      </button>
+      </div>
     </div>
   );
 };
