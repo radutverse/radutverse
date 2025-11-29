@@ -268,6 +268,7 @@ const LicensingForm = ({
 
       // Register child IP using the registration agent
       // Use parent's revenue share (child must match parent)
+      console.log("👑 Step 1: Registering child IP...", { title, parentRevShare });
       const childResult = await new Promise((resolve, reject) => {
         executeRegister(
           1, // AI_GENERATED_GROUP
@@ -278,12 +279,24 @@ const LicensingForm = ({
           { title, prompt: description },
           ethProvider,
         )
-          .then(resolve)
-          .catch(reject);
+          .then((result) => {
+            console.log("✅ Child IP registration result:", result);
+            resolve(result);
+          })
+          .catch((err) => {
+            console.error("❌ Child IP registration failed:", err);
+            reject(err);
+          });
       });
 
+      if (!childResult?.success) {
+        const errorMsg = childResult?.error || "Failed to register child IP";
+        console.error("❌ Child IP registration failed:", childResult);
+        throw new Error(errorMsg);
+      }
+
       if (!childResult?.ipId) {
-        throw new Error("Failed to register child IP");
+        throw new Error("Child IP registered but no ipId returned");
       }
 
       const childIpId = childResult.ipId;
@@ -348,8 +361,13 @@ const LicensingForm = ({
           : `✅ Derivative registered with ${parentRevShare}% revenue share from parent IP. ID: ${childIpId}`,
       );
     } catch (error: any) {
-      setRegisterError(error.message || "Registration failed");
-      console.error("Registration error:", error);
+      const errorMsg = error?.message || error?.data?.message || String(error);
+      setRegisterError(errorMsg);
+      console.error("❌ Full registration error:", {
+        message: errorMsg,
+        error,
+        stack: error?.stack,
+      });
     } finally {
       setIsRegistering(false);
     }
