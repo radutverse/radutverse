@@ -1,22 +1,15 @@
 import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import {
-  StoryClient,
-  PILFlavor,
-  WIP_TOKEN_ADDRESS,
-  MintLicenseTokensResponse,
-  RegisterDerivativeIpResponse,
-} from "@story-protocol/core-sdk";
-import {
-  createWalletClient,
-  custom,
-  parseEther,
-  http,
-} from "viem";
+import { StoryClient, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import { createWalletClient, custom, parseEther, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 // Asumsi path ini benar dan fungsi keccakOfJson bekerja
-import { keccakOfJson } from "@/lib/utils/crypto"; 
+import { keccakOfJson } from "@/lib/utils/crypto";
 import { Address } from "viem"; // Tipe Address dari viem
+
+// --- KONSTANTA ---
+const OFFCHAIN_LICENSE_TERMS_URI =
+  "https://github.com/piplabs/pil-document/blob/998c13e6ee1d04eb817aefd1fe16dfe8be3cd7a2/off-chain-terms/NCSR.json";
 
 // --- INTERFACE YANG LEBIH AKURAT ---
 
@@ -51,34 +44,6 @@ interface LicensingFormProps {
   onRegisterComplete?: (result: { ipId?: Address; txHash?: Address }) => void;
 }
 
-// --- FUNGSI HELPER UNTUK EKSTRAKSI TOKEN ID ---
-
-/**
- * Fungsi untuk mengekstrak licenseTokenId dari berbagai bentuk respons MintLicenseTokensResponse.
- */
-const extractLicenseTokenId = (mintTx: MintLicenseTokensResponse): bigint | undefined => {
-  if (mintTx.licenseTokenId !== undefined && mintTx.licenseTokenId !== null) {
-    return typeof mintTx.licenseTokenId === 'bigint' 
-      ? mintTx.licenseTokenId 
-      : BigInt(mintTx.licenseTokenId);
-  }
-  
-  if (mintTx.licenseTokenIds && Array.isArray(mintTx.licenseTokenIds) && mintTx.licenseTokenIds.length > 0) {
-    const firstToken = mintTx.licenseTokenIds[0];
-    return typeof firstToken === 'bigint' 
-      ? firstToken 
-      : BigInt(firstToken);
-  }
-  
-  if (mintTx.tokenId !== undefined && mintTx.tokenId !== null) {
-    return typeof mintTx.tokenId === 'bigint' 
-      ? mintTx.tokenId 
-      : BigInt(mintTx.tokenId);
-  }
-  
-  return undefined;
-};
-
 // --- KOMPONEN UTAMA ---
 
 const LicensingForm = ({
@@ -106,15 +71,12 @@ const LicensingForm = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
-    | "idle"
-    | "minting-license"
-    | "registering-child"
-    | "registering-derivative"
-    | "success"
+    "idle" | "registering-derivative" | "claiming-revenue" | "success"
   >("idle");
 
   // Kalkulasi & Validasi Awal
-  const isPaidRemix = parentAsset && parentAsset.licenses && parentAsset.licenses.length > 0;
+  const isPaidRemix =
+    parentAsset && parentAsset.licenses && parentAsset.licenses.length > 0;
   const parentLicense: ParentLicense | undefined = isPaidRemix
     ? parentAsset.licenses.find((l) => l.terms?.commercialUse === true)
     : undefined;
@@ -160,22 +122,23 @@ const LicensingForm = ({
   const handleRegister = async () => {
     // --- 1. PRE-CHECK VALIDASI ---
     if (!imageUrl) return setRegisterError("No image to register");
-    if (!isPaidRemix || !parentAsset) return setRegisterError("Parent asset data required for licensing");
-    if (!parentLicense) return setRegisterError("No commercial license found on parent IP");
-    if (parentRevShareScaled === undefined || parentRevShareScaled === null) return setRegisterError("Parent IP revenue share not available");
-    if (!demoMode && !authenticated) return setRegisterError("Please connect wallet or enable demo mode");
+    if (!isPaidRemix || !parentAsset)
+      return setRegisterError("Parent asset data required for licensing");
+    if (!parentLicense)
+      return setRegisterError("No commercial license found on parent IP");
+    if (!demoMode && !authenticated)
+      return setRegisterError("Please connect wallet or enable demo mode");
 
     setIsRegistering(true);
     setRegisterError(null);
     setRegisterSuccess(false);
 
-    let licenseTokenId: bigint | undefined;
     let addr: Address | undefined;
-    
+    let childIpId: Address | undefined;
+
     try {
       // --- 2. SETUP WALLET & CLIENT ---
       let ethProvider: any = undefined;
-      // ... (Logika penentuan ethProvider dan addr dipertahankan)
       if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
         try {
           ethProvider = await wallets[0].getEthereumProvider();
@@ -201,7 +164,9 @@ const LicensingForm = ({
             const normalized = String(guestPk).startsWith("0x")
               ? String(guestPk)
               : `0x${String(guestPk)}`;
-            const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+            const guestAccount = privateKeyToAccount(
+              normalized as `0x${string}`,
+            );
             addr = guestAccount.address;
           }
         } catch {}
@@ -213,12 +178,11 @@ const LicensingForm = ({
       if (!rpcUrl) throw new Error("RPC URL not set");
 
       let storyClient: StoryClient;
-      // Memastikan tipe StoryClient diinisialisasi dengan benar
       if (ethProvider) {
         storyClient = StoryClient.newClient({
           account: addr,
           transport: custom(ethProvider),
-          chainId: 1514, // Asumsi chainId yang benar
+          chainId: 1514,
         });
       } else {
         const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -234,51 +198,6 @@ const LicensingForm = ({
         });
       }
 
-      const licenseTermsId = parentLicense.licenseTermsId;
-
-      // ========================================
-      // STEP 3: MINT LICENSE TOKEN FROM PARENT (Tipe dan Error Handling Lebih Ketat)
-      // ========================================
-      console.log("🎟️ Step 3: Minting license token from parent IP...");
-      setCurrentStep("minting-license");
-      onRegisterStart && onRegisterStart({
-          status: "Minting license token from parent IP...",
-          progress: 20,
-          error: null,
-      });
-
-      try {
-        const mintTx = await storyClient.license.mintLicenseTokens({
-          licensorIpId: parentAsset.ipId,
-          licenseTermsId: licenseTermsId,
-          amount: 1,
-          receiver: addr,
-          txOptions: { waitForTransaction: true }
-        });
-
-        licenseTokenId = extractLicenseTokenId(mintTx);
-
-        if (!licenseTokenId) {
-          throw new Error("Could not extract a valid License Token ID after minting.");
-        }
-        console.log("✅ License token ID extracted:", licenseTokenId.toString());
-
-      } catch (mintError: any) {
-        console.error("❌ Mint license error:", mintError?.message || mintError);
-        throw new Error(`Failed to mint license token: ${mintError?.message || String(mintError)}`);
-      }
-
-      // ========================================
-      // STEP 4: CREATE CHILD NFT & REGISTER IP
-      // ========================================
-      console.log("📸 Step 4: Creating child NFT and registering IP...");
-      setCurrentStep("registering-child");
-      onRegisterStart && onRegisterStart({
-          status: "Creating child NFT and registering IP asset...",
-          progress: 40,
-          error: null,
-      });
-
       const file = await handleConvertImageToFile();
 
       // Upload image to IPFS
@@ -292,14 +211,13 @@ const LicensingForm = ({
       if (!uploadRes.ok) throw new Error("Failed to upload image to IPFS");
       const { url: imageUri } = await uploadRes.json();
 
-      // Mint NFT and register IP
       const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
       if (!spg) throw new Error("SPG collection not configured");
 
-      // Metadata preparation (dibiarkan seperti semula)
       const ipMetadataObj = {
         title: title || "AI Generated Image",
-        description: description || "Created using AI image generation technology",
+        description:
+          description || "Created using AI image generation technology",
         ipType: "Image",
         createdAt: new Date().toISOString(),
         mediaUrl: imageUri,
@@ -307,7 +225,8 @@ const LicensingForm = ({
 
       const nftMetadataObj = {
         title: title || "AI Generated Image",
-        description: description || "Created using AI image generation technology",
+        description:
+          description || "Created using AI image generation technology",
         image: imageUri,
         attributes: [
           { trait_type: "Type", value: "AI Generated Derivative" },
@@ -318,68 +237,121 @@ const LicensingForm = ({
       const ipMetadataHash = keccakOfJson(ipMetadataObj);
       const nftMetadataHash = keccakOfJson(nftMetadataObj);
 
-      const { ipId: childIpId, txHash: registerTxHash } =
-        await storyClient.ipAsset.mintAndRegisterIpAssetWithPilTerms({
-          spgNftContract: spg as Address,
-          recipient: addr,
-          ipMetadata: {
-            ipMetadataURI: imageUri,
-            ipMetadataHash: ipMetadataHash as `0x${string}`,
-            nftMetadataURI: imageUri,
-            nftMetadataHash: nftMetadataHash as `0x${string}`,
-          },
-          licenseTermsData: [
-            {
-              terms: PILFlavor.commercialRemix({
-                // Menggunakan nilai terskala dari parent
-                commercialRevShare: parentRevShareScaled, 
-                defaultMintingFee: parseEther("0"),
-                currency: WIP_TOKEN_ADDRESS as Address,
-              }),
-            },
-          ],
-          allowDuplicates: true,
+      // Upload IP metadata JSON to IPFS
+      const ipMetadataFormData = new FormData();
+      ipMetadataFormData.append(
+        "file",
+        new Blob([JSON.stringify(ipMetadataObj)], { type: "application/json" }),
+        "ip-metadata.json",
+      );
+      const ipMetadataUploadRes = await fetch("/api/ipfs/upload", {
+        method: "POST",
+        body: ipMetadataFormData,
+      });
+
+      if (!ipMetadataUploadRes.ok)
+        throw new Error("Failed to upload IP metadata to IPFS");
+      const { url: ipMetadataUri } = await ipMetadataUploadRes.json();
+
+      // Upload NFT metadata JSON to IPFS
+      const nftMetadataFormData = new FormData();
+      nftMetadataFormData.append(
+        "file",
+        new Blob([JSON.stringify(nftMetadataObj)], {
+          type: "application/json",
+        }),
+        "nft-metadata.json",
+      );
+      const nftMetadataUploadRes = await fetch("/api/ipfs/upload", {
+        method: "POST",
+        body: nftMetadataFormData,
+      });
+
+      if (!nftMetadataUploadRes.ok)
+        throw new Error("Failed to upload NFT metadata to IPFS");
+      const { url: nftMetadataUri } = await nftMetadataUploadRes.json();
+
+      // ========================================
+      // STEP 1: REGISTER DERIVATIVE IP ASSET (Combined operation)
+      // ========================================
+      console.log("📝 Step 1: Registering derivative IP asset...");
+      setCurrentStep("registering-derivative");
+      onRegisterStart &&
+        onRegisterStart({
+          status: "Registering derivative IP asset...",
+          progress: 50,
+          error: null,
         });
 
-      console.log("✅ Child IP registered:", childIpId);
+      try {
+        const derivativeResponse =
+          await storyClient.ipAsset.registerDerivativeIpAsset({
+            nft: { type: "mint", spgNftContract: spg as Address },
+            derivData: {
+              parentIpIds: [parentAsset.ipId],
+              licenseTermsIds: [BigInt(parentLicense.licenseTermsId)],
+            },
+            ipMetadata: {
+              ipMetadataURI: ipMetadataUri,
+              ipMetadataHash: ipMetadataHash as `0x${string}`,
+              nftMetadataURI: nftMetadataUri,
+              nftMetadataHash: nftMetadataHash as `0x${string}`,
+            },
+            licenseDocument: {
+              uri: OFFCHAIN_LICENSE_TERMS_URI,
+            },
+            txOptions: { waitForTransaction: true },
+          });
 
-      // ========================================
-      // STEP 5: REGISTER DERIVATIVE LINK
-      // ========================================
-      console.log("🔗 Step 5: Registering derivative link...");
-      setCurrentStep("registering-derivative");
-      onRegisterStart && onRegisterStart({
-          status: "Registering derivative IP asset...",
-          progress: 70,
-          error: null,
-      });
-
-      // Pengecekan kritis
-      if (!licenseTokenId) {
-        throw new Error("CRITICAL: License Token ID is missing. Cannot register derivative link.");
+        childIpId = derivativeResponse.ipId as Address;
+        console.log("✅ Derivative IP asset registered:", childIpId);
+        console.log("📋 Metadata URIs:", { ipMetadataUri, nftMetadataUri });
+      } catch (registerError: any) {
+        console.error(
+          "❌ Register derivative error:",
+          registerError?.message || registerError,
+        );
+        throw new Error(
+          `Failed to register derivative IP: ${registerError?.message || String(registerError)}`,
+        );
       }
 
-      console.log("🔗 Registering derivative link with:", {
-        childIpId: childIpId,
-        parentIpId: parentAsset.ipId,
-        licenseTokenId: licenseTokenId.toString(),
-      });
+      // ========================================
+      // STEP 2: PARENT CLAIMS REVENUE
+      // ========================================
+      console.log("💰 Step 2: Parent claiming revenue...");
+      setCurrentStep("claiming-revenue");
+      onRegisterStart &&
+        onRegisterStart({
+          status: "Parent claiming revenue...",
+          progress: 85,
+          error: null,
+        });
 
-      const derivativeTx: RegisterDerivativeIpResponse = await storyClient.ipAsset.registerDerivativeIp({
-        childIpId: childIpId as Address,
-        derivData: {
-          parentIpIds: [parentAsset.ipId],
-          // INI KRITIS: Harus menggunakan licenseTokenIds
-          licenseTokenIds: [licenseTokenId], 
-        },
-        txOptions: { waitForTransaction: true }
-      });
+      try {
+        const revenueResponse = await storyClient.royalty.claimAllRevenue({
+          ancestorIpId: parentAsset.ipId,
+          claimer: parentAsset.ipId,
+          currencyTokens: [WIP_TOKEN_ADDRESS],
+          childIpIds: childIpId ? [childIpId] : [],
+          royaltyPolicies: [],
+          txOptions: { waitForTransaction: true },
+        });
 
-      console.log("🎉 Derivative registered! TxHash:", derivativeTx?.txHash);
+        console.log(
+          "✅ Parent claimed revenue:",
+          revenueResponse.claimedTokens,
+        );
+      } catch (revenueError: any) {
+        console.warn(
+          "⚠️ Revenue claiming encountered an issue (non-critical):",
+          revenueError?.message,
+        );
+      }
 
-      // --- 6. FINALISASI ---
+      // --- FINALIZE ---
       setCurrentStep("success");
-      setRegisteredIpId(childIpId);
+      setRegisteredIpId(childIpId || "pending");
       setRegisterSuccess(true);
       setSuccessMessage(
         demoMode
@@ -390,7 +362,7 @@ const LicensingForm = ({
       if (onRegisterComplete) {
         onRegisterComplete({
           ipId: childIpId as Address,
-          txHash: (derivativeTx?.txHash || registerTxHash) as Address,
+          txHash: childIpId as Address,
         });
       }
     } catch (error: any) {
@@ -402,7 +374,7 @@ const LicensingForm = ({
         stack: error?.stack,
       });
       // Set step kembali ke idle setelah error agar user bisa mencoba lagi
-      setCurrentStep("idle"); 
+      setCurrentStep("idle");
     } finally {
       setIsRegistering(false);
     }
@@ -505,6 +477,34 @@ const LicensingForm = ({
         </div>
       )}
 
+      {/* Off-Chain License Terms */}
+      <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/30">
+        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">
+          Off-Chain License Terms
+        </p>
+        <a
+          href={OFFCHAIN_LICENSE_TERMS_URI}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 font-medium transition-colors break-all"
+        >
+          <svg
+            className="w-4 h-4 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            />
+          </svg>
+          NCSR.json
+        </a>
+      </div>
+
       {/* Form Content */}
       <div className="space-y-4 flex-1 overflow-y-auto pr-1 px-0.5 py-2">
         {/* Title Input */}
@@ -544,13 +544,16 @@ const LicensingForm = ({
               Revenue Share % (from parent IP)
             </label>
             <div className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm flex items-center justify-between">
-              <span className="font-semibold">{parentRevSharePercentage.toFixed(2)}%</span>
+              <span className="font-semibold">
+                {parentRevSharePercentage.toFixed(2)}%
+              </span>
               <span className="text-xs text-slate-400">
                 Inherited from parent
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Child IP revenue share must match parent IP's revenue share (scaled value: {parentRevShareScaled}).
+              Child IP revenue share must match parent IP's revenue share
+              (scaled value: {parentRevShareScaled}).
             </p>
           </div>
         )}
@@ -563,11 +566,9 @@ const LicensingForm = ({
           <div className="rounded-lg px-3 py-2.5 bg-blue-500/10 border border-blue-500/30 text-sm text-blue-400 flex items-center gap-2">
             <span className="inline-block animate-spin">⚙️</span>
             <span className="capitalize">
-              {currentStep === "minting-license"
-                ? "Minting license token from parent IP..."
-                : currentStep === "registering-child"
-                  ? "Registering child IP asset..."
-                  : "Registering derivative IP link..."}
+              {currentStep === "registering-derivative"
+                ? "Registering derivative IP asset..."
+                : "Claiming parent revenue..."}
             </span>
           </div>
         )}
