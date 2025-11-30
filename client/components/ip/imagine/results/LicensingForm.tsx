@@ -233,6 +233,36 @@ const LicensingForm = ({
       const ipMetadataHash = keccakOfJson(ipMetadataObj);
       const nftMetadataHash = keccakOfJson(nftMetadataObj);
 
+      // Upload IP metadata JSON to IPFS
+      const ipMetadataFormData = new FormData();
+      ipMetadataFormData.append(
+        "file",
+        new Blob([JSON.stringify(ipMetadataObj)], { type: "application/json" }),
+        "ip-metadata.json"
+      );
+      const ipMetadataUploadRes = await fetch("/api/ipfs/upload", {
+        method: "POST",
+        body: ipMetadataFormData,
+      });
+
+      if (!ipMetadataUploadRes.ok) throw new Error("Failed to upload IP metadata to IPFS");
+      const { url: ipMetadataUri } = await ipMetadataUploadRes.json();
+
+      // Upload NFT metadata JSON to IPFS
+      const nftMetadataFormData = new FormData();
+      nftMetadataFormData.append(
+        "file",
+        new Blob([JSON.stringify(nftMetadataObj)], { type: "application/json" }),
+        "nft-metadata.json"
+      );
+      const nftMetadataUploadRes = await fetch("/api/ipfs/upload", {
+        method: "POST",
+        body: nftMetadataFormData,
+      });
+
+      if (!nftMetadataUploadRes.ok) throw new Error("Failed to upload NFT metadata to IPFS");
+      const { url: nftMetadataUri } = await nftMetadataUploadRes.json();
+
       // ========================================
       // STEP 1: REGISTER DERIVATIVE IP ASSET (Combined operation)
       // ========================================
