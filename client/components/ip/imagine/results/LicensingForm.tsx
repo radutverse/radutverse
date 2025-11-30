@@ -8,7 +8,8 @@ import { keccakOfJson } from "@/lib/utils/crypto";
 import { Address } from "viem"; // Tipe Address dari viem
 
 // --- KONSTANTA ---
-const OFFCHAIN_LICENSE_TERMS_URI = "https://github.com/piplabs/pil-document/blob/998c13e6ee1d04eb817aefd1fe16dfe8be3cd7a2/off-chain-terms/NCSR.json";
+const OFFCHAIN_LICENSE_TERMS_URI =
+  "https://github.com/piplabs/pil-document/blob/998c13e6ee1d04eb817aefd1fe16dfe8be3cd7a2/off-chain-terms/NCSR.json";
 
 // --- INTERFACE YANG LEBIH AKURAT ---
 
@@ -241,29 +242,33 @@ const LicensingForm = ({
       ipMetadataFormData.append(
         "file",
         new Blob([JSON.stringify(ipMetadataObj)], { type: "application/json" }),
-        "ip-metadata.json"
+        "ip-metadata.json",
       );
       const ipMetadataUploadRes = await fetch("/api/ipfs/upload", {
         method: "POST",
         body: ipMetadataFormData,
       });
 
-      if (!ipMetadataUploadRes.ok) throw new Error("Failed to upload IP metadata to IPFS");
+      if (!ipMetadataUploadRes.ok)
+        throw new Error("Failed to upload IP metadata to IPFS");
       const { url: ipMetadataUri } = await ipMetadataUploadRes.json();
 
       // Upload NFT metadata JSON to IPFS
       const nftMetadataFormData = new FormData();
       nftMetadataFormData.append(
         "file",
-        new Blob([JSON.stringify(nftMetadataObj)], { type: "application/json" }),
-        "nft-metadata.json"
+        new Blob([JSON.stringify(nftMetadataObj)], {
+          type: "application/json",
+        }),
+        "nft-metadata.json",
       );
       const nftMetadataUploadRes = await fetch("/api/ipfs/upload", {
         method: "POST",
         body: nftMetadataFormData,
       });
 
-      if (!nftMetadataUploadRes.ok) throw new Error("Failed to upload NFT metadata to IPFS");
+      if (!nftMetadataUploadRes.ok)
+        throw new Error("Failed to upload NFT metadata to IPFS");
       const { url: nftMetadataUri } = await nftMetadataUploadRes.json();
 
       // ========================================
