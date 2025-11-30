@@ -1,18 +1,10 @@
 import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import {
-  StoryClient,
-  WIP_TOKEN_ADDRESS,
-} from "@story-protocol/core-sdk";
-import {
-  createWalletClient,
-  custom,
-  parseEther,
-  http,
-} from "viem";
+import { StoryClient, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import { createWalletClient, custom, parseEther, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 // Asumsi path ini benar dan fungsi keccakOfJson bekerja
-import { keccakOfJson } from "@/lib/utils/crypto"; 
+import { keccakOfJson } from "@/lib/utils/crypto";
 import { Address } from "viem"; // Tipe Address dari viem
 
 // --- INTERFACE YANG LEBIH AKURAT ---
@@ -75,14 +67,12 @@ const LicensingForm = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<
-    | "idle"
-    | "registering-derivative"
-    | "claiming-revenue"
-    | "success"
+    "idle" | "registering-derivative" | "claiming-revenue" | "success"
   >("idle");
 
   // Kalkulasi & Validasi Awal
-  const isPaidRemix = parentAsset && parentAsset.licenses && parentAsset.licenses.length > 0;
+  const isPaidRemix =
+    parentAsset && parentAsset.licenses && parentAsset.licenses.length > 0;
   const parentLicense: ParentLicense | undefined = isPaidRemix
     ? parentAsset.licenses.find((l) => l.terms?.commercialUse === true)
     : undefined;
@@ -128,9 +118,12 @@ const LicensingForm = ({
   const handleRegister = async () => {
     // --- 1. PRE-CHECK VALIDASI ---
     if (!imageUrl) return setRegisterError("No image to register");
-    if (!isPaidRemix || !parentAsset) return setRegisterError("Parent asset data required for licensing");
-    if (!parentLicense) return setRegisterError("No commercial license found on parent IP");
-    if (!demoMode && !authenticated) return setRegisterError("Please connect wallet or enable demo mode");
+    if (!isPaidRemix || !parentAsset)
+      return setRegisterError("Parent asset data required for licensing");
+    if (!parentLicense)
+      return setRegisterError("No commercial license found on parent IP");
+    if (!demoMode && !authenticated)
+      return setRegisterError("Please connect wallet or enable demo mode");
 
     setIsRegistering(true);
     setRegisterError(null);
@@ -167,7 +160,9 @@ const LicensingForm = ({
             const normalized = String(guestPk).startsWith("0x")
               ? String(guestPk)
               : `0x${String(guestPk)}`;
-            const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+            const guestAccount = privateKeyToAccount(
+              normalized as `0x${string}`,
+            );
             addr = guestAccount.address;
           }
         } catch {}
@@ -217,7 +212,8 @@ const LicensingForm = ({
 
       const ipMetadataObj = {
         title: title || "AI Generated Image",
-        description: description || "Created using AI image generation technology",
+        description:
+          description || "Created using AI image generation technology",
         ipType: "Image",
         createdAt: new Date().toISOString(),
         mediaUrl: imageUri,
@@ -225,7 +221,8 @@ const LicensingForm = ({
 
       const nftMetadataObj = {
         title: title || "AI Generated Image",
-        description: description || "Created using AI image generation technology",
+        description:
+          description || "Created using AI image generation technology",
         image: imageUri,
         attributes: [
           { trait_type: "Type", value: "AI Generated Derivative" },
@@ -241,33 +238,40 @@ const LicensingForm = ({
       // ========================================
       console.log("📝 Step 1: Registering derivative IP asset...");
       setCurrentStep("registering-derivative");
-      onRegisterStart && onRegisterStart({
+      onRegisterStart &&
+        onRegisterStart({
           status: "Registering derivative IP asset...",
           progress: 50,
           error: null,
-      });
+        });
 
       try {
-        const derivativeResponse = await storyClient.ipAsset.registerDerivativeIpAsset({
-          nft: { type: "mint", spgNftContract: spg as Address },
-          derivData: {
-            parentIpIds: [parentAsset.ipId],
-            licenseTermsIds: [BigInt(parentLicense.licenseTermsId)],
-          },
-          ipMetadata: {
-            ipMetadataURI: imageUri,
-            ipMetadataHash: ipMetadataHash as `0x${string}`,
-            nftMetadataURI: imageUri,
-            nftMetadataHash: nftMetadataHash as `0x${string}`,
-          },
-          txOptions: { waitForTransaction: true }
-        });
+        const derivativeResponse =
+          await storyClient.ipAsset.registerDerivativeIpAsset({
+            nft: { type: "mint", spgNftContract: spg as Address },
+            derivData: {
+              parentIpIds: [parentAsset.ipId],
+              licenseTermsIds: [BigInt(parentLicense.licenseTermsId)],
+            },
+            ipMetadata: {
+              ipMetadataURI: imageUri,
+              ipMetadataHash: ipMetadataHash as `0x${string}`,
+              nftMetadataURI: imageUri,
+              nftMetadataHash: nftMetadataHash as `0x${string}`,
+            },
+            txOptions: { waitForTransaction: true },
+          });
 
         childIpId = derivativeResponse.ipId as Address;
         console.log("✅ Derivative IP asset registered:", childIpId);
       } catch (registerError: any) {
-        console.error("❌ Register derivative error:", registerError?.message || registerError);
-        throw new Error(`Failed to register derivative IP: ${registerError?.message || String(registerError)}`);
+        console.error(
+          "❌ Register derivative error:",
+          registerError?.message || registerError,
+        );
+        throw new Error(
+          `Failed to register derivative IP: ${registerError?.message || String(registerError)}`,
+        );
       }
 
       // ========================================
@@ -275,11 +279,12 @@ const LicensingForm = ({
       // ========================================
       console.log("💰 Step 2: Parent claiming revenue...");
       setCurrentStep("claiming-revenue");
-      onRegisterStart && onRegisterStart({
+      onRegisterStart &&
+        onRegisterStart({
           status: "Parent claiming revenue...",
           progress: 85,
           error: null,
-      });
+        });
 
       try {
         const revenueResponse = await storyClient.royalty.claimAllRevenue({
@@ -288,12 +293,18 @@ const LicensingForm = ({
           currencyTokens: [WIP_TOKEN_ADDRESS],
           childIpIds: childIpId ? [childIpId] : [],
           royaltyPolicies: [],
-          txOptions: { waitForTransaction: true }
+          txOptions: { waitForTransaction: true },
         });
 
-        console.log("✅ Parent claimed revenue:", revenueResponse.claimedTokens);
+        console.log(
+          "✅ Parent claimed revenue:",
+          revenueResponse.claimedTokens,
+        );
       } catch (revenueError: any) {
-        console.warn("⚠️ Revenue claiming encountered an issue (non-critical):", revenueError?.message);
+        console.warn(
+          "⚠️ Revenue claiming encountered an issue (non-critical):",
+          revenueError?.message,
+        );
       }
 
       // --- FINALIZE ---
@@ -321,7 +332,7 @@ const LicensingForm = ({
         stack: error?.stack,
       });
       // Set step kembali ke idle setelah error agar user bisa mencoba lagi
-      setCurrentStep("idle"); 
+      setCurrentStep("idle");
     } finally {
       setIsRegistering(false);
     }
@@ -463,13 +474,16 @@ const LicensingForm = ({
               Revenue Share % (from parent IP)
             </label>
             <div className="w-full rounded-lg px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 text-slate-100 text-sm flex items-center justify-between">
-              <span className="font-semibold">{parentRevSharePercentage.toFixed(2)}%</span>
+              <span className="font-semibold">
+                {parentRevSharePercentage.toFixed(2)}%
+              </span>
               <span className="text-xs text-slate-400">
                 Inherited from parent
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Child IP revenue share must match parent IP's revenue share (scaled value: {parentRevShareScaled}).
+              Child IP revenue share must match parent IP's revenue share
+              (scaled value: {parentRevShareScaled}).
             </p>
           </div>
         )}
