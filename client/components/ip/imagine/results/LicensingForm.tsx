@@ -284,9 +284,9 @@ const LicensingForm = ({
               licenseTermsIds: [BigInt(parentLicense.licenseTermsId)],
             },
             ipMetadata: {
-              ipMetadataURI: imageUri,
+              ipMetadataURI: ipMetadataUri,
               ipMetadataHash: ipMetadataHash as `0x${string}`,
-              nftMetadataURI: imageUri,
+              nftMetadataURI: nftMetadataUri,
               nftMetadataHash: nftMetadataHash as `0x${string}`,
             },
             txOptions: { waitForTransaction: true },
@@ -294,6 +294,7 @@ const LicensingForm = ({
 
         childIpId = derivativeResponse.ipId as Address;
         console.log("✅ Derivative IP asset registered:", childIpId);
+        console.log("📋 Metadata URIs:", { ipMetadataUri, nftMetadataUri });
       } catch (registerError: any) {
         console.error(
           "❌ Register derivative error:",
