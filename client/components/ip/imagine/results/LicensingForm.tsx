@@ -7,6 +7,9 @@ import { privateKeyToAccount } from "viem/accounts";
 import { keccakOfJson } from "@/lib/utils/crypto";
 import { Address } from "viem"; // Tipe Address dari viem
 
+// --- KONSTANTA ---
+const OFFCHAIN_LICENSE_TERMS_URI = "https://github.com/piplabs/pil-document/blob/998c13e6ee1d04eb817aefd1fe16dfe8be3cd7a2/off-chain-terms/NCSR.json";
+
 // --- INTERFACE YANG LEBIH AKURAT ---
 
 interface ParentLicense {
@@ -288,6 +291,9 @@ const LicensingForm = ({
               ipMetadataHash: ipMetadataHash as `0x${string}`,
               nftMetadataURI: nftMetadataUri,
               nftMetadataHash: nftMetadataHash as `0x${string}`,
+            },
+            licenseDocument: {
+              uri: OFFCHAIN_LICENSE_TERMS_URI,
             },
             txOptions: { waitForTransaction: true },
           });
