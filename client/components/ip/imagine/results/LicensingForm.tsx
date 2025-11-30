@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import {
   StoryClient,
-  PILFlavor,
   WIP_TOKEN_ADDRESS,
-  MintLicenseTokensResponse,
-  RegisterDerivativeIpResponse,
 } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
@@ -50,34 +47,6 @@ interface LicensingFormProps {
   }) => void;
   onRegisterComplete?: (result: { ipId?: Address; txHash?: Address }) => void;
 }
-
-// --- FUNGSI HELPER UNTUK EKSTRAKSI TOKEN ID ---
-
-/**
- * Fungsi untuk mengekstrak licenseTokenId dari berbagai bentuk respons MintLicenseTokensResponse.
- */
-const extractLicenseTokenId = (mintTx: MintLicenseTokensResponse): bigint | undefined => {
-  if (mintTx.licenseTokenId !== undefined && mintTx.licenseTokenId !== null) {
-    return typeof mintTx.licenseTokenId === 'bigint' 
-      ? mintTx.licenseTokenId 
-      : BigInt(mintTx.licenseTokenId);
-  }
-  
-  if (mintTx.licenseTokenIds && Array.isArray(mintTx.licenseTokenIds) && mintTx.licenseTokenIds.length > 0) {
-    const firstToken = mintTx.licenseTokenIds[0];
-    return typeof firstToken === 'bigint' 
-      ? firstToken 
-      : BigInt(firstToken);
-  }
-  
-  if (mintTx.tokenId !== undefined && mintTx.tokenId !== null) {
-    return typeof mintTx.tokenId === 'bigint' 
-      ? mintTx.tokenId 
-      : BigInt(mintTx.tokenId);
-  }
-  
-  return undefined;
-};
 
 // --- KOMPONEN UTAMA ---
 
