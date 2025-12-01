@@ -28,7 +28,7 @@ const ResultDetailsPanel = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.15 }}
-      className="absolute top-full mt-2 left-0 w-80 bg-gradient-to-br from-slate-900 to-slate-950 border border-[#FF4DA6]/20 rounded-xl shadow-xl p-6 z-50"
+      className="absolute top-full mt-2 left-0 sm:left-auto sm:right-0 w-72 sm:w-80 bg-gradient-to-br from-slate-900 to-slate-950 border border-[#FF4DA6]/20 rounded-xl shadow-xl p-4 sm:p-6 z-50"
     >
       {/* Close Button */}
       <button
