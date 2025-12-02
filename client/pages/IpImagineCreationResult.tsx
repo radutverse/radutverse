@@ -182,16 +182,20 @@ const IpImagineCreationResult = () => {
     }
   };
 
+  const handleToggleGuest = () => {
+    setDemoMode(!demoMode);
+  };
+
   const headerActions = (
     <ChatHeaderActions
-      guestMode={false}
-      onToggleGuest={() => {}}
+      guestMode={demoMode}
+      onToggleGuest={handleToggleGuest}
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
-      onTryDemo={handleTryDemo}
       demoMode={demoMode}
-      showGuest={false}
+      showGuest={true}
+      guestButtonLabel="Guest"
     />
   );
 
@@ -529,6 +533,8 @@ const IpImagineCreationResult = () => {
           suggestions={suggestions}
           setSuggestions={setSuggestions}
           attachmentLoading={attachmentLoading}
+          demoMode={demoMode}
+          creations={context.creations}
         />
       )}
 
