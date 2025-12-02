@@ -1,13 +1,66 @@
 // server/routes/check-ip-assets.ts
 
-// Hapus import yang bermasalah (Request, Response)
-// Kita hanya menyisakan RequestHandler untuk anotasi fungsi secara keseluruhan
 import { RequestHandler } from "express";
 
-// Definisikan tipe untuk body request agar TypeScript mengenali properti 'address'
 interface CheckIpAssetsRequestBody {
   address?: string;
   network?: "testnet" | "mainnet";
+}
+
+const PINATA_GATEWAY = process.env.PINATA_GATEWAY;
+
+function convertIpfsUriToHttp(uri: string): string {
+  if (!uri) return uri;
+
+  const PUBLIC_GATEWAY = "dweb.link";
+
+  if (uri.startsWith("ipfs://")) {
+    const cid = uri.replace("ipfs://", "");
+    return `https://${PUBLIC_GATEWAY}/ipfs/${cid}`;
+  }
+
+  if (uri.includes("ipfs.io/ipfs/")) {
+    const cid = uri.split("/ipfs/")[1];
+    return `https://${PUBLIC_GATEWAY}/ipfs/${cid}`;
+  }
+
+  if (uri.includes("mypinata.cloud")) {
+    return uri;
+  }
+
+  if (uri.includes("/ipfs/") && !uri.includes(PUBLIC_GATEWAY)) {
+    const cid = uri.split("/ipfs/")[1];
+    return `https://${PUBLIC_GATEWAY}/ipfs/${cid}`;
+  }
+
+  return uri;
+}
+
+async function fetchAssetMetadata(metadataUri: string): Promise<any> {
+  if (!metadataUri) return null;
+
+  try {
+    let url = metadataUri;
+
+    if (url.startsWith("ipfs://")) {
+      const cid = url.replace("ipfs://", "");
+      url = PINATA_GATEWAY
+        ? `https://${PINATA_GATEWAY}/ipfs/${cid}`
+        : `https://ipfs.io/ipfs/${cid}`;
+    }
+
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) {
+      console.warn(`Failed to fetch metadata from ${url}: ${response.status}`);
+      return null;
+    }
+
+    const metadata = await response.json();
+    return metadata;
+  } catch (error) {
+    console.warn(`Error fetching metadata from ${metadataUri}:`, error);
+    return null;
+  }
 }
 
 const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
@@ -88,6 +141,10 @@ export const handleCheckIpAssets: RequestHandler = async (
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
+                includeLicenses: true,
+                moderated: false,
+                orderBy: "blockNumber",
+                orderDirection: "desc",
                 where: {
                   ownerAddress: trimmedAddress,
                 },
@@ -226,19 +283,125 @@ export const handleCheckIpAssets: RequestHandler = async (
 
       const totalCount = allAssets.length;
 
-      // Transform assets to include required fields for portfolio display
-      const assets = allAssets.map((asset: any) => ({
-        ipId: asset.ipId,
-        title: asset.title || asset.name || "Untitled Asset",
-        mediaUrl: asset.mediaUrl,
-        mediaType: asset.mediaType,
-        thumbnailUrl: asset.thumbnailUrl,
-        ownerAddress: asset.ownerAddress,
-        creator: asset.creator,
-        registrationDate: asset.registrationDate,
-        parentsCount: asset.parentsCount,
-        ...asset,
-      }));
+      // Fetch full asset details to get proper image metadata
+      let enrichedAssets = allAssets;
+      try {
+        const ipIds = allAssets
+          .slice(0, 100)
+          .map((a: any) => a.ipId)
+          .filter(Boolean);
+
+        if (ipIds.length > 0) {
+          console.log(
+            "[Check IP Assets] Fetching full metadata for",
+            ipIds.length,
+            "assets",
+          );
+
+          const enrichmentResponse = await fetch(
+            "https://api.storyapis.com/api/v4/assets",
+            {
+              method: "POST",
+              headers: {
+                "X-Api-Key": apiKey,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                includeLicenses: true,
+                moderated: false,
+                where: {
+                  ipIds,
+                },
+                pagination: {
+                  limit: 100,
+                  offset: 0,
+                },
+              }),
+              signal: controller.signal,
+            },
+          );
+
+          if (enrichmentResponse.ok) {
+            const enrichmentData = await enrichmentResponse.json();
+            const metadataMap = new Map();
+
+            const enrichedData = Array.isArray(enrichmentData.data)
+              ? enrichmentData.data
+              : enrichmentData;
+
+            if (Array.isArray(enrichedData)) {
+              enrichedData.forEach((asset: any) => {
+                if (asset.ipId) {
+                  metadataMap.set(asset.ipId, asset);
+                }
+              });
+            }
+
+            // Merge enriched data with initial results
+            enrichedAssets = allAssets.map((asset: any) => {
+              const enriched = metadataMap.get(asset.ipId);
+              return enriched || asset;
+            });
+
+            console.log("[Check IP Assets] Enrichment complete");
+          }
+        }
+      } catch (enrichmentErr) {
+        console.warn(
+          "Error enriching assets with full metadata:",
+          enrichmentErr,
+        );
+      }
+
+      // Transform assets to extract media URLs - IPFS only
+      const assets = enrichedAssets.map((asset: any) => {
+        let mediaUrl = null;
+        let thumbnailUrl = null;
+
+        // Only use IPFS-based image URLs, not cached/CDN URLs
+        if (asset?.image?.pngUrl) {
+          // pngUrl is usually IPFS or direct file URL
+          mediaUrl = asset.image.pngUrl;
+        } else if (asset?.image?.originalUrl) {
+          mediaUrl = asset.image.originalUrl;
+        } else if (asset?.image?.thumbnailUrl) {
+          mediaUrl = asset.image.thumbnailUrl;
+        } else if (asset?.nftMetadata?.image?.pngUrl) {
+          mediaUrl = asset.nftMetadata.image.pngUrl;
+        } else if (asset?.nftMetadata?.raw?.image) {
+          mediaUrl = asset.nftMetadata.raw.image;
+        }
+
+        // Get thumbnail - prefer IPFS sources
+        if (asset?.image?.thumbnailUrl) {
+          thumbnailUrl = asset.image.thumbnailUrl;
+        } else if (asset?.image?.originalUrl) {
+          thumbnailUrl = asset.image.originalUrl;
+        } else if (asset?.nftMetadata?.image?.pngUrl) {
+          thumbnailUrl = asset.nftMetadata.image.pngUrl;
+        }
+
+        // Convert IPFS URIs to HTTP gateway URLs if needed
+        if (mediaUrl) {
+          mediaUrl = convertIpfsUriToHttp(mediaUrl);
+        }
+        if (thumbnailUrl) {
+          thumbnailUrl = convertIpfsUriToHttp(thumbnailUrl);
+        }
+
+        return {
+          ipId: asset.ipId,
+          title: asset.title || asset.name || "Untitled Asset",
+          mediaUrl: mediaUrl || "",
+          mediaType: asset.mediaType || "image",
+          thumbnailUrl: thumbnailUrl || "",
+          ownerAddress: asset.ownerAddress,
+          creator: asset.creator,
+          registrationDate: asset.registrationDate,
+          parentsCount: asset.parentsCount,
+          ...asset,
+        };
+      });
 
       const body = {
         address: trimmedAddress,
