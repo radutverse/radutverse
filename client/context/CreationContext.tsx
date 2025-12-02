@@ -115,19 +115,16 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
         if (response.ok) {
           const data = await response.json();
           if (data.creations && data.creations.length > 0) {
-            const nonDemoCreations = data.creations.filter(
-              (c: Creation) => !c.isDemo,
-            );
             console.log(
-              `[CreationContext] Loaded ${nonDemoCreations.length} creations from Vercel Blob (${blobKey}):`,
-              nonDemoCreations.map((c: Creation) => ({
+              `[CreationContext] Loaded ${data.creations.length} creations from Vercel Blob (${blobKey}):`,
+              data.creations.map((c: Creation) => ({
                 id: c.id,
                 hasOriginalUrl: !!c.originalUrl,
                 registeredByWallet: c.registeredByWallet,
                 registeredIpId: c.registeredIpId,
               })),
             );
-            setCreations(nonDemoCreations);
+            setCreations(data.creations);
           }
         }
       } catch (error) {
@@ -190,12 +187,11 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     [walletAddress, isGuest],
   );
 
-  // Sync creations to Vercel Blob whenever they change (only non-demo)
+  // Sync creations to Vercel Blob whenever they change
   useEffect(() => {
-    const nonDemoCreations = creations.filter((c) => !c.isDemo);
     console.log(
-      `[CreationContext] Syncing ${nonDemoCreations.length} creations to Vercel Blob:`,
-      nonDemoCreations.map((c) => ({
+      `[CreationContext] Syncing ${creations.length} creations to Vercel Blob:`,
+      creations.map((c) => ({
         id: c.id,
         hasOriginalUrl: !!c.originalUrl,
         registeredByWallet: c.registeredByWallet,
@@ -203,14 +199,14 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       })),
     );
 
-    syncToBlob(nonDemoCreations);
+    syncToBlob(creations);
   }, [creations, syncToBlob]);
 
-  // Save current result URL to localStorage (only non-demo)
+  // Save current result URL to localStorage
   useEffect(() => {
-    const lastNonDemoResult = creations.find((c) => !c.isDemo);
-    if (lastNonDemoResult?.url) {
-      localStorage.setItem(RESULT_URL_KEY, lastNonDemoResult.url);
+    const lastResult = creations[0];
+    if (lastResult?.url) {
+      localStorage.setItem(RESULT_URL_KEY, lastResult.url);
     } else if (!resultUrl?.includes("data:")) {
       // Only persist non-data URLs to localStorage
       if (resultUrl) {
@@ -221,11 +217,11 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [resultUrl, creations]);
 
-  // Save current result type to localStorage (only for non-demo)
+  // Save current result type to localStorage
   useEffect(() => {
-    const lastNonDemoResult = creations.find((c) => !c.isDemo);
-    if (lastNonDemoResult?.type) {
-      localStorage.setItem(RESULT_TYPE_KEY, lastNonDemoResult.type);
+    const lastResult = creations[0];
+    if (lastResult?.type) {
+      localStorage.setItem(RESULT_TYPE_KEY, lastResult.type);
     } else if (resultType) {
       localStorage.setItem(RESULT_TYPE_KEY, resultType);
     } else {
@@ -278,15 +274,6 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
         originalUrl,
       };
       setCreations((prev) => [newCreation, ...prev]);
-
-      // Auto-remove demo creations after 6 minutes (360000ms)
-      if (isDemo) {
-        const timeoutId = setTimeout(() => {
-          setCreations((prev) => prev.filter((c) => c.id !== newCreation.id));
-        }, 360000);
-
-        return () => clearTimeout(timeoutId);
-      }
     },
     [],
   );
