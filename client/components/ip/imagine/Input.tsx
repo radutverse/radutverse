@@ -11,17 +11,13 @@ import React, {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
 import FlyingImageAnimation from "@/components/ip/imagine/FlyingImageAnimation";
 import {
   RemixImage,
   type PreviewImage,
   type PreviewImagesState,
 } from "@/components/ip/remix";
+import type { Creation } from "@/context/CreationContext";
 
 type IpImagineInputProps = {
   input: string;
@@ -45,6 +41,8 @@ type IpImagineInputProps = {
   setCreationMode?: Dispatch<SetStateAction<"image" | "video">>;
   resultUrl?: string | null;
   resultUrls?: string[];
+  demoMode?: boolean;
+  creations?: Creation[];
 };
 
 const IpImagineInput = ({
@@ -69,6 +67,8 @@ const IpImagineInput = ({
   setCreationMode = () => {},
   resultUrl = null,
   resultUrls = [],
+  demoMode = false,
+  creations = [],
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showFlyingAnimation, setShowFlyingAnimation] = useState(false);
@@ -93,7 +93,7 @@ const IpImagineInput = ({
       }}
       autoComplete="off"
     >
-      {/* Gallery Button - Always visible, shows icon or preview box */}
+      {/* Gallery Button - Always visible */}
       <div ref={galleryButtonRef} className="mr-2 flex items-center relative">
         <button
           type="button"
