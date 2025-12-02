@@ -27,7 +27,7 @@ import { CreationContext } from "@/context/CreationContext";
 const IpImagine = () => {
   const context = useContext(CreationContext);
   const creations = context?.creations || [];
-  const demoMode = context?.demoMode || false;
+  const guestMode = context?.demoMode || false;
   const { authenticated } = usePrivy();
   const { wallets } = useWallets();
 
@@ -37,7 +37,7 @@ const IpImagine = () => {
     resultUrl,
     setResultUrl,
     setResultType,
-    setDemoMode,
+    setDemoMode: setGuestMode,
   } = useGeminiGenerator();
 
   const [input, setInput] = useState("");
@@ -130,8 +130,8 @@ const IpImagine = () => {
       walletAddress = walletWithAddress?.address || null;
     }
 
-    context.setUserIdentifier(walletAddress, demoMode);
-  }, [authenticated, wallets, demoMode, context]);
+    context.setUserIdentifier(walletAddress, guestMode);
+  }, [authenticated, wallets, guestMode, context]);
 
   const handleImage = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -416,12 +416,12 @@ const IpImagine = () => {
   // This ensures watermark is applied before image is stored in creation history
 
   const handleToggleGuest = () => {
-    setDemoMode(!demoMode);
+    setGuestMode(!guestMode);
   };
 
   const headerActions = (
     <ChatHeaderActions
-      guestMode={demoMode}
+      guestMode={guestMode}
       onToggleGuest={handleToggleGuest}
       walletButtonText="Connect"
       walletButtonDisabled={true}
@@ -477,7 +477,7 @@ const IpImagine = () => {
         handleImage={handleImage}
         resultUrl={resultUrl}
         resultUrls={resultUrls}
-        demoMode={demoMode}
+        guestMode={guestMode}
         creations={creations}
         onSubmit={async () => {
           if (
@@ -533,7 +533,7 @@ const IpImagine = () => {
                 remixType: currentRemixType,
                 parentAsset: currentParentAsset,
               },
-              demoMode,
+              guestMode,
             );
 
             setInput("");
