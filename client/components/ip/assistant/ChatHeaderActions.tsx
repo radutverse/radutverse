@@ -39,13 +39,13 @@ const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
               ? "bg-[#FF4DA6] text-white hover:bg-[#ff77c2]"
               : "text-[#FF4DA6] hover:bg-[#FF4DA6]/15"
           }`}
-          title={demoMode ? "Exit Demo Mode" : "Enter Demo Mode"}
+          title={demoMode ? "Exit Guest Mode" : "Enter Guest Mode"}
         >
           <span className="inline-flex items-center gap-2">
             {demoMode && (
               <span className="flex h-2 w-2 rounded-full bg-white animate-pulse" />
             )}
-            <span>Demo</span>
+            <span>Guest</span>
           </span>
         </button>
       )}
@@ -61,7 +61,7 @@ const ChatHeaderActions: FC<ChatHeaderActionsProps> = ({
               : "text-[#FF4DA6] hover:bg-[#FF4DA6]/15")
           }
         >
-          Demo
+          Guest
         </button>
       )}
       <button
