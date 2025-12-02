@@ -22,7 +22,7 @@ interface CompactResultCardProps {
   onCreateAnother: () => void;
   isExpanded?: boolean;
   setIsExpanded?: Dispatch<SetStateAction<boolean>>;
-  demoMode?: boolean;
+  guestMode?: boolean;
   parentAsset?: any;
   originalUrl?: string;
   creationId?: string;
@@ -39,7 +39,7 @@ const CompactResultCard = ({
   onCreateAnother,
   isExpanded: externalIsExpanded = false,
   setIsExpanded: externalSetIsExpanded,
-  demoMode = false,
+  guestMode = false,
   parentAsset,
   originalUrl,
   creationId,
@@ -79,7 +79,7 @@ const CompactResultCard = ({
           walletAddress = wallets[0].address;
         }
 
-        // Fallback to guest wallet address (for demo mode)
+        // Fallback to guest wallet address (for guest mode)
         if (!walletAddress) {
           try {
             const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
@@ -501,7 +501,7 @@ const CompactResultCard = ({
                 ref={licensingFormRef}
                 imageUrl={imageUrl}
                 type={type}
-                demoMode={demoMode}
+                guestMode={guestMode}
                 isLoading={isLoading}
                 parentAsset={parentAsset}
                 onRegisterStart={(state) => {
