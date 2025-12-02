@@ -152,7 +152,7 @@ export const DashboardLayout = ({
         <main className="flex-1 flex min-h-0">
           <div className="chat-wrap w-full h-full min-h-0 flex flex-col bg-slate-950/40">
             <motion.header
-              className="flex items-center gap-4 px-6 py-3.5 bg-slate-950/70"
+              className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-3.5 bg-slate-950/70"
               variants={fadeUp}
               initial="initial"
               animate="animate"
@@ -186,7 +186,9 @@ export const DashboardLayout = ({
                 />
               ) : null}
               <div>
-                <h1 className="text-lg font-bold text-[#FF4DA6]">{title}</h1>
+                <h1 className="text-base sm:text-lg font-bold text-[#FF4DA6]">
+                  {title}
+                </h1>
               </div>
               <div className="ml-auto flex items-center gap-3">{actions}</div>
             </motion.header>
