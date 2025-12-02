@@ -148,7 +148,11 @@ interface LicensingFormProps {
     progress: number;
     error: any;
   }) => void;
-  onRegisterComplete?: (result: { ipId?: Address; txHash?: Address }) => void;
+  onRegisterComplete?: (result: {
+    ipId?: Address;
+    txHash?: Address;
+    walletAddress?: Address;
+  }) => void;
   onRegisterError?: (error: string) => void;
 }
 
@@ -528,6 +532,7 @@ const LicensingFormComponent = (
         onRegisterComplete({
           ipId: childIpId as Address,
           txHash: childIpId as Address,
+          walletAddress: addr,
         });
       }
     } catch (error: any) {
