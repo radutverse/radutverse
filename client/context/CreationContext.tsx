@@ -70,6 +70,7 @@ const STORAGE_KEY = "creation_history";
 const RESULT_URL_KEY = "current_result_url";
 const RESULT_TYPE_KEY = "current_result_type";
 const ORIGINAL_PROMPT_KEY = "original_prompt";
+const DEMO_MODE_KEY = "demo_mode";
 
 export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -110,6 +111,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
     const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
     const storedPrompt = localStorage.getItem(ORIGINAL_PROMPT_KEY);
+    const storedDemoMode = localStorage.getItem(DEMO_MODE_KEY);
     if (storedResultUrl) {
       setResultUrl(storedResultUrl);
     }
@@ -118,6 +120,9 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
     if (storedPrompt) {
       setOriginalPrompt(storedPrompt);
+    }
+    if (storedDemoMode !== null) {
+      setDemoMode(JSON.parse(storedDemoMode));
     }
   }, []);
 
@@ -171,6 +176,11 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       localStorage.removeItem(ORIGINAL_PROMPT_KEY);
     }
   }, [originalPrompt]);
+
+  // Save demo mode to localStorage
+  useEffect(() => {
+    localStorage.setItem(DEMO_MODE_KEY, JSON.stringify(demoMode));
+  }, [demoMode]);
 
   useEffect(() => {
     return () => {
