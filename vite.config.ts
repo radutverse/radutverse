@@ -2,9 +2,11 @@ import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
+// Only define expressPlugin during development to avoid loading server code during build
 const isDev =
-  process.env.NODE_ENV === "development" || process.argv.includes("--dev");
+  process.env.NODE_ENV === "development" || process.argv.includes("--");
 
+// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -14,20 +16,9 @@ export default defineConfig(({ mode }) => ({
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
   },
-
-  // IMPORTANT: prevent Vite from bundling backend
-  optimizeDeps: {
-    exclude: ["server"],
-  },
-
-  ssr: {
-    noExternal: ["server"],
-  },
-
   build: {
     outDir: "dist/spa",
     rollupOptions: {
-      input: "client/index.html", // ensure only client builds
       output: {
         manualChunks: {
           "vendor-ui": [
@@ -49,9 +40,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-
   plugins: [expressPlugin(), react()],
-
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
@@ -63,10 +52,13 @@ export default defineConfig(({ mode }) => ({
 function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
-    apply: "serve",
+    apply: "serve", // Only apply during development (serve mode)
     async configureServer(server) {
+      // Dynamically import to avoid loading server dependencies during build
       const { createServer } = await import("./server/index.js");
       const app = await createServer();
+
+      // Add Express app as middleware to Vite dev server
       server.middlewares.use(app);
     },
   };
