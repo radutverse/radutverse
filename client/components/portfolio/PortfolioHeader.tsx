@@ -17,10 +17,10 @@ export const PortfolioHeader = ({
   };
 
   return (
-    <div className="bg-slate-800/30 border-b border-slate-700/30 px-6 py-4">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex-1">
-          <h2 className="text-xl font-bold text-slate-100 mb-1">
+    <div className="bg-slate-800/30 border-b border-slate-700/30 px-4 sm:px-6 py-3 sm:py-4">
+      <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-100 mb-1">
             My IP Portfolio
           </h2>
           <p className="text-sm text-slate-400">
@@ -35,11 +35,15 @@ export const PortfolioHeader = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {assetCount !== undefined && (
             <div className="text-right">
-              <p className="text-sm text-slate-400">Total IP Assets</p>
-              <p className="text-2xl font-bold text-[#FF4DA6]">{assetCount}</p>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Total IP Assets
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-[#FF4DA6]">
+                {assetCount}
+              </p>
             </div>
           )}
 
