@@ -27,7 +27,7 @@ import { CreationContext } from "@/context/CreationContext";
 const IpImagine = () => {
   const context = useContext(CreationContext);
   const creations = context?.creations || [];
-  const guestMode = context?.demoMode || false;
+  const guestMode = context?.guestMode || false;
   const { authenticated } = usePrivy();
   const { wallets } = useWallets();
 
@@ -37,7 +37,7 @@ const IpImagine = () => {
     resultUrl,
     setResultUrl,
     setResultType,
-    setDemoMode: setGuestMode,
+    setGuestMode,
   } = useGeminiGenerator();
 
   const [input, setInput] = useState("");
