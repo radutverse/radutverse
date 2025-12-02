@@ -21,7 +21,7 @@ const useGeminiGenerator = () => {
     resultUrl,
     addCreation,
     setOriginalPrompt,
-    demoMode,
+    guestMode,
   } = context;
 
   const generate = async (
@@ -137,7 +137,7 @@ const useGeminiGenerator = () => {
           imageBytes: base64Data,
           mimeType,
         },
-        context.demoMode,
+        context.guestMode,
       );
       setResultUrl(upscaledUrl);
       setResultType("image");
