@@ -58,8 +58,8 @@ interface CreationContextType {
   clearCreations: () => void;
   originalPrompt: string;
   setOriginalPrompt: (prompt: string) => void;
-  guestMode: boolean;
-  setGuestMode: (guest: boolean) => void;
+  demoMode: boolean;
+  setDemoMode: (demo: boolean) => void;
   setUserIdentifier: (walletAddress: string | null, isGuest: boolean) => void;
 }
 
@@ -70,23 +70,7 @@ export const CreationContext = createContext<CreationContextType | undefined>(
 const RESULT_URL_KEY = "current_result_url";
 const RESULT_TYPE_KEY = "current_result_type";
 const ORIGINAL_PROMPT_KEY = "original_prompt";
-const GUEST_MODE_KEY = "guest_mode";
-
-// Helper to generate user-specific blob key
-const getUserBlobKey = (
-  walletAddress: string | null,
-  isGuest: boolean,
-): string => {
-  if (isGuest) {
-    return "creation-history-guest.json";
-  }
-  if (walletAddress) {
-    // Replace hyphens with underscores to avoid blob key issues
-    const sanitized = walletAddress.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return `creation-history-${sanitized}.json`;
-  }
-  return "creation-history-guest.json";
-};
+const DEMO_MODE_KEY = "demo_mode";
 
 export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -98,49 +82,16 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
   const [originalPrompt, setOriginalPrompt] = useState<string>("");
-  const [guestMode, setGuestMode] = useState<boolean>(false);
+  const [demoMode, setDemoMode] = useState<boolean>(false);
   const [walletAddress, setWalletAddressState] = useState<string | null>(null);
   const [isGuest, setIsGuestState] = useState<boolean>(false);
 
-  // Load creations from Vercel Blob based on user identifier
+  // Load creations from localStorage
   useEffect(() => {
-    const loadCreations = async () => {
-      try {
-        const blobKey = getUserBlobKey(walletAddress, isGuest);
-        const response = await fetch("/api/get-creation-history", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ blobKey }),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.creations && data.creations.length > 0) {
-            console.log(
-              `[CreationContext] Loaded ${data.creations.length} creations from Vercel Blob (${blobKey}):`,
-              data.creations.map((c: Creation) => ({
-                id: c.id,
-                hasOriginalUrl: !!c.originalUrl,
-                registeredByWallet: c.registeredByWallet,
-                registeredIpId: c.registeredIpId,
-              })),
-            );
-            setCreations(data.creations);
-          }
-        }
-      } catch (error) {
-        console.warn(
-          "[CreationContext] Failed to load from Vercel Blob:",
-          error,
-        );
-      }
-    };
-
-    loadCreations();
-
     const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
     const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
     const storedPrompt = localStorage.getItem(ORIGINAL_PROMPT_KEY);
-    const storedGuestMode = localStorage.getItem(GUEST_MODE_KEY);
+    const storedDemoMode = localStorage.getItem(DEMO_MODE_KEY);
     if (storedResultUrl) {
       setResultUrl(storedResultUrl);
     }
@@ -150,57 +101,10 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     if (storedPrompt) {
       setOriginalPrompt(storedPrompt);
     }
-    if (storedGuestMode !== null) {
-      setGuestMode(JSON.parse(storedGuestMode));
+    if (storedDemoMode !== null) {
+      setDemoMode(JSON.parse(storedDemoMode));
     }
-  }, [walletAddress, isGuest]);
-
-  // Sync creation history to Vercel Blob with user-specific key
-  const syncToBlob = useCallback(
-    async (creationsToSync: Creation[]) => {
-      try {
-        const blobKey = getUserBlobKey(walletAddress, isGuest);
-        const response = await fetch("/api/sync-creation-history", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ creations: creationsToSync, blobKey }),
-        });
-
-        if (!response.ok) {
-          console.warn(
-            `[CreationContext] Blob sync failed: ${response.status}`,
-          );
-          return;
-        }
-
-        const data = await response.json();
-        console.log("[CreationContext] Synced to Vercel Blob:", {
-          count: data.synced,
-          lastSynced: new Date(data.lastSynced).toLocaleString(),
-          blobKey,
-        });
-      } catch (error) {
-        console.warn("[CreationContext] Blob sync error:", error);
-        // Don't let sync errors affect UX
-      }
-    },
-    [walletAddress, isGuest],
-  );
-
-  // Sync creations to Vercel Blob whenever they change
-  useEffect(() => {
-    console.log(
-      `[CreationContext] Syncing ${creations.length} creations to Vercel Blob:`,
-      creations.map((c) => ({
-        id: c.id,
-        hasOriginalUrl: !!c.originalUrl,
-        registeredByWallet: c.registeredByWallet,
-        registeredIpId: c.registeredIpId,
-      })),
-    );
-
-    syncToBlob(creations);
-  }, [creations, syncToBlob]);
+  }, []);
 
   // Save current result URL to localStorage
   useEffect(() => {
@@ -238,10 +142,10 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [originalPrompt]);
 
-  // Save guest mode to localStorage
+  // Save demo mode to localStorage
   useEffect(() => {
-    localStorage.setItem(GUEST_MODE_KEY, JSON.stringify(guestMode));
-  }, [guestMode]);
+    localStorage.setItem(DEMO_MODE_KEY, JSON.stringify(demoMode));
+  }, [demoMode]);
 
   useEffect(() => {
     return () => {
@@ -368,8 +272,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       clearCreations,
       originalPrompt,
       setOriginalPrompt,
-      guestMode,
-      setGuestMode,
+      demoMode,
+      setDemoMode,
       setUserIdentifier,
     }),
     [
@@ -386,7 +290,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       removeCreation,
       clearCreations,
       originalPrompt,
-      guestMode,
+      demoMode,
       setUserIdentifier,
     ],
   ) as CreationContextType;
