@@ -1,4 +1,4 @@
-import { put, list } from "@vercel/blob";
+import { getBlob, put, list } from "@vercel/blob";
 import type { RequestHandler } from "express";
 
 const MAX_BLOB_SIZE = 4 * 1024 * 1024; // 4MB limit per Vercel Blob
@@ -27,21 +27,20 @@ async function loadFromBlob(
     const { blobs } = await list({ prefix: sanitizedKey });
 
     if (blobs.length === 0) {
-      console.log(
-        `[Creation History Blob] No creation history found for key: ${sanitizedKey}`,
-      );
+      console.log(`[Creation History Blob] No blob found for: ${sanitizedKey}`);
       return null;
     }
 
-    const blobUrl = blobs[0].url;
-    const response = await fetch(blobUrl);
+    // Ambil blob langsung (tanpa fetch URL)
+    const { blob } = await getBlob(blobs[0].url);
+    const text = await blob.text();
 
-    if (!response.ok) {
-      console.warn(
-        `[Creation History Blob] Failed to fetch blob: ${response.status}`,
-      );
-      return null;
-    }
+    return JSON.parse(text) as CreationHistoryData;
+  } catch (error) {
+    console.warn("[Creation History Blob] Error loading blob:", error);
+    return null;
+  }
+}
 
     const content = await response.text();
     const parsed = JSON.parse(content) as CreationHistoryData;
