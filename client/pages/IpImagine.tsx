@@ -21,10 +21,9 @@ const IpImagine = () => {
     generate,
     isLoading,
     resultUrl,
-    demoMode,
-    setDemoMode,
     setResultUrl,
     setResultType,
+    setDemoMode,
   } = useGeminiGenerator();
 
   const [input, setInput] = useState("");
@@ -50,6 +49,7 @@ const IpImagine = () => {
     "paid" | "free" | null
   >(null);
   const [currentParentAsset, setCurrentParentAsset] = useState<any>(null);
+  const [guestMode, setGuestMode] = useState(false);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -217,18 +217,6 @@ const IpImagine = () => {
     [compressAndEnsureSize, setPreviewImages, creationMode],
   );
 
-  const handleTryDemo = () => {
-    const newDemoMode = !demoMode;
-    setDemoMode(newDemoMode);
-
-    // Clear preview images when toggling demo mode to avoid mixing states
-    setPreviewImages({ remixImage: null, additionalImage: null });
-
-    // Clear result URL to properly isolate demo and real modes
-    setResultUrl(null);
-    setResultType(null);
-  };
-
   const handleRemixSelected = async (
     asset: any,
     remixType: "paid" | "free",
@@ -302,16 +290,21 @@ const IpImagine = () => {
   // Note: Watermark is now applied in useGeminiGenerator hook during generation
   // This ensures watermark is applied before image is stored in creation history
 
+  const handleToggleGuest = () => {
+    const newGuestMode = !guestMode;
+    setGuestMode(newGuestMode);
+    setDemoMode(newGuestMode);
+  };
+
   const headerActions = (
     <ChatHeaderActions
-      guestMode={false}
-      onToggleGuest={() => {}}
+      guestMode={guestMode}
+      onToggleGuest={handleToggleGuest}
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
-      onTryDemo={handleTryDemo}
-      demoMode={demoMode}
-      showGuest={false}
+      showGuest={true}
+      guestButtonLabel="Guest"
     />
   );
 
@@ -414,7 +407,7 @@ const IpImagine = () => {
                 remixType: currentRemixType,
                 parentAsset: currentParentAsset,
               },
-              demoMode,
+              guestMode,
             );
 
             setInput("");
