@@ -1,4 +1,4 @@
-import { put, get, list } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 import type { RequestHandler } from "express";
 
 const MAX_BLOB_SIZE = 4 * 1024 * 1024; // 4MB limit per Vercel Blob
