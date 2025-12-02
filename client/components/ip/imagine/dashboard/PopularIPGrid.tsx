@@ -18,6 +18,7 @@ interface PopularIPGridProps {
     asset: SearchResult,
     remixType: "paid" | "free",
   ) => Promise<void>;
+  onAssetExpanded?: (asset: SearchResult) => void;
 }
 
 const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
@@ -167,6 +168,7 @@ const DUMMY_DATA: Record<"ip" | "image" | "video" | "music", PopularItem[]> = {
 export const PopularIPGrid = ({
   onBack,
   onRemixSelected,
+  onAssetExpanded,
 }: PopularIPGridProps) => {
   const [activeCategory, setActiveCategory] = useState<
     "ip" | "image" | "video" | "music"
@@ -584,7 +586,10 @@ export const PopularIPGrid = ({
                 allowsDerivatives={allowsDerivatives}
                 truncateAddressDisplay={truncateAddressDisplay}
                 isLoadingOwnerAssets={false}
-                onAssetClick={(asset) => setExpandedAsset(asset)}
+                onAssetClick={(asset) => {
+                  setExpandedAsset(asset);
+                  onAssetExpanded?.(asset);
+                }}
                 onOwnerClick={() => {}}
               />
 
