@@ -99,10 +99,13 @@ export function useIPRegistrationAgent() {
             try {
               const formData = new FormData();
               formData.append("image", file);
-              const visionResponse = await fetch("/api/vision-image-detection", {
-                method: "POST",
-                body: formData,
-              });
+              const visionResponse = await fetch(
+                "/api/vision-image-detection",
+                {
+                  method: "POST",
+                  body: formData,
+                },
+              );
 
               if (visionResponse.ok) {
                 const visionCheck = await visionResponse.json();
@@ -146,14 +149,20 @@ export function useIPRegistrationAgent() {
               }
               return { found: false };
             } catch (hashError) {
-              console.warn("Hash whitelist check failed, continuing:", hashError);
+              console.warn(
+                "Hash whitelist check failed, continuing:",
+                hashError,
+              );
               return { found: false };
             }
           })(),
         ]);
 
         // Handle vision detection blocking
-        if (visionResult.status === "fulfilled" && visionResult.value?.blocked) {
+        if (
+          visionResult.status === "fulfilled" &&
+          visionResult.value?.blocked
+        ) {
           setRegisterState({
             status: "error",
             progress: 0,
@@ -299,10 +308,13 @@ export function useIPRegistrationAgent() {
         }));
 
         // Prepare resources in parallel
-        const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
+        // Use different SPG contracts based on auth method
+        const spg = ethereumProvider
+          ? (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION_USERS // For wallet users
+          : (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION; // For guest
         if (!spg)
           throw new Error(
-            "SPG collection env not set (VITE_PUBLIC_SPG_COLLECTION)",
+            `SPG collection env not set. Expected: ${ethereumProvider ? "VITE_PUBLIC_SPG_COLLECTION_USERS" : "VITE_PUBLIC_SPG_COLLECTION"}`,
           );
         const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
         if (!rpcUrl) throw new Error("RPC URL not set (VITE_PUBLIC_STORY_RPC)");
@@ -354,6 +366,24 @@ export function useIPRegistrationAgent() {
                   }
                 }
               } catch {}
+              // Ensure wallet is connected and has accounts
+              try {
+                const accounts = await provider.request({
+                  method: "eth_accounts",
+                });
+
+                if (!accounts || accounts.length === 0) {
+                  // Request account access if not connected
+                  await provider.request({
+                    method: "eth_requestAccounts",
+                  });
+                }
+              } catch (accountError: any) {
+                throw new Error(
+                  `Failed to connect wallet: ${accountError.message}`,
+                );
+              }
+
               const walletClient = createWalletClient({
                 transport: custom(provider),
               });
@@ -410,8 +440,14 @@ export function useIPRegistrationAgent() {
 
         setRegisterState((p) => ({ ...p, status: "minting", progress: 75 }));
 
-        const result: any =
-          await story.ipAsset.mintAndRegisterIpAssetWithPilTerms({
+        let result: any;
+        try {
+          console.log("Starting mint and register transaction...", {
+            spgNftContract: spg,
+            recipient: addr,
+          });
+
+          result = await story.ipAsset.mintAndRegisterIpAssetWithPilTerms({
             spgNftContract: spg as `0x${string}`,
             recipient: addr as `0x${string}`,
             licenseTermsData,
@@ -423,6 +459,40 @@ export function useIPRegistrationAgent() {
             },
             allowDuplicates: true,
           });
+
+          console.log("✅ Mint and register transaction submitted", {
+            ipId: result?.ipId,
+            txHash: result?.txHash || result?.transactionHash,
+            result,
+          });
+
+          setRegisterState((p) => ({ ...p, progress: 90 }));
+        } catch (txError: any) {
+          console.error("❌ Mint and register transaction failed:", {
+            message: txError?.message,
+            code: txError?.code,
+            error: txError,
+          });
+
+          // Check if user rejected the transaction
+          if (
+            txError?.code === 4001 ||
+            txError?.message?.includes("User rejected")
+          ) {
+            throw new Error("Transaction was rejected by the user");
+          }
+          // Check for other common wallet errors
+          if (txError?.message?.includes("insufficient funds")) {
+            throw new Error("Insufficient funds for gas and transaction");
+          }
+          if (txError?.message?.includes("network")) {
+            throw new Error(
+              "Network error. Please check your connection and try again",
+            );
+          }
+          // Re-throw with original error if not a known case
+          throw txError;
+        }
 
         setRegisterState({
           status: "success",
@@ -441,15 +511,36 @@ export function useIPRegistrationAgent() {
       } catch (error: any) {
         const errorMsg =
           error?.message || error?.data?.message || String(error);
+
+        // Provide user-friendly error messages
+        let userFriendlyMsg = errorMsg;
+        if (errorMsg.includes("rejected by the user")) {
+          userFriendlyMsg =
+            "❌ You rejected the transaction. Please try again if you want to proceed.";
+        } else if (errorMsg.includes("insufficient funds")) {
+          userFriendlyMsg =
+            "❌ Insufficient funds for gas fees. Please add more IP tokens.";
+        } else if (errorMsg.includes("network")) {
+          userFriendlyMsg =
+            "❌ Network connection error. Please check your connection and try again.";
+        } else if (errorMsg.includes("CallerNotAuthorizedToMint")) {
+          userFriendlyMsg =
+            "❌ Your wallet is not authorized to mint on this contract. Please check with the admin.";
+        }
+
         console.error("❌ Registration failed:", {
           message: errorMsg,
           error,
           stack: error?.stack,
         });
-        setRegisterState({ status: "error", progress: 0, error: errorMsg });
+        setRegisterState({
+          status: "error",
+          progress: 0,
+          error: userFriendlyMsg,
+        });
         return {
           success: false,
-          error: errorMsg,
+          error: userFriendlyMsg,
         } as const;
       }
     },
