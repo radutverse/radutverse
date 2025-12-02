@@ -56,8 +56,8 @@ const IpImagineCreationResult = () => {
     loadingMessage,
     error,
     originalPrompt,
-    demoMode,
-    setDemoMode,
+    demoMode: guestMode,
+    setDemoMode: setGuestMode,
     updateCreationWithOriginalUrl,
   } = context;
 
@@ -91,8 +91,8 @@ const IpImagineCreationResult = () => {
       walletAddress = walletWithAddress?.address || null;
     }
 
-    context.setUserIdentifier(walletAddress, demoMode);
-  }, [authenticated, wallets, demoMode, context]);
+    context.setUserIdentifier(walletAddress, guestMode);
+  }, [authenticated, wallets, guestMode, context]);
 
   const handleDownload = () => {
     if (!displayUrl) return;
@@ -136,8 +136,8 @@ const IpImagineCreationResult = () => {
 
       let upscaledImageUrl: string;
 
-      if (demoMode) {
-        // Demo mode: simulate upscaling delay and generate another dummy image
+      if (guestMode) {
+        // Guest mode: simulate upscaling delay and generate another dummy image
         await new Promise((resolve) => setTimeout(resolve, 3500));
         upscaledImageUrl = generateDemoImage();
       } else {
@@ -181,15 +181,6 @@ const IpImagineCreationResult = () => {
     navigate("/ip-imagine");
   };
 
-  const handleTryDemo = () => {
-    const newDemoMode = !demoMode;
-    setDemoMode(newDemoMode);
-
-    // Clear result URL to properly isolate demo and real modes
-    setResultUrl(null);
-    setResultType(null);
-  };
-
   const handleCardExpand = (creationId: string) => {
     setExpandedCreationId(creationId);
     const creation = context.creations.find((c) => c.id === creationId);
@@ -199,17 +190,17 @@ const IpImagineCreationResult = () => {
   };
 
   const handleToggleGuest = () => {
-    setDemoMode(!demoMode);
+    setGuestMode(!guestMode);
   };
 
   const headerActions = (
     <ChatHeaderActions
-      guestMode={demoMode}
+      guestMode={guestMode}
       onToggleGuest={handleToggleGuest}
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
-      demoMode={demoMode}
+      demoMode={guestMode}
       showGuest={true}
       guestButtonLabel="Guest"
     />
@@ -347,7 +338,7 @@ const IpImagineCreationResult = () => {
                 );
               })()}
             </motion.div>
-          ) : context.creations.filter((c) => c.isDemo === demoMode).length ===
+          ) : context.creations.filter((c) => c.isDemo === guestMode).length ===
               0 && !isLoading ? (
             <motion.div
               key="no-data"
@@ -407,10 +398,10 @@ const IpImagineCreationResult = () => {
                     </p>
                   </motion.div>
                 )}
-                {context.creations.filter((c) => c.isDemo === demoMode).length >
-                0 ? (
+                {context.creations.filter((c) => c.isDemo === guestMode)
+                  .length > 0 ? (
                   context.creations
-                    .filter((c) => c.isDemo === demoMode)
+                    .filter((c) => c.isDemo === guestMode)
                     .map((creation) => (
                       <motion.div
                         key={creation.id}
@@ -428,7 +419,7 @@ const IpImagineCreationResult = () => {
                           }
                           type={creation.type}
                           isLoading={false}
-                          demoMode={demoMode}
+                          guestMode={guestMode}
                           parentAsset={creation.parentAsset}
                           originalUrl={creation.originalUrl}
                           creationId={creation.id}
@@ -549,7 +540,7 @@ const IpImagineCreationResult = () => {
           suggestions={suggestions}
           setSuggestions={setSuggestions}
           attachmentLoading={attachmentLoading}
-          demoMode={demoMode}
+          guestMode={guestMode}
           creations={context.creations}
         />
       )}
