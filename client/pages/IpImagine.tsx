@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatHeaderActions from "@/components/ip/assistant/ChatHeaderActions";
@@ -15,8 +21,13 @@ import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
 import { getImageVisionDescription } from "@/lib/utils/vision-api";
 import { compressToBlob, compressAndEnsureSize } from "@/lib/utils/image";
+import { CreationContext } from "@/context/CreationContext";
 
 const IpImagine = () => {
+  const context = useContext(CreationContext);
+  const creations = context?.creations || [];
+  const demoMode = context?.demoMode || false;
+
   const {
     generate,
     isLoading,
@@ -353,6 +364,8 @@ const IpImagine = () => {
         handleImage={handleImage}
         resultUrl={resultUrl}
         resultUrls={resultUrls}
+        demoMode={demoMode}
+        creations={creations}
         onSubmit={async () => {
           if (
             !input.trim() &&
