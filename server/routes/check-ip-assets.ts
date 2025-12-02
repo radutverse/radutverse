@@ -7,8 +7,6 @@ interface CheckIpAssetsRequestBody {
   network?: "testnet" | "mainnet";
 }
 
-const PINATA_GATEWAY = process.env.PINATA_GATEWAY;
-
 function convertIpfsUriToHttp(uri: string): string {
   if (!uri) return uri;
 
