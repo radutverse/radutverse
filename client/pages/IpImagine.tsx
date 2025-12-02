@@ -60,7 +60,6 @@ const IpImagine = () => {
     "paid" | "free" | null
   >(null);
   const [currentParentAsset, setCurrentParentAsset] = useState<any>(null);
-  const [guestMode, setGuestMode] = useState(false);
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
@@ -302,14 +301,12 @@ const IpImagine = () => {
   // This ensures watermark is applied before image is stored in creation history
 
   const handleToggleGuest = () => {
-    const newGuestMode = !guestMode;
-    setGuestMode(newGuestMode);
-    setDemoMode(newGuestMode);
+    setDemoMode(!demoMode);
   };
 
   const headerActions = (
     <ChatHeaderActions
-      guestMode={guestMode}
+      guestMode={demoMode}
       onToggleGuest={handleToggleGuest}
       walletButtonText="Connect"
       walletButtonDisabled={true}
@@ -420,7 +417,7 @@ const IpImagine = () => {
                 remixType: currentRemixType,
                 parentAsset: currentParentAsset,
               },
-              guestMode,
+              demoMode,
             );
 
             setInput("");
