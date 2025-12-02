@@ -2,11 +2,6 @@ import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
-// Prevent Vite from loading secondary server config in Vercel
-if (process.env.VERCEL) {
-  console.log("Running on Vercel → disabling server routes from Vite");
-}
-
 // Only define expressPlugin during development to avoid loading server code during build
 const isDev =
   process.env.NODE_ENV === "development" || process.argv.includes("--");
@@ -45,10 +40,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
- plugins: [
-  ...(isDev ? [expressPlugin()] : []),
-  react()
-],
+  plugins: [expressPlugin(), react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
