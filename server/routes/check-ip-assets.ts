@@ -36,33 +36,6 @@ function convertIpfsUriToHttp(uri: string): string {
   return uri;
 }
 
-async function fetchAssetMetadata(metadataUri: string): Promise<any> {
-  if (!metadataUri) return null;
-
-  try {
-    let url = metadataUri;
-
-    if (url.startsWith("ipfs://")) {
-      const cid = url.replace("ipfs://", "");
-      url = PINATA_GATEWAY
-        ? `https://${PINATA_GATEWAY}/ipfs/${cid}`
-        : `https://ipfs.io/ipfs/${cid}`;
-    }
-
-    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!response.ok) {
-      console.warn(`Failed to fetch metadata from ${url}: ${response.status}`);
-      return null;
-    }
-
-    const metadata = await response.json();
-    return metadata;
-  } catch (error) {
-    console.warn(`Error fetching metadata from ${metadataUri}:`, error);
-    return null;
-  }
-}
-
 const IDP_CHECK = new Map<string, { status: number; body: any; ts: number }>();
 
 // Menggunakan tipe any untuk req dan res agar kompiler tidak gagal
