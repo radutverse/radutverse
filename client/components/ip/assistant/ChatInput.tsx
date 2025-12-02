@@ -63,7 +63,7 @@ const ChatInput = ({
   remixMode = false,
 }: ChatInputProps) => (
   <form
-    className="chat-input flex items-center gap-2 px-3 sm:px-[1.45rem] py-3.5 border-t-0 md:border-t md:border-[#FF4DA6]/10 bg-slate-950/60 md:bg-gradient-to-r md:from-slate-950/60 md:via-[#FF4DA6]/5 md:to-slate-950/60 flex-none sticky bottom-0 z-10 backdrop-blur-xl transition-all duration-300"
+    className="chat-input flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-[1.45rem] py-2.5 sm:py-3 md:py-3.5 border-t-0 md:border-t md:border-[#FF4DA6]/10 bg-slate-950/60 md:bg-gradient-to-r md:from-slate-950/60 md:via-[#FF4DA6]/5 md:to-slate-950/60 flex-none sticky bottom-0 z-10 backdrop-blur-xl transition-all duration-300"
     onSubmit={(event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const isRemixWithRegister =
@@ -82,7 +82,7 @@ const ChatInput = ({
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="flex-shrink-0 p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+              className="flex-shrink-0 p-2 sm:p-1.5 text-[#FF4DA6] hover:bg-[#FF4DA6]/10 rounded-lg active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
               aria-label="Open creations gallery"
             >
               <svg
@@ -141,7 +141,7 @@ const ChatInput = ({
           type="button"
           data-file-input-btn
           disabled={attachmentLoading}
-          className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
+          className={`flex-shrink-0 p-2 sm:p-1.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
           onClick={() => uploadRef.current?.click()}
           onPointerDown={(event) => event.preventDefault()}
           aria-label="Add attachment"
@@ -237,7 +237,7 @@ const ChatInput = ({
           !previewImages.remixImage &&
           !previewImages.additionalImage)
       }
-      className="flex-shrink-0 p-2 rounded-lg bg-[#FF4DA6]/20 text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
+      className="flex-shrink-0 p-2.5 sm:p-2 rounded-lg bg-[#FF4DA6]/20 text-[#FF4DA6] hover:bg-[#FF4DA6]/30 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30"
       aria-label="Send message"
       onPointerDown={(event) => event.preventDefault()}
     >
