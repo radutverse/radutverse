@@ -1,4 +1,4 @@
-import { put, get, list } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 import type { RequestHandler } from "express";
 
 const CREATION_HISTORY_BLOB_NAME = "creation-history.json";
@@ -145,7 +145,7 @@ export const handleSyncCreationHistory: RequestHandler = async (req, res) => {
 /**
  * Get creation history from blob
  */
-export const handleGetCreationHistory: RequestHandler = async (req, res) => {
+export const handleGetCreationHistory: RequestHandler = async (_req, res) => {
   try {
     const data = await loadFromBlob();
 
