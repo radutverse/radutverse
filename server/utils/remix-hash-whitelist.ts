@@ -1,7 +1,5 @@
 // server/utils/remix-hash-whitelist.ts
 
-// PERBAIKAN: Menghapus 'del' dari imports karena tidak digunakan (TS6133).
-// 'put' dan 'list' tetap ada karena digunakan.
 import { put, list } from "@vercel/blob";
 
 /**
