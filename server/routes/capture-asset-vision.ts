@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import { addHashToWhitelist } from "../utils/remix-hash-whitelist";
+import { addHashToWhitelist } from "../utils/remix-hash-whitelist.js";
 import crypto from "crypto";
 
 export const handleCaptureAssetVision: RequestHandler = async (req, res) => {
