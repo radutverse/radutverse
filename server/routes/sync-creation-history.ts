@@ -63,10 +63,10 @@ async function saveToBlob(data: CreationHistoryData): Promise<void> {
 
   try {
     await put(CREATION_HISTORY_BLOB_NAME, content, {
-      contentType: "application/json",
-      access: "private",
-      allowOverwrite: true,
-    });
+  contentType: "application/json",
+  access: "public",  
+  allowOverwrite: true,
+  });
 
     console.log(
       `[Creation History Blob] Saved ${data.creations.length} creations`,
