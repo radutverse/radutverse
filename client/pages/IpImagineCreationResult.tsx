@@ -56,8 +56,8 @@ const IpImagineCreationResult = () => {
     loadingMessage,
     error,
     originalPrompt,
-    demoMode: guestMode,
-    setDemoMode: setGuestMode,
+    guestMode,
+    setGuestMode,
     updateCreationWithOriginalUrl,
   } = context;
 
@@ -200,9 +200,7 @@ const IpImagineCreationResult = () => {
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
-      demoMode={guestMode}
       showGuest={true}
-      guestButtonLabel="Guest"
     />
   );
 
