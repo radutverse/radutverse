@@ -86,27 +86,59 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
 
   // Load creations and current result from localStorage on mount
   useEffect(() => {
-    const storedCreations = localStorage.getItem(STORAGE_KEY);
-    if (storedCreations) {
-      try {
-        const allCreations = JSON.parse(storedCreations);
-        const nonDemoCreations = allCreations.filter(
-          (c: Creation) => !c.isDemo,
-        );
-        console.log(
-          `[CreationContext] Loading ${nonDemoCreations.length} creations from localStorage:`,
-          nonDemoCreations.map((c: Creation) => ({
-            id: c.id,
-            hasOriginalUrl: !!c.originalUrl,
-            registeredByWallet: c.registeredByWallet,
-            registeredIpId: c.registeredIpId,
-          })),
-        );
-        setCreations(nonDemoCreations);
-      } catch (err) {
-        console.error("Failed to load creation history:", err);
+    const loadCreations = async () => {
+      const storedCreations = localStorage.getItem(STORAGE_KEY);
+      if (storedCreations) {
+        try {
+          const allCreations = JSON.parse(storedCreations);
+          const nonDemoCreations = allCreations.filter(
+            (c: Creation) => !c.isDemo,
+          );
+          console.log(
+            `[CreationContext] Loading ${nonDemoCreations.length} creations from localStorage:`,
+            nonDemoCreations.map((c: Creation) => ({
+              id: c.id,
+              hasOriginalUrl: !!c.originalUrl,
+              registeredByWallet: c.registeredByWallet,
+              registeredIpId: c.registeredIpId,
+            })),
+          );
+          setCreations(nonDemoCreations);
+          return;
+        } catch (err) {
+          console.error(
+            "Failed to load creation history from localStorage:",
+            err,
+          );
+        }
       }
-    }
+
+      // Fallback: load from Vercel Blob if localStorage is empty
+      try {
+        const response = await fetch("/api/get-creation-history");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.creations && data.creations.length > 0) {
+            console.log(
+              `[CreationContext] Loaded ${data.creations.length} creations from Vercel Blob:`,
+              data.creations.map((c: Creation) => ({
+                id: c.id,
+                hasOriginalUrl: !!c.originalUrl,
+                registeredByWallet: c.registeredByWallet,
+                registeredIpId: c.registeredIpId,
+              })),
+            );
+            setCreations(data.creations);
+            // Re-save to localStorage for next time
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.creations));
+          }
+        }
+      } catch (error) {
+        console.warn("[CreationContext] Failed to load from Blob:", error);
+      }
+    };
+
+    loadCreations();
 
     const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
     const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
@@ -126,6 +158,31 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
+  // Sync creation history to Vercel Blob (double storage)
+  const syncToBlob = useCallback(async (creationsToSync: Creation[]) => {
+    try {
+      const response = await fetch("/api/sync-creation-history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creations: creationsToSync }),
+      });
+
+      if (!response.ok) {
+        console.warn(`[CreationContext] Blob sync failed: ${response.status}`);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("[CreationContext] Synced to Vercel Blob:", {
+        count: data.synced,
+        lastSynced: new Date(data.lastSynced).toLocaleString(),
+      });
+    } catch (error) {
+      console.warn("[CreationContext] Blob sync error:", error);
+      // Don't let sync errors affect UX
+    }
+  }, []);
+
   // Save creations to localStorage whenever they change (only non-demo)
   useEffect(() => {
     const nonDemoCreations = creations.filter((c) => !c.isDemo);
@@ -139,7 +196,10 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       })),
     );
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nonDemoCreations));
-  }, [creations]);
+
+    // Sync to Vercel Blob in background (double storage)
+    syncToBlob(nonDemoCreations);
+  }, [creations, syncToBlob]);
 
   // Save current result URL to localStorage (only non-demo)
   useEffect(() => {
