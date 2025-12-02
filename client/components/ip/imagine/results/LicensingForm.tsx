@@ -31,7 +31,7 @@ interface LicensingFormProps {
   imageUrl: string;
   imageName?: string;
   type: "image" | "video";
-  demoMode?: boolean;
+  guestMode?: boolean;
   isLoading?: boolean;
   onClose?: () => void;
   parentAsset?: ParentAsset;
@@ -50,7 +50,7 @@ const LicensingFormComponent = (
     imageUrl,
     imageName = "generated-image.png",
     type,
-    demoMode = false,
+    guestMode = false,
     isLoading = false,
     onClose,
     parentAsset,
@@ -133,8 +133,8 @@ const LicensingFormComponent = (
       return setRegisterError("Parent asset data required for licensing");
     if (!parentLicense)
       return setRegisterError("No commercial license found on parent IP");
-    if (!demoMode && !authenticated)
-      return setRegisterError("Please connect wallet or enable demo mode");
+    if (!guestMode && !authenticated)
+      return setRegisterError("Please connect wallet or enable guest mode");
 
     setIsRegistering(true);
     setRegisterError(null);
@@ -146,7 +146,7 @@ const LicensingFormComponent = (
     try {
       // --- 2. SETUP WALLET & CLIENT ---
       let ethProvider: any = undefined;
-      if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
+      if (!guestMode && wallets && wallets[0]?.getEthereumProvider) {
         try {
           ethProvider = await wallets[0].getEthereumProvider();
         } catch (err) {
@@ -398,7 +398,7 @@ const LicensingFormComponent = (
       setRegisteredIpId(childIpId || "pending");
       setRegisterSuccess(true);
       setSuccessMessage(
-        demoMode
+        guestMode
           ? `✅ Derivative registered! Child IP: ${childIpId}`
           : `✅ Derivative registered with ${parentRevSharePercentage.toFixed(2)}% revenue share. Child IP: ${childIpId}`,
       );
@@ -644,15 +644,15 @@ const LicensingFormComponent = (
         )}
 
         {/* Auth Status */}
-        {!demoMode && !authenticated && (
+        {!guestMode && !authenticated && (
           <div className="rounded-lg px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 text-sm text-amber-400">
             ⚠️ Connect wallet to register
           </div>
         )}
 
-        {demoMode && (
+        {guestMode && (
           <div className="rounded-lg px-3 py-2.5 bg-slate-600/20 border border-slate-600/40 text-sm text-slate-400">
-            🎭 Demo mode enabled
+            🎭 Guest mode enabled
           </div>
         )}
       </div>
@@ -700,7 +700,7 @@ const LicensingFormComponent = (
             disabled={
               isRegistering ||
               currentStep !== "idle" ||
-              (!demoMode && !authenticated) ||
+              (!guestMode && !authenticated) ||
               isLoading ||
               !imageUrl ||
               !isPaidRemix
