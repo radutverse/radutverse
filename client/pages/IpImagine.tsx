@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatHeaderActions from "@/components/ip/assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip/assistant/SidebarExtras";
@@ -27,6 +28,8 @@ const IpImagine = () => {
   const context = useContext(CreationContext);
   const creations = context?.creations || [];
   const demoMode = context?.demoMode || false;
+  const { authenticated } = usePrivy();
+  const { wallets } = useWallets();
 
   const {
     generate,
@@ -116,6 +119,19 @@ const IpImagine = () => {
       mounted = false;
     };
   }, [remixAnalysisOpen, remixAnalysisData]);
+
+  // Update user identifier in creation context when wallet or guest mode changes
+  useEffect(() => {
+    if (!context?.setUserIdentifier) return;
+
+    let walletAddress: string | null = null;
+    if (authenticated && wallets && wallets.length > 0) {
+      const walletWithAddress = wallets.find((wallet) => wallet.address);
+      walletAddress = walletWithAddress?.address || null;
+    }
+
+    context.setUserIdentifier(walletAddress, demoMode);
+  }, [authenticated, wallets, demoMode, context]);
 
   const handleImage = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
