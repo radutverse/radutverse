@@ -62,6 +62,11 @@ const CompactResultCard = ({
     }
   };
 
+  const handleRegistrationError = (errorMessage: string) => {
+    setRegistrationError(errorMessage);
+    setRegistrationState("error");
+  };
+
   const handleRegistrationComplete = (result: {
     ipId?: string;
     txHash?: string;
@@ -366,6 +371,7 @@ const CompactResultCard = ({
                   console.log("Registration started:", state);
                 }}
                 onRegisterComplete={handleRegistrationComplete}
+                onRegisterError={handleRegistrationError}
               />
             </div>
           )}
