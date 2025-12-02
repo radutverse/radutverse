@@ -10,114 +10,6 @@ import { Address } from "viem";
 const OFFCHAIN_LICENSE_TERMS_URI =
   "https://github.com/piplabs/pil-document/blob/998c13e6ee1d04eb817aefd1fe16dfe8be3cd7a2/off-chain-terms/NCSR.json";
 
-// --- ERROR DETECTION & FORMATTING ---
-interface ErrorInfo {
-  type:
-    | "insufficient_funds"
-    | "network_error"
-    | "gas_error"
-    | "transaction_rejected"
-    | "configuration_error"
-    | "unknown";
-  title: string;
-  message: string;
-  suggestion?: string;
-  isRecoverable: boolean;
-}
-
-const parseErrorMessage = (error: any): ErrorInfo => {
-  const errorMsg = error?.message || error?.data?.message || String(error);
-  const lowerMsg = errorMsg.toLowerCase();
-
-  // Check for insufficient balance/funds
-  if (
-    lowerMsg.includes("insufficient") &&
-    (lowerMsg.includes("balance") || lowerMsg.includes("fund"))
-  ) {
-    return {
-      type: "insufficient_funds",
-      title: "❌ Insufficient Funds",
-      message:
-        "Your wallet does not have enough tokens to complete this transaction. You need funds to pay for gas fees and any minting fees.",
-      suggestion:
-        "Please add more funds to your wallet and try again. Check the Story Protocol RPC for current gas prices.",
-      isRecoverable: true,
-    };
-  }
-
-  // Check for insufficient gas
-  if (lowerMsg.includes("gas") && lowerMsg.includes("insufficient")) {
-    return {
-      type: "gas_error",
-      title: "❌ Insufficient Gas",
-      message:
-        "The transaction requires more gas than available. Please ensure you have enough tokens for gas fees.",
-      suggestion:
-        "Add more funds to your wallet to cover gas costs and try again.",
-      isRecoverable: true,
-    };
-  }
-
-  // Check for network/RPC errors
-  if (
-    lowerMsg.includes("network") ||
-    lowerMsg.includes("rpc") ||
-    lowerMsg.includes("timeout") ||
-    lowerMsg.includes("econnrefused")
-  ) {
-    return {
-      type: "network_error",
-      title: "⚠️ Network Error",
-      message:
-        "Unable to connect to the Story Protocol network. This might be a temporary issue.",
-      suggestion:
-        "Please check your internet connection and try again in a moment.",
-      isRecoverable: true,
-    };
-  }
-
-  // Check for rejected transactions
-  if (
-    lowerMsg.includes("reject") ||
-    lowerMsg.includes("denied") ||
-    lowerMsg.includes("user denied")
-  ) {
-    return {
-      type: "transaction_rejected",
-      title: "⛔ Transaction Rejected",
-      message: "You rejected or cancelled the transaction in your wallet.",
-      suggestion:
-        "Please try again and confirm the transaction in your wallet.",
-      isRecoverable: true,
-    };
-  }
-
-  // Check for configuration errors
-  if (
-    lowerMsg.includes("not configured") ||
-    lowerMsg.includes("not set") ||
-    lowerMsg.includes("undefined")
-  ) {
-    return {
-      type: "configuration_error",
-      title: "⚙️ Configuration Error",
-      message:
-        "Missing required configuration. Please contact support or try again later.",
-      isRecoverable: false,
-    };
-  }
-
-  // Default unknown error
-  return {
-    type: "unknown",
-    title: "❌ An Error Occurred",
-    message: errorMsg || "An unexpected error occurred during registration.",
-    suggestion:
-      "Please check the console for more details and contact support if the issue persists.",
-    isRecoverable: true,
-  };
-};
-
 // --- INTERFACE YANG LEBIH AKURAT ---
 
 interface ParentLicense {
@@ -148,12 +40,7 @@ interface LicensingFormProps {
     progress: number;
     error: any;
   }) => void;
-  onRegisterComplete?: (result: {
-    ipId?: Address;
-    txHash?: Address;
-    walletAddress?: Address;
-  }) => void;
-  onRegisterError?: (error: string) => void;
+  onRegisterComplete?: (result: { ipId?: Address; txHash?: Address }) => void;
 }
 
 // --- KOMPONEN UTAMA ---
@@ -169,7 +56,6 @@ const LicensingFormComponent = (
     parentAsset,
     onRegisterStart,
     onRegisterComplete,
-    onRegisterError,
   }: LicensingFormProps,
   ref: any,
 ) => {
@@ -183,7 +69,6 @@ const LicensingFormComponent = (
   );
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
-  const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
@@ -206,13 +91,6 @@ const LicensingFormComponent = (
   const parentRevShareScaled = parentLicense?.terms?.commercialRevShare ?? 0;
   // Nilai untuk tampilan (0-100)
   const parentRevSharePercentage = Number(parentRevShareScaled) / 1000000;
-
-  // Helper untuk close dan clear errors
-  const handleClose = () => {
-    setRegisterError(null);
-    setErrorInfo(null);
-    onClose?.();
-  };
 
   // --- FUNGSI UTAMA ---
 
@@ -250,46 +128,16 @@ const LicensingFormComponent = (
 
   const handleRegister = async () => {
     // --- 1. PRE-CHECK VALIDASI ---
-    if (!imageUrl) {
-      setErrorInfo({
-        type: "configuration_error",
-        title: "❌ Missing Image",
-        message: "No image to register",
-        isRecoverable: true,
-      });
-      return setRegisterError("No image to register");
-    }
-    if (!isPaidRemix || !parentAsset) {
-      setErrorInfo({
-        type: "configuration_error",
-        title: "❌ Missing Parent Asset",
-        message: "Parent asset data is required for licensing",
-        isRecoverable: true,
-      });
+    if (!imageUrl) return setRegisterError("No image to register");
+    if (!isPaidRemix || !parentAsset)
       return setRegisterError("Parent asset data required for licensing");
-    }
-    if (!parentLicense) {
-      setErrorInfo({
-        type: "configuration_error",
-        title: "❌ No Commercial License",
-        message: "The parent IP does not have a commercial license available",
-        isRecoverable: true,
-      });
+    if (!parentLicense)
       return setRegisterError("No commercial license found on parent IP");
-    }
-    if (!demoMode && !authenticated) {
-      setErrorInfo({
-        type: "configuration_error",
-        title: "❌ Wallet Not Connected",
-        message: "Please connect your wallet or enable demo mode to continue",
-        isRecoverable: true,
-      });
+    if (!demoMode && !authenticated)
       return setRegisterError("Please connect wallet or enable demo mode");
-    }
 
     setIsRegistering(true);
     setRegisterError(null);
-    setErrorInfo(null);
     setRegisterSuccess(false);
 
     let addr: Address | undefined;
@@ -308,12 +156,31 @@ const LicensingFormComponent = (
 
       if (ethProvider) {
         try {
+          // Ensure wallet is connected and has accounts
+          try {
+            const accounts = await ethProvider.request({
+              method: "eth_accounts",
+            });
+
+            if (!accounts || accounts.length === 0) {
+              // Request account access if not connected
+              await ethProvider.request({
+                method: "eth_requestAccounts",
+              });
+            }
+          } catch (accountError: any) {
+            console.error(`Failed to connect wallet: ${accountError.message}`);
+            throw accountError;
+          }
+
           const walletClient = createWalletClient({
             transport: custom(ethProvider),
           });
           const [a] = await walletClient.getAddresses();
           if (a) addr = a;
-        } catch {}
+        } catch (walletError: any) {
+          console.warn("Failed to get wallet address:", walletError);
+        }
       }
 
       if (!addr) {
@@ -360,13 +227,6 @@ const LicensingFormComponent = (
       const file = await handleConvertImageToFile();
 
       // Upload image to IPFS
-      onRegisterStart &&
-        onRegisterStart({
-          status: "Uploading image to IPFS...",
-          progress: 10,
-          error: null,
-        });
-
       const formData = new FormData();
       formData.append("file", file);
       const uploadRes = await fetch("/api/ipfs/upload", {
@@ -374,14 +234,17 @@ const LicensingFormComponent = (
         body: formData,
       });
 
-      if (!uploadRes.ok) {
-        const errorData = await uploadRes.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to upload image to IPFS");
-      }
+      if (!uploadRes.ok) throw new Error("Failed to upload image to IPFS");
       const { url: imageUri } = await uploadRes.json();
 
-      const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
-      if (!spg) throw new Error("SPG collection not configured");
+      // Use different SPG contracts based on auth method
+      const spg = ethProvider
+        ? (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION_USERS // For wallet users
+        : (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION; // For guest
+      if (!spg)
+        throw new Error(
+          `SPG collection not configured. Expected: ${ethProvider ? "VITE_PUBLIC_SPG_COLLECTION_USERS" : "VITE_PUBLIC_SPG_COLLECTION"}`,
+        );
 
       const ipMetadataObj = {
         title: title || "AI Generated Image",
@@ -469,20 +332,33 @@ const LicensingFormComponent = (
             licenseDocument: {
               uri: OFFCHAIN_LICENSE_TERMS_URI,
             },
-            txOptions: { waitForTransaction: true },
           });
 
         childIpId = derivativeResponse.ipId as Address;
         console.log("✅ Derivative IP asset registered:", childIpId);
         console.log("📋 Metadata URIs:", { ipMetadataUri, nftMetadataUri });
       } catch (registerError: any) {
-        console.error(
-          "❌ Register derivative error:",
-          registerError?.message || registerError,
-        );
-        throw new Error(
-          `Failed to register derivative IP: ${registerError?.message || String(registerError)}`,
-        );
+        const errorMsg = registerError?.message || String(registerError);
+        console.error("❌ Register derivative error:", errorMsg);
+
+        // Check if user rejected the transaction
+        if (
+          registerError?.code === 4001 ||
+          errorMsg.includes("User rejected")
+        ) {
+          throw new Error("Transaction was rejected by the user");
+        }
+        // Check for other common wallet errors
+        if (errorMsg.includes("insufficient funds")) {
+          throw new Error("Insufficient funds for gas and transaction");
+        }
+        if (errorMsg.includes("CallerNotAuthorizedToMint")) {
+          throw new Error(
+            "Your wallet is not authorized to mint on this contract",
+          );
+        }
+
+        throw new Error(`Failed to register derivative IP: ${errorMsg}`);
       }
 
       // ========================================
@@ -504,7 +380,6 @@ const LicensingFormComponent = (
           currencyTokens: [WIP_TOKEN_ADDRESS],
           childIpIds: childIpId ? [childIpId] : [],
           royaltyPolicies: [],
-          txOptions: { waitForTransaction: true },
         });
 
         console.log(
@@ -532,24 +407,35 @@ const LicensingFormComponent = (
         onRegisterComplete({
           ipId: childIpId as Address,
           txHash: childIpId as Address,
-          walletAddress: addr,
         });
       }
     } catch (error: any) {
-      const errorInfo = parseErrorMessage(error);
-      setErrorInfo(errorInfo);
-      setRegisterError(errorInfo.message);
+      const errorMsg = error?.message || error?.data?.message || String(error);
+
+      // Provide user-friendly error messages
+      let userFriendlyMsg = errorMsg;
+      if (errorMsg.includes("rejected by the user")) {
+        userFriendlyMsg =
+          "❌ You rejected the transaction. Please try again if you want to proceed.";
+      } else if (errorMsg.includes("insufficient funds")) {
+        userFriendlyMsg =
+          "❌ Insufficient funds for gas fees. Please add more IP tokens.";
+      } else if (errorMsg.includes("network")) {
+        userFriendlyMsg =
+          "❌ Network connection error. Please check your connection and try again.";
+      } else if (errorMsg.includes("CallerNotAuthorizedToMint")) {
+        userFriendlyMsg =
+          "❌ Your wallet is not authorized to mint on this contract. Please check with the admin.";
+      } else if (errorMsg.includes("Failed to register")) {
+        userFriendlyMsg = `❌ Registration failed. Please try again. (${errorMsg.substring(0, 50)}...)`;
+      }
+
+      setRegisterError(userFriendlyMsg);
       console.error("❌ Full registration error:", {
-        type: errorInfo.type,
-        message: errorInfo.message,
-        suggestion: errorInfo.suggestion,
+        message: errorMsg,
         error,
         stack: error?.stack,
       });
-      // Notify parent component about the error
-      if (onRegisterError) {
-        onRegisterError(errorInfo.message);
-      }
       // Set step kembali ke idle setelah error agar user bisa mencoba lagi
       setCurrentStep("idle");
     } finally {
@@ -612,7 +498,7 @@ const LicensingFormComponent = (
         </h3>
         {onClose && (
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0"
             type="button"
           >
@@ -751,36 +637,9 @@ const LicensingFormComponent = (
         )}
 
         {/* Error Message */}
-        {registerError && errorInfo && (
-          <div className="rounded-lg px-4 py-3 bg-red-500/10 border border-red-500/30 space-y-2">
-            <div className="flex items-start gap-3">
-              <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-red-400 text-sm mb-1">
-                  {errorInfo.title}
-                </h4>
-                <p className="text-red-300/80 text-xs leading-relaxed">
-                  {errorInfo.message}
-                </p>
-                {errorInfo.suggestion && (
-                  <p className="text-red-300/60 text-xs leading-relaxed mt-2">
-                    💡 <span className="font-medium">Suggestion:</span>{" "}
-                    {errorInfo.suggestion}
-                  </p>
-                )}
-              </div>
-            </div>
-            {errorInfo.isRecoverable && (
-              <button
-                type="button"
-                onClick={() => {
-                  setRegisterError(null);
-                  setErrorInfo(null);
-                }}
-                className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors mt-2"
-              >
-                ✕ Dismiss
-              </button>
-            )}
+        {registerError && (
+          <div className="rounded-lg px-3 py-2.5 bg-red-500/10 border border-red-500/30 text-sm text-red-400 max-h-24 overflow-y-auto">
+            {registerError}
           </div>
         )}
 
@@ -827,7 +686,7 @@ const LicensingFormComponent = (
             )}
             {onClose && (
               <button
-                onClick={handleClose}
+                onClick={onClose}
                 className={`${registeredIpId && registeredIpId !== "pending" ? "flex-1" : "w-full"} rounded-lg bg-slate-700/40 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700/60 transition-colors border border-slate-600/40`}
                 type="button"
               >
