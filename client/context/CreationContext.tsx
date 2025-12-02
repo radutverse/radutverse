@@ -58,8 +58,8 @@ interface CreationContextType {
   clearCreations: () => void;
   originalPrompt: string;
   setOriginalPrompt: (prompt: string) => void;
-  demoMode: boolean;
-  setDemoMode: (demo: boolean) => void;
+  guestMode: boolean;
+  setGuestMode: (guest: boolean) => void;
   setUserIdentifier: (walletAddress: string | null, isGuest: boolean) => void;
 }
 
@@ -70,7 +70,7 @@ export const CreationContext = createContext<CreationContextType | undefined>(
 const RESULT_URL_KEY = "current_result_url";
 const RESULT_TYPE_KEY = "current_result_type";
 const ORIGINAL_PROMPT_KEY = "original_prompt";
-const DEMO_MODE_KEY = "demo_mode";
+const GUEST_MODE_KEY = "guest_mode";
 
 // Helper to generate user-specific blob key
 const getUserBlobKey = (
@@ -98,7 +98,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [creations, setCreations] = useState<Creation[]>([]);
   const [originalPrompt, setOriginalPrompt] = useState<string>("");
-  const [demoMode, setDemoMode] = useState<boolean>(false);
+  const [guestMode, setGuestMode] = useState<boolean>(false);
   const [walletAddress, setWalletAddressState] = useState<string | null>(null);
   const [isGuest, setIsGuestState] = useState<boolean>(false);
 
@@ -140,7 +140,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     const storedResultUrl = localStorage.getItem(RESULT_URL_KEY);
     const storedResultType = localStorage.getItem(RESULT_TYPE_KEY);
     const storedPrompt = localStorage.getItem(ORIGINAL_PROMPT_KEY);
-    const storedDemoMode = localStorage.getItem(DEMO_MODE_KEY);
+    const storedGuestMode = localStorage.getItem(GUEST_MODE_KEY);
     if (storedResultUrl) {
       setResultUrl(storedResultUrl);
     }
@@ -150,8 +150,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     if (storedPrompt) {
       setOriginalPrompt(storedPrompt);
     }
-    if (storedDemoMode !== null) {
-      setDemoMode(JSON.parse(storedDemoMode));
+    if (storedGuestMode !== null) {
+      setGuestMode(JSON.parse(storedGuestMode));
     }
   }, [walletAddress, isGuest]);
 
@@ -238,10 +238,10 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [originalPrompt]);
 
-  // Save demo mode to localStorage
+  // Save guest mode to localStorage
   useEffect(() => {
-    localStorage.setItem(DEMO_MODE_KEY, JSON.stringify(demoMode));
-  }, [demoMode]);
+    localStorage.setItem(GUEST_MODE_KEY, JSON.stringify(guestMode));
+  }, [guestMode]);
 
   useEffect(() => {
     return () => {
@@ -368,8 +368,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       clearCreations,
       originalPrompt,
       setOriginalPrompt,
-      demoMode,
-      setDemoMode,
+      guestMode,
+      setGuestMode,
       setUserIdentifier,
     }),
     [
@@ -386,7 +386,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       removeCreation,
       clearCreations,
       originalPrompt,
-      demoMode,
+      guestMode,
       setUserIdentifier,
     ],
   ) as CreationContextType;
