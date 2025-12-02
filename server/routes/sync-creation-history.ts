@@ -1,165 +1,172 @@
-import crypto from "crypto";
-import { list, del } from "@vercel/blob";
-import { createClient } from "@vercel/blob";
+import { put, get, list } from "@vercel/blob";
 import type { RequestHandler } from "express";
 
-const BLOB_NAME = "creation-history.json.enc";
-const MAX_SIZE = 4 * 1024 * 1024;
+const CREATION_HISTORY_BLOB_NAME = "creation-history.json";
+const MAX_BLOB_SIZE = 4 * 1024 * 1024; // 4MB limit per Vercel Blob
 
-const AES_KEY = process.env.CREATION_HISTORY_ENCRYPTION_KEY!;
-const AES_ALGO = "aes-256-gcm";
-
----------------------------------------------------------
-
-function encrypt(data: string) {
-  const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv(AES_ALGO, AES_KEY, iv);
-
-  const encrypted = Buffer.concat([
-    cipher.update(data, "utf8"),
-    cipher.final(),
-  ]);
-
-  const tag = cipher.getAuthTag();
-
-  return Buffer.concat([iv, tag, encrypted]).toString("base64");
+interface CreationHistoryData {
+  creations: any[];
+  lastSynced: number;
+  version: number;
 }
 
-function decrypt(base64: string) {
-  const raw = Buffer.from(base64, "base64");
-
-  const iv = raw.subarray(0, 12);
-  const tag = raw.subarray(12, 28);
-  const encrypted = raw.subarray(28);
-
-  const decipher = crypto.createDecipheriv(AES_ALGO, AES_KEY, iv);
-  decipher.setAuthTag(tag);
-
-  const decrypted = Buffer.concat([
-    decipher.update(encrypted),
-    decipher.final(),
-  ]);
-
-  return decrypted.toString("utf8");
-}
-
----------------------------------------------------------
-
-async function loadFromBlob() {
+/**
+ * Load creation history from Vercel Blob
+ */
+async function loadFromBlob(): Promise<CreationHistoryData | null> {
   try {
-    const { blobs } = await list({ prefix: BLOB_NAME });
-    if (blobs.length === 0) return null;
+    const { blobs } = await list({ prefix: CREATION_HISTORY_BLOB_NAME });
 
-    const url = blobs[0].url;
-    const etag = blobs[0].etag; // For caching
+    if (blobs.length === 0) {
+      console.log("[Creation History Blob] No creation history found");
+      return null;
+    }
 
-    const res = await fetch(url);
-    if (!res.ok) return null;
+    const blobUrl = blobs[0].url;
+    const response = await fetch(blobUrl);
 
-    const base64 = await res.text();
-    const decrypted = decrypt(base64);
+    if (!response.ok) {
+      console.warn(
+        `[Creation History Blob] Failed to fetch blob: ${response.status}`,
+      );
+      return null;
+    }
 
-    const json = JSON.parse(decrypted);
-    json._etag = etag;
-
-    return json;
-  } catch (err) {
-    console.error("[Blob] load error:", err);
+    const content = await response.text();
+    const parsed = JSON.parse(content) as CreationHistoryData;
+    return parsed;
+  } catch (error) {
+    console.warn("[Creation History Blob] Error loading from blob:", error);
     return null;
   }
 }
 
----------------------------------------------------------
+/**
+ * Save creation history to Vercel Blob
+ */
+async function saveToBlob(data: CreationHistoryData): Promise<void> {
+  const content = JSON.stringify(data, null, 2);
 
-async function saveToBlob(data: any) {
-  const json = JSON.stringify(data, null, 2);
-
-  if (json.length > MAX_SIZE) {
-    console.warn("[Blob] too large, trimming to 100 items");
+  // Check blob size
+  if (content.length > MAX_BLOB_SIZE) {
+    console.warn(
+      `[Creation History Blob] Data size ${content.length} exceeds limit, keeping only recent 100`,
+    );
+    // Keep only recent 100 creations to stay under limit
     data.creations = data.creations.slice(0, 100);
+    const reducedContent = JSON.stringify(data, null, 2);
+    if (reducedContent.length > MAX_BLOB_SIZE) {
+      console.error("[Creation History Blob] Still too large after reduction");
+      throw new Error("Creation history too large to store");
+    }
   }
 
-  const encrypted = encrypt(JSON.stringify(data));
-
-  const client = createClient();
-  const { url, pathname } = await client.generateUploadUrl({
-    contentType: "application/octet-stream",
+  try {
+    await put(CREATION_HISTORY_BLOB_NAME, content, {
+  contentType: "application/json",
+  access: "public",  
+  allowOverwrite: true,
   });
 
-  const upload = await fetch(url, {
-    method: "PUT",
-    body: encrypted,
-  });
-
-  if (!upload.ok) throw new Error("Upload failed");
-
-  // Delete old blob so name stays consistent
-  await del(BLOB_NAME);
-
-  // Rename uploaded blob to the fixed name
-  await client.rename(pathname, BLOB_NAME);
+    console.log(
+      `[Creation History Blob] Saved ${data.creations.length} creations`,
+    );
+  } catch (error) {
+    console.error("[Creation History Blob] Failed to save:", error);
+    throw error;
+  }
 }
 
----------------------------------------------------------
-
+/**
+ * Sync creation history - merge client data with blob data
+ * Keeps the most recent version and deduplicates by creation ID
+ */
 export const handleSyncCreationHistory: RequestHandler = async (req, res) => {
   try {
-    const clientCreations = req.body?.creations || [];
-    if (!Array.isArray(clientCreations))
-      return res.status(400).json({ error: "Invalid data" });
+    const { creations: clientCreations } = req.body || {};
 
+    if (!Array.isArray(clientCreations)) {
+      return res.status(400).json({
+        error: "Invalid request",
+        message: "creations must be an array",
+      });
+    }
+
+    // Load existing data from blob
     const blobData = await loadFromBlob();
-    const serverCreations = blobData?.creations || [];
 
-    const ids = new Set(clientCreations.map((c: any) => c.id));
+    // Merge: client data takes precedence, but keep older items not in client
+    const mergedCreations = clientCreations;
+    const clientIds = new Set(clientCreations.map((c: any) => c.id));
 
-    const merged = [
-      ...clientCreations,
-      ...serverCreations.filter((s: any) => !ids.has(s.id)),
-    ];
+    if (blobData) {
+      // Add creations from blob that aren't in client (in case sync is out of date)
+      for (const creation of blobData.creations) {
+        if (!clientIds.has(creation.id)) {
+          mergedCreations.push(creation);
+        }
+      }
+    }
 
-    merged.sort((a: any, b: any) => b.timestamp - a.timestamp);
-    const limited = merged.slice(0, 500);
+    // Sort by timestamp (newest first) and limit to 500
+    mergedCreations.sort((a: any, b: any) => b.timestamp - a.timestamp);
+    const limitedCreations = mergedCreations.slice(0, 500);
 
-    const dataToSave = {
-      creations: limited,
+    // Save to blob
+    const dataToSave: CreationHistoryData = {
+      creations: limitedCreations,
       lastSynced: Date.now(),
       version: 1,
     };
 
     await saveToBlob(dataToSave);
 
-    res.json({
+    console.log("[Creation History] Sync successful:", {
+      clientCount: clientCreations.length,
+      mergedCount: limitedCreations.length,
+      timestamp: new Date().toLocaleString(),
+    });
+
+    return res.status(200).json({
       ok: true,
-      synced: limited.length,
-      creations: limited,
+      synced: limitedCreations.length,
+      creations: limitedCreations,
       lastSynced: dataToSave.lastSynced,
     });
-  } catch (err: any) {
-    console.error("[Sync] error:", err);
-    res.status(500).json({ error: err.message || "Sync failed" });
+  } catch (error) {
+    console.error("[Creation History] Sync failed:", error);
+    return res.status(500).json({
+      error: "sync_failed",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
----------------------------------------------------------
-
-export const handleGetCreationHistory: RequestHandler = async (_req, res) => {
+/**
+ * Get creation history from blob
+ */
+export const handleGetCreationHistory: RequestHandler = async (req, res) => {
   try {
     const data = await loadFromBlob();
-    if (!data)
-      return res.json({
+
+    if (!data) {
+      return res.status(200).json({
         ok: true,
         creations: [],
         lastSynced: null,
       });
+    }
 
-    return res.json({
+    return res.status(200).json({
       ok: true,
       creations: data.creations,
       lastSynced: data.lastSynced,
     });
-  } catch (err: any) {
-    console.error("[Get] error:", err);
-    return res.status(500).json({ error: "get_failed" });
+  } catch (error) {
+    console.error("[Creation History] Get failed:", error);
+    return res.status(500).json({
+      error: "get_failed",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
