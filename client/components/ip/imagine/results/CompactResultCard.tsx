@@ -1,6 +1,16 @@
-import { useState, useRef, Dispatch, SetStateAction } from "react";
+import {
+  useState,
+  useRef,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { privateKeyToAccount } from "viem/accounts";
 import LicensingForm from "./LicensingForm";
+import { CreationContext } from "@/context/CreationContext";
 
 interface CompactResultCardProps {
   imageUrl: string;
@@ -15,6 +25,8 @@ interface CompactResultCardProps {
   demoMode?: boolean;
   parentAsset?: any;
   originalUrl?: string;
+  creationId?: string;
+  onUnlockWatermark?: (originalUrl: string) => void;
 }
 
 const CompactResultCard = ({
@@ -30,7 +42,13 @@ const CompactResultCard = ({
   demoMode = false,
   parentAsset,
   originalUrl,
+  creationId,
+  onUnlockWatermark,
 }: CompactResultCardProps) => {
+  const { authenticated } = usePrivy();
+  const { wallets } = useWallets();
+  const context = useContext(CreationContext);
+
   const [localIsExpanded, setLocalIsExpanded] = useState(false);
   const isExpanded = externalSetIsExpanded
     ? externalIsExpanded
@@ -45,6 +63,79 @@ const CompactResultCard = ({
   const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
   const [displayUrl, setDisplayUrl] = useState<string>(imageUrl);
   const licensingFormRef = useRef<any>(null);
+
+  // Check if current wallet has already unlocked this creation
+  useEffect(() => {
+    const checkWalletUnlock = async () => {
+      if (!context || !creationId) {
+        return;
+      }
+
+      try {
+        let walletAddress: string | undefined;
+
+        // Try to get wallet address from Privy if authenticated
+        if (authenticated && wallets && wallets[0]) {
+          walletAddress = wallets[0].address;
+        }
+
+        // Fallback to guest wallet address (for demo mode)
+        if (!walletAddress) {
+          try {
+            const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+            if (guestPk) {
+              const normalized = String(guestPk).startsWith("0x")
+                ? String(guestPk)
+                : `0x${String(guestPk)}`;
+              const guestAccount = privateKeyToAccount(
+                normalized as `0x${string}`,
+              );
+              walletAddress = guestAccount.address;
+            }
+          } catch (error) {
+            console.error("Failed to derive guest wallet address:", error);
+          }
+        }
+
+        // Check if this wallet has already unlocked this creation
+        if (walletAddress) {
+          console.log(
+            `[CompactResultCard] checkWalletUnlock - creationId: ${creationId}, wallet: ${walletAddress}`,
+            `creations count: ${context.creations.length}`,
+          );
+
+          const isUnlocked = context.isCreationUnlockedByWallet(
+            creationId,
+            walletAddress,
+          );
+
+          console.log(
+            `[CompactResultCard] isCreationUnlockedByWallet result:`,
+            isUnlocked,
+          );
+
+          if (isUnlocked) {
+            // Get the original URL from the creation object
+            const creation = context.creations.find((c) => c.id === creationId);
+            console.log(
+              `[CompactResultCard] Unlocked! Found creation with originalUrl:`,
+              !!creation?.originalUrl,
+            );
+            if (creation && creation.originalUrl) {
+              console.log(
+                `[CompactResultCard] Setting displayUrl to unlocked version`,
+              );
+              setDisplayUrl(creation.originalUrl);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error checking wallet unlock status:", error);
+      }
+    };
+
+    checkWalletUnlock();
+  }, [creationId, authenticated, wallets, context.creations]);
 
   const handleLicenseClick = () => {
     if (!parentAsset) {
@@ -70,6 +161,7 @@ const CompactResultCard = ({
   const handleRegistrationComplete = (result: {
     ipId?: string;
     txHash?: string;
+    walletAddress?: string;
   }) => {
     if (result.ipId) {
       setRegisteredIpId(result.ipId);
@@ -77,6 +169,51 @@ const CompactResultCard = ({
     // Display clean image (original URL) after successful registration
     if (originalUrl) {
       setDisplayUrl(originalUrl);
+      console.log(
+        `[CompactResultCard] Registration successful, updating display`,
+        {
+          creationId,
+          hasOriginalUrl: !!originalUrl,
+          hasContext: !!context,
+          walletAddress: result.walletAddress,
+          ipId: result.ipId,
+        },
+      );
+
+      // Notify parent component to persist the unlocked watermark state
+      if (onUnlockWatermark) {
+        onUnlockWatermark(originalUrl);
+      }
+
+      // Update context with wallet and IP ID for persistence
+      if (context && creationId) {
+        console.log(
+          `[CompactResultCard] Calling updateCreationWithOriginalUrl`,
+          {
+            creationId,
+            walletAddress: result.walletAddress,
+            ipId: result.ipId,
+          },
+        );
+        context.updateCreationWithOriginalUrl(
+          creationId,
+          originalUrl,
+          result.walletAddress,
+          result.ipId,
+        );
+      } else {
+        console.warn(
+          `[CompactResultCard] Cannot update context - missing data`,
+          {
+            hasContext: !!context,
+            creationId,
+          },
+        );
+      }
+    } else {
+      console.warn(
+        `[CompactResultCard] Registration complete but no originalUrl provided`,
+      );
     }
     setRegistrationState("success");
   };
