@@ -18,6 +18,8 @@ export interface Creation {
   remixType?: "paid" | "free" | null;
   parentAsset?: any;
   originalUrl?: string;
+  registeredByWallet?: string;
+  registeredIpId?: string;
 }
 
 interface CreationContextType {
@@ -41,6 +43,17 @@ interface CreationContextType {
     parentAsset?: any,
     originalUrl?: string,
   ) => void;
+  updateCreationWithOriginalUrl: (
+    id: string,
+    originalUrl: string,
+    registeredByWallet?: string,
+    registeredIpId?: string,
+  ) => void;
+  getRegisteredIpIdsForWallet: (walletAddress: string) => string[];
+  isCreationUnlockedByWallet: (
+    creationId: string,
+    walletAddress: string,
+  ) => boolean;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
   originalPrompt: string;
@@ -76,8 +89,19 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     if (storedCreations) {
       try {
         const allCreations = JSON.parse(storedCreations);
-        // Only load non-demo creations from localStorage
-        setCreations(allCreations.filter((c: Creation) => !c.isDemo));
+        const nonDemoCreations = allCreations.filter(
+          (c: Creation) => !c.isDemo,
+        );
+        console.log(
+          `[CreationContext] Loading ${nonDemoCreations.length} creations from localStorage:`,
+          nonDemoCreations.map((c: Creation) => ({
+            id: c.id,
+            hasOriginalUrl: !!c.originalUrl,
+            registeredByWallet: c.registeredByWallet,
+            registeredIpId: c.registeredIpId,
+          })),
+        );
+        setCreations(nonDemoCreations);
       } catch (err) {
         console.error("Failed to load creation history:", err);
       }
@@ -100,6 +124,15 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   // Save creations to localStorage whenever they change (only non-demo)
   useEffect(() => {
     const nonDemoCreations = creations.filter((c) => !c.isDemo);
+    console.log(
+      `[CreationContext] Saving ${nonDemoCreations.length} creations to localStorage:`,
+      nonDemoCreations.map((c) => ({
+        id: c.id,
+        hasOriginalUrl: !!c.originalUrl,
+        registeredByWallet: c.registeredByWallet,
+        registeredIpId: c.registeredIpId,
+      })),
+    );
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nonDemoCreations));
   }, [creations]);
 
@@ -182,6 +215,56 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     [],
   );
 
+  const updateCreationWithOriginalUrl = useCallback(
+    (
+      id: string,
+      originalUrl: string,
+      registeredByWallet?: string,
+      registeredIpId?: string,
+    ) => {
+      console.log(`[CreationContext] updateCreationWithOriginalUrl called:`, {
+        id,
+        originalUrl: originalUrl ? "provided" : "missing",
+        registeredByWallet,
+        registeredIpId,
+      });
+      setCreations((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? { ...c, originalUrl, registeredByWallet, registeredIpId }
+            : c,
+        ),
+      );
+    },
+    [],
+  );
+
+  const getRegisteredIpIdsForWallet = useCallback(
+    (walletAddress: string): string[] => {
+      return creations
+        .filter(
+          (c) =>
+            c.registeredByWallet?.toLowerCase() ===
+              walletAddress?.toLowerCase() && c.registeredIpId,
+        )
+        .map((c) => c.registeredIpId!)
+        .filter(Boolean);
+    },
+    [creations],
+  );
+
+  const isCreationUnlockedByWallet = useCallback(
+    (creationId: string, walletAddress: string): boolean => {
+      const creation = creations.find((c) => c.id === creationId);
+      if (!creation || !creation.registeredByWallet) return false;
+      return (
+        creation.registeredByWallet.toLowerCase() ===
+          walletAddress?.toLowerCase() && !!creation.originalUrl
+      );
+    },
+    [creations],
+  );
+
   const removeCreation = useCallback((id: string) => {
     setCreations((prev) => prev.filter((c) => c.id !== id));
   }, []);
@@ -204,6 +287,9 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       setError,
       creations,
       addCreation,
+      updateCreationWithOriginalUrl,
+      getRegisteredIpIdsForWallet,
+      isCreationUnlockedByWallet,
       removeCreation,
       clearCreations,
       originalPrompt,
@@ -219,6 +305,9 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       error,
       creations,
       addCreation,
+      updateCreationWithOriginalUrl,
+      getRegisteredIpIdsForWallet,
+      isCreationUnlockedByWallet,
       removeCreation,
       clearCreations,
       originalPrompt,
