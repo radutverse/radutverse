@@ -1,6 +1,7 @@
-import { useState, useContext, useRef } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import CompactResultCard from "@/components/ip/imagine/results/CompactResultCard";
@@ -15,6 +16,8 @@ import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
   const context = useContext(CreationContext);
+  const { authenticated } = usePrivy();
+  const { wallets } = useWallets();
 
   if (!context) {
     return (
@@ -77,6 +80,19 @@ const IpImagineCreationResult = () => {
   );
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+
+  // Update user identifier in creation context when wallet or guest mode changes
+  useEffect(() => {
+    if (!context?.setUserIdentifier) return;
+
+    let walletAddress: string | null = null;
+    if (authenticated && wallets && wallets.length > 0) {
+      const walletWithAddress = wallets.find((wallet) => wallet.address);
+      walletAddress = walletWithAddress?.address || null;
+    }
+
+    context.setUserIdentifier(walletAddress, demoMode);
+  }, [authenticated, wallets, demoMode, context]);
 
   const handleDownload = () => {
     if (!displayUrl) return;
