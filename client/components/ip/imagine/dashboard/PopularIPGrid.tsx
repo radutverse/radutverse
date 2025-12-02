@@ -10,6 +10,7 @@ import {
 import { CategoryBrowser } from "./CategoryBrowser";
 import { FeaturedCatalog } from "./FeaturedCatalog";
 import type { PopularItem, SearchResult } from "@/components/ip/remix/types";
+import { determineLicenseType } from "@/lib/license/license-types";
 
 interface PopularIPGridProps {
   onBack: () => void;
@@ -817,6 +818,27 @@ export const PopularIPGrid = ({
                                   </div>
                                 )}
 
+                                {(() => {
+                                  const licenseType =
+                                    determineLicenseType(license);
+                                  return licenseType ? (
+                                    <div>
+                                      <div className="text-xs text-slate-400 mb-1">
+                                        License Type
+                                      </div>
+                                      <div className="space-y-2">
+                                        <p className="text-sm text-slate-200 font-semibold flex items-center gap-2">
+                                          <span>{licenseType.icon}</span>
+                                          {licenseType.name}
+                                        </p>
+                                        <p className="text-xs text-slate-300 bg-slate-950/50 p-2 rounded border border-slate-700/30">
+                                          {licenseType.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ) : null;
+                                })()}
+
                                 {license.licenseTermsId && (
                                   <div>
                                     <div className="text-xs text-slate-400 mb-1">
@@ -908,22 +930,28 @@ export const PopularIPGrid = ({
                                         </div>
                                       )}
 
-                                      {license.licensingConfig?.mintingFee && (
-                                        <div>
-                                          <span className="text-slate-400">
-                                            Minting Fee:
-                                          </span>
-                                          <p className="text-slate-200 font-semibold">
-                                            {(
-                                              Number(
-                                                license.licensingConfig
-                                                  .mintingFee,
-                                              ) / 1e18
-                                            ).toFixed(6)}{" "}
-                                            tokens
-                                          </p>
-                                        </div>
-                                      )}
+                                      {(() => {
+                                        const feeValue =
+                                          license.licensingConfig?.mintingFee ||
+                                          license.terms?.defaultMintingFee;
+                                        return feeValue !== undefined &&
+                                          feeValue !== null ? (
+                                          <div>
+                                            <span className="text-slate-400">
+                                              Minting Fee:
+                                            </span>
+                                            <p className="text-slate-200 font-semibold">
+                                              {(() => {
+                                                const fee =
+                                                  Number(feeValue) / 1e18;
+                                                return fee > 0
+                                                  ? fee.toFixed(6) + " tokens"
+                                                  : "Free";
+                                              })()}
+                                            </p>
+                                          </div>
+                                        ) : null;
+                                      })()}
 
                                       {license.terms.currency && (
                                         <div>
@@ -942,7 +970,14 @@ export const PopularIPGrid = ({
                                             Expiration:
                                           </span>
                                           <p className="text-slate-200 font-semibold">
-                                            {license.terms.expiration}
+                                            {(() => {
+                                              const exp = new Date(
+                                                license.terms.expiration,
+                                              );
+                                              return !isNaN(exp.getTime())
+                                                ? exp.toLocaleDateString()
+                                                : license.terms.expiration;
+                                            })()}
                                           </p>
                                         </div>
                                       )}
