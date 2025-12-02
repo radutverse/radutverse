@@ -55,6 +55,7 @@ const IpImagineCreationResult = () => {
     originalPrompt,
     demoMode,
     setDemoMode,
+    updateCreationWithOriginalUrl,
   } = context;
 
   const [showUpscaler, setShowUpscaler] = useState(false);
@@ -410,6 +411,13 @@ const IpImagineCreationResult = () => {
                           demoMode={demoMode}
                           parentAsset={creation.parentAsset}
                           originalUrl={creation.originalUrl}
+                          creationId={creation.id}
+                          onUnlockWatermark={(originalUrl) => {
+                            updateCreationWithOriginalUrl(
+                              creation.id,
+                              originalUrl,
+                            );
+                          }}
                           onDownload={() => {
                             const link = document.createElement("a");
                             const downloadUrl =
