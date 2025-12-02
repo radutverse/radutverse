@@ -1,8 +1,14 @@
-import { put, list } from "@vercel/blob";
+import { put, get, list } from "@vercel/blob";
 import type { RequestHandler } from "express";
 
-const CREATION_HISTORY_BLOB_NAME = "creation-history.json";
 const MAX_BLOB_SIZE = 4 * 1024 * 1024; // 4MB limit per Vercel Blob
+
+// Helper to validate and sanitize blob key
+const sanitizeBlobKey = (key: string): string => {
+  // Allow alphanumeric, hyphens, underscores, and .json extension
+  const sanitized = key.replace(/[^a-z0-9_\-\.]/g, "");
+  return sanitized || "creation-history-default.json";
+};
 
 interface CreationHistoryData {
   creations: any[];
@@ -13,12 +19,17 @@ interface CreationHistoryData {
 /**
  * Load creation history from Vercel Blob
  */
-async function loadFromBlob(): Promise<CreationHistoryData | null> {
+async function loadFromBlob(
+  blobKey: string = "creation-history.json",
+): Promise<CreationHistoryData | null> {
   try {
-    const { blobs } = await list({ prefix: CREATION_HISTORY_BLOB_NAME });
+    const sanitizedKey = sanitizeBlobKey(blobKey);
+    const { blobs } = await list({ prefix: sanitizedKey });
 
     if (blobs.length === 0) {
-      console.log("[Creation History Blob] No creation history found");
+      console.log(
+        `[Creation History Blob] No creation history found for key: ${sanitizedKey}`,
+      );
       return null;
     }
 
@@ -44,8 +55,12 @@ async function loadFromBlob(): Promise<CreationHistoryData | null> {
 /**
  * Save creation history to Vercel Blob
  */
-async function saveToBlob(data: CreationHistoryData): Promise<void> {
+async function saveToBlob(
+  data: CreationHistoryData,
+  blobKey: string = "creation-history.json",
+): Promise<void> {
   const content = JSON.stringify(data, null, 2);
+  const sanitizedKey = sanitizeBlobKey(blobKey);
 
   // Check blob size
   if (content.length > MAX_BLOB_SIZE) {
@@ -62,14 +77,14 @@ async function saveToBlob(data: CreationHistoryData): Promise<void> {
   }
 
   try {
-    await put(CREATION_HISTORY_BLOB_NAME, content, {
-  contentType: "application/json",
-  access: "public",  
-  allowOverwrite: true,
-  });
+    await put(sanitizedKey, content, {
+      contentType: "application/json",
+      access: "public",
+      allowOverwrite: true,
+    });
 
     console.log(
-      `[Creation History Blob] Saved ${data.creations.length} creations`,
+      `[Creation History Blob] Saved ${data.creations.length} creations to ${sanitizedKey}`,
     );
   } catch (error) {
     console.error("[Creation History Blob] Failed to save:", error);
@@ -83,7 +98,7 @@ async function saveToBlob(data: CreationHistoryData): Promise<void> {
  */
 export const handleSyncCreationHistory: RequestHandler = async (req, res) => {
   try {
-    const { creations: clientCreations } = req.body || {};
+    const { creations: clientCreations, blobKey } = req.body || {};
 
     if (!Array.isArray(clientCreations)) {
       return res.status(400).json({
@@ -92,8 +107,8 @@ export const handleSyncCreationHistory: RequestHandler = async (req, res) => {
       });
     }
 
-    // Load existing data from blob
-    const blobData = await loadFromBlob();
+    // Load existing data from blob using user-specific key
+    const blobData = await loadFromBlob(blobKey);
 
     // Merge: client data takes precedence, but keep older items not in client
     const mergedCreations = clientCreations;
@@ -112,18 +127,19 @@ export const handleSyncCreationHistory: RequestHandler = async (req, res) => {
     mergedCreations.sort((a: any, b: any) => b.timestamp - a.timestamp);
     const limitedCreations = mergedCreations.slice(0, 500);
 
-    // Save to blob
+    // Save to blob with user-specific key
     const dataToSave: CreationHistoryData = {
       creations: limitedCreations,
       lastSynced: Date.now(),
       version: 1,
     };
 
-    await saveToBlob(dataToSave);
+    await saveToBlob(dataToSave, blobKey);
 
     console.log("[Creation History] Sync successful:", {
       clientCount: clientCreations.length,
       mergedCount: limitedCreations.length,
+      blobKey,
       timestamp: new Date().toLocaleString(),
     });
 
@@ -145,9 +161,10 @@ export const handleSyncCreationHistory: RequestHandler = async (req, res) => {
 /**
  * Get creation history from blob
  */
-export const handleGetCreationHistory: RequestHandler = async (_req, res) => {
+export const handleGetCreationHistory: RequestHandler = async (req, res) => {
   try {
-    const data = await loadFromBlob();
+    const { blobKey } = req.body || {};
+    const data = await loadFromBlob(blobKey);
 
     if (!data) {
       return res.status(200).json({
