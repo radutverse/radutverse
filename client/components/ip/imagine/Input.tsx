@@ -41,7 +41,7 @@ type IpImagineInputProps = {
   setCreationMode?: Dispatch<SetStateAction<"image" | "video">>;
   resultUrl?: string | null;
   resultUrls?: string[];
-  demoMode?: boolean;
+  guestMode?: boolean;
   creations?: Creation[];
 };
 
@@ -67,7 +67,7 @@ const IpImagineInput = ({
   setCreationMode = () => {},
   resultUrl = null,
   resultUrls = [],
-  demoMode = false,
+  guestMode = false,
   creations = [],
 }: IpImagineInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
