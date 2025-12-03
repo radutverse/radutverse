@@ -1,13 +1,5 @@
 import { RequestHandler } from "express";
-import fs from "fs";
-import path from "path";
 import { createClient } from "@supabase/supabase-js";
-
-const GUEST_CREATIONS_FILE = path.join(
-  process.cwd(),
-  "data",
-  "guest-creations.json",
-);
 
 interface GuestCreation {
   id: string;
@@ -15,12 +7,23 @@ interface GuestCreation {
   type: "image" | "video" | null;
   timestamp: number;
   prompt: string;
-  isGuest: boolean;
+  is_guest?: boolean;
+  isGuest?: boolean;
+  remix_type?: "paid" | "free" | null;
   remixType?: "paid" | "free" | null;
+  parent_asset?: any;
   parentAsset?: any;
+  original_url?: string;
   originalUrl?: string;
+  clean_url?: string;
+  cleanUrl?: string;
+  watermarked_url?: string;
+  watermarkedUrl?: string;
+  registered_by_wallet?: string;
   registeredByWallet?: string;
+  registered_ip_id?: string;
   registeredIpId?: string;
+  guest_session_id?: string;
   guestSessionId?: string;
 }
 
@@ -36,148 +39,52 @@ const getSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseKey);
 };
 
-// Ensure data directory exists
-const ensureDataDir = () => {
-  const dir = path.dirname(GUEST_CREATIONS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
-
-// Load all guest creations
-const loadGuestCreations = (): GuestCreation[] => {
-  ensureDataDir();
-  try {
-    if (fs.existsSync(GUEST_CREATIONS_FILE)) {
-      const data = fs.readFileSync(GUEST_CREATIONS_FILE, "utf-8");
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.warn("Failed to load guest creations:", error);
-  }
-  return [];
-};
-
-// Save guest creations
-const saveGuestCreations = (creations: GuestCreation[]): void => {
-  ensureDataDir();
-  try {
-    fs.writeFileSync(
-      GUEST_CREATIONS_FILE,
-      JSON.stringify(creations, null, 2),
-      "utf-8",
-    );
-  } catch (error) {
-    console.error("Failed to save guest creations:", error);
-    throw error;
-  }
-};
-
-// GET /api/guest-creations - Fetch all guest creations from Supabase
+// GET /api/guest-creations - Fetch all guest creations from Supabase database
 export const handleGetGuestCreations: RequestHandler = async (_req, res) => {
   try {
     const supabase = getSupabaseClient();
 
-    // If Supabase is not configured, fall back to local JSON file
     if (!supabase) {
-      console.log(
-        "Supabase not configured, falling back to local guest creations",
-      );
-      const creations = loadGuestCreations();
-      return res.json({ ok: true, creations });
+      console.error("Supabase not configured");
+      return res.status(500).json({
+        ok: false,
+        error: "Supabase not configured",
+      });
     }
 
-    // Fetch guest creations metadata from local JSON file
-    const metadataCreations = loadGuestCreations();
-
-    // Create a map of creation IDs for quick lookup
-    const metadataMap = new Map<string, GuestCreation>();
-    metadataCreations.forEach((c) => {
-      metadataMap.set(c.id, c);
-    });
-
-    // Fetch files from Supabase bucket
-    const { data: files, error } = await supabase.storage
-      .from("guest_creation")
-      .list();
+    // Fetch all guest creations from database
+    const { data: creations, error } = await supabase
+      .from("guest_creations")
+      .select("*")
+      .order("timestamp", { ascending: false });
 
     if (error) {
-      console.warn(
-        "Error fetching from Supabase bucket, falling back to local",
-        error,
-      );
-      return res.json({ ok: true, creations: metadataCreations });
+      console.error("Error fetching guest creations from database:", error);
+      return res.status(500).json({
+        ok: false,
+        error: error.message || "Failed to fetch guest creations",
+      });
     }
 
-    // Build creations list from Supabase files and metadata
-    const creations: GuestCreation[] = [];
-    const processedIds = new Set<string>();
+    // Transform snake_case to camelCase for backward compatibility
+    const transformedCreations = (creations || []).map((creation) => ({
+      id: creation.id,
+      url: creation.url,
+      type: creation.type,
+      timestamp: creation.timestamp,
+      prompt: creation.prompt,
+      isGuest: creation.is_guest,
+      remixType: creation.remix_type,
+      parentAsset: creation.parent_asset,
+      originalUrl: creation.original_url,
+      cleanUrl: creation.clean_url,
+      watermarkedUrl: creation.watermarked_url,
+      registeredByWallet: creation.registered_by_wallet,
+      registeredIpId: creation.registered_ip_id,
+      guestSessionId: creation.guest_session_id,
+    }));
 
-    if (files && Array.isArray(files)) {
-      for (const file of files) {
-        // Skip directories
-        if (file.name.endsWith("/")) {
-          continue;
-        }
-
-        // Extract creation ID from file path (format: creationId/timestamp.ext)
-        const parts = file.name.split("/");
-        if (parts.length < 2) {
-          continue;
-        }
-
-        const creationId = parts[0];
-
-        // Skip if we've already processed this creation ID
-        if (processedIds.has(creationId)) {
-          continue;
-        }
-        processedIds.add(creationId);
-
-        // Get metadata from local file if available
-        const metadata = metadataMap.get(creationId);
-
-        if (metadata) {
-          // Use metadata from local file and update URL from Supabase
-          const { data: urlData } = supabase.storage
-            .from("guest_creation")
-            .getPublicUrl(file.name);
-
-          creations.push({
-            ...metadata,
-            url: urlData.publicUrl,
-          });
-        } else {
-          // Create minimal creation object from file
-          const { data: urlData } = supabase.storage
-            .from("guest_creation")
-            .getPublicUrl(file.name);
-
-          creations.push({
-            id: creationId,
-            url: urlData.publicUrl,
-            type: file.name.endsWith(".mp4") ? "video" : "image",
-            timestamp: file.updated_at
-              ? new Date(file.updated_at).getTime()
-              : Date.now(),
-            prompt: "",
-            isGuest: true,
-          });
-        }
-      }
-    }
-
-    // Also include any metadata-only creations (in case metadata exists but file doesn't)
-    for (const [creationId, metadata] of metadataMap) {
-      if (!processedIds.has(creationId)) {
-        creations.push(metadata);
-      }
-    }
-
-    // Sort by timestamp descending (most recent first)
-    creations.sort((a, b) => b.timestamp - a.timestamp);
-
-    res.json({ ok: true, creations });
+    res.json({ ok: true, creations: transformedCreations });
   } catch (error: any) {
     console.error("Error fetching guest creations:", error);
     res.status(500).json({
@@ -187,7 +94,7 @@ export const handleGetGuestCreations: RequestHandler = async (_req, res) => {
   }
 };
 
-// POST /api/guest-creations - Add a new guest creation
+// POST /api/guest-creations - Add a new guest creation to database
 export const handleAddGuestCreation: RequestHandler = async (req, res) => {
   try {
     const creation: GuestCreation = req.body;
@@ -199,21 +106,52 @@ export const handleAddGuestCreation: RequestHandler = async (req, res) => {
       });
     }
 
-    const creations = loadGuestCreations();
-
-    // Check if creation already exists
-    const existingIndex = creations.findIndex((c) => c.id === creation.id);
-    if (existingIndex >= 0) {
-      creations[existingIndex] = creation;
-    } else {
-      creations.unshift(creation);
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return res.status(500).json({
+        ok: false,
+        error: "Supabase not configured",
+      });
     }
 
-    saveGuestCreations(creations);
+    // Prepare data for database (convert camelCase to snake_case)
+    const dbData = {
+      id: creation.id,
+      url: creation.url,
+      type: creation.type || "image",
+      timestamp: creation.timestamp || Date.now(),
+      prompt: creation.prompt || "",
+      is_guest: creation.isGuest !== undefined ? creation.isGuest : true,
+      remix_type: creation.remixType || creation.remix_type || null,
+      parent_asset: creation.parentAsset || creation.parent_asset || null,
+      original_url: creation.originalUrl || creation.original_url || null,
+      clean_url: creation.cleanUrl || creation.clean_url || null,
+      watermarked_url:
+        creation.watermarkedUrl || creation.watermarked_url || null,
+      registered_by_wallet:
+        creation.registeredByWallet || creation.registered_by_wallet || null,
+      registered_ip_id:
+        creation.registeredIpId || creation.registered_ip_id || null,
+      guest_session_id:
+        creation.guestSessionId || creation.guest_session_id || null,
+    };
 
-    // Attempt to upload image to Supabase if URL is a data URL
-    const supabase = getSupabaseClient();
-    if (supabase && creation.url && creation.url.startsWith("data:")) {
+    // Upsert (insert or update) the creation
+    const { data: upsertedData, error: upsertError } = await supabase
+      .from("guest_creations")
+      .upsert(dbData, { onConflict: "id" })
+      .select();
+
+    if (upsertError) {
+      console.error("Error saving guest creation to database:", upsertError);
+      return res.status(500).json({
+        ok: false,
+        error: upsertError.message || "Failed to save guest creation",
+      });
+    }
+
+    // Attempt to upload image to Supabase storage if URL is a data URL
+    if (creation.url && creation.url.startsWith("data:")) {
       try {
         const [header, base64Data] = creation.url.split(",");
         const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
@@ -241,22 +179,18 @@ export const handleAddGuestCreation: RequestHandler = async (req, res) => {
             .from("guest_creation")
             .getPublicUrl(data.path);
 
-          // Update the creation with the Supabase URL
+          // Update the creation in database with the Supabase storage URL
+          await supabase
+            .from("guest_creations")
+            .update({ url: urlData.publicUrl })
+            .eq("id", creation.id);
+
           creation.url = urlData.publicUrl;
-
-          // Update creations list with new URL
-          const index = creations.findIndex((c) => c.id === creation.id);
-          if (index >= 0) {
-            creations[index].url = urlData.publicUrl;
-          }
-
-          saveGuestCreations(creations);
         } else {
-          console.warn("Failed to upload image to Supabase:", error);
+          console.warn("Failed to upload image to Supabase storage:", error);
         }
       } catch (uploadError) {
-        console.warn("Error uploading image to Supabase:", uploadError);
-        // Continue with local storage even if Supabase upload fails
+        console.warn("Error uploading image to Supabase storage:", uploadError);
       }
     }
 
@@ -273,8 +207,8 @@ export const handleAddGuestCreation: RequestHandler = async (req, res) => {
   }
 };
 
-// DELETE /api/guest-creations/:id - Delete a guest creation
-export const handleDeleteGuestCreation: RequestHandler = (req, res) => {
+// DELETE /api/guest-creations/:id - Delete a guest creation from database
+export const handleDeleteGuestCreation: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -285,17 +219,27 @@ export const handleDeleteGuestCreation: RequestHandler = (req, res) => {
       });
     }
 
-    const creations = loadGuestCreations();
-    const filtered = creations.filter((c) => c.id !== id);
-
-    if (filtered.length === creations.length) {
-      return res.status(404).json({
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return res.status(500).json({
         ok: false,
-        error: "Creation not found",
+        error: "Supabase not configured",
       });
     }
 
-    saveGuestCreations(filtered);
+    // Delete the creation from database
+    const { error } = await supabase
+      .from("guest_creations")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error deleting guest creation:", error);
+      return res.status(500).json({
+        ok: false,
+        error: error.message || "Failed to delete guest creation",
+      });
+    }
 
     res.json({
       ok: true,
@@ -309,10 +253,31 @@ export const handleDeleteGuestCreation: RequestHandler = (req, res) => {
   }
 };
 
-// POST /api/guest-creations/clear - Clear all guest creations (admin only)
-export const handleClearGuestCreations: RequestHandler = (_req, res) => {
+// POST /api/guest-creations/clear - Clear all guest creations from database (admin only)
+export const handleClearGuestCreations: RequestHandler = async (_req, res) => {
   try {
-    saveGuestCreations([]);
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return res.status(500).json({
+        ok: false,
+        error: "Supabase not configured",
+      });
+    }
+
+    // Delete all guest creations from database
+    const { error } = await supabase
+      .from("guest_creations")
+      .delete()
+      .neq("id", ""); // Delete where id is not empty (all records)
+
+    if (error) {
+      console.error("Error clearing guest creations:", error);
+      return res.status(500).json({
+        ok: false,
+        error: error.message || "Failed to clear guest creations",
+      });
+    }
+
     res.json({
       ok: true,
       message: "All guest creations cleared",
