@@ -406,29 +406,6 @@ const IpImagineCreationResult = () => {
                     </p>
                   </motion.div>
                 )}
-                {guestMode && (
-                  <motion.div
-                    key="guest-mode-header"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="w-full"
-                  >
-                    <div className="rounded-lg bg-slate-800/40 border border-[#FF4DA6]/20 p-4 mb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#FF4DA6] font-semibold">
-                          🎭 Guest Mode
-                        </span>
-                        <span className="text-xs text-slate-400">
-                          · Shared across all devices
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-300 mt-2">
-                        All creations below are accessible from any device
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
                 {context.creations.filter((c) => c.isGuest === guestMode)
                   .length > 0 ? (
                   context.creations
