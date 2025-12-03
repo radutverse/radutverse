@@ -1,12 +1,12 @@
 import { RequestHandler } from "express";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 interface GuestCreation {
   id: string;
   url: string;
-  type: "image" | "video" | null;
-  timestamp: number;
-  prompt: string;
+  type?: "image" | "video" | null;
+  timestamp?: number;
+  prompt?: string;
   is_guest?: boolean;
   isGuest?: boolean;
   remix_type?: "paid" | "free" | null;
@@ -27,32 +27,49 @@ interface GuestCreation {
   guestSessionId?: string;
 }
 
-// Initialize Supabase client
-const getSupabaseClient = () => {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+// --------------------- Supabase client (server) ---------------------
+const getSupabaseClient = (): SupabaseClient | null => {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY; // use service role key on server
 
-  if (!supabaseUrl || !supabaseKey) {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY env vars");
     return null;
   }
 
-  return createClient(supabaseUrl, supabaseKey);
+  return createClient(supabaseUrl, supabaseServiceKey);
 };
 
-// GET /api/guest-creations - Fetch all guest creations from Supabase database
+// --------------------- Helpers ---------------------
+const toDbRow = (creation: GuestCreation) => ({
+  id: creation.id,
+  url: creation.url,
+  type: creation.type || "image",
+  timestamp: creation.timestamp || Date.now(),
+  prompt: creation.prompt || "",
+  is_guest: creation.isGuest !== undefined ? creation.isGuest : true,
+  remix_type: creation.remixType || creation.remix_type || null,
+  parent_asset: creation.parentAsset || creation.parent_asset || null,
+  original_url: creation.originalUrl || creation.original_url || null,
+  clean_url: creation.cleanUrl || creation.clean_url || null,
+  watermarked_url:
+    creation.watermarkedUrl || creation.watermarked_url || null,
+  registered_by_wallet:
+    creation.registeredByWallet || creation.registered_by_wallet || null,
+  registered_ip_id:
+    creation.registeredIpId || creation.registered_ip_id || null,
+  guest_session_id:
+    creation.guestSessionId || creation.guest_session_id || null,
+});
+
+// --------------------- GET all guest creations ---------------------
 export const handleGetGuestCreations: RequestHandler = async (_req, res) => {
   try {
     const supabase = getSupabaseClient();
-
     if (!supabase) {
-      console.error("Supabase not configured");
-      return res.status(500).json({
-        ok: false,
-        error: "Supabase not configured",
-      });
+      return res.status(500).json({ ok: false, error: "Supabase not configured" });
     }
 
-    // Fetch all guest creations from database
     const { data: creations, error } = await supabase
       .from("guest_creations")
       .select("*")
@@ -60,14 +77,10 @@ export const handleGetGuestCreations: RequestHandler = async (_req, res) => {
 
     if (error) {
       console.error("Error fetching guest creations from database:", error);
-      return res.status(500).json({
-        ok: false,
-        error: error.message || "Failed to fetch guest creations",
-      });
+      return res.status(500).json({ ok: false, error: error.message || "Failed to fetch guest creations" });
     }
 
-    // Transform snake_case to camelCase for backward compatibility
-    const transformedCreations = (creations || []).map((creation) => ({
+    const transformedCreations = (creations || []).map((creation: any) => ({
       id: creation.id,
       url: creation.url,
       type: creation.type,
@@ -84,150 +97,119 @@ export const handleGetGuestCreations: RequestHandler = async (_req, res) => {
       guestSessionId: creation.guest_session_id,
     }));
 
-    res.json({ ok: true, creations: transformedCreations });
-  } catch (error: any) {
-    console.error("Error fetching guest creations:", error);
-    res.status(500).json({
-      ok: false,
-      error: error?.message || "Failed to fetch guest creations",
-    });
+    return res.json({ ok: true, creations: transformedCreations });
+  } catch (err: any) {
+    console.error("Error fetching guest creations:", err);
+    return res.status(500).json({ ok: false, error: err?.message || "Failed to fetch guest creations" });
   }
 };
 
-// POST /api/guest-creations - Add a new guest creation to database
+// --------------------- POST add guest creation ---------------------
 export const handleAddGuestCreation: RequestHandler = async (req, res) => {
   try {
     const creation: GuestCreation = req.body;
 
-    if (!creation.id || !creation.url) {
-      return res.status(400).json({
-        ok: false,
-        error: "Missing required fields: id, url",
-      });
+    if (!creation?.id || !creation?.url) {
+      return res.status(400).json({ ok: false, error: "Missing required fields: id, url" });
     }
 
     const supabase = getSupabaseClient();
     if (!supabase) {
-      return res.status(500).json({
-        ok: false,
-        error: "Supabase not configured",
-      });
+      return res.status(500).json({ ok: false, error: "Supabase not configured" });
     }
 
-    // Prepare data for database (convert camelCase to snake_case)
-    const dbData = {
-      id: creation.id,
-      url: creation.url,
-      type: creation.type || "image",
-      timestamp: creation.timestamp || Date.now(),
-      prompt: creation.prompt || "",
-      is_guest: creation.isGuest !== undefined ? creation.isGuest : true,
-      remix_type: creation.remixType || creation.remix_type || null,
-      parent_asset: creation.parentAsset || creation.parent_asset || null,
-      original_url: creation.originalUrl || creation.original_url || null,
-      clean_url: creation.cleanUrl || creation.clean_url || null,
-      watermarked_url:
-        creation.watermarkedUrl || creation.watermarked_url || null,
-      registered_by_wallet:
-        creation.registeredByWallet || creation.registered_by_wallet || null,
-      registered_ip_id:
-        creation.registeredIpId || creation.registered_ip_id || null,
-      guest_session_id:
-        creation.guestSessionId || creation.guest_session_id || null,
-    };
+    const dbData = toDbRow(creation);
 
-    // Upsert (insert or update) the creation
-    const { data: upsertedData, error: upsertError } = await supabase
+    // Upsert the row (no .select() because we don't need returned data)
+    const { error: upsertError } = await supabase
       .from("guest_creations")
-      .upsert(dbData, { onConflict: "id" })
-      .select();
+      .upsert(dbData, { onConflict: "id" });
 
     if (upsertError) {
       console.error("Error saving guest creation to database:", upsertError);
-      return res.status(500).json({
-        ok: false,
-        error: upsertError.message || "Failed to save guest creation",
-      });
+      return res.status(500).json({ ok: false, error: upsertError.message || "Failed to save guest creation" });
     }
 
-    // Attempt to upload image to Supabase storage if URL is a data URL
-    if (creation.url && creation.url.startsWith("data:")) {
+    // If URL is a data URL, upload to Supabase Storage and update DB with public URL
+    if (typeof creation.url === "string" && creation.url.startsWith("data:")) {
       try {
-        const [header, base64Data] = creation.url.split(",");
-        const mimeType = header.match(/:(.*?);/)?.[1] || "image/png";
+        // data:[<mediatype>][;base64],<data>
+        const [, base64Data] = creation.url.split(",");
+        const header = creation.url.split(",")[0] || "";
+        const mimeMatch = header.match(/data:(.*?);/);
+        const mimeType = mimeMatch?.[1] || "image/png";
         const extension = mimeType.split("/")[1] || "png";
 
-        const binaryString = atob(base64Data);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: mimeType });
+        const buffer = Buffer.from(base64Data, "base64");
 
         const timestamp = Date.now();
         const filePath = `${creation.id}/${timestamp}.${extension}`;
 
-        const { data, error } = await supabase.storage
+        // Upload to bucket 'guest_creation' — ensure bucket exists
+        const { error: uploadError } = await supabase.storage
           .from("guest_creation")
-          .upload(filePath, blob, {
+          .upload(filePath, buffer, {
             cacheControl: "3600",
             upsert: false,
+            contentType: mimeType,
           });
 
-        if (!error && data) {
-          const { data: urlData } = supabase.storage
+        if (!uploadError) {
+          // Get public URL
+          const { data: urlData, error: urlError } = await supabase.storage
             .from("guest_creation")
-            .getPublicUrl(data.path);
+            .getPublicUrl(filePath);
 
-          // Update the creation in database with the Supabase storage URL
-          await supabase
-            .from("guest_creations")
-            .update({ url: urlData.publicUrl })
-            .eq("id", creation.id);
+          if (!urlError && urlData?.publicUrl) {
+            const publicUrl = urlData.publicUrl;
 
-          creation.url = urlData.publicUrl;
+            // Update DB with new URL
+            const { error: updateError } = await supabase
+              .from("guest_creations")
+              .update({ url: publicUrl })
+              .eq("id", creation.id);
+
+            if (updateError) {
+              console.warn("Uploaded to storage but failed to update DB url:", updateError);
+            } else {
+              // reflect change in response body
+              creation.url = publicUrl;
+            }
+          } else {
+            console.warn("Uploaded file but failed to get public URL:", urlError);
+          }
         } else {
-          console.warn("Failed to upload image to Supabase storage:", error);
+          console.warn("Failed to upload image to Supabase storage:", uploadError);
         }
-      } catch (uploadError) {
-        console.warn("Error uploading image to Supabase storage:", uploadError);
+      } catch (uploadErr) {
+        console.warn("Error uploading image to Supabase storage:", uploadErr);
       }
     }
 
-    res.json({
+    return res.json({
       ok: true,
       message: "Creation saved successfully",
       creation,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      ok: false,
-      error: error?.message || "Failed to save guest creation",
-    });
+  } catch (err: any) {
+    console.error("Failed to save guest creation:", err);
+    return res.status(500).json({ ok: false, error: err?.message || "Failed to save guest creation" });
   }
 };
 
-// DELETE /api/guest-creations/:id - Delete a guest creation from database
+// --------------------- DELETE guest creation by id ---------------------
 export const handleDeleteGuestCreation: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id) {
-      return res.status(400).json({
-        ok: false,
-        error: "Missing required parameter: id",
-      });
+      return res.status(400).json({ ok: false, error: "Missing required parameter: id" });
     }
 
     const supabase = getSupabaseClient();
     if (!supabase) {
-      return res.status(500).json({
-        ok: false,
-        error: "Supabase not configured",
-      });
+      return res.status(500).json({ ok: false, error: "Supabase not configured" });
     }
 
-    // Delete the creation from database
     const { error } = await supabase
       .from("guest_creations")
       .delete()
@@ -235,57 +217,38 @@ export const handleDeleteGuestCreation: RequestHandler = async (req, res) => {
 
     if (error) {
       console.error("Error deleting guest creation:", error);
-      return res.status(500).json({
-        ok: false,
-        error: error.message || "Failed to delete guest creation",
-      });
+      return res.status(500).json({ ok: false, error: error.message || "Failed to delete guest creation" });
     }
 
-    res.json({
-      ok: true,
-      message: "Creation deleted successfully",
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      ok: false,
-      error: error?.message || "Failed to delete guest creation",
-    });
+    return res.json({ ok: true, message: "Creation deleted successfully" });
+  } catch (err: any) {
+    console.error("Failed to delete guest creation:", err);
+    return res.status(500).json({ ok: false, error: err?.message || "Failed to delete guest creation" });
   }
 };
 
-// POST /api/guest-creations/clear - Clear all guest creations from database (admin only)
+// --------------------- CLEAR all guest creations (admin) ---------------------
 export const handleClearGuestCreations: RequestHandler = async (_req, res) => {
   try {
     const supabase = getSupabaseClient();
     if (!supabase) {
-      return res.status(500).json({
-        ok: false,
-        error: "Supabase not configured",
-      });
+      return res.status(500).json({ ok: false, error: "Supabase not configured" });
     }
 
-    // Delete all guest creations from database
+    // Delete all rows
     const { error } = await supabase
       .from("guest_creations")
       .delete()
-      .neq("id", ""); // Delete where id is not empty (all records)
+      .neq("id", ""); // delete where id != ''
 
     if (error) {
       console.error("Error clearing guest creations:", error);
-      return res.status(500).json({
-        ok: false,
-        error: error.message || "Failed to clear guest creations",
-      });
+      return res.status(500).json({ ok: false, error: error.message || "Failed to clear guest creations" });
     }
 
-    res.json({
-      ok: true,
-      message: "All guest creations cleared",
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      ok: false,
-      error: error?.message || "Failed to clear guest creations",
-    });
+    return res.json({ ok: true, message: "All guest creations cleared" });
+  } catch (err: any) {
+    console.error("Failed to clear guest creations:", err);
+    return res.status(500).json({ ok: false, error: err?.message || "Failed to clear guest creations" });
   }
 };
