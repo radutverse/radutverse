@@ -58,8 +58,8 @@ const IpImagineCreationResult = () => {
     loadingMessage,
     error,
     originalPrompt,
-    demoMode: guestMode,
-    setDemoMode: setGuestMode,
+    guestMode,
+    setGuestMode,
     updateCreationWithOriginalUrl,
   } = context;
 
@@ -138,7 +138,7 @@ const IpImagineCreationResult = () => {
                 asset.registrationDate || Date.now(),
               ).getTime(),
               prompt: asset.title || "Story IP Asset",
-              isDemo: true,
+              isGuest: true,
               remixType:
                 asset.parentsCount && asset.parentsCount > 0 ? "free" : null,
               parentAsset: asset,
@@ -283,9 +283,7 @@ const IpImagineCreationResult = () => {
       walletButtonText="Connect"
       walletButtonDisabled={true}
       onWalletClick={() => {}}
-      demoMode={guestMode}
       showGuest={true}
-      guestButtonLabel="Guest"
     />
   );
 
@@ -423,7 +421,7 @@ const IpImagineCreationResult = () => {
             </motion.div>
           ) : (guestMode
               ? guestWalletAssets.length === 0 && !isFetchingGuestAssets
-              : context.creations.filter((c) => c.isDemo === guestMode)
+              : context.creations.filter((c) => c.isGuest === guestMode)
                   .length === 0) && !isLoading ? (
             <motion.div
               key="no-data"
@@ -485,11 +483,11 @@ const IpImagineCreationResult = () => {
                 )}
                 {(guestMode
                   ? guestWalletAssets
-                  : context.creations.filter((c) => c.isDemo === guestMode)
+                  : context.creations.filter((c) => c.isGuest === guestMode)
                 ).length > 0 ? (
                   (guestMode
                     ? guestWalletAssets
-                    : context.creations.filter((c) => c.isDemo === guestMode)
+                    : context.creations.filter((c) => c.isGuest === guestMode)
                   ).map((creation) => (
                     <motion.div
                       key={creation.id}
