@@ -13,8 +13,6 @@ import { CreationContext, Creation } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { generateDemoImage } from "@/lib/utils/generate-demo-image";
 
-const GUEST_WALLET_ADDRESS = "0x7052E369a55D36b10Ab43B0f2B41273C8bceA84c";
-
 const IpImagineCreationResult = () => {
   const navigate = useNavigate();
   const context = useContext(CreationContext);
@@ -80,89 +78,8 @@ const IpImagineCreationResult = () => {
   const [expandedCreationId, setExpandedCreationId] = useState<string | null>(
     null,
   );
-  const [guestWalletAssets, setGuestWalletAssets] = useState<Creation[]>([]);
-  const [isFetchingGuestAssets, setIsFetchingGuestAssets] = useState(false);
-  const guestAssetsCache = useRef<Creation[] | null>(null);
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
-
-  // Fetch guest wallet assets from Story API when guest mode is active
-  useEffect(() => {
-    if (!guestMode) {
-      return;
-    }
-
-    // Use cache if available
-    if (guestAssetsCache.current !== null) {
-      console.log("Using cached guest wallet assets");
-      setGuestWalletAssets(guestAssetsCache.current);
-      return;
-    }
-
-    const fetchGuestWalletAssets = async () => {
-      setIsFetchingGuestAssets(true);
-      try {
-        const response = await fetch("/api/check-ip-assets", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            address: GUEST_WALLET_ADDRESS,
-            network: "mainnet",
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error(
-            "Failed to fetch guest wallet assets:",
-            errorData.error,
-          );
-          setGuestWalletAssets([]);
-          guestAssetsCache.current = [];
-          setIsFetchingGuestAssets(false);
-          return;
-        }
-
-        const data = await response.json();
-        if (data.ok && data.assets && Array.isArray(data.assets)) {
-          // Only include assets with IPFS media URLs
-          const assets: Creation[] = data.assets
-            .filter((asset: any) => asset.mediaUrl) // Only assets with mediaUrl (IPFS)
-            .map((asset: any) => ({
-              id: asset.ipId || `asset-${asset.ipId}`,
-              url: asset.mediaUrl,
-              type: asset.mediaType === "video" ? "video" : "image",
-              timestamp: new Date(
-                asset.registrationDate || Date.now(),
-              ).getTime(),
-              prompt: asset.title || "Story IP Asset",
-              isGuest: true,
-              remixType:
-                asset.parentsCount && asset.parentsCount > 0 ? "free" : null,
-              parentAsset: asset,
-              originalUrl: asset.mediaUrl,
-              registeredByWallet: asset.ownerAddress,
-              registeredIpId: asset.ipId,
-            }));
-          setGuestWalletAssets(assets);
-          guestAssetsCache.current = assets;
-        } else {
-          setGuestWalletAssets([]);
-          guestAssetsCache.current = [];
-        }
-      } catch (error) {
-        console.error("Error fetching guest wallet assets:", error);
-        setGuestWalletAssets([]);
-        guestAssetsCache.current = [];
-      } finally {
-        setIsFetchingGuestAssets(false);
-      }
-    };
-
-    fetchGuestWalletAssets();
-  }, [guestMode]);
 
   // Update user identifier in creation context when wallet or guest mode changes
   useEffect(() => {
@@ -176,6 +93,12 @@ const IpImagineCreationResult = () => {
 
     context.setUserIdentifier(walletAddress, guestMode);
   }, [authenticated, wallets, guestMode, context]);
+
+  // Refresh guest creations when toggling to guest mode
+  useEffect(() => {
+    if (!guestMode || !context?.refreshGuestCreations) return;
+    context.refreshGuestCreations();
+  }, [guestMode, context]);
 
   const handleDownload = () => {
     if (!displayUrl) return;
@@ -419,17 +342,19 @@ const IpImagineCreationResult = () => {
                 );
               })()}
             </motion.div>
-          ) : (guestMode
-              ? guestWalletAssets.length === 0 && !isFetchingGuestAssets
-              : context.creations.filter((c) => c.isGuest === guestMode)
-                  .length === 0) && !isLoading ? (
+          ) : context.creations.filter((c) => c.isGuest === guestMode)
+              .length === 0 && !isLoading ? (
             <motion.div
               key="no-data"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center h-[400px]"
             >
-              <p className="text-slate-400 mb-4">No creation data found</p>
+              <p className="text-slate-400 mb-4">
+                {guestMode
+                  ? "No shared creations yet. Create one to get started!"
+                  : "No creation data found"}
+              </p>
               <Button onClick={() => navigate("/ip-imagine")}>
                 Back to IP Imagine
               </Button>
@@ -443,7 +368,7 @@ const IpImagineCreationResult = () => {
               className="flex flex-wrap gap-4 pb-2"
             >
               <AnimatePresence mode="popLayout">
-                {(isLoading || isFetchingGuestAssets) && (
+                {isLoading && (
                   <motion.div
                     key="loading-spinner"
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -481,92 +406,124 @@ const IpImagineCreationResult = () => {
                     </p>
                   </motion.div>
                 )}
-                {(guestMode
-                  ? guestWalletAssets
-                  : context.creations.filter((c) => c.isGuest === guestMode)
-                ).length > 0 ? (
-                  (guestMode
-                    ? guestWalletAssets
-                    : context.creations.filter((c) => c.isGuest === guestMode)
-                  ).map((creation) => (
-                    <motion.div
-                      key={creation.id}
-                      initial={{ opacity: 0, scale: 0.8, x: -20 }}
-                      animate={{ opacity: 1, scale: 1, x: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex-shrink-0"
-                    >
-                      <CompactResultCard
-                        imageUrl={
-                          upscalingCreationId === creation.id && upscaledUrl
-                            ? upscaledUrl
-                            : creation.url
-                        }
-                        type={creation.type}
-                        isLoading={false}
-                        guestMode={guestMode}
-                        parentAsset={creation.parentAsset}
-                        originalUrl={creation.originalUrl}
-                        creationId={creation.id}
-                        onUnlockWatermark={(originalUrl) => {
-                          updateCreationWithOriginalUrl(
-                            creation.id,
-                            originalUrl,
-                          );
-                        }}
-                        onDownload={() => {
-                          const link = document.createElement("a");
-                          const downloadUrl =
+                {guestMode && (
+                  <motion.div
+                    key="guest-mode-header"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="w-full"
+                  >
+                    <div className="rounded-lg bg-slate-800/40 border border-[#FF4DA6]/20 p-4 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#FF4DA6] font-semibold">
+                          🎭 Guest Mode
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          · Shared across all devices
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 mt-2">
+                        All creations below are accessible from any device
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+                {context.creations.filter((c) => c.isGuest === guestMode)
+                  .length > 0 ? (
+                  context.creations
+                    .filter((c) => c.isGuest === guestMode)
+                    .map((creation) => (
+                      <motion.div
+                        key={creation.id}
+                        initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex-shrink-0"
+                      >
+                        <CompactResultCard
+                          imageUrl={
                             upscalingCreationId === creation.id && upscaledUrl
                               ? upscaledUrl
-                              : creation.url;
-                          link.href = downloadUrl;
-                          link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        }}
-                        onShare={async () => {
-                          try {
-                            if (navigator.share) {
-                              await navigator.share({
-                                title: "IP Imagine Creation",
-                                text: "Check out my AI-generated creation from IP Imagine!",
-                                url: window.location.href,
-                              });
-                            } else {
-                              navigator.clipboard.writeText(
-                                window.location.href,
-                              );
-                              alert("Link copied to clipboard!");
-                            }
-                          } catch (error) {
-                            console.error("Share error:", error);
+                              : creation.url
                           }
-                        }}
-                        onUpscale={
-                          creation.type === "image"
-                            ? () => {
-                                setResultUrl(creation.url);
-                                setResultType(creation.type);
-                                setUpscalingCreationId(creation.id);
-                                setShowUpscaler(true);
+                          type={creation.type}
+                          isLoading={false}
+                          guestMode={guestMode}
+                          parentAsset={creation.parentAsset}
+                          originalUrl={creation.originalUrl}
+                          cleanUrl={creation.cleanUrl}
+                          registeredIpId={creation.registeredIpId}
+                          creationId={creation.id}
+                          onUnlockWatermark={(originalUrl) => {
+                            updateCreationWithOriginalUrl(
+                              creation.id,
+                              originalUrl,
+                            );
+                          }}
+                          onDownload={() => {
+                            const link = document.createElement("a");
+                            // Use clean URL if available and registered, otherwise use creation.url
+                            const downloadUrl =
+                              upscalingCreationId === creation.id && upscaledUrl
+                                ? upscaledUrl
+                                : creation.cleanUrl && creation.registeredIpId
+                                  ? creation.cleanUrl
+                                  : creation.url;
+                            link.href = downloadUrl;
+                            link.download = `ip-imagine-${creation.id}${creation.type === "video" ? ".mp4" : ".png"}`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          onShare={async () => {
+                            try {
+                              if (navigator.share) {
+                                await navigator.share({
+                                  title: "IP Imagine Creation",
+                                  text: "Check out my AI-generated creation from IP Imagine!",
+                                  url: window.location.href,
+                                });
+                              } else {
+                                navigator.clipboard.writeText(
+                                  window.location.href,
+                                );
+                                alert("Link copied to clipboard!");
                               }
-                            : undefined
-                        }
-                        onCreateAnother={() => {}}
-                        isExpanded={expandedCreationId === creation.id}
-                        setIsExpanded={(expanded) => {
-                          if (expanded) {
-                            handleCardExpand(creation.id);
-                          } else {
-                            setExpandedCreationId(null);
+                            } catch (error) {
+                              console.error("Share error:", error);
+                            }
+                          }}
+                          onUpscale={
+                            creation.type === "image"
+                              ? () => {
+                                  setResultUrl(creation.url);
+                                  setResultType(creation.type);
+                                  setUpscalingCreationId(creation.id);
+                                  setShowUpscaler(true);
+                                }
+                              : undefined
                           }
-                        }}
-                      />
-                    </motion.div>
-                  ))
+                          onCreateAnother={() => {}}
+                          onDelete={
+                            guestMode
+                              ? () => {
+                                  context.removeCreation(creation.id);
+                                }
+                              : undefined
+                          }
+                          isExpanded={expandedCreationId === creation.id}
+                          setIsExpanded={(expanded) => {
+                            if (expanded) {
+                              handleCardExpand(creation.id);
+                            } else {
+                              setExpandedCreationId(null);
+                            }
+                          }}
+                        />
+                      </motion.div>
+                    ))
                 ) : (
                   <div className="text-slate-400">No creations yet</div>
                 )}
