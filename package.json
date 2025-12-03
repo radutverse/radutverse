@@ -23,6 +23,7 @@
   "dependencies": {
     "@privy-io/react-auth": "^1.99.1",
     "@story-protocol/core-sdk": "^1.4.0",
+    "@supabase/supabase-js": "^2.86.0",
     "@vercel/blob": "^2.0.0",
     "dotenv": "^17.2.1",
     "exifr": "^7.1.3",
