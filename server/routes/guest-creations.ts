@@ -29,11 +29,11 @@ interface GuestCreation {
 
 // --------------------- Supabase client (server) ---------------------
 const getSupabaseClient = (): SupabaseClient | null => {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY; // use service role key on server
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const supabaseServiceKey = process.env.VITE_SUPABASE_ANON_KEY; // use service role key on server
 
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY env vars");
+    console.error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY env vars");
     return null;
   }
 
