@@ -20,6 +20,9 @@ export interface Creation {
   originalUrl?: string;
   registeredByWallet?: string;
   registeredIpId?: string;
+  guestSessionId?: string; // Unique session ID for guest-only access
+  cleanUrl?: string; // Clean version (no watermark) for paid remix - stored in Supabase
+  watermarkedUrl?: string; // Watermarked version for paid remix - stored in Supabase
 }
 
 interface CreationContextType {
@@ -42,6 +45,8 @@ interface CreationContextType {
     remixType?: "paid" | "free" | null,
     parentAsset?: any,
     originalUrl?: string,
+    cleanUrl?: string,
+    watermarkedUrl?: string,
   ) => void;
   updateCreationWithOriginalUrl: (
     id: string,
@@ -56,6 +61,7 @@ interface CreationContextType {
   ) => boolean;
   removeCreation: (id: string) => void;
   clearCreations: () => void;
+  refreshGuestCreations: () => Promise<void>;
   originalPrompt: string;
   setOriginalPrompt: (prompt: string) => void;
   guestMode: boolean;
@@ -104,6 +110,25 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
     if (storedGuestMode !== null) {
       setGuestMode(JSON.parse(storedGuestMode));
     }
+  }, []);
+
+  // Fetch guest creations from server on mount
+  useEffect(() => {
+    const fetchGuestCreations = async () => {
+      try {
+        const response = await fetch("/api/guest-creations");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.creations && Array.isArray(data.creations)) {
+            setCreations(data.creations);
+          }
+        }
+      } catch (error) {
+        console.warn("Failed to fetch guest creations:", error);
+      }
+    };
+
+    fetchGuestCreations();
   }, []);
 
   // Save current result URL to localStorage
@@ -164,6 +189,8 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       remixType?: "paid" | "free" | null,
       parentAsset?: any,
       originalUrl?: string,
+      cleanUrl?: string,
+      watermarkedUrl?: string,
     ) => {
       const now = Date.now();
       const newCreation: Creation = {
@@ -176,8 +203,21 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
         remixType,
         parentAsset,
         originalUrl,
+        cleanUrl,
+        watermarkedUrl,
       };
       setCreations((prev) => [newCreation, ...prev]);
+
+      // Sync guest creations to server
+      if (isGuest) {
+        fetch("/api/guest-creations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newCreation),
+        }).catch((error) => {
+          console.warn("Failed to sync guest creation to server:", error);
+        });
+      }
     },
     [],
   );
@@ -195,13 +235,40 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
         registeredByWallet,
         registeredIpId,
       });
-      setCreations((prev) =>
-        prev.map((c) =>
-          c.id === id
-            ? { ...c, originalUrl, registeredByWallet, registeredIpId }
-            : c,
-        ),
-      );
+      setCreations((prev) => {
+        const updated = prev.map((c) => {
+          if (c.id === id) {
+            // For paid remix with cleanUrl, use that as the display URL after registration
+            const displayUrl = c.cleanUrl || originalUrl;
+            return {
+              ...c,
+              originalUrl,
+              registeredByWallet,
+              registeredIpId,
+              // Update url to cleanUrl for display if available (paid remix)
+              ...(c.cleanUrl && { url: c.cleanUrl }),
+            };
+          }
+          return c;
+        });
+
+        // Sync updated guest creation to server
+        const updatedCreation = updated.find((c) => c.id === id);
+        if (updatedCreation && updatedCreation.isGuest) {
+          fetch("/api/guest-creations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedCreation),
+          }).catch((error) => {
+            console.warn(
+              "Failed to sync updated guest creation to server:",
+              error,
+            );
+          });
+        }
+
+        return updated;
+      });
     },
     [],
   );
@@ -233,11 +300,42 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   const removeCreation = useCallback((id: string) => {
-    setCreations((prev) => prev.filter((c) => c.id !== id));
+    setCreations((prev) => {
+      const creation = prev.find((c) => c.id === id);
+      if (creation && creation.isGuest) {
+        // Sync deletion to server
+        fetch(`/api/guest-creations/${id}`, {
+          method: "DELETE",
+        }).catch((error) => {
+          console.warn("Failed to delete guest creation from server:", error);
+        });
+      }
+      return prev.filter((c) => c.id !== id);
+    });
   }, []);
 
   const clearCreations = useCallback(() => {
     setCreations([]);
+    // Clear guest creations from server
+    fetch("/api/guest-creations/clear", {
+      method: "POST",
+    }).catch((error) => {
+      console.warn("Failed to clear guest creations from server:", error);
+    });
+  }, []);
+
+  const refreshGuestCreations = useCallback(async () => {
+    try {
+      const response = await fetch("/api/guest-creations");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.creations && Array.isArray(data.creations)) {
+          setCreations(data.creations);
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to refresh guest creations:", error);
+    }
   }, []);
 
   const setUserIdentifier = useCallback(
@@ -270,6 +368,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       isCreationUnlockedByWallet,
       removeCreation,
       clearCreations,
+      refreshGuestCreations,
       originalPrompt,
       setOriginalPrompt,
       guestMode,
@@ -289,6 +388,7 @@ export const CreationProvider: React.FC<{ children: ReactNode }> = ({
       isCreationUnlockedByWallet,
       removeCreation,
       clearCreations,
+      refreshGuestCreations,
       originalPrompt,
       guestMode,
       setGuestMode,
