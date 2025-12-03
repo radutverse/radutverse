@@ -526,12 +526,6 @@ export const PopularIPGrid = ({
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-white">Browse & Remix</h2>
-        <button
-          onClick={onBack}
-          className="px-4 py-2 rounded-lg font-semibold text-white transition-all duration-200 bg-slate-700 hover:bg-slate-600 hover:shadow-lg hover:shadow-slate-600/30"
-        >
-          ← Back
-        </button>
       </div>
 
       <div className="flex gap-2 mb-4 flex-wrap items-center justify-between">
