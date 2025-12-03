@@ -6,17 +6,20 @@ import React, {
   useState,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatHeaderActions from "@/components/ip/assistant/ChatHeaderActions";
 import SidebarExtras from "@/components/ip/assistant/SidebarExtras";
 import IpImagineInput from "@/components/ip/imagine/Input";
+import { IpImagineTour } from "@/components/ip/imagine/IpImagineTour";
 import {
   PopularIPGrid,
   AddRemixImageModal,
   type PreviewImagesState,
 } from "@/components/ip/remix";
 import useGeminiGenerator from "@/hooks/useGeminiGenerator";
+import { useIpImagineTour } from "@/hooks/useIpImagineTour";
 import { getCurrentTimestamp } from "@/lib/ip-assistant/utils";
 import { calculateBlobHash } from "@/lib/utils/hash";
 import { calculatePerceptualHash } from "@/lib/utils/perceptual-hash";
@@ -30,6 +33,16 @@ const IpImagine = () => {
   const guestMode = context?.guestMode || false;
   const { authenticated } = usePrivy();
   const { wallets } = useWallets();
+  const {
+    tourStep,
+    uploadButtonRect,
+    inputRect,
+    submitButtonRect,
+    startTour,
+    nextStep,
+    skipTour,
+    completeTour,
+  } = useIpImagineTour();
 
   const {
     generate,
@@ -70,6 +83,15 @@ const IpImagine = () => {
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+
+  // Auto-start tour if coming from welcome screen
+  useEffect(() => {
+    const shouldStartTour = sessionStorage.getItem("start-ip-imagine-tour");
+    if (shouldStartTour === "true") {
+      sessionStorage.removeItem("start-ip-imagine-tour");
+      startTour();
+    }
+  }, [startTour]);
 
   // Track new results for stacking effect
   useEffect(() => {
@@ -448,12 +470,15 @@ const IpImagine = () => {
     />
   );
 
+  const navigate = useNavigate();
+
   return (
     <DashboardLayout
       title="IP Imagine"
       avatarSrc={null}
       actions={headerActions}
       sidebarExtras={sidebarExtras}
+      onLogoClick={() => navigate("/")}
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
@@ -733,6 +758,15 @@ const IpImagine = () => {
           />
         )}
       </AnimatePresence>
+
+      <IpImagineTour
+        tourStep={tourStep}
+        uploadButtonRect={uploadButtonRect}
+        inputRect={inputRect}
+        submitButtonRect={submitButtonRect}
+        onNext={nextStep}
+        onSkip={skipTour}
+      />
     </DashboardLayout>
   );
 };
