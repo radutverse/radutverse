@@ -2,6 +2,10 @@ import { useContext } from "react";
 import { CreationContext } from "@/context/CreationContext";
 import * as openaiService from "@/services/openaiService";
 import { GenerationOptions, ToggleMode } from "@/types/generation";
+import {
+  uploadGuestImageToSupabase,
+  isSupabaseConfigured,
+} from "@/lib/utils/supabase";
 
 const useGeminiGenerator = () => {
   const context = useContext(CreationContext);
@@ -88,15 +92,68 @@ const useGeminiGenerator = () => {
       type = "image";
       setResultType("image");
 
-      setResultUrl(generatedUrl);
+      // Upload to Supabase if in guest mode and Supabase is configured
+      let finalUrl = generatedUrl;
+      const creationId = `creation_${Date.now()}`;
+      if (demoModeParam && isSupabaseConfigured()) {
+        try {
+          setLoadingMessage("Uploading to storage...");
+
+          // Convert data URL directly to Blob (faster than fetch)
+          const dataURLtoBlob = (dataURL: string): Blob => {
+            const arr = dataURL.split(",");
+            const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
+            const bstr = atob(arr[1]);
+            const n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            for (let i = 0; i < n; i++) {
+              u8arr[i] = bstr.charCodeAt(i);
+            }
+            return new Blob([u8arr], { type: mime });
+          };
+
+          const blob = dataURLtoBlob(generatedUrl);
+
+          // Upload to Supabase
+          const uploadedUrl = await uploadGuestImageToSupabase({
+            file: blob,
+            fileName: `${creationId}.png`,
+            creationId,
+          });
+
+          if (uploadedUrl) {
+            finalUrl = uploadedUrl;
+            console.log("Image uploaded to Supabase:", uploadedUrl);
+          } else {
+            console.warn("Failed to upload to Supabase, using local URL");
+          }
+        } catch (uploadError) {
+          console.warn("Error uploading to Supabase:", uploadError);
+          // Continue with local URL if upload fails
+        }
+      }
+
+      setResultUrl(finalUrl);
+
+      // For paid remix, track both watermarked and clean URLs
+      let cleanUrlToStore: string | undefined;
+      let watermarkedUrlToStore: string | undefined;
+
+      if (remixType === "paid") {
+        watermarkedUrlToStore = finalUrl;
+        cleanUrlToStore = originalUrl;
+      }
+
       addCreation(
-        generatedUrl,
+        finalUrl,
         type,
         options.prompt,
-        demoModeParam,
+        guestMode,
         remixType,
         options.parentAsset,
         originalUrl,
+        cleanUrlToStore,
+        watermarkedUrlToStore,
       );
     } catch (e: any) {
       console.error(e);

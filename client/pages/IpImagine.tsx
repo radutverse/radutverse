@@ -415,8 +415,12 @@ const IpImagine = () => {
   // Note: Watermark is now applied in useGeminiGenerator hook during generation
   // This ensures watermark is applied before image is stored in creation history
 
-  const handleToggleGuest = () => {
+  const handleToggleGuest = async () => {
     setGuestMode(!guestMode);
+    // Refresh guest creations when toggling
+    if (!guestMode && context?.refreshGuestCreations) {
+      await context.refreshGuestCreations();
+    }
   };
 
   const headerActions = (

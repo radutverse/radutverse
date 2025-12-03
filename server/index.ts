@@ -20,6 +20,12 @@ import {
   handleGetRemixHashesFull,
   handleDeleteRemixHash,
 } from "./routes/remix-hash-whitelist.js";
+import {
+  handleGetGuestCreations,
+  handleAddGuestCreation,
+  handleDeleteGuestCreation,
+  handleClearGuestCreations,
+} from "./routes/guest-creations.js";
 // Sharp-dependent routes are lazy-loaded to avoid loading sharp during build
 
 async function fetchParentIpDetails(
@@ -218,6 +224,12 @@ export async function createServer() {
   app.get("/api/_admin/remix-hashes-full", handleGetRemixHashesFull);
   app.post("/api/_admin/clear-remix-hashes", handleClearRemixHashes);
   app.post("/api/_admin/delete-remix-hash", handleDeleteRemixHash);
+
+  // Guest creations endpoints
+  app.get("/api/guest-creations", handleGetGuestCreations);
+  app.post("/api/guest-creations", handleAddGuestCreation);
+  app.delete("/api/guest-creations/:id", handleDeleteGuestCreation);
+  app.post("/api/guest-creations/clear", handleClearGuestCreations);
 
   // Capture asset vision endpoint (silently on asset click)
   app.post("/api/capture-asset-vision", handleCaptureAssetVision);

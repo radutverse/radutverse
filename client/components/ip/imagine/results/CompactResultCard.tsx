@@ -25,8 +25,11 @@ interface CompactResultCardProps {
   guestMode?: boolean;
   parentAsset?: any;
   originalUrl?: string;
+  cleanUrl?: string;
+  registeredIpId?: string;
   creationId?: string;
   onUnlockWatermark?: (originalUrl: string) => void;
+  onDelete?: () => void;
 }
 
 const CompactResultCard = ({
@@ -42,8 +45,11 @@ const CompactResultCard = ({
   guestMode = false,
   parentAsset,
   originalUrl,
+  cleanUrl,
+  registeredIpId: propsRegisteredIpId,
   creationId,
   onUnlockWatermark,
+  onDelete,
 }: CompactResultCardProps) => {
   const { authenticated } = usePrivy();
   const { wallets } = useWallets();
@@ -60,9 +66,42 @@ const CompactResultCard = ({
   const [registrationError, setRegistrationError] = useState<string | null>(
     null,
   );
-  const [registeredIpId, setRegisteredIpId] = useState<string | null>(null);
-  const [displayUrl, setDisplayUrl] = useState<string>(imageUrl);
+  const [registeredIpIdLocal, setRegisteredIpIdLocal] = useState<string | null>(
+    propsRegisteredIpId || null,
+  );
+  const registeredIpId = propsRegisteredIpId || registeredIpIdLocal;
   const licensingFormRef = useRef<any>(null);
+
+  // Calculate display URL based on registration state and available URLs
+  const getDisplayUrl = (): string => {
+    // If registered and cleanUrl is available, use clean version
+    if (registeredIpId && cleanUrl) {
+      return cleanUrl;
+    }
+    // If registered but no cleanUrl, try to use originalUrl
+    if (registeredIpId && originalUrl) {
+      return originalUrl;
+    }
+    // Default to imageUrl (watermarked for paid remix)
+    return imageUrl;
+  };
+
+  const [displayUrl, setDisplayUrl] = useState<string>(getDisplayUrl());
+
+  // Update display URL when registration state or URLs change
+  useEffect(() => {
+    const newDisplayUrl = getDisplayUrl();
+    setDisplayUrl(newDisplayUrl);
+    console.log(
+      `[CompactResultCard] Updated displayUrl based on registration state`,
+      {
+        registeredIpId,
+        hasCleanUrl: !!cleanUrl,
+        hasOriginalUrl: !!originalUrl,
+        displayUrl: newDisplayUrl,
+      },
+    );
+  }, [registeredIpId, cleanUrl, originalUrl, imageUrl]);
 
   // Check if current wallet has already unlocked this creation
   useEffect(() => {
@@ -72,6 +111,18 @@ const CompactResultCard = ({
       }
 
       try {
+        // Get the creation to check registration status
+        const creation = context.creations.find((c) => c.id === creationId);
+
+        // If creation has registeredIpId, set it in local state (means derivative already registered)
+        if (creation?.registeredIpId && !propsRegisteredIpId) {
+          console.log(
+            `[CompactResultCard] Found registered creation with ipId:`,
+            creation.registeredIpId,
+          );
+          setRegisteredIpIdLocal(creation.registeredIpId);
+        }
+
         let walletAddress: string | undefined;
 
         // Try to get wallet address from Privy if authenticated
@@ -114,18 +165,18 @@ const CompactResultCard = ({
             isUnlocked,
           );
 
-          if (isUnlocked) {
-            // Get the original URL from the creation object
+          if (isUnlocked && !registeredIpId) {
+            // Get the creation object
             const creation = context.creations.find((c) => c.id === creationId);
             console.log(
-              `[CompactResultCard] Unlocked! Found creation with originalUrl:`,
-              !!creation?.originalUrl,
+              `[CompactResultCard] Unlocked! Found creation with cleanUrl/originalUrl:`,
+              {
+                cleanUrl: !!creation?.cleanUrl,
+                originalUrl: !!creation?.originalUrl,
+              },
             );
-            if (creation && creation.originalUrl) {
-              console.log(
-                `[CompactResultCard] Setting displayUrl to unlocked version`,
-              );
-              setDisplayUrl(creation.originalUrl);
+            if (creation?.registeredIpId) {
+              setRegisteredIpIdLocal(creation.registeredIpId);
             }
           }
         }
@@ -135,7 +186,13 @@ const CompactResultCard = ({
     };
 
     checkWalletUnlock();
-  }, [creationId, authenticated, wallets, context.creations]);
+  }, [
+    creationId,
+    authenticated,
+    wallets,
+    context?.creations,
+    propsRegisteredIpId,
+  ]);
 
   const handleLicenseClick = () => {
     if (!parentAsset) {
@@ -146,7 +203,7 @@ const CompactResultCard = ({
 
     setRegistrationState("loading");
     setRegistrationError(null);
-    setRegisteredIpId(null);
+    setRegisteredIpIdLocal(null);
 
     if (licensingFormRef.current?.handleRegister) {
       licensingFormRef.current.handleRegister();
@@ -164,15 +221,21 @@ const CompactResultCard = ({
     walletAddress?: string;
   }) => {
     if (result.ipId) {
-      setRegisteredIpId(result.ipId);
+      setRegisteredIpIdLocal(result.ipId);
     }
-    // Display clean image (original URL) after successful registration
-    if (originalUrl) {
-      setDisplayUrl(originalUrl);
+
+    // Get the creation to check for cleanUrl (paid remix)
+    const creation = context?.creations.find((c) => c.id === creationId);
+    const urlToDisplay = creation?.cleanUrl || originalUrl || cleanUrl;
+
+    // Display clean image after successful registration
+    if (urlToDisplay) {
+      setDisplayUrl(urlToDisplay);
       console.log(
         `[CompactResultCard] Registration successful, updating display`,
         {
           creationId,
+          usesCleanUrl: !!creation?.cleanUrl,
           hasOriginalUrl: !!originalUrl,
           hasContext: !!context,
           walletAddress: result.walletAddress,
@@ -182,7 +245,7 @@ const CompactResultCard = ({
 
       // Notify parent component to persist the unlocked watermark state
       if (onUnlockWatermark) {
-        onUnlockWatermark(originalUrl);
+        onUnlockWatermark(urlToDisplay);
       }
 
       // Update context with wallet and IP ID for persistence
@@ -197,7 +260,7 @@ const CompactResultCard = ({
         );
         context.updateCreationWithOriginalUrl(
           creationId,
-          originalUrl,
+          urlToDisplay,
           result.walletAddress,
           result.ipId,
         );
@@ -212,7 +275,7 @@ const CompactResultCard = ({
       }
     } else {
       console.warn(
-        `[CompactResultCard] Registration complete but no originalUrl provided`,
+        `[CompactResultCard] Registration complete but no clean URL available`,
       );
     }
     setRegistrationState("success");
@@ -440,7 +503,7 @@ const CompactResultCard = ({
             <span>Share</span>
           </button>
 
-          {onUpscale && type === "image" && (
+          {onUpscale && type === "image" && registeredIpId && (
             <button
               onClick={onUpscale}
               className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
@@ -460,6 +523,32 @@ const CompactResultCard = ({
                 />
               </svg>
               <span>Upscale</span>
+            </button>
+          )}
+
+          {onDelete && guestMode && (
+            <button
+              onClick={() => {
+                onDelete();
+                setIsExpanded(false);
+              }}
+              className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap border border-red-900/50"
+              title="Delete"
+            >
+              <svg
+                className="w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              <span>Delete</span>
             </button>
           )}
 
