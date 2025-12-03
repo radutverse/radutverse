@@ -21,7 +21,7 @@ const IpImagineCreationResult = () => {
 
   if (!context) {
     return (
-      <DashboardLayout title="IP Imagine">
+      <DashboardLayout title="IP Imagine" onLogoClick={() => navigate("/")}>
         <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
           <motion.div
             initial={{ opacity: 0 }}
@@ -230,8 +230,21 @@ const IpImagineCreationResult = () => {
       avatarSrc={null}
       actions={headerActions}
       sidebarExtras={sidebarExtras}
+      onLogoClick={() => navigate("/")}
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
+        {context.creations.filter((c) => c.isGuest === guestMode).length >
+          0 && (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-white">Results</h2>
+            <button
+              onClick={() => navigate("/ip-imagine")}
+              className="px-4 py-2 rounded-lg font-semibold text-white transition-all duration-200 bg-slate-700 hover:bg-slate-600 hover:shadow-lg hover:shadow-slate-600/30"
+            >
+              ← Back
+            </button>
+          </div>
+        )}
         <AnimatePresence mode="wait">
           {error ? (
             <motion.div
