@@ -427,7 +427,6 @@ const IpImagine = () => {
       walletButtonDisabled={true}
       onWalletClick={() => {}}
       showGuest={true}
-      guestButtonLabel="Guest"
     />
   );
 
