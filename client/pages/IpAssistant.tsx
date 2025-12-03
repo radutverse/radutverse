@@ -1689,6 +1689,7 @@ const IpAssistant = () => {
       avatarSrc={IP_ASSISTANT_AVATAR}
       actions={headerActions}
       sidebarExtras={sidebarExtras}
+      onLogoClick={() => navigate("/")}
     >
       <div className="chat-box px-3 sm:px-4 md:px-12 pt-4 pb-24 flex-1 overflow-y-auto bg-transparent scroll-smooth">
         <AnimatePresence initial={false} mode="popLayout">
