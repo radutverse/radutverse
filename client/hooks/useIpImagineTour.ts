@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export type TourStep = null | "upload" | "input" | "submit";
 
@@ -54,23 +54,32 @@ export function useIpImagineTour() {
 
   const nextStep = useCallback(() => {
     setTourStep((current) => {
+      let nextStep: TourStep = current;
+
       if (current === "upload") {
-        // Track input element
-        const input = document.querySelector(
-          "[data-chat-input]",
-        ) as HTMLElement;
-        updateElementRect(input, setInputRect);
-        return "input";
+        nextStep = "input";
+      } else if (current === "input") {
+        nextStep = "submit";
       }
-      if (current === "input") {
-        // Track submit button
-        const submitButton = document.querySelector(
-          "[data-tour-submit]",
-        ) as HTMLElement;
-        updateElementRect(submitButton, setSubmitButtonRect);
-        return "submit";
+
+      // Schedule update of next element's rect for next render
+      if (nextStep !== current && nextStep !== null) {
+        setTimeout(() => {
+          if (nextStep === "input") {
+            const input = document.querySelector(
+              "[data-chat-input]",
+            ) as HTMLElement;
+            updateElementRect(input, setInputRect);
+          } else if (nextStep === "submit") {
+            const submitButton = document.querySelector(
+              "[data-tour-submit]",
+            ) as HTMLElement;
+            updateElementRect(submitButton, setSubmitButtonRect);
+          }
+        }, 100);
       }
-      return current;
+
+      return nextStep;
     });
   }, [updateElementRect]);
 
@@ -81,6 +90,33 @@ export function useIpImagineTour() {
   const completeTour = useCallback(() => {
     setTourStep(null);
   }, []);
+
+  // Handle window resize to update element positions
+  useEffect(() => {
+    if (tourStep === null) return;
+
+    const handleResize = () => {
+      if (tourStep === "upload") {
+        const uploadButton = document.querySelector(
+          "[data-tour-upload]",
+        ) as HTMLElement;
+        updateElementRect(uploadButton, setUploadButtonRect);
+      } else if (tourStep === "input") {
+        const input = document.querySelector(
+          "[data-chat-input]",
+        ) as HTMLElement;
+        updateElementRect(input, setInputRect);
+      } else if (tourStep === "submit") {
+        const submitButton = document.querySelector(
+          "[data-tour-submit]",
+        ) as HTMLElement;
+        updateElementRect(submitButton, setSubmitButtonRect);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [tourStep, updateElementRect]);
 
   return {
     tourStep,
