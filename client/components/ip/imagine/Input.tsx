@@ -243,6 +243,7 @@ const IpImagineInput = ({
           <button
             type="button"
             data-file-input-btn
+            data-tour-upload
             disabled={attachmentLoading}
             className={`flex-shrink-0 p-2 sm:p-1.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
             onClick={() => uploadRef.current?.click()}
@@ -401,6 +402,7 @@ const IpImagineInput = ({
 
       <button
         type="submit"
+        data-tour-submit
         disabled={
           waiting ||
           (!input.trim() &&
