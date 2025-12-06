@@ -1701,6 +1701,8 @@ const IpAssistant = () => {
                 uploadRef.current?.focus?.();
               }}
               onRemixWork={() => {
+                // Set flag to start tour on IP Imagine page
+                sessionStorage.setItem("start-ip-imagine-tour", "true");
                 // Navigate to the standalone IP Imagine page
                 navigate("/ip-imagine");
               }}
