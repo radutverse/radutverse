@@ -2,54 +2,30 @@ import { useState, useCallback, useRef, useEffect } from "react";
 
 export type TourStep = null | "upload" | "input" | "submit";
 
-interface ElementRect {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
-
 export function useIpImagineTour() {
   const [tourStep, setTourStep] = useState<TourStep>(null);
-  const [uploadButtonRect, setUploadButtonRect] = useState<ElementRect | null>(
-    null,
-  );
-  const [inputRect, setInputRect] = useState<ElementRect | null>(null);
-  const [submitButtonRect, setSubmitButtonRect] = useState<ElementRect | null>(
+  const [targetElementRect, setTargetElementRect] = useState<DOMRect | null>(
     null,
   );
   const tourShownRef = useRef(false);
 
-  const updateElementRect = useCallback(
-    (
-      element: HTMLElement | null,
-      setter: (rect: ElementRect | null) => void,
-    ) => {
-      if (!element) {
-        setter(null);
-        return;
-      }
-      const rect = element.getBoundingClientRect();
-      setter({
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        height: rect.height,
-      });
-    },
-    [],
-  );
+  const updateElementRect = useCallback((element: HTMLElement | null) => {
+    if (!element) {
+      setTargetElementRect(null);
+      return;
+    }
+    setTargetElementRect(element.getBoundingClientRect());
+  }, []);
 
   const startTour = useCallback(() => {
     if (tourShownRef.current) return;
     tourShownRef.current = true;
     setTourStep("upload");
 
-    // Track upload button
     const uploadButton = document.querySelector(
       "[data-tour-upload]",
     ) as HTMLElement;
-    updateElementRect(uploadButton, setUploadButtonRect);
+    updateElementRect(uploadButton);
   }, [updateElementRect]);
 
   const nextStep = useCallback(() => {
@@ -60,21 +36,22 @@ export function useIpImagineTour() {
         nextStep = "input";
       } else if (current === "input") {
         nextStep = "submit";
+      } else if (current === "submit") {
+        nextStep = null;
       }
 
-      // Schedule update of next element's rect for next render
-      if (nextStep !== current && nextStep !== null) {
+      if (nextStep !== null) {
         setTimeout(() => {
           if (nextStep === "input") {
             const input = document.querySelector(
               "[data-chat-input]",
             ) as HTMLElement;
-            updateElementRect(input, setInputRect);
+            updateElementRect(input);
           } else if (nextStep === "submit") {
             const submitButton = document.querySelector(
               "[data-tour-submit]",
             ) as HTMLElement;
-            updateElementRect(submitButton, setSubmitButtonRect);
+            updateElementRect(submitButton);
           }
         }, 100);
       }
@@ -91,7 +68,6 @@ export function useIpImagineTour() {
     setTourStep(null);
   }, []);
 
-  // Handle window resize to update element positions
   useEffect(() => {
     if (tourStep === null) return;
 
@@ -100,17 +76,17 @@ export function useIpImagineTour() {
         const uploadButton = document.querySelector(
           "[data-tour-upload]",
         ) as HTMLElement;
-        updateElementRect(uploadButton, setUploadButtonRect);
+        updateElementRect(uploadButton);
       } else if (tourStep === "input") {
         const input = document.querySelector(
           "[data-chat-input]",
         ) as HTMLElement;
-        updateElementRect(input, setInputRect);
+        updateElementRect(input);
       } else if (tourStep === "submit") {
         const submitButton = document.querySelector(
           "[data-tour-submit]",
         ) as HTMLElement;
-        updateElementRect(submitButton, setSubmitButtonRect);
+        updateElementRect(submitButton);
       }
     };
 
@@ -120,9 +96,7 @@ export function useIpImagineTour() {
 
   return {
     tourStep,
-    uploadButtonRect,
-    inputRect,
-    submitButtonRect,
+    targetElementRect,
     startTour,
     nextStep,
     skipTour,
