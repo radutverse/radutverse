@@ -35,9 +35,7 @@ const IpImagine = () => {
   const { wallets } = useWallets();
   const {
     tourStep,
-    uploadButtonRect,
-    inputRect,
-    submitButtonRect,
+    targetElementRect,
     startTour,
     nextStep,
     skipTour,
@@ -761,9 +759,7 @@ const IpImagine = () => {
 
       <IpImagineTour
         tourStep={tourStep}
-        uploadButtonRect={uploadButtonRect}
-        inputRect={inputRect}
-        submitButtonRect={submitButtonRect}
+        targetElementRect={targetElementRect}
         onNext={nextStep}
         onSkip={skipTour}
       />
