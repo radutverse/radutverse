@@ -2,160 +2,122 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { TourStep } from "@/hooks/useIpImagineTour";
 
-interface ElementRect {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
-
 interface IpImagineTourProps {
   tourStep: TourStep;
-  uploadButtonRect: ElementRect | null;
-  inputRect: ElementRect | null;
-  submitButtonRect: ElementRect | null;
+  targetElementRect: DOMRect | null;
   onNext: () => void;
   onSkip: () => void;
 }
 
 const tourContent: Record<
   Exclude<TourStep, null>,
-  { title: string; description: string }
+  { instruction: string; arrow: string }
 > = {
   upload: {
-    title: "Upload or Select an Image",
-    description:
-      "Click here to upload an image or select from the popular IP assets above.",
+    instruction: "↑ Click to upload or select an image",
+    arrow: "↑",
   },
   input: {
-    title: "Describe Your Creation",
-    description:
-      "Write a prompt describing what you want to create or remix. Be as detailed as you like!",
+    instruction: "↓ Describe what you want to create or remix",
+    arrow: "↓",
   },
   submit: {
-    title: "Generate",
-    description:
-      "Click to generate your IP asset. The system will create your image and add it to your portfolio.",
+    instruction: "→ Click to generate your IP asset",
+    arrow: "→",
   },
 };
 
 export function IpImagineTour({
   tourStep,
-  uploadButtonRect,
-  inputRect,
-  submitButtonRect,
+  targetElementRect,
   onNext,
   onSkip,
 }: IpImagineTourProps) {
   const isActive = tourStep !== null;
-  let targetRect: ElementRect | null = null;
-  let content = { title: "", description: "" };
-
-  if (tourStep === "upload" && uploadButtonRect) {
-    targetRect = uploadButtonRect;
-    content = tourContent.upload;
-  } else if (tourStep === "input" && inputRect) {
-    targetRect = inputRect;
-    content = tourContent.input;
-  } else if (tourStep === "submit" && submitButtonRect) {
-    targetRect = submitButtonRect;
-    content = tourContent.submit;
-  }
+  const content = tourStep && tourContent[tourStep];
 
   return (
     <AnimatePresence>
-      {isActive && targetRect && (
-        <>
+      {isActive && targetElementRect && content && (
+        <motion.div
+          key="tour-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 pointer-events-none z-50"
+        >
           {/* Backdrop overlay */}
           <motion.div
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 pointer-events-auto cursor-pointer"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             onClick={onSkip}
-            aria-hidden="true"
           />
 
           {/* Highlight ring around target element */}
           <motion.div
-            className="fixed pointer-events-none z-50 rounded-lg border-2 border-[#FF4DA6] shadow-lg"
+            className="absolute border-2 border-[#FF4DA6] rounded-lg pointer-events-none"
             style={{
-              top: targetRect.top - 8,
-              left: targetRect.left - 8,
-              width: targetRect.width + 16,
-              height: targetRect.height + 16,
+              left: targetElementRect.left - 8,
+              top: targetElementRect.top - 8,
+              width: targetElementRect.width + 16,
+              height: targetElementRect.height + 16,
             }}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            animate={{
+              boxShadow: [
+                "0 0 0 0 rgba(255, 77, 166, 0.7)",
+                "0 0 0 20px rgba(255, 77, 166, 0)",
+              ],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeOut",
+            }}
+          />
+
+          {/* Centered instruction label */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
           >
-            {/* Animated glow effect */}
             <motion.div
-              className="absolute inset-0 rounded-lg border-2 border-[#FF4DA6]"
+              className="text-white font-semibold text-lg bg-[#FF4DA6] px-4 py-2 rounded-lg whitespace-nowrap"
               animate={{
-                boxShadow: [
-                  "0 0 0 0 rgba(255, 77, 166, 0.7)",
-                  "0 0 0 12px rgba(255, 77, 166, 0)",
-                ],
+                y: [0, -10, 0],
               }}
               transition={{
-                duration: 1.5,
+                duration: 2,
                 repeat: Infinity,
               }}
-            />
+            >
+              {content.instruction}
+            </motion.div>
           </motion.div>
 
-          {/* Tooltip with instructions */}
+          {/* Action buttons */}
           <motion.div
-            className="fixed z-50 bg-slate-900/95 border border-[#FF4DA6]/50 rounded-xl p-4 shadow-2xl max-w-sm"
-            style={{
-              top: Math.max(16, targetRect.top - 200),
-              left: Math.max(
-                16,
-                Math.min(
-                  window.innerWidth - 400,
-                  targetRect.left + targetRect.width / 2 - 200,
-                ),
-              ),
-            }}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            className="absolute bottom-8 right-8 flex gap-3 pointer-events-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <h3 className="font-semibold text-[#FF4DA6] text-sm mb-1">
-                  {content.title}
-                </h3>
-                <p className="text-sm text-slate-200">{content.description}</p>
-              </div>
-              <button
-                onClick={onSkip}
-                className="text-slate-400 hover:text-slate-200 flex-shrink-0"
-                aria-label="Close tour"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={onSkip}
-                className="flex-1 px-3 py-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-              >
-                Skip
-              </button>
-              <button
-                onClick={onNext}
-                className="flex-1 px-3 py-2 text-xs rounded-lg bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-semibold transition-colors"
-              >
-                {tourStep === "submit" ? "Done" : "Next"}
-              </button>
-            </div>
+            <button
+              onClick={onSkip}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-colors"
+            >
+              Skip
+            </button>
+            <button
+              onClick={onNext}
+              className="px-4 py-2 bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white rounded-lg font-semibold transition-colors"
+            >
+              {tourStep === "submit" ? "Done" : "Next Step →"}
+            </button>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
